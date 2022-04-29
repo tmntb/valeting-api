@@ -1,0 +1,54 @@
+﻿@page
+@model DJValeting.Pages.Booking.DeleteModel
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure want to delete this booking?</h3>
+<div>
+    <dl class="row">
+        <dt class="col-md-2">
+            @Html.DisplayNameFor(model => model.Booking.Name)
+        </dt>
+        <dd class="col-sm-10">
+             @Html.DisplayFor(model => model.Booking.Name)
+        </dd>
+        <dt class="col-md-2">
+            @Html.DisplayNameFor(model => model.Booking.BookingDate)
+        </dt>
+        <dd class="col-sm-10">
+             @Html.DisplayFor(model => model.Booking.BookingDate)
+        </dd>
+        <dt class="col-md-2">
+            @Html.DisplayNameFor(model => model.Booking.Flexibility)
+        </dt>
+        <dd class="col-sm-10">
+             @Html.DisplayFor(model => model.Booking.Flexibility.Description)
+        </dd>
+        <dt class="col-md-2">
+            @Html.DisplayNameFor(model => model.Booking.VehicleSize)
+        </dt>
+        <dd class="col-sm-10">
+             @Html.DisplayFor(model => model.Booking.VehicleSize.Description)
+        </dd>
+        <dt class="col-md-2">
+            @Html.DisplayNameFor(model => model.Booking.ContactNumber)
+        </dt>
+        <dd class="col-sm-10">
+             @Html.DisplayFor(model => model.Booking.ContactNumber)
+        </dd>
+        <dt class="col-md-2">
+            @Html.DisplayNameFor(model => model.Booking.Email)
+        </dt>
+        <dd class="col-sm-10">
+             @Html.DisplayFor(model => model.Booking.Email)
+        </dd>
+    </dl>
+
+    <form method="post">
+        <input type="submit" value="Delete" class="btn btn-danger"/>
+        <a asp-page="/Booking/Index">Back to list</a>
+    </form>
+</div>
