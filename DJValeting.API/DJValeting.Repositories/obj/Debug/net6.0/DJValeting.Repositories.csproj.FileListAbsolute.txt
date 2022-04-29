@@ -1,0 +1,17 @@
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\bin\Debug\net6.0\DJValeting.Repositories.deps.json
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\bin\Debug\net6.0\DJValeting.Repositories.runtimeconfig.json
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\bin\Debug\net6.0\DJValeting.Repositories.dll
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\bin\Debug\net6.0\ref\DJValeting.Repositories.dll
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\bin\Debug\net6.0\DJValeting.Repositories.pdb
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\obj\Debug\net6.0\DJValeting.Repositories.csproj.AssemblyReference.cache
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\obj\Debug\net6.0\DJValeting.Repositories.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\obj\Debug\net6.0\DJValeting.Repositories.AssemblyInfoInputs.cache
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\obj\Debug\net6.0\DJValeting.Repositories.AssemblyInfo.cs
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\obj\Debug\net6.0\DJValeting.Repositories.csproj.CoreCompileInputs.cache
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\obj\Debug\net6.0\DJValeting.Repositories.dll
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\obj\Debug\net6.0\ref\DJValeting.Repositories.dll
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\obj\Debug\net6.0\DJValeting.Repositories.pdb
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\obj\Debug\net6.0\DJValeting.Repositories.genruntimeconfig.cache
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\bin\Debug\net6.0\DJValeting.Business.dll
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\bin\Debug\net6.0\DJValeting.Business.pdb
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Repositories\obj\Debug\net6.0\DJValeting.Repositories.csproj.CopyComplete

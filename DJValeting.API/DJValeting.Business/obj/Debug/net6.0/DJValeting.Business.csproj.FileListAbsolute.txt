@@ -1,0 +1,12 @@
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\bin\Debug\net6.0\DJValeting.Business.deps.json
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\bin\Debug\net6.0\DJValeting.Business.dll
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\bin\Debug\net6.0\ref\DJValeting.Business.dll
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\bin\Debug\net6.0\DJValeting.Business.pdb
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\obj\Debug\net6.0\DJValeting.Business.csproj.AssemblyReference.cache
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\obj\Debug\net6.0\DJValeting.Business.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\obj\Debug\net6.0\DJValeting.Business.AssemblyInfoInputs.cache
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\obj\Debug\net6.0\DJValeting.Business.AssemblyInfo.cs
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\obj\Debug\net6.0\DJValeting.Business.csproj.CoreCompileInputs.cache
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\obj\Debug\net6.0\DJValeting.Business.dll
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\obj\Debug\net6.0\ref\DJValeting.Business.dll
+C:\Users\User01\Desktop\Repository\DJValeting\DJValeting.API\DJValeting.Business\obj\Debug\net6.0\DJValeting.Business.pdb
