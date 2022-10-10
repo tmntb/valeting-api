@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DJValeting.Business\DJValeting.Business.csproj" />
     <ProjectReference Include="..\DJValeting.Service\DJValeting.Service.csproj" />
   </ItemGroup>
 
