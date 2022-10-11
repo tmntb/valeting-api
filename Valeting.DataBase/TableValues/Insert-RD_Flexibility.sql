@@ -1,4 +1,4 @@
-USE DJValeting
+USE Valeting
 
 INSERT INTO RD_Flexibility (ID, [Description], Active)
 VALUES (NEWID(), '+/- 1 Day', 1)

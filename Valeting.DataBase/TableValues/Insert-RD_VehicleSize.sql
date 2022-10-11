@@ -1,4 +1,4 @@
-USE DJValeting
+USE Valeting
 
 INSERT INTO RD_VehicleSize (ID, [Description], Active)
 VALUES (NEWID(), 'Small', 1)
