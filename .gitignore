@@ -1,9 +1,13 @@
 
 .DS_Store
-DJValeting.API/.DS_Store
-DJValeting.API/.vs/DJValeting.API/xs/
-DJValeting.API/DJValeting.Business/obj/
-DJValeting.API/DJValeting.Repositories/obj/
-DJValeting.API/DJValeting.Repositories/.DS_Store
-DJValeting.API/DJValeting.Services/obj/
-DJValeting.API/DJValeting/obj/
+Valeting.API/.DS_Store
+Valeting.API/.vs/Valeting.API/xs/
+Valeting.API/Valeting.Business/bin/
+Valeting.API/Valeting.Business/obj/
+Valeting.API/Valeting.Repositories/bin/
+Valeting.API/Valeting.Repositories/obj/
+Valeting.API/Valeting.Repositories/.DS_Store
+Valeting.API/Valeting.Services/bin/
+Valeting.API/Valeting.Services/obj/
+Valeting.API/Valeting/bin/
+Valeting.API/Valeting/obj/
