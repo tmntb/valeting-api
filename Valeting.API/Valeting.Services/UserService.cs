@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 using Valeting.Business;
 using Valeting.Repositories.Interfaces;
+using Valeting.Services.Interfaces;
 
 namespace Valeting.Service
 {
-    public class UserService
+    public class UserService : IUserService
     {
         private IUserRepository _userRepository;
 

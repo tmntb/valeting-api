@@ -3,21 +3,20 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.Service;
 using Valeting.Business;
 using Valeting.ApiObjects;
-using Valeting.Repositories;
+using Valeting.Services.Interfaces;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers
 {
     public class BookingController : BookingBaseController
     {
-        private readonly IConfiguration _configuration;
+        private readonly IBookingService _bookingService;
 
-        public BookingController(IConfiguration configuration)
+        public BookingController(IBookingService bookingService)
         {
-            _configuration = configuration;
+            this._bookingService = bookingService;
         }
 
         public override async Task<IActionResult> CreateAsync([FromBody] BookingApi bookingApi)
@@ -34,8 +33,7 @@ namespace Valeting.Controllers
                     Email = bookingApi.Email
                 };
 
-                BookingService bookingService = new(new BookingRepository(_configuration));
-                BookingDTO booking = await bookingService.CreateAsync(bookingDTO);
+                BookingDTO booking = await _bookingService.CreateAsync(bookingDTO);
 
                 return StatusCode((int)HttpStatusCode.Created, booking.Id);
             }
@@ -61,8 +59,7 @@ namespace Valeting.Controllers
                     Approved = bookingApi.Approved
                 };
 
-                BookingService bookingService = new(new BookingRepository(_configuration));
-                await bookingService.UpdateAsync(bookingDTO);
+                await _bookingService.UpdateAsync(bookingDTO);
 
                 return StatusCode((int)HttpStatusCode.NoContent);
             }
@@ -76,8 +73,7 @@ namespace Valeting.Controllers
         {
             try
             {
-                BookingService bookingService = new(new BookingRepository(_configuration));
-                await bookingService.DeleteAsync(Guid.Parse(id));
+                await _bookingService.DeleteAsync(Guid.Parse(id));
 
                 return StatusCode((int)HttpStatusCode.NoContent);
             }
@@ -91,8 +87,7 @@ namespace Valeting.Controllers
         {
             try
             {
-                BookingService bookingService = new(new BookingRepository(_configuration));
-                BookingDTO booking = await bookingService.FindByIDAsync(Guid.Parse(id));
+                BookingDTO booking = await _bookingService.FindByIDAsync(Guid.Parse(id));
 
                 BookingApi bookingApi = new()
                 {
@@ -118,10 +113,9 @@ namespace Valeting.Controllers
         {
             try
             {
-                List<BookingApi> bookingApis = new List<BookingApi>();
+                List<BookingApi> bookingApis = new();
 
-                BookingService bookingService = new(new BookingRepository(_configuration));
-                IEnumerable<BookingDTO> bookings = await bookingService.ListAllAsync();
+                IEnumerable<BookingDTO> bookings = await _bookingService.ListAllAsync();
 
                 bookingApis.AddRange(
                     bookings.Select(item => new BookingApi()

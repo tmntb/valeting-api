@@ -1,9 +1,10 @@
 ﻿using Valeting.Business;
 using Valeting.Repositories.Interfaces;
+using Valeting.Services.Interfaces;
 
 namespace Valeting.Service
 {
-    public class FlexibilityService
+    public class FlexibilityService :IFlexibilityService
     {
         private IFlexibilityRepository _flexibilityRepository;
 

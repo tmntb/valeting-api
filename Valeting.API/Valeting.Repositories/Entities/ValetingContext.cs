@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Valeting.Repositories.Entities
 {
-    public partial class DJValetingContext : DbContext
+    public partial class ValetingContext : DbContext
     {
-        public DJValetingContext()
+        public ValetingContext()
         {
         }
 
-        public DJValetingContext(DbContextOptions<DJValetingContext> options)
+        public ValetingContext(DbContextOptions<ValetingContext> options)
             : base(options)
         {
         }

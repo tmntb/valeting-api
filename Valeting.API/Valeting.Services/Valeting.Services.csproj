@@ -14,4 +14,10 @@
     <ProjectReference Include="..\Valeting.Repositories\Valeting.Repositories.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Interfaces\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
 </Project>

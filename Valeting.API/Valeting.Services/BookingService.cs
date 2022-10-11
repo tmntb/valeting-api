@@ -1,9 +1,10 @@
 ﻿using Valeting.Business;
 using Valeting.Repositories.Interfaces;
+using Valeting.Services.Interfaces;
 
 namespace Valeting.Service
 {
-    public class BookingService
+    public class BookingService : IBookingService
     {
         private IBookingRepository _bookingRepository;
 

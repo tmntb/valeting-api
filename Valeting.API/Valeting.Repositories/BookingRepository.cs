@@ -9,12 +9,10 @@ namespace Valeting.Repositories
 {
     public class BookingRepository : IBookingRepository
     {
-        private readonly DJValetingContext _valetingContext;
+        private readonly ValetingContext _valetingContext;
 
-        public BookingRepository(IConfiguration configuration)
+        public BookingRepository()
         {
-            this._valetingContext = new DJValetingContext(
-                new DbContextOptionsBuilder<DJValetingContext>().UseSqlServer(configuration.GetConnectionString("DJValetingConnection")).Options);
         }
 
         public async Task CreateAsync(BookingDTO bookingDTO)

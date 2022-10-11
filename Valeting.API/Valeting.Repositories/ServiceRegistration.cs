@@ -11,10 +11,12 @@ namespace Valeting.Repositories
     {
         public static void AddInfrastructureDataLayer(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<DJValetingContext>(options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly(typeof(DJValetingContext).Assembly.FullName)));
+            services.AddDbContext<ValetingContext>(options =>
+                options.UseSqlServer(
+                    configuration.GetConnectionString("DefaultConnection"),
+                    b => b.MigrationsAssembly(typeof(ValetingContext).Assembly.FullName)
+                )
+            );
 
             services.AddScoped<IBookingRepository, BookingRepository>();
             services.AddScoped<IFlexibilityRepository, FlexibilityRepository>();
