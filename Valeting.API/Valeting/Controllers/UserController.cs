@@ -6,6 +6,7 @@ using Valeting.Business;
 using Valeting.ApiObjects;
 using Valeting.Controllers.BaseController;
 using Valeting.Services.Interfaces;
+using Valeting.ApiObjects.User;
 
 namespace Valeting.Controllers
 {
@@ -18,19 +19,25 @@ namespace Valeting.Controllers
             _userService = userService;
         }
 
-        public override async Task<IActionResult> ValidateLogin([FromBody] UserApi userApi)
+        public override async Task<IActionResult> ValidateLogin([FromBody] ValidateLoginRequest validateLoginRequest)
         {
             try
             {
-                var userDTO = new UserDTO()
+                var response = new ValidateLoginResponse()
                 {
-                    Username = userApi.Username,
-                    Password = userApi.Password
+                    Token = string.Empty,
+                    Sucess = false
                 };
 
-                bool validLogin = await _userService.ValidateLogin(userDTO);
+                var userDTO = new UserDTO()
+                {
+                    Username = validateLoginRequest.Username,
+                    Password = validateLoginRequest.Password
+                };
 
-                return StatusCode((int)HttpStatusCode.OK, validLogin);
+                response.Sucess = await _userService.ValidateLogin(userDTO);
+
+                return StatusCode((int)HttpStatusCode.OK, response);
             }
             catch (Exception ex)
             {
