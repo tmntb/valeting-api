@@ -3,31 +3,28 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.Service;
-using Valeting.Business;
 using Valeting.ApiObjects;
-using Valeting.Repositories;
 using Valeting.Controllers.BaseController;
+using Valeting.Services.Interfaces;
 
 namespace Valeting.Controllers
 {
     public class FlexibilityController : FlexibilityBaseController
     {
-        private readonly IConfiguration _configuration;
+        private readonly IFlexibilityService _flexibilityService;
 
-        public FlexibilityController(IConfiguration configuration)
+        public FlexibilityController(IFlexibilityService flexibilityService)
         {
-            _configuration = configuration;
+            _flexibilityService = flexibilityService;
         }
 
         public override async Task<IActionResult> FindByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
         {
             try
             {
-                FlexibilityService flexibilityService = new(new FlexibilityRepository(_configuration));
-                FlexibilityDTO flexibility = await flexibilityService.FindByIDAsync(Guid.Parse(id));
+                var flexibility = await _flexibilityService.FindByIDAsync(Guid.Parse(id));
 
-                FlexibilityApi flexibilityApi = new()
+                var flexibilityApi = new FlexibilityApi()
                 {
                     Id = flexibility.Id,
                     Description = flexibility.Description
@@ -45,10 +42,9 @@ namespace Valeting.Controllers
         {
             try
             {
-                List<FlexibilityApi> flexibilityApis = new();
+                var flexibilityApis = new List<FlexibilityApi>();
 
-                FlexibilityService flexibilityService = new(new FlexibilityRepository(_configuration));
-                IEnumerable<FlexibilityDTO> flexibilities = await flexibilityService.ListAllAsync();
+                var flexibilities = await _flexibilityService.ListAllAsync();
 
                 flexibilityApis.AddRange(
                     flexibilities.Select(item => new FlexibilityApi()

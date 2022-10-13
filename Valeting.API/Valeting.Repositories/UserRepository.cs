@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-
-using Valeting.Business;
+﻿using Valeting.Business;
 using Valeting.Repositories.Entities;
 using Valeting.Repositories.Interfaces;
 
@@ -11,15 +8,14 @@ namespace Valeting.Repositories
     {
         private readonly ValetingContext _valetingContext;
 
-        public UserRepository(IConfiguration configuration)
+        public UserRepository(ValetingContext valetingContext)
         {
-            this._valetingContext = new ValetingContext(
-                new DbContextOptionsBuilder<ValetingContext>().UseSqlServer(configuration.GetConnectionString("DJValetingConnection")).Options);
+            this._valetingContext = valetingContext;
         }
 
         public async Task<UserDTO> FindUserByEmail(string username)
         {
-            ApplicationUser applicationUser = await _valetingContext.ApplicationUsers.FindAsync(username);
+            var applicationUser = await _valetingContext.ApplicationUsers.FindAsync(username);
 
             if (applicationUser == null)
                 return null;

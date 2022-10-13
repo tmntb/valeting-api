@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 using Valeting.Business;
 using Valeting.Repositories.Entities;
@@ -11,19 +10,18 @@ namespace Valeting.Repositories
     {
         private readonly ValetingContext _valetingContext;
 
-        public FlexibilityRepository(IConfiguration configuration)
+        public FlexibilityRepository(ValetingContext valetingContext)
         {
-            this._valetingContext = new ValetingContext(
-                new DbContextOptionsBuilder<ValetingContext>().UseSqlServer(configuration.GetConnectionString("DJValetingConnection")).Options);
+            this._valetingContext = valetingContext;
         }
 
         public async Task<FlexibilityDTO> FindByIDAsync(Guid id)
         {
-            RdFlexibility rdFlexibility = await _valetingContext.RdFlexibilities.FindAsync(id);
+            var rdFlexibility = await _valetingContext.RdFlexibilities.FindAsync(id);
             if (rdFlexibility == null)
                 return null;
 
-            FlexibilityDTO flexibilityDTO = new FlexibilityDTO()
+            var flexibilityDTO = new FlexibilityDTO()
             {
                 Id = id,
                 Description = rdFlexibility.Description,
@@ -35,9 +33,9 @@ namespace Valeting.Repositories
 
         public async Task<IEnumerable<FlexibilityDTO>> ListAsync()
         {
-            List<FlexibilityDTO> flexibilityDTOs = new List<FlexibilityDTO>();
+            var flexibilityDTOs = new List<FlexibilityDTO>();
 
-            List<RdFlexibility> rdFlexibilities = await _valetingContext.RdFlexibilities.Where(x => x.Active).ToListAsync();
+            var rdFlexibilities = await _valetingContext.RdFlexibilities.Where(x => x.Active).ToListAsync();
             if (rdFlexibilities == null)
                 return flexibilityDTOs;
 

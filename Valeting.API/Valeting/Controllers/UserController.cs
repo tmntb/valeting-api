@@ -2,35 +2,33 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.Service;
 using Valeting.Business;
 using Valeting.ApiObjects;
-using Valeting.Repositories;
 using Valeting.Controllers.BaseController;
+using Valeting.Services.Interfaces;
 
 namespace Valeting.Controllers
 {
     public class UserController : UserBaseController
     {
-        private readonly IConfiguration _configuration;
+        private readonly IUserService _userService;
 
-        public UserController(IConfiguration configuration)
+        public UserController(IUserService userService)
         {
-            _configuration = configuration;
+            _userService = userService;
         }
 
         public override async Task<IActionResult> ValidateLogin([FromBody] UserApi userApi)
         {
             try
             {
-                UserDTO userDTO = new()
+                var userDTO = new UserDTO()
                 {
                     Username = userApi.Username,
                     Password = userApi.Password
                 };
 
-                UserService userService = new(new UserRepository(_configuration));
-                bool validLogin = await userService.ValidateLogin(userDTO);
+                bool validLogin = await _userService.ValidateLogin(userDTO);
 
                 return StatusCode((int)HttpStatusCode.OK, validLogin);
             }

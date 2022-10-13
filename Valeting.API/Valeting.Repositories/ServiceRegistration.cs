@@ -13,7 +13,7 @@ namespace Valeting.Repositories
         {
             services.AddDbContext<ValetingContext>(options =>
                 options.UseSqlServer(
-                    configuration.GetConnectionString("DefaultConnection"),
+                    configuration.GetConnectionString("ValetingConnection"),
                     b => b.MigrationsAssembly(typeof(ValetingContext).Assembly.FullName)
                 )
             );

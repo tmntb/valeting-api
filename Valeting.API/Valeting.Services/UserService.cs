@@ -3,14 +3,14 @@
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 using Valeting.Business;
-using Valeting.Repositories.Interfaces;
 using Valeting.Services.Interfaces;
+using Valeting.Repositories.Interfaces;
 
 namespace Valeting.Service
 {
     public class UserService : IUserService
     {
-        private IUserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
 
         public UserService(IUserRepository userRepository)
         {
@@ -28,7 +28,7 @@ namespace Valeting.Service
                 throw new Exception(errorMsg);
             }
 
-            UserDTO userDTO_DB = await _userRepository.FindUserByEmail(userDTO.Username);
+            var userDTO_DB = await _userRepository.FindUserByEmail(userDTO.Username);
             if (userDTO_DB == null || string.IsNullOrEmpty(userDTO_DB.Password))
                 return false;
 
@@ -43,7 +43,7 @@ namespace Valeting.Service
             }
             */
 
-            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(userDTO.Password, salt, KeyDerivationPrf.HMACSHA256, 100000, 256 / 8));
+            var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(userDTO.Password, salt, KeyDerivationPrf.HMACSHA256, 100000, 256 / 8));
 
             return userDTO_DB.Password.Equals(hashed);
         }

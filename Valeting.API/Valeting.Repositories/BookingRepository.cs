@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 using Valeting.Business;
 using Valeting.Repositories.Entities;
@@ -11,13 +10,14 @@ namespace Valeting.Repositories
     {
         private readonly ValetingContext _valetingContext;
 
-        public BookingRepository()
+        public BookingRepository(ValetingContext valetingContext)
         {
+            this._valetingContext = valetingContext;
         }
 
         public async Task CreateAsync(BookingDTO bookingDTO)
         {
-            Booking booking = new Booking()
+            var booking = new Booking()
             {
                 Id = bookingDTO.Id,
                 Name = bookingDTO.Name,
@@ -34,7 +34,7 @@ namespace Valeting.Repositories
 
         public async Task UpdateAsync(BookingDTO bookingDTO)
         {
-            Booking booking = await _valetingContext.Bookings.FindAsync(bookingDTO.Id);
+            var booking = await _valetingContext.Bookings.FindAsync(bookingDTO.Id);
             if (booking == null)
                 return;
 
@@ -52,7 +52,7 @@ namespace Valeting.Repositories
 
         public async Task DeleteAsync(Guid id)
         {
-            Booking booking = await _valetingContext.Bookings.FindAsync(id);
+            var booking = await _valetingContext.Bookings.FindAsync(id);
             if (booking == null)
                 return;
 
@@ -62,11 +62,11 @@ namespace Valeting.Repositories
 
         public async Task<BookingDTO> FindByIDAsync(Guid id)
         {
-            Booking booking = await _valetingContext.Bookings.FindAsync(id);
+            var booking = await _valetingContext.Bookings.FindAsync(id);
             if (booking == null)
                 return null;
 
-            BookingDTO bookingDTO = new BookingDTO()
+            var bookingDTO = new BookingDTO()
             {
                 Id = id,
                 Name = booking.Name,
@@ -83,9 +83,9 @@ namespace Valeting.Repositories
 
         public async Task<IEnumerable<BookingDTO>> ListAsync()
         {
-            List<BookingDTO> bookingDTOs = new List<BookingDTO>();
+            var bookingDTOs = new List<BookingDTO>();
 
-            List<Booking> bookings = await _valetingContext.Bookings.ToListAsync();
+            var bookings = await _valetingContext.Bookings.ToListAsync();
             if (bookings == null)
                 return bookingDTOs;
 

@@ -1,12 +1,12 @@
 ﻿using Valeting.Business;
-using Valeting.Repositories.Interfaces;
 using Valeting.Services.Interfaces;
+using Valeting.Repositories.Interfaces;
 
 namespace Valeting.Service
 {
     public class BookingService : IBookingService
     {
-        private IBookingRepository _bookingRepository;
+        private readonly IBookingRepository _bookingRepository;
 
         public BookingService(IBookingRepository bookingRepository)
         {
@@ -43,7 +43,7 @@ namespace Valeting.Service
         {
             ValidateBookingId(id);
 
-            BookingDTO bookingDTO = await _bookingRepository.FindByIDAsync(id);
+            var bookingDTO = await _bookingRepository.FindByIDAsync(id);
             if (bookingDTO == null)
                 throw new Exception("Booking not found");
 

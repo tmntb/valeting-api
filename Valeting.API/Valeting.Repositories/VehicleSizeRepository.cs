@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 using Valeting.Business;
 using Valeting.Repositories.Entities;
@@ -11,10 +10,9 @@ namespace Valeting.Repositories
     {
         private readonly ValetingContext _valetingContext;
 
-        public VehicleSizeRepository(IConfiguration configuration)
+        public VehicleSizeRepository(ValetingContext valetingContext)
         {
-            this._valetingContext = new ValetingContext(
-                new DbContextOptionsBuilder<ValetingContext>().UseSqlServer(configuration.GetConnectionString("DJValetingConnection")).Options);
+            this._valetingContext = valetingContext;
         }
 
         public async Task<VehicleSizeDTO> FindByIDAsync(Guid id)
@@ -23,7 +21,7 @@ namespace Valeting.Repositories
             if (rdVehicleSize == null)
                 return null;
 
-            VehicleSizeDTO vehicleSizeDTO = new VehicleSizeDTO()
+            var vehicleSizeDTO = new VehicleSizeDTO()
             {
                 Id = id,
                 Description = rdVehicleSize.Description,
@@ -35,9 +33,9 @@ namespace Valeting.Repositories
 
         public async Task<IEnumerable<VehicleSizeDTO>> ListAsync()
         {
-            List<VehicleSizeDTO> vehicleSizeDTOs = new List<VehicleSizeDTO>();
+            var vehicleSizeDTOs = new List<VehicleSizeDTO>();
 
-            List<RdVehicleSize> rdVehicleSizes = await _valetingContext.RdVehicleSizes.Where(x => x.Active).ToListAsync();
+            var rdVehicleSizes = await _valetingContext.RdVehicleSizes.Where(x => x.Active).ToListAsync();
             if (rdVehicleSizes == null)
                 return vehicleSizeDTOs;
 

@@ -3,31 +3,28 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.Service;
-using Valeting.Business;
 using Valeting.ApiObjects;
-using Valeting.Repositories;
+using Valeting.Services.Interfaces;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers
 {
     public class VehicleSizeController : VehicleSizeBaseController
     {
-        private readonly IConfiguration _configuration;
+        private readonly IVehicleSizeService _vehicleSizeService;
 
-        public VehicleSizeController(IConfiguration configuration)
+        public VehicleSizeController(IVehicleSizeService vehicleSizeService)
         {
-            _configuration = configuration;
+            _vehicleSizeService = vehicleSizeService;
         }
 
         public override async Task<IActionResult> FindByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
         {
             try
             {
-                VehicleSizeService vehicleSizeService = new(new VehicleSizeRepository(_configuration));
-                VehicleSizeDTO vehicleSize = await vehicleSizeService.FindByIDAsync(Guid.Parse(id));
+                var vehicleSize = await _vehicleSizeService.FindByIDAsync(Guid.Parse(id));
 
-                VehicleSizeApi vehicleSizeApi = new()
+                var vehicleSizeApi = new VehicleSizeApi()
                 {
                     Id = vehicleSize.Id,
                     Description = vehicleSize.Description
@@ -45,10 +42,9 @@ namespace Valeting.Controllers
         {
             try
             {
-                List<VehicleSizeApi> vehicleSizeApis = new();
+                var vehicleSizeApis = new List<VehicleSizeApi>();
 
-                VehicleSizeService vehicleSizeService = new(new VehicleSizeRepository(_configuration));
-                IEnumerable<VehicleSizeDTO> vehicleSizes = await vehicleSizeService.ListAllAsync();
+                var vehicleSizes = await _vehicleSizeService.ListAllAsync();
 
                 vehicleSizeApis.AddRange(
                     vehicleSizes.Select(item => new VehicleSizeApi()

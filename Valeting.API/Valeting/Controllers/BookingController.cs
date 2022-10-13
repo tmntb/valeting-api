@@ -23,7 +23,7 @@ namespace Valeting.Controllers
         {
             try
             {
-                BookingDTO bookingDTO = new()
+                var bookingDTO = new BookingDTO()
                 {
                     Name = bookingApi.Name,
                     BookingDate = bookingApi.BookingDate,
@@ -33,7 +33,7 @@ namespace Valeting.Controllers
                     Email = bookingApi.Email
                 };
 
-                BookingDTO booking = await _bookingService.CreateAsync(bookingDTO);
+                var booking = await _bookingService.CreateAsync(bookingDTO);
 
                 return StatusCode((int)HttpStatusCode.Created, booking.Id);
             }
@@ -47,7 +47,7 @@ namespace Valeting.Controllers
         {
             try
             {
-                BookingDTO bookingDTO = new()
+                var bookingDTO = new BookingDTO()
                 {
                     Id = Guid.Parse(id),
                     Name = bookingApi.Name,
@@ -87,9 +87,9 @@ namespace Valeting.Controllers
         {
             try
             {
-                BookingDTO booking = await _bookingService.FindByIDAsync(Guid.Parse(id));
+                var booking = await _bookingService.FindByIDAsync(Guid.Parse(id));
 
-                BookingApi bookingApi = new()
+                var bookingApi = new BookingApi()
                 {
                     Id = booking.Id,
                     Name = booking.Name,
@@ -113,9 +113,9 @@ namespace Valeting.Controllers
         {
             try
             {
-                List<BookingApi> bookingApis = new();
+                var bookingApis = new List<BookingApi>();
 
-                IEnumerable<BookingDTO> bookings = await _bookingService.ListAllAsync();
+                var bookings = await _bookingService.ListAllAsync();
 
                 bookingApis.AddRange(
                     bookings.Select(item => new BookingApi()

@@ -1,12 +1,12 @@
 ﻿using Valeting.Business;
-using Valeting.Repositories.Interfaces;
 using Valeting.Services.Interfaces;
+using Valeting.Repositories.Interfaces;
 
 namespace Valeting.Service
 {
     public class FlexibilityService :IFlexibilityService
     {
-        private IFlexibilityRepository _flexibilityRepository;
+        private readonly IFlexibilityRepository _flexibilityRepository;
 
         public FlexibilityService(IFlexibilityRepository flexibilityRepository)
         {
@@ -18,7 +18,7 @@ namespace Valeting.Service
             if (id.Equals(Guid.Empty))
                 throw new Exception("FlexibilityId is empty");
 
-            FlexibilityDTO flexibilityDTO = await _flexibilityRepository.FindByIDAsync(id);
+            var flexibilityDTO = await _flexibilityRepository.FindByIDAsync(id);
             if (flexibilityDTO == null)
                 throw new Exception("Booking not found");
 
@@ -27,7 +27,7 @@ namespace Valeting.Service
 
         public async Task<IEnumerable<FlexibilityDTO>> ListAllAsync()
         {
-            IEnumerable<FlexibilityDTO> flexibilityDTODTOs = await _flexibilityRepository.ListAsync();
+            var flexibilityDTODTOs = await _flexibilityRepository.ListAsync();
             if (flexibilityDTODTOs == null || !flexibilityDTODTOs.Any())
                 throw new Exception("None flexibility was found");
 
