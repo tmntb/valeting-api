@@ -9,6 +9,7 @@ namespace Valeting.Services
     {
         public static void AddMiddleware(this IServiceCollection services)
         {
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IFlexibilityService, FlexibilityService>();
             services.AddScoped<IUserService, UserService>();

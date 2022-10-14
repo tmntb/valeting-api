@@ -13,10 +13,12 @@ namespace Valeting.Controllers
     public class UserController : UserBaseController
     {
         private readonly IUserService _userService;
+        private readonly IAuthenticationService _authenticationService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IAuthenticationService authenticationService)
         {
             _userService = userService;
+            _authenticationService = authenticationService;
         }
 
         public override async Task<IActionResult> ValidateLogin([FromBody] ValidateLoginRequest validateLoginRequest)
@@ -26,7 +28,8 @@ namespace Valeting.Controllers
                 var response = new ValidateLoginResponse()
                 {
                     Token = string.Empty,
-                    Sucess = false
+                    ExpiryDate = DateTime.MinValue,
+                    TokenType = string.Empty
                 };
 
                 var userDTO = new UserDTO()
@@ -35,7 +38,13 @@ namespace Valeting.Controllers
                     Password = validateLoginRequest.Password
                 };
 
-                response.Sucess = await _userService.ValidateLogin(userDTO);
+                if (await _userService.ValidateLogin(userDTO))
+                {
+                    var auth = await _authenticationService.GenerateTokenJWT(userDTO);
+                    response.Token = auth.Token;
+                    response.ExpiryDate = auth.ExpiryDate;
+                    response.TokenType = auth.TokenType;
+                }
 
                 return StatusCode((int)HttpStatusCode.OK, response);
             }
