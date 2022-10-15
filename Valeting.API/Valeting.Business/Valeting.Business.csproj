@@ -6,4 +6,10 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Flexibility\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Flexibility\" />
+  </ItemGroup>
 </Project>

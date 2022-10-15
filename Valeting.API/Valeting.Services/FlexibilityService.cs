@@ -1,6 +1,7 @@
-﻿using Valeting.Business;
-using Valeting.Services.Interfaces;
+﻿using Valeting.Services.Interfaces;
+using Valeting.Business.Flexibility;
 using Valeting.Repositories.Interfaces;
+using System.Reflection;
 
 namespace Valeting.Service
 {
@@ -20,18 +21,17 @@ namespace Valeting.Service
 
             var flexibilityDTO = await _flexibilityRepository.FindByIDAsync(id);
             if (flexibilityDTO == null)
-                throw new Exception("Booking not found");
+                throw new Exception("Flexibility not found");
 
             return flexibilityDTO;
         }
 
-        public async Task<IEnumerable<FlexibilityDTO>> ListAllAsync()
+        public async Task<FlexibilityListDTO> ListAllAsync(FlexibilityFilterDTO flexibilityFilterDTO)
         {
-            var flexibilityDTODTOs = await _flexibilityRepository.ListAsync();
-            if (flexibilityDTODTOs == null || !flexibilityDTODTOs.Any())
-                throw new Exception("None flexibility was found");
+            if (flexibilityFilterDTO.PageNumber == 0)
+                throw new Exception("pageNumber é 0");
 
-            return flexibilityDTODTOs;
+            return await _flexibilityRepository.ListAsync(flexibilityFilterDTO);
         }
     }
 }

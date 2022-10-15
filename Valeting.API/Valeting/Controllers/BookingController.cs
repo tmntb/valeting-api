@@ -7,6 +7,8 @@ using Valeting.Business;
 using Valeting.ApiObjects;
 using Valeting.Services.Interfaces;
 using Valeting.Controllers.BaseController;
+using Valeting.Business.Flexibility;
+using Valeting.ApiObjects.Flexibility;
 
 namespace Valeting.Controllers
 {

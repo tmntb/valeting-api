@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using Valeting.Business;
+using Valeting.Business.Flexibility;
 using Valeting.Repositories.Entities;
 using Valeting.Repositories.Interfaces;
 
@@ -31,24 +31,37 @@ namespace Valeting.Repositories
             return flexibilityDTO;
         }
 
-        public async Task<IEnumerable<FlexibilityDTO>> ListAsync()
+        public async Task<FlexibilityListDTO> ListAsync(FlexibilityFilterDTO flexibilityFilterDTO)
         {
-            var flexibilityDTOs = new List<FlexibilityDTO>();
+            var flexibilityListDTO = new FlexibilityListDTO() { Flexibilities = new List<FlexibilityDTO>() };
 
-            var rdFlexibilities = await _valetingContext.RdFlexibilities.Where(x => x.Active).ToListAsync();
-            if (rdFlexibilities == null)
-                return flexibilityDTOs;
+            var initialList = await _valetingContext.RdFlexibilities.ToListAsync();
+            IEnumerable<RdFlexibility> listFlexibility = from rdFlexibility in initialList
+                                                        where (!flexibilityFilterDTO.Active.HasValue || rdFlexibility.Active == flexibilityFilterDTO.Active)
+                                                        select rdFlexibility;
 
-            flexibilityDTOs.AddRange(
-                rdFlexibilities.Select(item => new FlexibilityDTO()
-                {
-                    Id = item.Id,
-                    Description = item.Description,
-                    Active= item.Active
-                })
+            if (listFlexibility == null)
+                return flexibilityListDTO;
+
+            flexibilityListDTO.TotalItems = listFlexibility.Count();
+            int nrPages = flexibilityListDTO.TotalItems / flexibilityFilterDTO.PageSize;
+            flexibilityListDTO.TotalPages = nrPages < 1 ? 1 : nrPages;
+
+            listFlexibility.OrderBy(x => x.Id);
+
+            listFlexibility = listFlexibility.Skip((flexibilityFilterDTO.PageNumber - 1) * flexibilityFilterDTO.PageSize).Take(flexibilityFilterDTO.PageSize);
+
+            flexibilityListDTO.Flexibilities.AddRange(
+                listFlexibility.ToList().Select(item => new FlexibilityDTO()
+                    {
+                        Id = item.Id,
+                        Description = item.Description,
+                        Active= item.Active
+                    }
+                ).ToList()
             );
 
-            return flexibilityDTOs;
+            return flexibilityListDTO;
         }
     }
 }

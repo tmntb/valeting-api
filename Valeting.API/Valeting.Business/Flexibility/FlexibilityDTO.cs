@@ -1,4 +1,4 @@
-﻿namespace Valeting.Business
+﻿namespace Valeting.Business.Flexibility
 {
     public class FlexibilityDTO
     {

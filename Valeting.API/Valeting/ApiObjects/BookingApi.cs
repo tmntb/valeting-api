@@ -1,4 +1,6 @@
-﻿namespace Valeting.ApiObjects
+﻿using Valeting.ApiObjects.Flexibility;
+
+namespace Valeting.ApiObjects
 {
     public class BookingApi
     {

@@ -1,4 +1,6 @@
-﻿namespace Valeting.Business
+﻿using Valeting.Business.Flexibility;
+
+namespace Valeting.Business
 {
     public class BookingDTO
     {

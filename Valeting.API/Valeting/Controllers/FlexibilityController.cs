@@ -4,8 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 
 using Valeting.ApiObjects;
-using Valeting.Controllers.BaseController;
 using Valeting.Services.Interfaces;
+using Valeting.Business.Flexibility;
+using Valeting.ApiObjects.Flexibility;
+using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers
 {
@@ -22,15 +24,24 @@ namespace Valeting.Controllers
         {
             try
             {
-                var flexibility = await _flexibilityService.FindByIDAsync(Guid.Parse(id));
+                var flexibilityApiResponse = new FlexibilityApiResponse()
+                {
+                    Flexibility = new FlexibilityApi()
+                };
+
+                var flexibilityDTO = await _flexibilityService.FindByIDAsync(Guid.Parse(id));
 
                 var flexibilityApi = new FlexibilityApi()
                 {
-                    Id = flexibility.Id,
-                    Description = flexibility.Description
+                    Id = flexibilityDTO.Id,
+                    Description = flexibilityDTO.Description,
+                    Active = flexibilityDTO.Active,
+                    Links = new FlexibilityApiLink() { Self = new LinkApi() { Href = "" } }
                 };
 
-                return StatusCode((int)HttpStatusCode.OK, flexibilityApi);
+                flexibilityApiResponse.Flexibility = flexibilityApi;
+
+                return StatusCode((int)HttpStatusCode.OK, flexibilityApiResponse);
             }
             catch (Exception ex)
             {
@@ -38,23 +49,41 @@ namespace Valeting.Controllers
             }
         }
 
-        public override async Task<IActionResult> ListAllAsync()
+        public override async Task<IActionResult> ListAllAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
         {
             try
             {
-                var flexibilityApis = new List<FlexibilityApi>();
+                var flexibilityApiPaginatedResponse = new FlexibilityApiPaginatedResponse()
+                {
+                    Flexibilities = new List<FlexibilityApi>(),
+                    CurrentPage = flexibilityApiParameters.PageNumber,
+                    Links = new PaginationLinksApi() { Prev = new LinkApi(), Self = new LinkApi(), Next = new LinkApi() }
+                };
 
-                var flexibilities = await _flexibilityService.ListAllAsync();
+                var flexibilityFilterDTO = new FlexibilityFilterDTO()
+                {
+                    PageNumber = flexibilityApiParameters.PageNumber,
+                    PageSize = flexibilityApiParameters.PageSize,
+                    Active = flexibilityApiParameters.Active
+                };
 
-                flexibilityApis.AddRange(
-                    flexibilities.Select(item => new FlexibilityApi()
-                    {
-                        Id = item.Id,
-                        Description = item.Description
-                    })
+                var flexibilityListDTO = await _flexibilityService.ListAllAsync(flexibilityFilterDTO);
+
+                flexibilityApiPaginatedResponse.TotalItems = flexibilityListDTO.TotalItems;
+                flexibilityApiPaginatedResponse.TotalPages = flexibilityListDTO.TotalPages;
+
+                flexibilityApiPaginatedResponse.Flexibilities.AddRange(
+                    flexibilityListDTO.Flexibilities.Select(item => new FlexibilityApi()
+                        {
+                            Id = item.Id,
+                            Description = item.Description,
+                            Active = item.Active,
+                            Links = new FlexibilityApiLink() { Self = new LinkApi() { Href = "https://examplehost/exampleapi/v1/example-resource/1" } } //por fazer
+                    }
+                    ).ToList()
                 );
 
-                return StatusCode((int)HttpStatusCode.OK, flexibilityApis);
+                return StatusCode((int)HttpStatusCode.OK, flexibilityApiPaginatedResponse);
             }
             catch (Exception ex)
             {

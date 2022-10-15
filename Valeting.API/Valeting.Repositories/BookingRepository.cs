@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using Valeting.Business;
+using Valeting.Business.Flexibility;
 using Valeting.Repositories.Entities;
 using Valeting.Repositories.Interfaces;
 
