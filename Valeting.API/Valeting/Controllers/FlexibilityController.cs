@@ -2,7 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 
+using Valeting.Helpers;
 using Valeting.ApiObjects;
 using Valeting.Services.Interfaces;
 using Valeting.Business.Flexibility;
@@ -14,9 +16,11 @@ namespace Valeting.Controllers
     public class FlexibilityController : FlexibilityBaseController
     {
         private readonly IFlexibilityService _flexibilityService;
+        private IDistributedCache _cache;
 
-        public FlexibilityController(IFlexibilityService flexibilityService)
+        public FlexibilityController(IDistributedCache cache, IFlexibilityService flexibilityService)
         {
+            _cache = cache;
             _flexibilityService = flexibilityService;
         }
 
@@ -29,14 +33,22 @@ namespace Valeting.Controllers
                     Flexibility = new FlexibilityApi()
                 };
 
-                var flexibilityDTO = await _flexibilityService.FindByIDAsync(Guid.Parse(id));
+                var recordKey = string.Format("Flexibility_{0}", id);
+                var flexibilityDTO = await _cache.GetRecordAsync<FlexibilityDTO>(recordKey);
+
+                if(flexibilityDTO == null)
+                {
+                    flexibilityDTO = await _flexibilityService.FindByIDAsync(Guid.Parse(id));
+
+                    await _cache.SetRecordAsync<FlexibilityDTO>(recordKey, flexibilityDTO, TimeSpan.FromDays(1));
+                }
 
                 var flexibilityApi = new FlexibilityApi()
                 {
                     Id = flexibilityDTO.Id,
                     Description = flexibilityDTO.Description,
                     Active = flexibilityDTO.Active,
-                    Links = new FlexibilityApiLink() { Self = new LinkApi() { Href = "" } }
+                    Link = new FlexibilityApiLink() { Self = new LinkApi() { Href = "" } }
                 };
 
                 flexibilityApiResponse.Flexibility = flexibilityApi;
@@ -67,7 +79,16 @@ namespace Valeting.Controllers
                     Active = flexibilityApiParameters.Active
                 };
 
-                var flexibilityListDTO = await _flexibilityService.ListAllAsync(flexibilityFilterDTO);
+                var recordKey = string.Format("ListFlexibility_{0}_{1}_{2}", flexibilityFilterDTO.PageNumber, flexibilityFilterDTO.PageSize, flexibilityFilterDTO.Active);
+
+                var flexibilityListDTO = await _cache.GetRecordAsync<FlexibilityListDTO>(recordKey);
+
+                if(flexibilityListDTO == null)
+                {
+                    flexibilityListDTO = await _flexibilityService.ListAllAsync(flexibilityFilterDTO);
+                    
+                    await _cache.SetRecordAsync<FlexibilityListDTO>(recordKey, flexibilityListDTO, TimeSpan.FromMinutes(5));
+                }
 
                 flexibilityApiPaginatedResponse.TotalItems = flexibilityListDTO.TotalItems;
                 flexibilityApiPaginatedResponse.TotalPages = flexibilityListDTO.TotalPages;
