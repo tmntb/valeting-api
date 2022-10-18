@@ -7,7 +7,7 @@ namespace Valeting.ApiObjects.Flexibility
         public Guid Id { get; set; }
         public string Description { get; set; }
         public bool Active { get; set; }
-        [JsonPropertyName("_links")]
-        public FlexibilityApiLink Links { get; set; }
+        [JsonPropertyName("_link")]
+        public FlexibilityApiLink Link { get; set; }
     }
 }

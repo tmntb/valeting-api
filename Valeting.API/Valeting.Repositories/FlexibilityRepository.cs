@@ -44,8 +44,8 @@ namespace Valeting.Repositories
                 return flexibilityListDTO;
 
             flexibilityListDTO.TotalItems = listFlexibility.Count();
-            int nrPages = flexibilityListDTO.TotalItems / flexibilityFilterDTO.PageSize;
-            flexibilityListDTO.TotalPages = nrPages < 1 ? 1 : nrPages;
+            var nrPages = Decimal.Divide(flexibilityListDTO.TotalItems, flexibilityFilterDTO.PageSize);
+            flexibilityListDTO.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
 
             listFlexibility.OrderBy(x => x.Id);
 
@@ -56,7 +56,7 @@ namespace Valeting.Repositories
                     {
                         Id = item.Id,
                         Description = item.Description,
-                        Active= item.Active
+                        Active = item.Active
                     }
                 ).ToList()
             );

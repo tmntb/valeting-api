@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
-using Valeting.ApiObjects;
 using Valeting.ApiObjects.Flexibility;
 
 namespace Valeting.Controllers.BaseController

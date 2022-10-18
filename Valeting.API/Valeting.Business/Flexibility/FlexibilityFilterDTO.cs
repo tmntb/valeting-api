@@ -1,5 +1,4 @@
-﻿using System;
-namespace Valeting.Business.Flexibility
+﻿namespace Valeting.Business.Flexibility
 {
     public class FlexibilityFilterDTO : PageDTO
     {

@@ -78,8 +78,8 @@ namespace Valeting.Controllers
                             Id = item.Id,
                             Description = item.Description,
                             Active = item.Active,
-                            Links = new FlexibilityApiLink() { Self = new LinkApi() { Href = "https://examplehost/exampleapi/v1/example-resource/1" } } //por fazer
-                    }
+                            Link = new FlexibilityApiLink() { Self = new LinkApi() { Href = "https://examplehost/exampleapi/v1/example-resource/1" } } //por fazer
+                        }
                     ).ToList()
                 );
 
