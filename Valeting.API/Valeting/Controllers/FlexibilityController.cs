@@ -34,12 +34,11 @@ namespace Valeting.Controllers
                 };
 
                 var recordKey = string.Format("Flexibility_{0}", id);
-                var flexibilityDTO = await _cache.GetRecordAsync<FlexibilityDTO>(recordKey);
 
+                var flexibilityDTO = await _cache.GetRecordAsync<FlexibilityDTO>(recordKey);
                 if(flexibilityDTO == null)
                 {
                     flexibilityDTO = await _flexibilityService.FindByIDAsync(Guid.Parse(id));
-
                     await _cache.SetRecordAsync<FlexibilityDTO>(recordKey, flexibilityDTO, TimeSpan.FromDays(1));
                 }
 
@@ -82,11 +81,9 @@ namespace Valeting.Controllers
                 var recordKey = string.Format("ListFlexibility_{0}_{1}_{2}", flexibilityFilterDTO.PageNumber, flexibilityFilterDTO.PageSize, flexibilityFilterDTO.Active);
 
                 var flexibilityListDTO = await _cache.GetRecordAsync<FlexibilityListDTO>(recordKey);
-
                 if(flexibilityListDTO == null)
                 {
                     flexibilityListDTO = await _flexibilityService.ListAllAsync(flexibilityFilterDTO);
-                    
                     await _cache.SetRecordAsync<FlexibilityListDTO>(recordKey, flexibilityListDTO, TimeSpan.FromMinutes(5));
                 }
 

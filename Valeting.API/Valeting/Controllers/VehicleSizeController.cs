@@ -2,7 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 
+using Valeting.Helpers;
 using Valeting.ApiObjects;
 using Valeting.Services.Interfaces;
 using Valeting.Business.VehicleSize;
@@ -14,9 +16,11 @@ namespace Valeting.Controllers
     public class VehicleSizeController : VehicleSizeBaseController
     {
         private readonly IVehicleSizeService _vehicleSizeService;
+        private IDistributedCache _cache;
 
-        public VehicleSizeController(IVehicleSizeService vehicleSizeService)
+        public VehicleSizeController(IDistributedCache cache, IVehicleSizeService vehicleSizeService)
         {
+            _cache = cache;
             _vehicleSizeService = vehicleSizeService;
         }
 
@@ -29,7 +33,14 @@ namespace Valeting.Controllers
                     VehicleSize =  new VehicleSizeApi()
                 };
 
-                var vehicleSizeDTO = await _vehicleSizeService.FindByIDAsync(Guid.Parse(id));
+                var recordKey = string.Format("VehicleSize_{0}", id);
+
+                var vehicleSizeDTO = await _cache.GetRecordAsync<VehicleSizeDTO>(recordKey);
+                if(vehicleSizeDTO == null)
+                {
+                    vehicleSizeDTO = await _vehicleSizeService.FindByIDAsync(Guid.Parse(id));
+                    await _cache.SetRecordAsync<VehicleSizeDTO>(recordKey, vehicleSizeDTO, TimeSpan.FromDays(1));
+                }
 
                 var vehicleSizeApi = new VehicleSizeApi()
                 {
@@ -67,7 +78,14 @@ namespace Valeting.Controllers
                     Active = vehicleSizeApiParameters.Active
                 };
 
-                var vehicleSizeListDTO = await _vehicleSizeService.ListAllAsync(vehicleSizeFilterDTO);
+                var recordKey = string.Format("ListVehicleSize_{0}_{1}_{2}", vehicleSizeFilterDTO.PageNumber, vehicleSizeFilterDTO.PageSize, vehicleSizeFilterDTO.Active);
+
+                var vehicleSizeListDTO = await _cache.GetRecordAsync<VehicleSizeListDTO>(recordKey);
+                if(vehicleSizeListDTO == null)
+                {
+                    vehicleSizeListDTO = await _vehicleSizeService.ListAllAsync(vehicleSizeFilterDTO);
+                    await _cache.SetRecordAsync<VehicleSizeListDTO>(recordKey, vehicleSizeListDTO, TimeSpan.FromMinutes(5));
+                }
 
                 vehicleSizeApiPaginatedResponse.TotalItems = vehicleSizeListDTO.TotalItems;
                 vehicleSizeApiPaginatedResponse.TotalPages = vehicleSizeListDTO.TotalPages;
