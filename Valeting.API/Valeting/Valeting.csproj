@@ -8,10 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Helpers\" />
     <None Remove="ApiObjects\User\" />
-    <None Remove="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <None Remove="ApiObjects\Flexibility\" />
     <None Remove="ApiObjects\VehicleSize\" />
+    <None Remove="StackExchange.Redis" />
+    <None Remove="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <None Remove="Microsoft.Extensions.Caching.StackExchangeRedis" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
@@ -24,11 +27,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Helpers\" />
     <Folder Include="ApiObjects\User\" />
     <Folder Include="ApiObjects\Flexibility\" />
     <Folder Include="ApiObjects\VehicleSize\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="2.6.70" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.10" />
   </ItemGroup>
 </Project>

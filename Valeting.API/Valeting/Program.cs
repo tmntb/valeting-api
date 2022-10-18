@@ -35,6 +35,11 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddStackExchangeRedisCache(options => {
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.InstanceName = "Valeting_";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
