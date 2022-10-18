@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using Valeting.ApiObjects;
 using Valeting.Services.Interfaces;
+using Valeting.Business.VehicleSize;
+using Valeting.ApiObjects.VehicleSize;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers
@@ -22,13 +24,22 @@ namespace Valeting.Controllers
         {
             try
             {
-                var vehicleSize = await _vehicleSizeService.FindByIDAsync(Guid.Parse(id));
+                var vehicleSizeApiResponse = new VehicleSizeApiResponse()
+                {
+                    VehicleSize =  new VehicleSizeApi()
+                };
+
+                var vehicleSizeDTO = await _vehicleSizeService.FindByIDAsync(Guid.Parse(id));
 
                 var vehicleSizeApi = new VehicleSizeApi()
                 {
-                    Id = vehicleSize.Id,
-                    Description = vehicleSize.Description
+                    Id = vehicleSizeDTO.Id,
+                    Description = vehicleSizeDTO.Description,
+                    Actice = vehicleSizeDTO.Active,
+                    Link = new VehicleSizeApiLink() { Self = new LinkApi() { Href = "" } }
                 };
+
+                vehicleSizeApiResponse.VehicleSize = vehicleSizeApi;
 
                 return StatusCode((int)HttpStatusCode.OK, vehicleSizeApi);
             }
@@ -38,23 +49,41 @@ namespace Valeting.Controllers
             }
         }
 
-        public override async Task<IActionResult> ListAllAsync()
+        public override async Task<IActionResult> ListAllAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
         {
             try
             {
-                var vehicleSizeApis = new List<VehicleSizeApi>();
+                var vehicleSizeApiPaginatedResponse = new VehicleSizeApiPaginatedResponse()
+                {
+                    VehicleSizes = new List<VehicleSizeApi>(),
+                    CurrentPage = vehicleSizeApiParameters.PageNumber,
+                    Links = new PaginationLinksApi()
+                };
 
-                var vehicleSizes = await _vehicleSizeService.ListAllAsync();
+                var vehicleSizeFilterDTO = new VehicleSizeFilterDTO()
+                {
+                    PageNumber = vehicleSizeApiParameters.PageNumber,
+                    PageSize = vehicleSizeApiParameters.PageSize,
+                    Active = vehicleSizeApiParameters.Active
+                };
 
-                vehicleSizeApis.AddRange(
-                    vehicleSizes.Select(item => new VehicleSizeApi()
-                    {
-                        Id = item.Id,
-                        Description = item.Description
-                    })
+                var vehicleSizeListDTO = await _vehicleSizeService.ListAllAsync(vehicleSizeFilterDTO);
+
+                vehicleSizeApiPaginatedResponse.TotalItems = vehicleSizeListDTO.TotalItems;
+                vehicleSizeApiPaginatedResponse.TotalPages = vehicleSizeListDTO.TotalPages;
+
+                vehicleSizeApiPaginatedResponse.VehicleSizes.AddRange(
+                    vehicleSizeListDTO.VehicleSizes.Select(item => new VehicleSizeApi()
+                        {
+                            Id = item.Id,
+                            Description = item.Description,
+                            Actice = item.Active,
+                            Link = new VehicleSizeApiLink()
+                        }
+                    ).ToList()
                 );
 
-                return StatusCode((int)HttpStatusCode.OK, vehicleSizeApis);
+                return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiPaginatedResponse);
             }
             catch (Exception ex)
             {

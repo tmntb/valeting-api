@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Valeting.Business;
 using Valeting.ApiObjects;
 using Valeting.Services.Interfaces;
-using Valeting.Controllers.BaseController;
 using Valeting.Business.Flexibility;
+using Valeting.Business.VehicleSize;
 using Valeting.ApiObjects.Flexibility;
+using Valeting.ApiObjects.VehicleSize;
+using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers
 {

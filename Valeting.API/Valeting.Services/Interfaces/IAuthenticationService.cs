@@ -1,4 +1,5 @@
 ﻿using Valeting.Business;
+using Valeting.Business.Authentication;
 
 namespace Valeting.Services.Interfaces
 {

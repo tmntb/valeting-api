@@ -2,6 +2,7 @@
 
 using Valeting.Business;
 using Valeting.Business.Flexibility;
+using Valeting.Business.VehicleSize;
 using Valeting.Repositories.Entities;
 using Valeting.Repositories.Interfaces;
 

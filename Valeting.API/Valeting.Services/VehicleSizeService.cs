@@ -1,5 +1,5 @@
-﻿using Valeting.Business;
-using Valeting.Services.Interfaces;
+﻿using Valeting.Services.Interfaces;
+using Valeting.Business.VehicleSize;
 using Valeting.Repositories.Interfaces;
 
 namespace Valeting.Service
@@ -25,13 +25,12 @@ namespace Valeting.Service
             return vehicleSizeDTO;
         }
 
-        public async Task<IEnumerable<VehicleSizeDTO>> ListAllAsync()
+        public async Task<VehicleSizeListDTO> ListAllAsync(VehicleSizeFilterDTO vehicleSizeFilterDTO)
         {
-            var vehicleSizeDTOs = await _vehicleSizeRepository.ListAsync();
-            if (vehicleSizeDTOs == null || !vehicleSizeDTOs.Any())
-                throw new Exception("None vehicle size was found");
+            if (vehicleSizeFilterDTO.PageNumber == 0)
+                throw new Exception("pageNumber é 0");
 
-            return vehicleSizeDTOs;
+            return await _vehicleSizeRepository.ListAsync(vehicleSizeFilterDTO);
         }
     }
 }

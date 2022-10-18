@@ -1,4 +1,5 @@
 ﻿using Valeting.ApiObjects.Flexibility;
+using Valeting.ApiObjects.VehicleSize;
 
 namespace Valeting.ApiObjects
 {

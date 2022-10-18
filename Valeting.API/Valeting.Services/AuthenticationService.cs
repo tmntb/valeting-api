@@ -1,14 +1,15 @@
 ﻿using System.Text;
+using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 using Valeting.Business;
 using Valeting.Services.Interfaces;
 using Valeting.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Security.Claims;
+using Valeting.Business.Authentication;
 
 namespace Valeting.Services
 {

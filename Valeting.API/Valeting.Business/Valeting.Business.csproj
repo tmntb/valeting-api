@@ -8,8 +8,12 @@
 
   <ItemGroup>
     <None Remove="Flexibility\" />
+    <None Remove="VehicleSize\" />
+    <None Remove="Authentication\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Flexibility\" />
+    <Folder Include="VehicleSize\" />
+    <Folder Include="Authentication\" />
   </ItemGroup>
 </Project>

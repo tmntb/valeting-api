@@ -11,6 +11,7 @@
     <None Remove="ApiObjects\User\" />
     <None Remove="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <None Remove="ApiObjects\Flexibility\" />
+    <None Remove="ApiObjects\VehicleSize\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
@@ -25,6 +26,7 @@
   <ItemGroup>
     <Folder Include="ApiObjects\User\" />
     <Folder Include="ApiObjects\Flexibility\" />
+    <Folder Include="ApiObjects\VehicleSize\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />

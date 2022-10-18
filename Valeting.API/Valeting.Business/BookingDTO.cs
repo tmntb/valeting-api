@@ -1,4 +1,5 @@
 ﻿using Valeting.Business.Flexibility;
+using Valeting.Business.VehicleSize;
 
 namespace Valeting.Business
 {
