@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
 
 using Valeting.Helpers;
 using Valeting.ApiObjects;
@@ -17,11 +16,11 @@ namespace Valeting.Controllers
     public class FlexibilityController : FlexibilityBaseController
     {
         private readonly IFlexibilityService _flexibilityService;
-        private IRedisCache _cache;
+        private IRedisCache _redisCache;
 
-        public FlexibilityController(IRedisCache cache, IFlexibilityService flexibilityService)
+        public FlexibilityController(IRedisCache redisCache, IFlexibilityService flexibilityService)
         {
-            _cache = cache;
+            _redisCache = redisCache;
             _flexibilityService = flexibilityService;
         }
 
@@ -36,11 +35,11 @@ namespace Valeting.Controllers
 
                 var recordKey = string.Format("Flexibility_{0}", id);
 
-                var flexibilityDTO = await _cache.GetRecordAsync<FlexibilityDTO>(recordKey);
+                var flexibilityDTO = await _redisCache.GetRecordAsync<FlexibilityDTO>(recordKey);
                 if(flexibilityDTO == null)
                 {
                     flexibilityDTO = await _flexibilityService.FindByIDAsync(Guid.Parse(id));
-                    await _cache.SetRecordAsync<FlexibilityDTO>(recordKey, flexibilityDTO, TimeSpan.FromDays(1));
+                    await _redisCache.SetRecordAsync<FlexibilityDTO>(recordKey, flexibilityDTO, TimeSpan.FromDays(1));
                 }
 
                 var flexibilityApi = new FlexibilityApi()
@@ -81,11 +80,11 @@ namespace Valeting.Controllers
 
                 var recordKey = string.Format("ListFlexibility_{0}_{1}_{2}", flexibilityFilterDTO.PageNumber, flexibilityFilterDTO.PageSize, flexibilityFilterDTO.Active);
 
-                var flexibilityListDTO = await _cache.GetRecordAsync<FlexibilityListDTO>(recordKey);
+                var flexibilityListDTO = await _redisCache.GetRecordAsync<FlexibilityListDTO>(recordKey);
                 if(flexibilityListDTO == null)
                 {
                     flexibilityListDTO = await _flexibilityService.ListAllAsync(flexibilityFilterDTO);
-                    await _cache.SetRecordAsync<FlexibilityListDTO>(recordKey, flexibilityListDTO, TimeSpan.FromMinutes(5));
+                    await _redisCache.SetRecordAsync<FlexibilityListDTO>(recordKey, flexibilityListDTO, TimeSpan.FromMinutes(5));
                 }
 
                 flexibilityApiPaginatedResponse.TotalItems = flexibilityListDTO.TotalItems;

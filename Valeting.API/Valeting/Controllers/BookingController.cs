@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
 
 using Valeting.Helpers;
 using Valeting.ApiObjects;
@@ -21,11 +20,11 @@ namespace Valeting.Controllers
     public class BookingController : BookingBaseController
     {
         private readonly IBookingService _bookingService;
-        private IRedisCache _cache;
+        private IRedisCache _redisCache;
 
-        public BookingController(IRedisCache cache, IBookingService bookingService)
+        public BookingController(IRedisCache redisCache, IBookingService bookingService)
         {
-            this._cache = cache;
+            this._redisCache = redisCache;
             this._bookingService = bookingService;
         }
 
@@ -47,7 +46,7 @@ namespace Valeting.Controllers
 
                 //Limpar redis cache caso exista lista de bookings em cache, validar de como ter todas as keys para "List_"
                 var recordKey = "*ListBooking_*";
-                await _cache.RemoveRecordAsync(recordKey);
+                await _redisCache.RemoveRecordAsync(recordKey);
 
                 return StatusCode((int)HttpStatusCode.Created, booking.Id);
             }
@@ -77,9 +76,9 @@ namespace Valeting.Controllers
 
                 //Limpar redis cache caso exista lista e para individual
                 var recordKeyList = "*ListBooking_*";
-                await _cache.RemoveRecordAsync(recordKeyList);
+                await _redisCache.RemoveRecordAsync(recordKeyList);
                 var recordKeyInd = string.Format("*Booking_{0}*", id);
-                await _cache.RemoveRecordAsync(recordKeyInd);
+                await _redisCache.RemoveRecordAsync(recordKeyInd);
 
                 return StatusCode((int)HttpStatusCode.NoContent);
             }
@@ -96,9 +95,9 @@ namespace Valeting.Controllers
                 await _bookingService.DeleteAsync(Guid.Parse(id));
                 //Limpar redis cache caso exista lista e para individual
                 var recordKeyList = "*ListBooking_*";
-                await _cache.RemoveRecordAsync(recordKeyList);
+                await _redisCache.RemoveRecordAsync(recordKeyList);
                 var recordKeyInd = string.Format("*Booking_{0}*", id);
-                await _cache.RemoveRecordAsync(recordKeyInd);
+                await _redisCache.RemoveRecordAsync(recordKeyInd);
 
                 return StatusCode((int)HttpStatusCode.NoContent);
             }
@@ -119,11 +118,11 @@ namespace Valeting.Controllers
 
                 var recordKey = string.Format("Booking_{0}", id);
 
-                var bookingDTO = await _cache.GetRecordAsync<BookingDTO>(recordKey);
+                var bookingDTO = await _redisCache.GetRecordAsync<BookingDTO>(recordKey);
                 if(bookingDTO == null)
                 {
                     bookingDTO = await _bookingService.FindByIDAsync(Guid.Parse(id));
-                    await _cache.SetRecordAsync<BookingDTO>(recordKey, bookingDTO, TimeSpan.FromDays(1));
+                    await _redisCache.SetRecordAsync<BookingDTO>(recordKey, bookingDTO, TimeSpan.FromDays(1));
                 }
 
                 var bookingApi = new BookingApi()
@@ -167,11 +166,11 @@ namespace Valeting.Controllers
 
                 var recordKey = string.Format("ListBooking_{0}_{1}", bookingApiParameters.PageNumber, bookingApiParameters.PageSize);
 
-                var bookingListDTO = await _cache.GetRecordAsync<BookingListDTO>(recordKey);
+                var bookingListDTO = await _redisCache.GetRecordAsync<BookingListDTO>(recordKey);
                 if (bookingListDTO == null)
                 {
                     bookingListDTO = await _bookingService.ListAllAsync(bookingFilterDTO);
-                    await _cache.SetRecordAsync<BookingListDTO>(recordKey, bookingListDTO, TimeSpan.FromMinutes(5));
+                    await _redisCache.SetRecordAsync<BookingListDTO>(recordKey, bookingListDTO, TimeSpan.FromMinutes(5));
                 }
 
                 bookingApiPaginatedResponse.TotalItems = bookingListDTO.TotalItems;

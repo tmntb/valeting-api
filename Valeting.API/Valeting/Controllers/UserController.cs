@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Valeting.ApiObjects;
 using Valeting.ApiObjects.User;
 using Valeting.Services.Interfaces;
-using Valeting.Controllers.BaseController;
 using Valeting.Business.Authentication;
+using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers
 {
