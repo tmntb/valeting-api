@@ -1,6 +1,8 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Valeting.Helpers;
+using Valeting.Helpers.Interfaces;
 using Valeting.Repositories;
 using Valeting.Services;
 
@@ -12,6 +14,8 @@ builder.Services.AddControllers();
 builder.Services.AddMiddleware();
 
 builder.Services.AddInfrastructureDataLayer(builder.Configuration);
+
+builder.Services.AddScoped<IRedisCache, RedisCache>();
 
 builder.Services.AddAuthentication(options =>
 {

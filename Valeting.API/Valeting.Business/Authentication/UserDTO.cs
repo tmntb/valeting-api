@@ -1,4 +1,4 @@
-﻿namespace Valeting.Business
+﻿namespace Valeting.Business.Authentication
 {
     public class UserDTO
     {

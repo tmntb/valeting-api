@@ -36,9 +36,9 @@ namespace Valeting.Repositories
             var flexibilityListDTO = new FlexibilityListDTO() { Flexibilities = new List<FlexibilityDTO>() };
 
             var initialList = await _valetingContext.RdFlexibilities.ToListAsync();
-            IEnumerable<RdFlexibility> listFlexibility = from rdFlexibility in initialList
-                                                        where (!flexibilityFilterDTO.Active.HasValue || rdFlexibility.Active == flexibilityFilterDTO.Active)
-                                                        select rdFlexibility;
+            var listFlexibility = from rdFlexibility in initialList
+                                  where (!flexibilityFilterDTO.Active.HasValue || rdFlexibility.Active == flexibilityFilterDTO.Active)
+                                  select rdFlexibility;
 
             if (listFlexibility == null)
                 return flexibilityListDTO;
@@ -47,7 +47,7 @@ namespace Valeting.Repositories
             var nrPages = Decimal.Divide(flexibilityListDTO.TotalItems, flexibilityFilterDTO.PageSize);
             flexibilityListDTO.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
 
-            listFlexibility.OrderBy(x => x.Id);
+            listFlexibility = listFlexibility.OrderBy(x => x.Id);
 
             listFlexibility = listFlexibility.Skip((flexibilityFilterDTO.PageNumber - 1) * flexibilityFilterDTO.PageSize).Take(flexibilityFilterDTO.PageSize);
 

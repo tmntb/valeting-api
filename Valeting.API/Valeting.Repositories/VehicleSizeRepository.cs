@@ -36,7 +36,7 @@ namespace Valeting.Repositories
             var vehicleSizeListDTO = new VehicleSizeListDTO() { VehicleSizes = new List<VehicleSizeDTO>() };
 
             var initialList = await _valetingContext.RdVehicleSizes.ToListAsync();
-            IEnumerable<RdVehicleSize> listVehicleSize = from rdVehicleSize in initialList
+            var listVehicleSize = from rdVehicleSize in initialList
                                                          where (!vehicleSizeFilterDTO.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDTO.Active)
                                                          select rdVehicleSize;
 
@@ -47,7 +47,7 @@ namespace Valeting.Repositories
             var nrPages = Decimal.Divide(vehicleSizeListDTO.TotalItems, vehicleSizeFilterDTO.PageSize);
             vehicleSizeListDTO.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
 
-            listVehicleSize.OrderBy(x => x.Id);
+            listVehicleSize = listVehicleSize.OrderBy(x => x.Id);
 
             listVehicleSize = listVehicleSize.Skip((vehicleSizeFilterDTO.PageNumber - 1) * vehicleSizeFilterDTO.PageSize).Take(vehicleSizeFilterDTO.PageSize);
 

@@ -1,7 +1,7 @@
 ﻿using Valeting.Business.Flexibility;
 using Valeting.Business.VehicleSize;
 
-namespace Valeting.Business
+namespace Valeting.Business.Booking
 {
     public class BookingDTO
     {

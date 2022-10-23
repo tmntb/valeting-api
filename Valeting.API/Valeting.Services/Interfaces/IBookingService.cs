@@ -1,4 +1,4 @@
-﻿using Valeting.Business;
+﻿using Valeting.Business.Booking;
 
 namespace Valeting.Services.Interfaces
 {
@@ -8,7 +8,7 @@ namespace Valeting.Services.Interfaces
         Task UpdateAsync(BookingDTO bookingDTO);
         Task DeleteAsync(Guid id);
         Task<BookingDTO> FindByIDAsync(Guid id);
-        Task<IEnumerable<BookingDTO>> ListAllAsync();
+        Task<BookingListDTO> ListAllAsync(BookingFilterDTO bookingFilterDTO);
     }
 }
 

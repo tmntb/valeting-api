@@ -1,5 +1,4 @@
-﻿using System;
-namespace Valeting.ApiObjects.Flexibility
+﻿namespace Valeting.ApiObjects.Flexibility
 {
     public class FlexibilityApiParameters : QueryStringParametersApi
     {

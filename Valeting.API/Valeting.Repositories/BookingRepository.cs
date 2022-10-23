@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using Valeting.Business;
+using Valeting.Business.Booking;
 using Valeting.Business.Flexibility;
 using Valeting.Business.VehicleSize;
 using Valeting.Repositories.Entities;
@@ -83,29 +83,42 @@ namespace Valeting.Repositories
             return bookingDTO;
         }
 
-        public async Task<IEnumerable<BookingDTO>> ListAsync()
+        public async Task<BookingListDTO> ListAsync(BookingFilterDTO bookingFilterDTO)
         {
-            var bookingDTOs = new List<BookingDTO>();
+            var bookingListDTO = new BookingListDTO() { Bookings = new List<BookingDTO>() };
 
-            var bookings = await _valetingContext.Bookings.ToListAsync();
-            if (bookings == null)
-                return bookingDTOs;
+            var initialList = await _valetingContext.Bookings.ToListAsync();
+            var listBookings = from booking in initialList
+                               select booking;
 
-            bookingDTOs.AddRange(
-                bookings.Select(item => new BookingDTO()
-                {
-                    Id = item.Id,
-                    Name = item.Name,
-                    BookingDate = item.BookingDate,
-                    Flexibility = new FlexibilityDTO() { Id = item.Flexibility.Id, Description = item.Flexibility.Description, Active = item.Flexibility.Active },
-                    VehicleSize = new VehicleSizeDTO() { Id = item.VehicleSize.Id, Description = item.VehicleSize.Description, Active = item.VehicleSize.Active },
-                    ContactNumber = item.ContactNumber,
-                    Email = item.Email,
-                    Approved = item.Approved
-                })
+            if (listBookings == null)
+                return bookingListDTO;
+
+            bookingListDTO.TotalItems = listBookings.Count();
+            var nrPages = Decimal.Divide(bookingListDTO.TotalItems, bookingFilterDTO.PageSize);
+            var nrPagesTruncate = Math.Truncate(nrPages);
+            bookingListDTO.TotalPages = (int)(nrPages - nrPagesTruncate > 0 ? nrPagesTruncate + 1 : nrPagesTruncate);
+
+            listBookings = listBookings.OrderBy(x => x.Id);
+
+            listBookings = listBookings.Skip((bookingFilterDTO.PageNumber - 1) * bookingFilterDTO.PageSize).Take(bookingFilterDTO.PageSize);
+
+            bookingListDTO.Bookings.AddRange(
+                listBookings.ToList().Select(item => new BookingDTO()
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        BookingDate = item.BookingDate,
+                        Flexibility = new FlexibilityDTO() { Id = item.Flexibility.Id, Description = item.Flexibility.Description, Active = item.Flexibility.Active },
+                        VehicleSize = new VehicleSizeDTO() { Id = item.VehicleSize.Id, Description = item.VehicleSize.Description, Active = item.VehicleSize.Active },
+                        ContactNumber = item.ContactNumber,
+                        Email = item.Email,
+                        Approved = item.Approved
+                    }
+                ).ToList()
             );
 
-            return bookingDTOs;
+            return bookingListDTO;
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Caching.Distributed;
 
 using Valeting.Helpers;
 using Valeting.ApiObjects;
+using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
 using Valeting.Business.VehicleSize;
 using Valeting.ApiObjects.VehicleSize;
@@ -16,9 +17,9 @@ namespace Valeting.Controllers
     public class VehicleSizeController : VehicleSizeBaseController
     {
         private readonly IVehicleSizeService _vehicleSizeService;
-        private IDistributedCache _cache;
+        private IRedisCache _cache;
 
-        public VehicleSizeController(IDistributedCache cache, IVehicleSizeService vehicleSizeService)
+        public VehicleSizeController(IRedisCache cache, IVehicleSizeService vehicleSizeService)
         {
             _cache = cache;
             _vehicleSizeService = vehicleSizeService;

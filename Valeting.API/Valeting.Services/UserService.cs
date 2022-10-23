@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
-using Valeting.Business;
+using Valeting.Business.Authentication;
 using Valeting.Services.Interfaces;
 using Valeting.Repositories.Interfaces;
 

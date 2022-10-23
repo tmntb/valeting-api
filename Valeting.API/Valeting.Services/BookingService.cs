@@ -1,6 +1,7 @@
-﻿using Valeting.Business;
+﻿using Valeting.Business.Booking;
 using Valeting.Services.Interfaces;
 using Valeting.Repositories.Interfaces;
+using Valeting.Business.VehicleSize;
 
 namespace Valeting.Service
 {
@@ -50,9 +51,12 @@ namespace Valeting.Service
             return bookingDTO;
         }
 
-        public async Task<IEnumerable<BookingDTO>> ListAllAsync()
+        public async Task<BookingListDTO> ListAllAsync(BookingFilterDTO bookingFilterDTO)
         {
-            return await _bookingRepository.ListAsync();
+            if (bookingFilterDTO.PageNumber == 0)
+                throw new Exception("pageNumber é 0");
+
+            return await _bookingRepository.ListAsync(bookingFilterDTO);
         }
 
         private void ValidateGeneralInput(BookingDTO bookingDTO)

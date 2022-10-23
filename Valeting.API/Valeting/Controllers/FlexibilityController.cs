@@ -6,6 +6,7 @@ using Microsoft.Extensions.Caching.Distributed;
 
 using Valeting.Helpers;
 using Valeting.ApiObjects;
+using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
 using Valeting.Business.Flexibility;
 using Valeting.ApiObjects.Flexibility;
@@ -16,9 +17,9 @@ namespace Valeting.Controllers
     public class FlexibilityController : FlexibilityBaseController
     {
         private readonly IFlexibilityService _flexibilityService;
-        private IDistributedCache _cache;
+        private IRedisCache _cache;
 
-        public FlexibilityController(IDistributedCache cache, IFlexibilityService flexibilityService)
+        public FlexibilityController(IRedisCache cache, IFlexibilityService flexibilityService)
         {
             _cache = cache;
             _flexibilityService = flexibilityService;

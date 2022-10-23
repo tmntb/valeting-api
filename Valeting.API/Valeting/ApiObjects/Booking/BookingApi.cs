@@ -1,7 +1,9 @@
-﻿using Valeting.ApiObjects.Flexibility;
+﻿using System.Text.Json.Serialization;
+
+using Valeting.ApiObjects.Flexibility;
 using Valeting.ApiObjects.VehicleSize;
 
-namespace Valeting.ApiObjects
+namespace Valeting.ApiObjects.Booking
 {
     public class BookingApi
     {
@@ -13,5 +15,7 @@ namespace Valeting.ApiObjects
         public int ContactNumber { get; set; }
         public string Email { get; set; }
         public bool? Approved { get; set; }
+        [JsonPropertyName("_link")]
+        public FlexibilityApiLink Link { get; set; }
     }
 }

@@ -2,11 +2,11 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.Business;
 using Valeting.ApiObjects;
-using Valeting.Controllers.BaseController;
-using Valeting.Services.Interfaces;
 using Valeting.ApiObjects.User;
+using Valeting.Services.Interfaces;
+using Valeting.Controllers.BaseController;
+using Valeting.Business.Authentication;
 
 namespace Valeting.Controllers
 {

@@ -10,10 +10,12 @@
     <None Remove="Flexibility\" />
     <None Remove="VehicleSize\" />
     <None Remove="Authentication\" />
+    <None Remove="Booking\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Flexibility\" />
     <Folder Include="VehicleSize\" />
     <Folder Include="Authentication\" />
+    <Folder Include="Booking\" />
   </ItemGroup>
 </Project>
