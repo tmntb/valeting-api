@@ -1,5 +1,4 @@
-﻿
-using System.Net;
+﻿using System.Net;
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,6 @@ using Valeting.Business.VehicleSize;
 using Valeting.ApiObjects.Flexibility;
 using Valeting.ApiObjects.VehicleSize;
 using Valeting.Controllers.BaseController;
-using System.IO;
 
 namespace Valeting.Controllers
 {
