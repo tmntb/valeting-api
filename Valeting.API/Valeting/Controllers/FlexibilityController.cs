@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.Helpers;
 using Valeting.ApiObjects;
 using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
@@ -15,13 +14,15 @@ namespace Valeting.Controllers
 {
     public class FlexibilityController : FlexibilityBaseController
     {
-        private readonly IFlexibilityService _flexibilityService;
         private IRedisCache _redisCache;
+        private readonly IUrlService _urlService;
+        private readonly IFlexibilityService _flexibilityService;
 
-        public FlexibilityController(IRedisCache redisCache, IFlexibilityService flexibilityService)
+        public FlexibilityController(IRedisCache redisCache, IFlexibilityService flexibilityService, IUrlService urlService)
         {
             _redisCache = redisCache;
             _flexibilityService = flexibilityService;
+            _urlService = urlService;
         }
 
         public override async Task<IActionResult> FindByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
@@ -47,7 +48,13 @@ namespace Valeting.Controllers
                     Id = flexibilityDTO.Id,
                     Description = flexibilityDTO.Description,
                     Active = flexibilityDTO.Active,
-                    Link = new FlexibilityApiLink() { Self = new LinkApi() { Href = "" } }
+                    Link = new FlexibilityApiLink()
+                    {
+                        Self = new LinkApi()
+                        {
+                            Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
+                        }
+                    }
                 };
 
                 flexibilityApiResponse.Flexibility = flexibilityApi;
@@ -68,7 +75,12 @@ namespace Valeting.Controllers
                 {
                     Flexibilities = new List<FlexibilityApi>(),
                     CurrentPage = flexibilityApiParameters.PageNumber,
-                    Links = new PaginationLinksApi() { Prev = new LinkApi(), Self = new LinkApi(), Next = new LinkApi() }
+                    Links = new PaginationLinksApi()
+                    {
+                        Prev = new LinkApi() { Href = string.Empty },
+                        Next = new LinkApi() { Href = string.Empty },
+                        Self = new LinkApi() { Href = string.Empty }
+                    }
                 };
 
                 var flexibilityFilterDTO = new FlexibilityFilterDTO()
@@ -90,13 +102,31 @@ namespace Valeting.Controllers
                 flexibilityApiPaginatedResponse.TotalItems = flexibilityListDTO.TotalItems;
                 flexibilityApiPaginatedResponse.TotalPages = flexibilityListDTO.TotalPages;
 
+                var linkDTO = _urlService.GeneratePaginatedLinks
+                (
+                    Request.Host.Value,
+                    Request.Path.HasValue ? Request.Path.Value : string.Empty,
+                    Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                    flexibilityApiParameters.PageNumber, flexibilityListDTO.TotalPages, flexibilityFilterDTO
+                );
+
+                flexibilityApiPaginatedResponse.Links.Prev.Href = linkDTO.Prev;
+                flexibilityApiPaginatedResponse.Links.Next.Href = linkDTO.Next;
+                flexibilityApiPaginatedResponse.Links.Self.Href = linkDTO.Self;
+
                 flexibilityApiPaginatedResponse.Flexibilities.AddRange(
                     flexibilityListDTO.Flexibilities.Select(item => new FlexibilityApi()
                         {
                             Id = item.Id,
                             Description = item.Description,
                             Active = item.Active,
-                            Link = new FlexibilityApiLink() { Self = new LinkApi() { Href = "https://examplehost/exampleapi/v1/example-resource/1" } } //por fazer
+                            Link = new FlexibilityApiLink()
+                            {
+                                Self = new LinkApi()
+                                {
+                                    Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
+                                }
+                            }
                         }
                     ).ToList()
                 );

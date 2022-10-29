@@ -14,6 +14,7 @@ namespace Valeting.Services
             services.AddScoped<IFlexibilityService, FlexibilityService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IVehicleSizeService, VehicleSizeService>();
+            services.AddScoped<IUrlService, UrlService>();
         }
     }
 }

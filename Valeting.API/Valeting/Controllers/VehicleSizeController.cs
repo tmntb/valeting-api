@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.Helpers;
 using Valeting.ApiObjects;
 using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
@@ -15,13 +14,15 @@ namespace Valeting.Controllers
 {
     public class VehicleSizeController : VehicleSizeBaseController
     {
-        private readonly IVehicleSizeService _vehicleSizeService;
         private IRedisCache _redisCache;
+        private readonly IUrlService _urlService;
+        private readonly IVehicleSizeService _vehicleSizeService;
 
-        public VehicleSizeController(IRedisCache redisCache, IVehicleSizeService vehicleSizeService)
+        public VehicleSizeController(IRedisCache redisCache, IVehicleSizeService vehicleSizeService, IUrlService urlService)
         {
             _redisCache = redisCache;
             _vehicleSizeService = vehicleSizeService;
+            _urlService = urlService;
         }
 
         public override async Task<IActionResult> FindByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
@@ -47,7 +48,13 @@ namespace Valeting.Controllers
                     Id = vehicleSizeDTO.Id,
                     Description = vehicleSizeDTO.Description,
                     Actice = vehicleSizeDTO.Active,
-                    Link = new VehicleSizeApiLink() { Self = new LinkApi() { Href = "" } }
+                    Link = new VehicleSizeApiLink()
+                    {
+                        Self = new LinkApi()
+                        {
+                            Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
+                        }
+                    }
                 };
 
                 vehicleSizeApiResponse.VehicleSize = vehicleSizeApi;
@@ -69,6 +76,11 @@ namespace Valeting.Controllers
                     VehicleSizes = new List<VehicleSizeApi>(),
                     CurrentPage = vehicleSizeApiParameters.PageNumber,
                     Links = new PaginationLinksApi()
+                    {
+                        Prev = new LinkApi() { Href = string.Empty },
+                        Next = new LinkApi() { Href = string.Empty },
+                        Self = new LinkApi() { Href = string.Empty }
+                    }
                 };
 
                 var vehicleSizeFilterDTO = new VehicleSizeFilterDTO()
@@ -90,6 +102,18 @@ namespace Valeting.Controllers
                 vehicleSizeApiPaginatedResponse.TotalItems = vehicleSizeListDTO.TotalItems;
                 vehicleSizeApiPaginatedResponse.TotalPages = vehicleSizeListDTO.TotalPages;
 
+                var linkDTO = _urlService.GeneratePaginatedLinks
+                (
+                    Request.Host.Value,
+                    Request.Path.HasValue ? Request.Path.Value : string.Empty,
+                    Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                    vehicleSizeApiParameters.PageNumber, vehicleSizeListDTO.TotalPages, vehicleSizeFilterDTO
+                );
+
+                vehicleSizeApiPaginatedResponse.Links.Prev.Href = linkDTO.Prev;
+                vehicleSizeApiPaginatedResponse.Links.Next.Href = linkDTO.Next;
+                vehicleSizeApiPaginatedResponse.Links.Self.Href = linkDTO.Self;
+
                 vehicleSizeApiPaginatedResponse.VehicleSizes.AddRange(
                     vehicleSizeListDTO.VehicleSizes.Select(item => new VehicleSizeApi()
                         {
@@ -97,6 +121,12 @@ namespace Valeting.Controllers
                             Description = item.Description,
                             Actice = item.Active,
                             Link = new VehicleSizeApiLink()
+                            {
+                                Self = new LinkApi()
+                                {
+                                    Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
+                                }
+                            }
                         }
                     ).ToList()
                 );

@@ -1,9 +1,9 @@
-﻿using System.Net;
+﻿
+using System.Net;
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.Helpers;
 using Valeting.ApiObjects;
 using Valeting.Business.Booking;
 using Valeting.Helpers.Interfaces;
@@ -14,18 +14,21 @@ using Valeting.Business.VehicleSize;
 using Valeting.ApiObjects.Flexibility;
 using Valeting.ApiObjects.VehicleSize;
 using Valeting.Controllers.BaseController;
+using System.IO;
 
 namespace Valeting.Controllers
 {
     public class BookingController : BookingBaseController
     {
-        private readonly IBookingService _bookingService;
         private IRedisCache _redisCache;
+        private readonly IUrlService _urlService;
+        private readonly IBookingService _bookingService;
 
-        public BookingController(IRedisCache redisCache, IBookingService bookingService)
+        public BookingController(IRedisCache redisCache, IBookingService bookingService, IUrlService urlService)
         {
-            this._redisCache = redisCache;
-            this._bookingService = bookingService;
+            _redisCache = redisCache;
+            _bookingService = bookingService;
+            _urlService = urlService;
         }
 
         public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
@@ -130,11 +133,42 @@ namespace Valeting.Controllers
                     Id = bookingDTO.Id,
                     Name = bookingDTO.Name,
                     BookingDate = bookingDTO.BookingDate,
-                    Flexibility = new FlexibilityApi() { Id = bookingDTO.Flexibility.Id, Description = bookingDTO.Flexibility.Description },
-                    VehicleSize = new VehicleSizeApi() { Id = bookingDTO.VehicleSize.Id, Description = bookingDTO.VehicleSize.Description },
+                    Flexibility = new FlexibilityApi()
+                    {
+                        Id = bookingDTO.Flexibility.Id,
+                        Description = bookingDTO.Flexibility.Description,
+                        Active = bookingDTO.Flexibility.Active,
+                        Link = new FlexibilityApiLink()
+                        {
+                            Self = new LinkApi()
+                            {
+                                Href = _urlService.GenerateSelf(Request.Host.Value, "/Valeting/flexibilities", bookingDTO.Flexibility.Id)
+                            }
+                        }
+                    },
+                    VehicleSize = new VehicleSizeApi()
+                    {
+                        Id = bookingDTO.VehicleSize.Id,
+                        Description = bookingDTO.VehicleSize.Description,
+                        Actice = bookingDTO.VehicleSize.Active,
+                        Link = new VehicleSizeApiLink()
+                        {
+                            Self = new LinkApi()
+                            {
+                                Href = _urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", bookingDTO.VehicleSize.Id)
+                            }
+                        }
+                    },
                     ContactNumber = bookingDTO.ContactNumber,
                     Email = bookingDTO.Email,
-                    Approved = bookingDTO.Approved
+                    Approved = bookingDTO.Approved,
+                    Link = new BookingApiLink()
+                    {
+                        Self = new LinkApi()
+                        {
+                            Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
+                        }
+                    }
                 };
 
                 bookingApiResponse.Booking = bookingApi;
@@ -156,6 +190,11 @@ namespace Valeting.Controllers
                     Bookings = new List<BookingApi>(),
                     CurrentPage = bookingApiParameters.PageNumber,
                     Links = new PaginationLinksApi()
+                    {
+                        Prev = new LinkApi() { Href = string.Empty },
+                        Next = new LinkApi() { Href = string.Empty },
+                        Self = new LinkApi() { Href = string.Empty }
+                    }
                 };
 
                 var bookingFilterDTO = new BookingFilterDTO()
@@ -176,17 +215,60 @@ namespace Valeting.Controllers
                 bookingApiPaginatedResponse.TotalItems = bookingListDTO.TotalItems;
                 bookingApiPaginatedResponse.TotalPages = bookingListDTO.TotalPages;
 
+                var linkDTO = _urlService.GeneratePaginatedLinks
+                (
+                    Request.Host.Value,
+                    Request.Path.HasValue ? Request.Path.Value : string.Empty,
+                    Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                    bookingApiParameters.PageNumber, bookingListDTO.TotalPages, bookingFilterDTO
+                );
+
+                bookingApiPaginatedResponse.Links.Prev.Href = linkDTO.Prev;
+                bookingApiPaginatedResponse.Links.Next.Href = linkDTO.Next;
+                bookingApiPaginatedResponse.Links.Self.Href = linkDTO.Self;
+
                 bookingApiPaginatedResponse.Bookings.AddRange(
                     bookingListDTO.Bookings.Select(item => new BookingApi()
                         {
                             Id = item.Id,
                             Name = item.Name,
                             BookingDate = item.BookingDate,
-                            Flexibility = new FlexibilityApi() { Id = item.Flexibility.Id, Description = item.Flexibility.Description },
-                            VehicleSize = new VehicleSizeApi() { Id = item.VehicleSize.Id, Description = item.VehicleSize.Description },
+                            Flexibility = new FlexibilityApi()
+                            {
+                                Id = item.Flexibility.Id,
+                                Description = item.Flexibility.Description,
+                                Active = item.Flexibility.Active,
+                                Link = new FlexibilityApiLink()
+                                {
+                                    Self = new LinkApi()
+                                    {
+                                        Href = _urlService.GenerateSelf(Request.Host.Value, "/Valeting/flexibilities", item.Flexibility.Id)
+                                    }
+                                }
+                            },
+                            VehicleSize = new VehicleSizeApi()
+                            {
+                                Id = item.VehicleSize.Id,
+                                Description = item.VehicleSize.Description,
+                                Actice = item.VehicleSize.Active,
+                                Link = new VehicleSizeApiLink()
+                                {
+                                    Self = new LinkApi()
+                                    {
+                                        Href = _urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", item.VehicleSize.Id)
+                                    }
+                                }
+                            },
                             ContactNumber = item.ContactNumber,
                             Email = item.Email,
-                            Approved = item.Approved
+                            Approved = item.Approved,
+                            Link = new BookingApiLink()
+                            {
+                                Self = new LinkApi()
+                                {
+                                    Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
+                                }
+                            }
                         }
                     ).ToList()
                 );

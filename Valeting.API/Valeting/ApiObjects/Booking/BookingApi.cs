@@ -16,6 +16,6 @@ namespace Valeting.ApiObjects.Booking
         public string Email { get; set; }
         public bool? Approved { get; set; }
         [JsonPropertyName("_link")]
-        public FlexibilityApiLink Link { get; set; }
+        public BookingApiLink Link { get; set; }
     }
 }
