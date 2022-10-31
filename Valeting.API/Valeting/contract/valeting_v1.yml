@@ -1,0 +1,625 @@
+openapi: 3.0.1
+info:
+  title: Valeting
+  version: '1.0'
+  description: This is an API to and manage your reserves for cars.
+  contact:
+    name: Tiago Baeta
+    email: tmntb.work@gmail.com
+servers:
+  - url: 'http://localhost.com'
+paths:
+  /user/verify:
+    post:
+      summary: Verify user credentials
+      operationId: post-verify-user
+      description: 'Returns an access token for the **User**'
+      responses:
+        '200':
+          $ref: '#/components/responses/Verify-User'
+        '500':
+          $ref: '#/components/responses/Error-500'
+      tags:
+        - User
+  /bookings:
+    get:
+      summary: List bookings
+      operationId: get-bookings
+      description: 'Return a list of all **Bookings**, it can be filtered by the page number and page size'
+      responses:
+        '200':
+          $ref: '#/components/responses/Get-Bookings'
+        '500':
+          $ref: '#/components/responses/Error-500'
+      parameters:
+        - $ref: '#/components/parameters/Page-Number'
+        - $ref: '#/components/parameters/Page-Size'
+      tags:
+        - Booking
+    post:
+      summary: Create booking
+      operationId: post-bookings
+      description: Creates a new **Bookign**
+      responses:
+        '201':
+          $ref: '#/components/responses/Create-Booking'
+        '400':
+          $ref: '#/components/responses/Error-400'
+        '409':
+          $ref: '#/components/responses/Error-409'
+        '500':
+          $ref: '#/components/responses/Error-500'
+      requestBody:
+        $ref: '#/components/requestBodies/Create-Booking'
+      tags:
+        - Booking
+  /bookings/{id}:
+    parameters:
+      - schema:
+          type: string
+          example: 775d39d9-4867-49b8-b900-a3724f6d988c
+          format: guid
+        name: id
+        in: path
+        required: true
+        description: Identifier of the booking
+    get:
+      summary: List booking by id
+      operationId: get-bookings-id
+      description: Return a **Booking** by the given id
+      responses:
+        '200':
+          $ref: '#/components/responses/Get-Booking'
+        '500':
+          $ref: '#/components/responses/Error-500'
+      tags:
+        - Booking
+    put:
+      summary: Update booking
+      operationId: put-bookings-id
+      description: Update **Booking** by the given id
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/Error-400'
+        '404':
+          $ref: '#/components/responses/Error-404'
+        '500':
+          $ref: '#/components/responses/Error-500'
+      tags:
+        - Booking
+    delete:
+      summary: Delete booking
+      operationId: delete-bookings-id
+      description: Delete **Booking** by the given id
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/Error-400'
+        '404':
+          $ref: '#/components/responses/Error-404'
+        '500':
+          $ref: '#/components/responses/Error-500'
+      tags:
+        - Booking
+  /flexibilities:
+    get:
+      summary: List flexibilities
+      operationId: get-flexibilities
+      description: 'Return a list of all **Flexibilities**, it can be filter by the page number, page size and/or active'
+      responses:
+        '200':
+          $ref: '#/components/responses/Get-Flexibility'
+        '500':
+          $ref: '#/components/responses/Error-500'
+      parameters:
+        - $ref: '#/components/parameters/Page-Number'
+        - $ref: '#/components/parameters/Page-Size'
+        - schema:
+            type: string
+          in: query
+          name: active
+          description: State of the flexibility
+      tags:
+         - Flexibility
+  /flexibilities/{id}:
+    parameters:
+      - schema:
+          type: string
+          example: 775d39d9-4867-49b8-b900-a3724f6d988c
+          format: guid
+        name: id
+        in: path
+        required: true
+        description: Identifier of the booking
+    get:
+      summary: List flexibilities by id
+      operationId: get-flexibilities-id
+      description: 'Returns a **Flexibility** by the given id'
+      responses:
+        '200':
+          $ref: '#/components/responses/Get-Flexibilities'
+        '500':
+          $ref: '#/components/responses/Error-500'
+      tags:
+        - Flexibility
+  /vehicleSizes:
+    get:
+      summary: List vehicle sizes
+      operationId: get-vehiclesizes
+      description: 'Return a list of all **Vehicle Sizes**, it can be filter by the page number, page size and/or active'
+      responses:
+        '200':
+          $ref: '#/components/responses/Get-Vehicle-Size'
+        '500':
+          $ref: '#/components/responses/Error-500'
+      parameters:
+        - $ref: '#/components/parameters/Page-Number'
+        - $ref: '#/components/parameters/Page-Size'
+        - schema:
+            type: string
+          in: query
+          name: active
+          description: State of the vehicle size
+      tags:
+        - VehicleSize
+  /vehicleSizes/{id}:
+    parameters:
+      - schema:
+          type: string
+          example: 775d39d9-4867-49b8-b900-a3724f6d988c
+          format: guid
+        name: id
+        in: path
+        required: true
+        description: Identifier of the booking
+    get:
+      summary: List vehicle sizes by id
+      operationId: get-vehiclesizes-id
+      description: 'Returns a **Vehicle Size** by the given id'
+      responses:
+        '200':
+          $ref: '#/components/responses/Get-Vehicle-Sizes'
+        '500':
+          $ref: '#/components/responses/Error-500'
+      tags:
+        - VehicleSize
+tags:
+  - name: Booking
+    description: Booking operations
+  - name: Flexibility
+    description: Flexiblity operations
+  - name: VehicleSize
+    description: Vehicle size operations
+  - name: User
+    description: User operations
+components:
+  schemas:
+    Booking:
+      title: booking
+      type: object
+      description: Booking attributes and examples
+      properties:
+        id:
+          type: string
+          example: 775d39d9-4867-49b8-b900-a3724f6d988c
+          description: Identifier of booking
+          format: guid
+        name:
+          type: string
+          example: GTech
+          description: Name of the reservation
+        bookingDate:
+          type: string
+          example: '2022-04-27T12:00:00'
+          description: Date of the booking
+          format: date-time
+        flexibility:
+          $ref: '#/components/schemas/Flexibility'
+        vehicleSize:
+          $ref: '#/components/schemas/VehicleSize'
+        contactNumber:
+          type: integer
+          example: 123456789
+          description: Contact number for the booking
+          format: int32
+        email:
+          type: string
+          example: person@email.com
+          description: Email for the booking
+        approved:
+          type: boolean
+          default: false
+          description: State of the booking
+        link:
+          type: object
+          description: Self link to booking itself
+          properties:
+            self:
+              $ref: '#/components/schemas/Link-body'
+    Flexibility:
+      title: flexibility
+      type: object
+      description: Flexibility attributes and examples
+      properties:
+        id:
+          type: string
+          example: 775d39d9-4867-49b8-b900-a3724f6d988c
+          description: Identifier of flexibility
+          format: guid
+        description:
+          type: string
+          example: +- 1 day
+          description: Description of the flexibility
+        active:
+          type: boolean
+          default: true
+          description: State of the flexibility
+        link:
+          type: object
+          description: Self link to flexibility itself
+          properties:
+            self:
+              $ref: '#/components/schemas/Link-body'
+    VehicleSize:
+      title: vehicle-size
+      type: object
+      description: Vehicle Size attributes and examples
+      properties:
+        id:
+          type: string
+          example: 775d39d9-4867-49b8-b900-a3724f6d988c
+          description: Identifier of vehicle size
+          format: guid
+        description:
+          type: string
+          example: +- 1 day
+          description: Description of the vehicle size
+        active:
+          type: boolean
+          default: true
+          description: State of the vehicle size
+        link:
+          type: object
+          description: Self link to vehicle size itself
+          properties:
+            self:
+              $ref: '#/components/schemas/Link-body'
+    Link-body:
+      title: link-body
+      type: object
+      description: Reference to the address
+      properties:
+        href:
+          type: string
+          format: uri
+          example: 'https://examplehost/exampleapi/v1/example-resource/1'
+          maxLength: 250
+          description: URL to reach the information
+          readOnly: true
+    Pagination-Body:
+      title: pagination-body
+      type: object
+      description: Paginations links
+      properties:
+        totalItems:
+          type: integer
+          description: Total items to return
+          format: int32
+          example: 10
+          minimum: 1
+        currentPage:
+          type: integer
+          description: Current page
+          format: int32
+          example: 1
+          minimum: 1
+        totalPages:
+          type: integer
+          description: Total of pages
+          format: int32
+          example: 2
+          minimum: 1
+          exclusiveMinimum: false
+        links:
+          type: array
+          description: Pagination linking area
+          items:
+            type: object
+            properties:
+              prev:
+                $ref: '#/components/schemas/Link-body'
+              next:
+                $ref: '#/components/schemas/Link-body'
+              self:
+                $ref: '#/components/schemas/Link-body'
+  requestBodies:
+    Verify-User:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                example: gtech@email.com
+                description: Username of the account
+              password:
+                type: string
+                example: password124
+                description: Password for the account
+      description: Request to verify user credentials
+    Create-Booking:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: GTech
+                description: Name of the reservation
+              bookingDate:
+                type: string
+                example: '2022-04-27T12:00:00'
+                description: Date of the booking
+              flexibility:
+                type: object
+                description: Identification of the flexibility
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of flexibility associated to the booking
+                    format: guid
+                    example: 775d39d9-4867-49b8-b900-a3724f6d988c
+              vehicleSize:
+                type: object
+                description: Identification of the vehicle size
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of vehicle size associated to the booking
+                    format: guid
+                    example: 775d39d9-4867-49b8-b900-a3724f6d988c
+              contactNumber:
+                type: integer
+                example: 123456789
+                description: Contact number for the booking
+              email:
+                type: string
+                example: person@email.com
+                description: Email for the booking
+      description: Request to create an booking
+    Update-Booking:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: GTech
+                description: Name of the reservation
+              bookingDate:
+                type: string
+                example: '2022-04-27T12:00:00'
+                description: Date of the booking
+              flexibility:
+                type: object
+                description: Identification of the flexibility
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of flexibility associated to the booking
+                    format: guid
+                    example: 775d39d9-4867-49b8-b900-a3724f6d988c
+              vehicleSize:
+                type: object
+                description: Identification of the vehicle size
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of vehicle size associated to the booking
+                    format: guid
+                    example: 775d39d9-4867-49b8-b900-a3724f6d988c
+              contactNumber:
+                type: integer
+                example: 123456789
+                description: Contact number for the booking
+              email:
+                type: string
+                example: person@email.com
+                description: Email for the booking
+              approved:
+                type: boolean
+                default: false
+                description: State of the booking
+      description: Request to update an booking
+  responses:
+    Verify-User:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6Ijc4MDc2NGE4LTg1OWEtNGU5ZC1hOTJhLWVjYjcwYTlhMWIxMCIsInN1YiI6ImFkbWluQGdtYWlsLmNvbSIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwianRpIjoiNDEzY2ZmMDUtZTE3NS00OGE2LWIwZGEtMmY2YmU0NWUwZDg3IiwibmJmIjoxNjY3MDYzOTI2LCJleHAiOjE2NjcwNjc1MjYsImlhdCI6MTY2NzA2MzkyNiwiaXNzIjoiVmFsZXRpbmdBdXRoIiwiYXVkIjoiVmFsZXRpbmdDbGllbnQifQ.K-jYLlZeD8rr9WuNFTkbIxgr2QXu-wBpKgeDmLnEEX4
+                description: Access token generated when the credentials are succefull
+              expiryDate:
+                type: string
+                example: '2022-04-27T12:00:00'
+                description: Token expiration date
+              tokenType:
+                type: string
+                example: JwtSecurityToken
+                description: Type of security token
+      description: Response to verify user credentials
+    Create-Booking:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                format: guid
+                example: 775d39d9-4867-49b8-b900-a3724f6d988c
+                description: Id of the created booking
+      description: Response to create of a booking
+    Get-Booking:
+      content:
+        application/json:
+          schema:
+            allOf:
+              - type: object
+                properties:
+                  booking:
+                    $ref: '#/components/schemas/Booking'
+              - $ref: '#/components/schemas/Pagination-Body'
+      description: Response to when we get an booking
+    Get-Bookings:
+      content:
+        application/json:
+          schema:
+            allOf:
+              - type: object
+                properties:
+                  bookings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Booking'
+              - $ref: '#/components/schemas/Pagination-Body'
+      description: Response to when we get bookings
+    Get-Flexibility:
+      content:
+        application/json:
+          schema:
+            allOf:
+              - type: object
+                properties:
+                  flexibility:
+                    $ref: '#/components/schemas/Flexibility'
+              - $ref: '#/components/schemas/Pagination-Body'
+      description: Response to when we get an flexibility
+    Get-Flexibilities:
+      content:
+        application/json:
+          schema:
+            allOf:
+              - type: object
+                properties:
+                  flexibilities:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Flexibility'
+              - $ref: '#/components/schemas/Pagination-Body'
+      description: Response to when we get flexibilities
+    Get-Vehicle-Size:
+      content:
+        application/json:
+          schema:
+            allOf:
+              - type: object
+                properties:
+                  vehicleSize:
+                    $ref: '#/components/schemas/VehicleSize'
+              - $ref: '#/components/schemas/Pagination-Body'
+      description: Response to when we get an vehicle size
+    Get-Vehicle-Sizes:
+      content:
+        application/json:
+          schema:
+            allOf:
+              - type: object
+                properties:
+                  vehicleSizes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VehicleSize'
+              - $ref: '#/components/schemas/Pagination-Body'
+      description: Response to when we get vehicle sizes
+    Error-400:
+      description: Response when a bad request occurred
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                format: guid
+                example: 775d39d9-4867-49b8-b900-a3724f6d988c
+                description: Identifier of the error occurred
+              detail:
+                type: string
+                description: Description of the error occurred
+                example: The server encountered a bad request which prevented it from fulfilling the request
+    Error-404:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                format: guid
+                example: 775d39d9-4867-49b8-b900-a3724f6d988c
+                description: Identifier of the error occurred
+              detail:
+                type: string
+                description: Description of the error occurred
+                example: The server encountered a not found which prevented it from fulfilling the request
+    Error-409:
+      description: Response when a conflit occurred
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                format: guid
+                example: 775d39d9-4867-49b8-b900-a3724f6d988c
+                description: Identifier of the error occurred
+              detail:
+                type: string
+                description: Description of the error occurred
+                example: The server encountered a conflit which prevented it from fulfilling the request
+    Error-500:
+      description: Response when a internal error occurred
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                format: guid
+                example: 775d39d9-4867-49b8-b900-a3724f6d988c
+                description: Identifier of the error occurred
+              detail:
+                type: string
+                description: Description of the error occurred
+                example: The server encountered an unexpected condition which prevented it from fulfilling the request
+  parameters:
+    Page-Size:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        example: 5
+        minimum: 1
+        maximum: 10
+      description: The number of elements for the page request
+    Page-Number:
+      name: pageNumber
+      in: query
+      schema:
+        type: integer
+        example: 1
+        minimum: 1
+      description: The requested page number
