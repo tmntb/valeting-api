@@ -17,6 +17,10 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Verify-User'
+        '400':
+          $ref: '#/components/responses/Error-400'
+        '404':
+          $ref: '#/components/responses/Error-404'
         '500':
           $ref: '#/components/responses/Error-500'
       tags:
@@ -29,6 +33,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Get-Bookings'
+        '400':
+          $ref: '#/components/responses/Error-400'
         '500':
           $ref: '#/components/responses/Error-500'
       parameters:
@@ -70,6 +76,10 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Get-Booking'
+        '400':
+          $ref: '#/components/responses/Error-400'
+        '404':
+          $ref: '#/components/responses/Error-404'
         '500':
           $ref: '#/components/responses/Error-500'
       tags:
@@ -112,6 +122,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Get-Flexibility'
+        '400':
+          $ref: '#/components/responses/Error-400'
         '500':
           $ref: '#/components/responses/Error-500'
       parameters:
@@ -141,6 +153,10 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Get-Flexibilities'
+        '400':
+          $ref: '#/components/responses/Error-400'
+        '404':
+          $ref: '#/components/responses/Error-404'
         '500':
           $ref: '#/components/responses/Error-500'
       tags:
@@ -153,6 +169,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Get-Vehicle-Size'
+        '400':
+          $ref: '#/components/responses/Error-400'
         '500':
           $ref: '#/components/responses/Error-500'
       parameters:
@@ -182,6 +200,10 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Get-Vehicle-Sizes'
+        '400':
+          $ref: '#/components/responses/Error-400'
+        '404':
+          $ref: '#/components/responses/Error-404'
         '500':
           $ref: '#/components/responses/Error-500'
       tags:
