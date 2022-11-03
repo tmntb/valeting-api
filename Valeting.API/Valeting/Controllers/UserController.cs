@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Valeting.ApiObjects;
 using Valeting.ApiObjects.User;
+using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
 using Valeting.Business.Authentication;
 using Valeting.Controllers.BaseController;
@@ -14,11 +15,13 @@ namespace Valeting.Controllers
     {
         private readonly IUserService _userService;
         private readonly IAuthenticationService _authenticationService;
+        private UserApiError _userApiError;
 
         public UserController(IUserService userService, IAuthenticationService authenticationService)
         {
             _userService = userService;
             _authenticationService = authenticationService;
+            _userApiError = new UserApiError() { Id = Guid.NewGuid() };
         }
 
         public override async Task<IActionResult> ValidateLogin([FromBody] ValidateLoginRequest validateLoginRequest)
@@ -48,9 +51,20 @@ namespace Valeting.Controllers
 
                 return StatusCode((int)HttpStatusCode.OK, response);
             }
+            catch(InputException inputException)
+            {
+                _userApiError.Detail = inputException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _userApiError);
+            }
+            catch(NotFoundException notFoundException)
+            {
+                _userApiError.Detail = notFoundException.Message;
+                return StatusCode((int)HttpStatusCode.NotFound, _userApiError);
+            }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+                _userApiError.Detail = ex.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, _userApiError);
             }
         }
     }

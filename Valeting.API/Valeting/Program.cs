@@ -46,13 +46,22 @@ builder.Services.AddStackExchangeRedisCache(options => {
 
 var app = builder.Build();
 
+app.UsePathBase("/Valeting");
+
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
+app.UseDefaultFiles();
+
+app.UseRouting();
+
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 
 app.Run();

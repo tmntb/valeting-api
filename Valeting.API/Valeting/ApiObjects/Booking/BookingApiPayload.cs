@@ -9,7 +9,7 @@ namespace Valeting.ApiObjects.Booking
         public DateTime BookingDate { get; set; }
         public FlexibilityApi Flexibility { get; set; }
         public VehicleSizeApi VehicleSize { get; set; }
-        public int ContactNumber { get; set; }
+        public int? ContactNumber { get; set; }
         public string Email { get; set; }
     }
 
@@ -24,9 +24,9 @@ namespace Valeting.ApiObjects.Booking
         public DateTime BookingDate { get; set; }
         public FlexibilityApi Flexibility { get; set; }
         public VehicleSizeApi VehicleSize { get; set; }
-        public int ContactNumber { get; set; }
+        public int? ContactNumber { get; set; }
         public string Email { get; set; }
-        public bool Approved { get; set; }
+        public bool? Approved { get; set; }
     }
 
     public class BookingApiPaginatedResponse : PaginationApi

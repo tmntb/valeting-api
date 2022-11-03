@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 
 using Valeting.ApiObjects;
+using Valeting.Common.Exceptions;
 using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
 using Valeting.Business.VehicleSize;
@@ -17,12 +18,14 @@ namespace Valeting.Controllers
         private IRedisCache _redisCache;
         private readonly IUrlService _urlService;
         private readonly IVehicleSizeService _vehicleSizeService;
+        private VehicleSizeApiError _vehicleSizeApiError;
 
         public VehicleSizeController(IRedisCache redisCache, IVehicleSizeService vehicleSizeService, IUrlService urlService)
         {
             _redisCache = redisCache;
             _vehicleSizeService = vehicleSizeService;
             _urlService = urlService;
+            _vehicleSizeApiError = new VehicleSizeApiError() { Id = Guid.NewGuid() };
         }
 
         public override async Task<IActionResult> FindByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
@@ -61,9 +64,19 @@ namespace Valeting.Controllers
 
                 return StatusCode((int)HttpStatusCode.OK, vehicleSizeApi);
             }
+            catch (InputException inputException)
+            {
+                _vehicleSizeApiError.Detail = inputException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _vehicleSizeApiError);
+            }
+            catch (NotFoundException notFoundException)
+            {
+                _vehicleSizeApiError.Detail = notFoundException.Message;
+                return StatusCode((int)HttpStatusCode.NotFound, _vehicleSizeApiError);
+            }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, _vehicleSizeApiError);
             }
         }
 
@@ -133,9 +146,15 @@ namespace Valeting.Controllers
 
                 return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiPaginatedResponse);
             }
+            catch (InputException inputException)
+            {
+                _vehicleSizeApiError.Detail = inputException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _vehicleSizeApiError);
+            }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+                _vehicleSizeApiError.Detail = ex.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, _vehicleSizeApiError);
             }
         }
     }

@@ -7,7 +7,7 @@ namespace Valeting.Repositories.Interfaces
         Task CreateAsync(BookingDTO bookingDTO);
         Task UpdateAsync(BookingDTO bookingDTO);
         Task DeleteAsync(Guid id);
-        Task<BookingDTO> FindByIDAsync(Guid id);
+        Task<BookingDTO> FindByIdAsync(Guid id);
         Task<BookingListDTO> ListAsync(BookingFilterDTO bookingFilterDTO);
     }
 }

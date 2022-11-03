@@ -11,17 +11,16 @@ namespace Valeting.Controllers.BaseController
     {
         [HttpPost]
         [Authorize]
-        [Route("/Valeting/bookings")]
+        [Route("/bookings")]
         [Consumes("application/json")]
         [ProducesResponseType(statusCode: 201, type: typeof(CreateBookingApiResponse))]
         [ProducesResponseType(statusCode: 400, type: typeof(BookingApiError))]
-        [ProducesResponseType(statusCode: 409, type: typeof(BookingApiError))]
         [ProducesResponseType(statusCode: 500, type: typeof(BookingApiError))]
         public abstract Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest);
 
         [HttpPut()]
         [Authorize]
-        [Route("/Valeting/bookings/{id}")]
+        [Route("/bookings/{id}")]
         [Consumes("application/json")]
         [ProducesResponseType(statusCode: 204)]
         [ProducesResponseType(statusCode: 400, type: typeof(BookingApiError))]
@@ -31,7 +30,7 @@ namespace Valeting.Controllers.BaseController
 
         [HttpDelete()]
         [Authorize]
-        [Route("/Valeting/bookings/{id}")]
+        [Route("/bookings/{id}")]
         [ProducesResponseType(statusCode: 204)]
         [ProducesResponseType(statusCode: 400, type: typeof(BookingApiError))]
         [ProducesResponseType(statusCode: 404, type: typeof(BookingApiError))]
@@ -40,15 +39,18 @@ namespace Valeting.Controllers.BaseController
 
         [HttpGet]
         [Authorize]
-        [Route("/Valeting/bookings")]
+        [Route("/bookings")]
         [ProducesResponseType(statusCode: 200, type: typeof(BookingApiPaginatedResponse))]
+        [ProducesResponseType(statusCode: 400, type: typeof(BookingApiError))]
         [ProducesResponseType(statusCode: 500, type: typeof(BookingApiError))]
         public abstract Task<IActionResult> ListAllAsync([FromQuery] BookingApiParameters bookingApiParameters);
 
         [HttpGet]
         [Authorize]
-        [Route("/Valeting/bookings/{id}")]
+        [Route("/bookings/{id}")]
         [ProducesResponseType(statusCode: 200, type: typeof(BookingApiResponse))]
+        [ProducesResponseType(statusCode: 400, type: typeof(BookingApiError))]
+        [ProducesResponseType(statusCode: 404, type: typeof(BookingApiError))]
         [ProducesResponseType(statusCode: 500, type: typeof(BookingApiError))]
         public abstract Task<IActionResult> FindByIdAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id);
     }

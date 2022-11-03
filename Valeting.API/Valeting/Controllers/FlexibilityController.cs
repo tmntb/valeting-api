@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 
 using Valeting.ApiObjects;
+using Valeting.Common.Exceptions;
 using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
 using Valeting.Business.Flexibility;
@@ -17,12 +18,14 @@ namespace Valeting.Controllers
         private IRedisCache _redisCache;
         private readonly IUrlService _urlService;
         private readonly IFlexibilityService _flexibilityService;
+        private FlexibilityApiError _flexibilityApiError;
 
         public FlexibilityController(IRedisCache redisCache, IFlexibilityService flexibilityService, IUrlService urlService)
         {
             _redisCache = redisCache;
             _flexibilityService = flexibilityService;
             _urlService = urlService;
+            _flexibilityApiError = new FlexibilityApiError() { Id = Guid.NewGuid() };
         }
 
         public override async Task<IActionResult> FindByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
@@ -61,9 +64,20 @@ namespace Valeting.Controllers
 
                 return StatusCode((int)HttpStatusCode.OK, flexibilityApiResponse);
             }
+            catch (InputException inputException)
+            {
+                _flexibilityApiError.Detail = inputException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _flexibilityApiError);
+            }
+            catch (NotFoundException notFoundException)
+            {
+                _flexibilityApiError.Detail = notFoundException.Message;
+                return StatusCode((int)HttpStatusCode.NotFound, _flexibilityApiError);
+            }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+                _flexibilityApiError.Detail = ex.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, _flexibilityApiError);
             }
         }
 
@@ -133,9 +147,15 @@ namespace Valeting.Controllers
 
                 return StatusCode((int)HttpStatusCode.OK, flexibilityApiPaginatedResponse);
             }
+            catch (InputException inputException)
+            {
+                _flexibilityApiError.Detail = inputException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _flexibilityApiError);
+            }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+                _flexibilityApiError.Detail = ex.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, _flexibilityApiError);
             }
         }
     }

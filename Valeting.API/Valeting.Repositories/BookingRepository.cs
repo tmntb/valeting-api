@@ -26,7 +26,7 @@ namespace Valeting.Repositories
                 BookingDate = bookingDTO.BookingDate,
                 FlexibilityId = bookingDTO.Flexibility.Id,
                 VehicleSizeId = bookingDTO.VehicleSize.Id,
-                ContactNumber = bookingDTO.ContactNumber,
+                ContactNumber = bookingDTO.ContactNumber.Value,
                 Email = bookingDTO.Email,
             };
 
@@ -44,7 +44,7 @@ namespace Valeting.Repositories
             booking.BookingDate = bookingDTO.BookingDate;
             booking.FlexibilityId = bookingDTO.Flexibility.Id;
             booking.VehicleSizeId = bookingDTO.VehicleSize.Id;
-            booking.ContactNumber = bookingDTO.ContactNumber;
+            booking.ContactNumber = bookingDTO.ContactNumber.Value;
             booking.Email = bookingDTO.Email;
             booking.Approved = bookingDTO.Approved;
 
@@ -62,7 +62,7 @@ namespace Valeting.Repositories
             await _valetingContext.SaveChangesAsync();
         }
 
-        public async Task<BookingDTO> FindByIDAsync(Guid id)
+        public async Task<BookingDTO> FindByIdAsync(Guid id)
         {
             var booking = await _valetingContext.Bookings.FindAsync(id);
             if (booking == null)

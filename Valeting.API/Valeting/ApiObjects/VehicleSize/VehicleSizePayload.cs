@@ -9,5 +9,7 @@
     {
         public VehicleSizeApi VehicleSize { get; set; }
     }
+
+    public class VehicleSizeApiError : ErrorApi { }
 }
 

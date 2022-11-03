@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Valeting.ApiObjects;
 using Valeting.Business.Booking;
+using Valeting.Common.Exceptions;
 using Valeting.Helpers.Interfaces;
 using Valeting.ApiObjects.Booking;
 using Valeting.Services.Interfaces;
@@ -21,24 +22,26 @@ namespace Valeting.Controllers
         private IRedisCache _redisCache;
         private readonly IUrlService _urlService;
         private readonly IBookingService _bookingService;
+        private BookingApiError _bookingApiError;
 
         public BookingController(IRedisCache redisCache, IBookingService bookingService, IUrlService urlService)
         {
             _redisCache = redisCache;
             _bookingService = bookingService;
             _urlService = urlService;
+            _bookingApiError = new BookingApiError() { Id = Guid.NewGuid() };
         }
 
         public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
         {
             try
             {
-                var bookingDTO = new BookingDTO()
+                var bookingDTO = createBookingApiRequest == null ? null : new BookingDTO()
                 {
                     Name = createBookingApiRequest.Name,
                     BookingDate = createBookingApiRequest.BookingDate,
-                    Flexibility = new FlexibilityDTO() { Id = createBookingApiRequest.Flexibility.Id },
-                    VehicleSize = new VehicleSizeDTO() { Id = createBookingApiRequest.VehicleSize.Id },
+                    Flexibility = createBookingApiRequest.Flexibility != null ? new FlexibilityDTO() { Id = createBookingApiRequest.Flexibility.Id } : null,
+                    VehicleSize = createBookingApiRequest.VehicleSize != null ? new VehicleSizeDTO() { Id = createBookingApiRequest.VehicleSize.Id } : null,
                     ContactNumber = createBookingApiRequest.ContactNumber,
                     Email = createBookingApiRequest.Email
                 };
@@ -49,11 +52,27 @@ namespace Valeting.Controllers
                 var recordKey = "*ListBooking_*";
                 await _redisCache.RemoveRecordAsync(recordKey);
 
-                return StatusCode((int)HttpStatusCode.Created, booking.Id);
+                var createBookingApiResponse = new CreateBookingApiResponse()
+                {
+                    Id = booking.Id
+                };
+
+                return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
+            }
+            catch (BusinessObjectException businessObjectException)
+            {
+                _bookingApiError.Detail = businessObjectException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            }
+            catch (InputException inpuException)
+            {
+                _bookingApiError.Detail = inpuException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
             }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+                _bookingApiError.Detail = ex.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, _bookingApiError);
             }
         }
 
@@ -61,13 +80,13 @@ namespace Valeting.Controllers
         {
             try
             {
-                var bookingDTO = new BookingDTO()
+                var bookingDTO = updateBookingApiRequest == null ? null : new BookingDTO()
                 {
                     Id = Guid.Parse(id),
                     Name = updateBookingApiRequest.Name,
                     BookingDate = updateBookingApiRequest.BookingDate,
-                    Flexibility = new FlexibilityDTO() { Id = updateBookingApiRequest.Flexibility.Id },
-                    VehicleSize = new VehicleSizeDTO() { Id = updateBookingApiRequest.VehicleSize.Id },
+                    Flexibility = updateBookingApiRequest.Flexibility != null ? new FlexibilityDTO() { Id = updateBookingApiRequest.Flexibility.Id } : null,
+                    VehicleSize = updateBookingApiRequest.VehicleSize != null ? new VehicleSizeDTO() { Id = updateBookingApiRequest.VehicleSize.Id } : null,
                     ContactNumber = updateBookingApiRequest.ContactNumber,
                     Email = updateBookingApiRequest.Email,
                     Approved = updateBookingApiRequest.Approved
@@ -83,9 +102,25 @@ namespace Valeting.Controllers
 
                 return StatusCode((int)HttpStatusCode.NoContent);
             }
+            catch (BusinessObjectException businessObjectException)
+            {
+                _bookingApiError.Detail = businessObjectException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            }
+            catch (InputException inpuException)
+            {
+                _bookingApiError.Detail = inpuException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            }
+            catch (NotFoundException notFoundException)
+            {
+                _bookingApiError.Detail = notFoundException.Message;
+                return StatusCode((int)HttpStatusCode.NotFound, _bookingApiError);
+            }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+                _bookingApiError.Detail = ex.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, _bookingApiError);
             }
         }
 
@@ -102,9 +137,20 @@ namespace Valeting.Controllers
 
                 return StatusCode((int)HttpStatusCode.NoContent);
             }
+            catch (InputException inpuException)
+            {
+                _bookingApiError.Detail = inpuException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            }
+            catch (NotFoundException notFoundException)
+            {
+                _bookingApiError.Detail = notFoundException.Message;
+                return StatusCode((int)HttpStatusCode.NotFound, _bookingApiError);
+            }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+                _bookingApiError.Detail = ex.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, _bookingApiError);
             }
         }
 
@@ -157,7 +203,7 @@ namespace Valeting.Controllers
                             }
                         }
                     },
-                    ContactNumber = bookingDTO.ContactNumber,
+                    ContactNumber = bookingDTO.ContactNumber.Value,
                     Email = bookingDTO.Email,
                     Approved = bookingDTO.Approved,
                     Link = new BookingApiLink()
@@ -173,9 +219,20 @@ namespace Valeting.Controllers
 
                 return StatusCode((int)HttpStatusCode.OK, bookingApiResponse);
             }
+            catch (InputException inpuException)
+            {
+                _bookingApiError.Detail = inpuException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            }
+            catch (NotFoundException notFoundException)
+            {
+                _bookingApiError.Detail = notFoundException.Message;
+                return StatusCode((int)HttpStatusCode.NotFound, _bookingApiError);
+            }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+                _bookingApiError.Detail = ex.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, _bookingApiError);
             }
         }
 
@@ -257,7 +314,7 @@ namespace Valeting.Controllers
                                     }
                                 }
                             },
-                            ContactNumber = item.ContactNumber,
+                            ContactNumber = item.ContactNumber.Value,
                             Email = item.Email,
                             Approved = item.Approved,
                             Link = new BookingApiLink()
@@ -273,9 +330,15 @@ namespace Valeting.Controllers
 
                 return StatusCode((int)HttpStatusCode.OK, bookingApiPaginatedResponse);
             }
+            catch (InputException inpuException)
+            {
+                _bookingApiError.Detail = inpuException.Message;
+                return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            }
             catch (Exception ex)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+                _bookingApiError.Detail = ex.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, _bookingApiError);
             }
         }
     }

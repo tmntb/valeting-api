@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Valeting.Repositories\Valeting.Repositories.csproj" />
+    <ProjectReference Include="..\Valeting.Common\Valeting.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,20 +7,24 @@ using Valeting.ApiObjects.VehicleSize;
 
 namespace Valeting.Controllers.BaseController
 {
+    [ApiController]
     public abstract class VehicleSizeBaseController : ControllerBase
     {
         [HttpGet]
         [Authorize]
-        [Route("/Valeting/vehicleSizes")]
+        [Route("/vehicleSizes")]
         [ProducesResponseType(statusCode: 200, type: typeof(IEnumerable<VehicleSizeApiPaginatedResponse>))]
-        [ProducesResponseType(statusCode: 500)]
+        [ProducesResponseType(statusCode: 400, type: typeof(VehicleSizeApiError))]
+        [ProducesResponseType(statusCode: 500, type: typeof(VehicleSizeApiError))]
         public abstract Task<IActionResult> ListAllAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters);
 
         [HttpGet]
         [Authorize]
-        [Route("/Valeting/vehicleSizes/{id}")]
+        [Route("/vehicleSizes/{id}")]
         [ProducesResponseType(statusCode: 200, type: typeof(VehicleSizeApiResponse))]
-        [ProducesResponseType(statusCode: 500)]
+        [ProducesResponseType(statusCode: 400, type: typeof(VehicleSizeApiError))]
+        [ProducesResponseType(statusCode: 404, type: typeof(VehicleSizeApiError))]
+        [ProducesResponseType(statusCode: 500, type: typeof(VehicleSizeApiError))]
         public abstract Task<IActionResult> FindByIdAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id);
     }
 }

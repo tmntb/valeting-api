@@ -5,9 +5,10 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
-using Valeting.Business.Authentication;
+using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
 using Valeting.Repositories.Interfaces;
+using Valeting.Business.Authentication;
 
 namespace Valeting.Service
 {
@@ -23,17 +24,17 @@ namespace Valeting.Service
         public async Task<bool> ValidateLogin(UserDTO userDTO)
         {
             if (userDTO == null)
-                throw new Exception("userDTO is null");
+                throw new InputException("userDTO is null");
 
             if(string.IsNullOrEmpty(userDTO.Username) || string.IsNullOrEmpty(userDTO.Password))
             {
                 string errorMsg = string.IsNullOrEmpty(userDTO.Username) ? "Username is null or empty" : "Password is null or empty";
-                throw new Exception(errorMsg);
+                throw new InputException(errorMsg);
             }
 
             var userDTO_DB = await _userRepository.FindUserByEmail(userDTO.Username);
             if (userDTO_DB == null || string.IsNullOrEmpty(userDTO_DB.Password))
-                return false;
+                throw new NotFoundException("Utilizador inexistente");
 
             byte[] salt = Encoding.ASCII.GetBytes(userDTO_DB.Salt);
 
