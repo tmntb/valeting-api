@@ -76,6 +76,7 @@ namespace Valeting.Controllers
             }
             catch (Exception ex)
             {
+                _vehicleSizeApiError.Detail = ex.Message;
                 return StatusCode((int)HttpStatusCode.InternalServerError, _vehicleSizeApiError);
             }
         }
