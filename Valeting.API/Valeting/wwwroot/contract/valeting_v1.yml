@@ -6,8 +6,12 @@ info:
   contact:
     name: Tiago Baeta
     email: tmntb.work@gmail.com
+  x-logo:
+    url: "https://raw.githubusercontent.com/vyomsrivastava/redoc-ly/main/logo.png"
+    backgroundColor: "#FFFFFF"
+    altText: "Petstore logo"
 servers:
-  - url: 'http://localhost.com'
+  - url: 'https://localhost:7230'
 paths:
   /user/verify:
     post:

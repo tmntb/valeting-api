@@ -12,15 +12,16 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "weatherforecast",
+      "launchUrl": "api-docs",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Valeting": {
+    "OpenAPI": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7230;http://localhost:5230",
+      "launchUrl": "api-docs",
+      "applicationUrl": "https://localhost:7230;http://localhost:7231",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

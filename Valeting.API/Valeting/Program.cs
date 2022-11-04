@@ -1,10 +1,12 @@
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 using Valeting.Helpers;
-using Valeting.Helpers.Interfaces;
-using Valeting.Repositories;
 using Valeting.Services;
+using Valeting.Repositories;
+using Valeting.Helpers.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,14 +41,25 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddStackExchangeRedisCache(options => {
+builder.Services.AddStackExchangeRedisCache(options =>
+{
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
     options.InstanceName = "Valeting_";
 });
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+
+    app.UseReDocConfig();
+
+    app.EnableStaticFiles();
+}
+
 app.UsePathBase("/Valeting");
+
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
