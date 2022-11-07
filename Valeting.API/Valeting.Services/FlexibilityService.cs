@@ -1,4 +1,5 @@
-﻿using Valeting.Common.Exceptions;
+﻿using Valeting.Common.Messages;
+using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
 using Valeting.Business.Flexibility;
 using Valeting.Repositories.Interfaces;
@@ -11,17 +12,17 @@ namespace Valeting.Service
 
         public FlexibilityService(IFlexibilityRepository flexibilityRepository)
         {
-            _flexibilityRepository = flexibilityRepository ?? throw new Exception("flexibilityRepository is null");
+            _flexibilityRepository = flexibilityRepository ?? throw new Exception(string.Format(Messages.NotInitializeRepository, "Flexibility Repository"));
         }
 
         public async Task<FlexibilityDTO> FindByIDAsync(Guid id)
         {
             if (id.Equals(Guid.Empty))
-                throw new InputException("FlexibilityId is empty");
+                throw new InputException(Messages.InvalidFlexibilityId);
 
             var flexibilityDTO = await _flexibilityRepository.FindByIDAsync(id);
             if (flexibilityDTO == null)
-                throw new NotFoundException("Flexibility not found");
+                throw new NotFoundException(Messages.FlexibilityNotFound);
 
             return flexibilityDTO;
         }
@@ -29,7 +30,7 @@ namespace Valeting.Service
         public async Task<FlexibilityListDTO> ListAllAsync(FlexibilityFilterDTO flexibilityFilterDTO)
         {
             if (flexibilityFilterDTO.PageNumber == 0)
-                throw new InputException("pageNumber é 0");
+                throw new InputException(Messages.InvalidPageNumber);
 
             return await _flexibilityRepository.ListAsync(flexibilityFilterDTO);
         }

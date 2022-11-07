@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>        
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="ApprovedEmpty" xml:space="preserve">
+		<value>Approved cannot be empty.</value>
+	</data>
+    <data name="BookingNotFound" xml:space="preserve">
+		<value>Booking was not found.</value>
+	</data>
+    <data name="BookingDTONotPopulated" xml:space="preserve">
+		<value>BookingDTO is not populated.</value>
+	</data>
+	<data name="DateInThePast" xml:space="preserve">
+		<value>The date cannot be in the past.</value>
+    </data>
+    <data name="FlexibilityNull" xml:space="preserve">
+		<value>Flexibility cannot be null.</value>
+    </data>
+    <data name="FlexibilityEmpty" xml:space="preserve">
+		<value>Flexibility cannot be empty.</value>
+    </data>
+    <data name="FlexibilityNotFound" xml:space="preserve">
+		<value>Flexibility was not found.</value>
+	</data>
+    <data name="InvalidPageNumber" xml:space="preserve">
+        <value>The page number is invalid.</value>
+    </data>
+    <data name="InvalidBookingName" xml:space="preserve">
+		<value>Must have a valid name for the booking.</value>
+    </data>
+    <data name="InvalidBookingContactNumber" xml:space="preserve">
+		<value>Must have a valid contact number for the booking.</value>
+    </data>
+    <data name="InvalidBookingDate" xml:space="preserve">
+		<value>Must have a valid date for the booking.</value>
+    </data>
+    <data name="InvalidBookingEmail" xml:space="preserve">
+		<value>Must have a valid email for the booking.</value>
+    </data>
+    <data name="InvalidBookingId" xml:space="preserve">
+		<value>Must have a valid id for the booking.</value>
+    </data>
+    <data name="InvalidFlexibilityId" xml:space="preserve">
+		<value>Must have a valid id for the flexibility.</value>
+    </data>
+    <data name="InvalidPassword" xml:space="preserve">
+		<value>Must have a valid password.</value>
+    </data>
+    <data name="InvalidUsername" xml:space="preserve">
+		<value>Must have a valid username.</value>
+    </data>
+    <data name="InvalidVehicleSizeId" xml:space="preserve">
+		<value>Must have a valid id for the vehicle size.</value>
+    </data>
+	<data name="NotInitializeRepository" xml:space="preserve">
+		<value>{0} not initialized.</value>
+	</data>
+    <data name="UserNotFound" xml:space="preserve">
+		<value>User was not found.</value>
+	</data>
+     <data name="UserDTONotPopulated" xml:space="preserve">
+		<value>UserDTO is not populated.</value>
+	</data>
+     <data name="VehicleSizeNull" xml:space="preserve">
+		<value>Vehicle Size cannot be null.</value>
+    </data>
+    <data name="VehicleSizeEmpty" xml:space="preserve">
+		<value>Vehicle Size cannot be empty.</value>
+    </data>
+    <data name="VehicleSizeNotFound" xml:space="preserve">
+		<value>Vehicle Size was not found.</value>
+	</data>
+</root>

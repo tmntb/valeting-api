@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 using Valeting.Business;
+using Valeting.Common.Messages;
+using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
 using Valeting.Repositories.Interfaces;
 using Valeting.Business.Authentication;
@@ -20,7 +22,7 @@ namespace Valeting.Services
 
         public AuthenticationService(IUserRepository userRepository, IConfiguration configuration)
         {
-            _userRepository = userRepository;
+            _userRepository = userRepository ?? throw new Exception(string.Format(Messages.NotInitializeRepository, "User Repository")); ;
             _configuration = configuration;
         }
 
@@ -28,7 +30,7 @@ namespace Valeting.Services
         {
             var userDTO_DB = await _userRepository.FindUserByEmail(userDTO.Username);
             if (userDTO_DB == null)
-                throw new Exception("user inexistente");
+                throw new NotFoundException(Messages.UserNotFound);
 
             var secret = _configuration["Jwt:Key"];
             var issuer = _configuration["Jwt:Issuer"];

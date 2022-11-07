@@ -1,4 +1,5 @@
-﻿using Valeting.Business.Booking;
+﻿using Valeting.Common.Messages;
+using Valeting.Business.Booking;
 using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
 using Valeting.Business.VehicleSize;
@@ -12,7 +13,7 @@ namespace Valeting.Service
 
         public BookingService(IBookingRepository bookingRepository)
         {
-            this._bookingRepository = bookingRepository ?? throw new Exception("bookingRepository is null");
+            this._bookingRepository = bookingRepository ?? throw new Exception(string.Format(Messages.NotInitializeRepository, "Booking Repository"));
         }
 
         public async Task<BookingDTO> CreateAsync(BookingDTO bookingDTO)
@@ -20,7 +21,7 @@ namespace Valeting.Service
             ValidateGeneralInput(bookingDTO);
 
             if (bookingDTO.BookingDate < DateTime.Now)
-                throw new BusinessObjectException("Booking date cannot be in the past");
+                throw new BusinessObjectException(Messages.DateInThePast);
 
             bookingDTO.Id = Guid.NewGuid();
 
@@ -35,14 +36,14 @@ namespace Valeting.Service
             ValidateBookingId(bookingDTO.Id);
 
             if (!bookingDTO.Approved.HasValue)
-                throw new InputException("Approved is null or empty");
+                throw new InputException(Messages.ApprovedEmpty);
 
             if (bookingDTO.BookingDate < DateTime.Now)
-                throw new BusinessObjectException("Booking date cannot be in the past");
+                throw new BusinessObjectException(Messages.DateInThePast);
 
             BookingDTO bookingDTO_Check = await _bookingRepository.FindByIdAsync(bookingDTO.Id);
             if (bookingDTO_Check == null)
-                throw new NotFoundException("Not found booking");
+                throw new NotFoundException(Messages.BookingNotFound);
 
             await _bookingRepository.UpdateAsync(bookingDTO);
         }
@@ -53,7 +54,7 @@ namespace Valeting.Service
 
             BookingDTO bookingDTO_Check = await _bookingRepository.FindByIdAsync(id);
             if (bookingDTO_Check == null)
-                throw new NotFoundException("Not found booking");
+                throw new NotFoundException(Messages.BookingNotFound);
 
             await _bookingRepository.DeleteAsync(id);
         }
@@ -64,7 +65,7 @@ namespace Valeting.Service
 
             var bookingDTO = await _bookingRepository.FindByIdAsync(id);
             if (bookingDTO == null)
-                throw new NotFoundException("Booking not found");
+                throw new NotFoundException(Messages.BookingNotFound);
 
             return bookingDTO;
         }
@@ -72,7 +73,7 @@ namespace Valeting.Service
         public async Task<BookingListDTO> ListAllAsync(BookingFilterDTO bookingFilterDTO)
         {
             if (bookingFilterDTO.PageNumber == 0)
-                throw new InputException("pageNumber é 0");
+                throw new InputException(Messages.InvalidPageNumber);
 
             return await _bookingRepository.ListAsync(bookingFilterDTO);
         }
@@ -80,25 +81,25 @@ namespace Valeting.Service
         private void ValidateGeneralInput(BookingDTO bookingDTO)
         {
             if (bookingDTO == null)
-                throw new BusinessObjectException("bookingDTO is null");
+                throw new BusinessObjectException(Messages.BookingDTONotPopulated);
 
             if (bookingDTO.Flexibility == null || bookingDTO.Flexibility.Id.Equals(Guid.Empty))
             {
-                string errorMsg = bookingDTO.Flexibility == null ? "Flexibility is null" : "FlexibilityId is empty";
+                string errorMsg = bookingDTO.Flexibility == null ? Messages.FlexibilityNull : Messages.FlexibilityEmpty;
                 throw new InputException(errorMsg);
             }
 
             if (bookingDTO.VehicleSize == null || bookingDTO.VehicleSize.Id.Equals(Guid.Empty))
             {
-                string errorMsg = bookingDTO.Flexibility == null ? "VehicleSize is null" : "VehicleSizeId is empty";
+                string errorMsg = bookingDTO.Flexibility == null ? Messages.VehicleSizeNull : Messages.VehicleSizeEmpty;
                 throw new InputException(errorMsg);
             }
 
             if (string.IsNullOrEmpty(bookingDTO.Name) || string.IsNullOrEmpty(bookingDTO.Email) || !bookingDTO.ContactNumber.HasValue || bookingDTO.BookingDate.Equals(DateTime.MinValue))
             {
-                string errorMsg = string.IsNullOrEmpty(bookingDTO.Name) ? "Name is null or empty" :
-                                string.IsNullOrEmpty(bookingDTO.Email) ? "Email is null or empty" :
-                                !bookingDTO.ContactNumber.HasValue ? "Contact Number is null or empty" : "Booking date is null or empty";
+                string errorMsg = string.IsNullOrEmpty(bookingDTO.Name) ? Messages.InvalidBookingName :
+                                string.IsNullOrEmpty(bookingDTO.Email) ? Messages.InvalidBookingEmail :
+                                !bookingDTO.ContactNumber.HasValue ? Messages.InvalidBookingContactNumber : Messages.InvalidBookingDate;
                 throw new InputException(errorMsg);
             }
         }
@@ -106,7 +107,7 @@ namespace Valeting.Service
         private void ValidateBookingId(Guid id)
         {
             if (id.Equals(Guid.Empty))
-                throw new InputException("BookingId is empty");
+                throw new InputException(Messages.InvalidBookingId);
         }
     }
 }

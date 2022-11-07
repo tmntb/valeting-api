@@ -1,4 +1,5 @@
-﻿using Valeting.Common.Exceptions;
+﻿using Valeting.Common.Messages;
+using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
 using Valeting.Business.VehicleSize;
 using Valeting.Repositories.Interfaces;
@@ -11,17 +12,17 @@ namespace Valeting.Service
 
         public VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository)
         {
-            _vehicleSizeRepository = vehicleSizeRepository ?? throw new Exception("vehicleSizeRepository is null");
+            _vehicleSizeRepository = vehicleSizeRepository ?? throw new Exception(string.Format(Messages.NotInitializeRepository, "Vehicle Size Repository"));
         }
 
         public async Task<VehicleSizeDTO> FindByIDAsync(Guid id)
         {
             if (id.Equals(Guid.Empty))
-                throw new InputException("VehicleSizeId is empty");
+                throw new InputException(Messages.InvalidVehicleSizeId);
 
             var vehicleSizeDTO = await _vehicleSizeRepository.FindByIDAsync(id);
             if (vehicleSizeDTO == null)
-                throw new NotFoundException("Vehicle Size not found");
+                throw new NotFoundException(Messages.VehicleSizeNotFound);
 
             return vehicleSizeDTO;
         }
@@ -29,7 +30,7 @@ namespace Valeting.Service
         public async Task<VehicleSizeListDTO> ListAllAsync(VehicleSizeFilterDTO vehicleSizeFilterDTO)
         {
             if (vehicleSizeFilterDTO.PageNumber == 0)
-                throw new InputException("pageNumber é 0");
+                throw new InputException(Messages.InvalidPageNumber);
 
             return await _vehicleSizeRepository.ListAsync(vehicleSizeFilterDTO);
         }

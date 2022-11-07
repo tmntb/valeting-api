@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
+using Valeting.Common.Messages;
 using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
 using Valeting.Repositories.Interfaces;
@@ -18,23 +19,23 @@ namespace Valeting.Service
 
         public UserService(IUserRepository userRepository)
         {
-            _userRepository = userRepository ?? throw new Exception("userRepository is null");
+            _userRepository = userRepository ?? throw new Exception(string.Format(Messages.NotInitializeRepository, "User Repository"));
         }
 
         public async Task<bool> ValidateLogin(UserDTO userDTO)
         {
             if (userDTO == null)
-                throw new InputException("userDTO is null");
+                throw new InputException(Messages.UserDTONotPopulated);
 
             if(string.IsNullOrEmpty(userDTO.Username) || string.IsNullOrEmpty(userDTO.Password))
             {
-                string errorMsg = string.IsNullOrEmpty(userDTO.Username) ? "Username is null or empty" : "Password is null or empty";
+                string errorMsg = string.IsNullOrEmpty(userDTO.Username) ? Messages.InvalidUsername : Messages.InvalidPassword;
                 throw new InputException(errorMsg);
             }
 
             var userDTO_DB = await _userRepository.FindUserByEmail(userDTO.Username);
             if (userDTO_DB == null || string.IsNullOrEmpty(userDTO_DB.Password))
-                throw new NotFoundException("Utilizador inexistente");
+                throw new NotFoundException(Messages.UserNotFound);
 
             byte[] salt = Encoding.ASCII.GetBytes(userDTO_DB.Salt);
 

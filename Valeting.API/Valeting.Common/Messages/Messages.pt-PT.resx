@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="ApprovedEmpty" xml:space="preserve">
+		<value>Approved tem de estar preenchido.</value>
+	</data>
+    <data name="BookingNotFound" xml:space="preserve">
+		<value>A reserva não foi encontrada.</value>
+	</data>
+    <data name="BookingDTONotPopulated" xml:space="preserve">
+		<value>BookingDTO não está populado.</value>
+	</data>
+	<data name="DateInThePast" xml:space="preserve">
+		<value>A data não pode estar no passado.</value>
+    </data>
+    <data name="FlexibilityNull" xml:space="preserve">
+		<value>A flexibilidade não pode ser null.</value>
+    </data>
+    <data name="FlexibilityEmpty" xml:space="preserve">
+		<value>A flexibilidade não pode estar vazio.</value>
+    </data>
+    <data name="FlexibilityNotFound" xml:space="preserve">
+		<value>A flexibilidade não foi encontrada.</value>
+	</data>
+    <data name="InvalidPageNumber" xml:space="preserve">
+        <value>O número da página é inválido.</value>
+    </data>
+    <data name="InvalidBookingName" xml:space="preserve">
+		<value>Deve ter um nome válido para a reserva.</value>
+    </data>
+    <data name="InvalidBookingContactNumber" xml:space="preserve">
+		<value>Deve ter um número de contacto válido para a reserva.</value>
+    </data>
+    <data name="InvalidBookingDate" xml:space="preserve">
+		<value>Deve ter uma data válida para a reserva.</value>
+    </data>
+    <data name="InvalidBookingEmail" xml:space="preserve">
+		<value>Deve ter um email válido para a reserva.</value>
+    </data>
+    <data name="InvalidBookingId" xml:space="preserve">
+		<value>Deve ter um identificador válido para a reserva.</value>
+    </data>
+    <data name="InvalidFlexibilityId" xml:space="preserve">
+		<value>Deve ter um identificador válido para a flexibilidade.</value>
+    </data>
+    <data name="InvalidPassword" xml:space="preserve">
+		<value>Deve ter uma palavra-passe válida.</value>
+    </data>
+    <data name="InvalidUsername" xml:space="preserve">
+		<value>Deve ter um nome de utilizador válido.</value>
+    </data>
+    <data name="InvalidVehicleSizeId" xml:space="preserve">
+		<value>Deve ter um identificador válido para o tamanho de veículo.</value>
+    </data>
+	<data name="NotInitializeRepository" xml:space="preserve">
+		<value>{0} não inicializado.</value>
+	</data>
+    <data name="UserNotFound" xml:space="preserve">
+		<value>O utilizador não foi encontrado.</value>
+	</data>
+     <data name="UserDTONotPopulated" xml:space="preserve">
+		<value>UserDTO não está populado.</value>
+	</data>
+     <data name="VehicleSizeNull" xml:space="preserve">
+		<value>Tamanho de veículo não pode ser null.</value>
+    </data>
+    <data name="VehicleSizeEmpty" xml:space="preserve">
+		<value>Tamanho de veículo não pode estar vazio.</value>
+    </data>
+    <data name="VehicleSizeNotFound" xml:space="preserve">
+		<value>O tamanho de veículo não foi encontrado.</value>
+	</data>
+</root>
+
