@@ -22,42 +22,55 @@ namespace Valeting.Helpers
 
         public async Task SetRecordAsync<T>(string recordId, T data, TimeSpan? absoluteExpireTime = null, TimeSpan? slidingExpireTime = null)
         {
-            var options = new DistributedCacheEntryOptions();
+            try
+            {
+                var options = new DistributedCacheEntryOptions();
 
-            options.AbsoluteExpirationRelativeToNow = absoluteExpireTime ?? TimeSpan.FromSeconds(60);
-            options.SlidingExpiration = slidingExpireTime;
+                options.AbsoluteExpirationRelativeToNow = absoluteExpireTime ?? TimeSpan.FromSeconds(60);
+                options.SlidingExpiration = slidingExpireTime;
 
-            var jsonData = JsonSerializer.Serialize(data);
-            await _cache.SetStringAsync(recordId, jsonData, options);
+                var jsonData = JsonSerializer.Serialize(data);
+                await _cache.SetStringAsync(recordId, jsonData, options);
+            }
+            catch (Exception) { }
         }
 
         public async Task<T?> GetRecordAsync<T>(string recordId)
         {
-            var jsonData = await _cache.GetStringAsync(recordId);
-
-            if (jsonData is null)
+            var jsonData = string.Empty;
+            try
             {
-                return default(T);
-            }
+                jsonData = await _cache.GetStringAsync(recordId);
 
-            return JsonSerializer.Deserialize<T>(jsonData);
+                if (jsonData is null)
+                {
+                    return default(T);
+                }
+                return JsonSerializer.Deserialize<T>(jsonData);
+            }
+            catch (Exception) { }
+
+            return default(T);
         }
 
         public async Task RemoveRecordAsync(string recordId)
         {
-            var options = ConfigurationOptions.Parse(_configuration["ConnectionStrings:Redis"]);
-            var connection = ConnectionMultiplexer.Connect(options);
-            var db = connection.GetDatabase();
-            var endPoint = connection.GetEndPoints().First();
-            var keys = connection.GetServer(endPoint).Keys(pattern: recordId).ToList();
-            if (keys.Any())
+            try
             {
-                foreach (var key in keys)
+                var options = ConfigurationOptions.Parse(_configuration["ConnectionStrings:Redis"]);
+                var connection = ConnectionMultiplexer.Connect(options);
+                var db = connection.GetDatabase();
+                var endPoint = connection.GetEndPoints().First();
+                var keys = connection.GetServer(endPoint).Keys(pattern: recordId).ToList();
+                if (keys.Any())
                 {
-                    await db.KeyDeleteAsync(key);
+                    foreach (var key in keys)
+                    {
+                        await db.KeyDeleteAsync(key);
+                    }
                 }
             }
-
+            catch (Exception) { }
         }
     }
 }
