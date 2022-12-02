@@ -194,7 +194,7 @@ namespace Valeting.Controllers
                     {
                         Id = bookingDTO.VehicleSize.Id,
                         Description = bookingDTO.VehicleSize.Description,
-                        Actice = bookingDTO.VehicleSize.Active,
+                        Active = bookingDTO.VehicleSize.Active,
                         Link = new VehicleSizeApiLink()
                         {
                             Self = new LinkApi()
@@ -305,7 +305,7 @@ namespace Valeting.Controllers
                             {
                                 Id = item.VehicleSize.Id,
                                 Description = item.VehicleSize.Description,
-                                Actice = item.VehicleSize.Active,
+                                Active = item.VehicleSize.Active,
                                 Link = new VehicleSizeApiLink()
                                 {
                                     Self = new LinkApi()

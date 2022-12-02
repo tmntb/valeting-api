@@ -50,7 +50,7 @@ namespace Valeting.Controllers
                 {
                     Id = vehicleSizeDTO.Id,
                     Description = vehicleSizeDTO.Description,
-                    Actice = vehicleSizeDTO.Active,
+                    Active = vehicleSizeDTO.Active,
                     Link = new VehicleSizeApiLink()
                     {
                         Self = new LinkApi()
@@ -62,7 +62,7 @@ namespace Valeting.Controllers
 
                 vehicleSizeApiResponse.VehicleSize = vehicleSizeApi;
 
-                return StatusCode((int)HttpStatusCode.OK, vehicleSizeApi);
+                return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiResponse);
             }
             catch (InputException inputException)
             {
@@ -133,7 +133,7 @@ namespace Valeting.Controllers
                         {
                             Id = item.Id,
                             Description = item.Description,
-                            Actice = item.Active,
+                            Active = item.Active,
                             Link = new VehicleSizeApiLink()
                             {
                                 Self = new LinkApi()

@@ -6,7 +6,7 @@ namespace Valeting.ApiObjects.VehicleSize
     {
         public Guid Id { get; set; }
         public string Description { get; set; }
-        public bool Actice { get; set; }
+        public bool Active { get; set; }
         [JsonPropertyName("_link")]
         public VehicleSizeApiLink Link { get; set; }
     }
