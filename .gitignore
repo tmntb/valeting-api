@@ -1,7 +1,4 @@
-
-.DS_Store
-Valeting.API/.DS_Store
-Valeting.API/.vs/Valeting.API/xs/
+.vs/
 Valeting.API/Valeting.Business/bin/
 Valeting.API/Valeting.Business/obj/
 Valeting.API/Valeting.Repositories/bin/
