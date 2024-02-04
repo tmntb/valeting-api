@@ -7,13 +7,14 @@ using Valeting.Helpers;
 using Valeting.Services;
 using Valeting.Repositories;
 using Valeting.Helpers.Interfaces;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 
-builder.Services.AddMiddleware();
+builder.Services.AddServicesLayer();
 
 builder.Services.AddInfrastructureDataLayer(builder.Configuration);
 
@@ -47,6 +48,24 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "Valeting_";
 });
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Valeting",
+        Version = "v1",
+        Description = "This is an API to and manage your reserves for cars.",
+        Contact = new OpenApiContact
+        {
+            Name = "Tiago Baeta",
+            Email = "tmntb.work@gmail.com"
+        }
+    });
+
+    c.DocInclusionPredicate((docName, apiDesc) => true);
+    c.TagActionsBy(api => new[] { api.GroupName });
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -59,7 +78,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UsePathBase("/Valeting");
-
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
@@ -75,6 +93,14 @@ app.UseAuthorization();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
+    endpoints.MapSwagger();
+});
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.RoutePrefix = "swagger";
+    c.SwaggerEndpoint("v1/swagger.json", "Valeting v1");
 });
 
 app.Run();

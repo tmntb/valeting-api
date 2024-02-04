@@ -5,26 +5,25 @@ using Microsoft.AspNetCore.Authorization;
 
 using Valeting.ApiObjects.VehicleSize;
 
-namespace Valeting.Controllers.BaseController
-{
-    [ApiController]
-    public abstract class VehicleSizeBaseController : ControllerBase
-    {
-        [HttpGet]
-        [Authorize]
-        [Route("/vehicleSizes")]
-        [ProducesResponseType(statusCode: 200, type: typeof(IEnumerable<VehicleSizeApiPaginatedResponse>))]
-        [ProducesResponseType(statusCode: 400, type: typeof(VehicleSizeApiError))]
-        [ProducesResponseType(statusCode: 500, type: typeof(VehicleSizeApiError))]
-        public abstract Task<IActionResult> ListAllAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters);
+namespace Valeting.Controllers.BaseController;
 
-        [HttpGet]
-        [Authorize]
-        [Route("/vehicleSizes/{id}")]
-        [ProducesResponseType(statusCode: 200, type: typeof(VehicleSizeApiResponse))]
-        [ProducesResponseType(statusCode: 400, type: typeof(VehicleSizeApiError))]
-        [ProducesResponseType(statusCode: 404, type: typeof(VehicleSizeApiError))]
-        [ProducesResponseType(statusCode: 500, type: typeof(VehicleSizeApiError))]
-        public abstract Task<IActionResult> FindByIdAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id);
-    }
+[ApiController]
+public abstract class VehicleSizeBaseController : ControllerBase
+{
+    [HttpGet]
+    [Authorize]
+    [Route("/vehicleSizes")]
+    [ProducesResponseType(statusCode: 200, type: typeof(IEnumerable<VehicleSizeApiPaginatedResponse>))]
+    [ProducesResponseType(statusCode: 400, type: typeof(VehicleSizeApiError))]
+    [ProducesResponseType(statusCode: 500, type: typeof(VehicleSizeApiError))]
+    public abstract Task<IActionResult> ListAllAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters);
+
+    [HttpGet]
+    [Authorize]
+    [Route("/vehicleSizes/{id}")]
+    [ProducesResponseType(statusCode: 200, type: typeof(VehicleSizeApiResponse))]
+    [ProducesResponseType(statusCode: 400, type: typeof(VehicleSizeApiError))]
+    [ProducesResponseType(statusCode: 404, type: typeof(VehicleSizeApiError))]
+    [ProducesResponseType(statusCode: 500, type: typeof(VehicleSizeApiError))]
+    public abstract Task<IActionResult> FindByIdAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id);
 }

@@ -7,7 +7,7 @@ namespace Valeting.Services
 {
     public static class ServiceRegistration
     {
-        public static void AddMiddleware(this IServiceCollection services)
+        public static void AddServicesLayer(this IServiceCollection services)
         {
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IBookingService, BookingService>();

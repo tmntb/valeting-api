@@ -11,152 +11,151 @@ using Valeting.Business.Flexibility;
 using Valeting.ApiObjects.Flexibility;
 using Valeting.Controllers.BaseController;
 
-namespace Valeting.Controllers
+namespace Valeting.Controllers;
+
+public class FlexibilityController : FlexibilityBaseController
 {
-    public class FlexibilityController : FlexibilityBaseController
+    private IRedisCache _redisCache;
+    private readonly IUrlService _urlService;
+    private readonly IFlexibilityService _flexibilityService;
+    private FlexibilityApiError _flexibilityApiError;
+
+    public FlexibilityController(IRedisCache redisCache, IFlexibilityService flexibilityService, IUrlService urlService)
     {
-        private IRedisCache _redisCache;
-        private readonly IUrlService _urlService;
-        private readonly IFlexibilityService _flexibilityService;
-        private FlexibilityApiError _flexibilityApiError;
+        _redisCache = redisCache;
+        _flexibilityService = flexibilityService;
+        _urlService = urlService;
+        _flexibilityApiError = new FlexibilityApiError() { Id = Guid.NewGuid() };
+    }
 
-        public FlexibilityController(IRedisCache redisCache, IFlexibilityService flexibilityService, IUrlService urlService)
+    public override async Task<IActionResult> ListAllAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
+    {
+        try
         {
-            _redisCache = redisCache;
-            _flexibilityService = flexibilityService;
-            _urlService = urlService;
-            _flexibilityApiError = new FlexibilityApiError() { Id = Guid.NewGuid() };
-        }
-
-        public override async Task<IActionResult> FindByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
-        {
-            try
+            var flexibilityApiPaginatedResponse = new FlexibilityApiPaginatedResponse()
             {
-                var flexibilityApiResponse = new FlexibilityApiResponse()
+                Flexibilities = new List<FlexibilityApi>(),
+                CurrentPage = flexibilityApiParameters.PageNumber,
+                Links = new PaginationLinksApi()
                 {
-                    Flexibility = new FlexibilityApi()
-                };
-
-                var recordKey = string.Format("Flexibility_{0}", id);
-
-                var flexibilityDTO = await _redisCache.GetRecordAsync<FlexibilityDTO>(recordKey);
-                if(flexibilityDTO == null)
-                {
-                    flexibilityDTO = await _flexibilityService.FindByIDAsync(Guid.Parse(id));
-                    await _redisCache.SetRecordAsync<FlexibilityDTO>(recordKey, flexibilityDTO, TimeSpan.FromDays(1));
+                    Prev = new LinkApi() { Href = string.Empty },
+                    Next = new LinkApi() { Href = string.Empty },
+                    Self = new LinkApi() { Href = string.Empty }
                 }
+            };
 
-                var flexibilityApi = new FlexibilityApi()
+            var flexibilityFilterDTO = new FlexibilityFilterDTO()
+            {
+                PageNumber = flexibilityApiParameters.PageNumber,
+                PageSize = flexibilityApiParameters.PageSize,
+                Active = flexibilityApiParameters.Active
+            };
+
+            var recordKey = string.Format("ListFlexibility_{0}_{1}_{2}", flexibilityFilterDTO.PageNumber, flexibilityFilterDTO.PageSize, flexibilityFilterDTO.Active);
+
+            var flexibilityListDTO = await _redisCache.GetRecordAsync<FlexibilityListDTO>(recordKey);
+            if (flexibilityListDTO == null)
+            {
+                flexibilityListDTO = await _flexibilityService.ListAllAsync(flexibilityFilterDTO);
+                await _redisCache.SetRecordAsync<FlexibilityListDTO>(recordKey, flexibilityListDTO, TimeSpan.FromMinutes(5));
+            }
+
+            flexibilityApiPaginatedResponse.TotalItems = flexibilityListDTO.TotalItems;
+            flexibilityApiPaginatedResponse.TotalPages = flexibilityListDTO.TotalPages;
+
+            var linkDTO = _urlService.GeneratePaginatedLinks
+            (
+                Request.Host.Value,
+                Request.Path.HasValue ? Request.Path.Value : string.Empty,
+                Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                flexibilityApiParameters.PageNumber, flexibilityListDTO.TotalPages, flexibilityFilterDTO
+            );
+
+            flexibilityApiPaginatedResponse.Links.Prev.Href = linkDTO.Prev;
+            flexibilityApiPaginatedResponse.Links.Next.Href = linkDTO.Next;
+            flexibilityApiPaginatedResponse.Links.Self.Href = linkDTO.Self;
+
+            flexibilityApiPaginatedResponse.Flexibilities.AddRange(
+                flexibilityListDTO.Flexibilities.Select(item => new FlexibilityApi()
                 {
-                    Id = flexibilityDTO.Id,
-                    Description = flexibilityDTO.Description,
-                    Active = flexibilityDTO.Active,
+                    Id = item.Id,
+                    Description = item.Description,
+                    Active = item.Active,
                     Link = new FlexibilityApiLink()
                     {
                         Self = new LinkApi()
                         {
-                            Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
+                            Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
                         }
                     }
-                };
-
-                flexibilityApiResponse.Flexibility = flexibilityApi;
-
-                return StatusCode((int)HttpStatusCode.OK, flexibilityApiResponse);
-            }
-            catch (InputException inputException)
-            {
-                _flexibilityApiError.Detail = inputException.Message;
-                return StatusCode((int)HttpStatusCode.BadRequest, _flexibilityApiError);
-            }
-            catch (NotFoundException notFoundException)
-            {
-                _flexibilityApiError.Detail = notFoundException.Message;
-                return StatusCode((int)HttpStatusCode.NotFound, _flexibilityApiError);
-            }
-            catch (Exception ex)
-            {
-                _flexibilityApiError.Detail = ex.Message;
-                return StatusCode((int)HttpStatusCode.InternalServerError, _flexibilityApiError);
-            }
-        }
-
-        public override async Task<IActionResult> ListAllAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
-        {
-            try
-            {
-                var flexibilityApiPaginatedResponse = new FlexibilityApiPaginatedResponse()
-                {
-                    Flexibilities = new List<FlexibilityApi>(),
-                    CurrentPage = flexibilityApiParameters.PageNumber,
-                    Links = new PaginationLinksApi()
-                    {
-                        Prev = new LinkApi() { Href = string.Empty },
-                        Next = new LinkApi() { Href = string.Empty },
-                        Self = new LinkApi() { Href = string.Empty }
-                    }
-                };
-
-                var flexibilityFilterDTO = new FlexibilityFilterDTO()
-                {
-                    PageNumber = flexibilityApiParameters.PageNumber,
-                    PageSize = flexibilityApiParameters.PageSize,
-                    Active = flexibilityApiParameters.Active
-                };
-
-                var recordKey = string.Format("ListFlexibility_{0}_{1}_{2}", flexibilityFilterDTO.PageNumber, flexibilityFilterDTO.PageSize, flexibilityFilterDTO.Active);
-
-                var flexibilityListDTO = await _redisCache.GetRecordAsync<FlexibilityListDTO>(recordKey);
-                if(flexibilityListDTO == null)
-                {
-                    flexibilityListDTO = await _flexibilityService.ListAllAsync(flexibilityFilterDTO);
-                    await _redisCache.SetRecordAsync<FlexibilityListDTO>(recordKey, flexibilityListDTO, TimeSpan.FromMinutes(5));
                 }
+                ).ToList()
+            );
 
-                flexibilityApiPaginatedResponse.TotalItems = flexibilityListDTO.TotalItems;
-                flexibilityApiPaginatedResponse.TotalPages = flexibilityListDTO.TotalPages;
+            return StatusCode((int)HttpStatusCode.OK, flexibilityApiPaginatedResponse);
+        }
+        catch (InputException inputException)
+        {
+            _flexibilityApiError.Detail = inputException.Message;
+            return StatusCode((int)HttpStatusCode.BadRequest, _flexibilityApiError);
+        }
+        catch (Exception ex)
+        {
+            _flexibilityApiError.Detail = ex.Message;
+            return StatusCode((int)HttpStatusCode.InternalServerError, _flexibilityApiError);
+        }
+    }
 
-                var linkDTO = _urlService.GeneratePaginatedLinks
-                (
-                    Request.Host.Value,
-                    Request.Path.HasValue ? Request.Path.Value : string.Empty,
-                    Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
-                    flexibilityApiParameters.PageNumber, flexibilityListDTO.TotalPages, flexibilityFilterDTO
-                );
-
-                flexibilityApiPaginatedResponse.Links.Prev.Href = linkDTO.Prev;
-                flexibilityApiPaginatedResponse.Links.Next.Href = linkDTO.Next;
-                flexibilityApiPaginatedResponse.Links.Self.Href = linkDTO.Self;
-
-                flexibilityApiPaginatedResponse.Flexibilities.AddRange(
-                    flexibilityListDTO.Flexibilities.Select(item => new FlexibilityApi()
-                        {
-                            Id = item.Id,
-                            Description = item.Description,
-                            Active = item.Active,
-                            Link = new FlexibilityApiLink()
-                            {
-                                Self = new LinkApi()
-                                {
-                                    Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
-                                }
-                            }
-                        }
-                    ).ToList()
-                );
-
-                return StatusCode((int)HttpStatusCode.OK, flexibilityApiPaginatedResponse);
-            }
-            catch (InputException inputException)
+    public override async Task<IActionResult> FindByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
+    {
+        try
+        {
+            var flexibilityApiResponse = new FlexibilityApiResponse()
             {
-                _flexibilityApiError.Detail = inputException.Message;
-                return StatusCode((int)HttpStatusCode.BadRequest, _flexibilityApiError);
-            }
-            catch (Exception ex)
+                Flexibility = new FlexibilityApi()
+            };
+
+            var recordKey = string.Format("Flexibility_{0}", id);
+
+            var flexibilityDTO = await _redisCache.GetRecordAsync<FlexibilityDTO>(recordKey);
+            if(flexibilityDTO == null)
             {
-                _flexibilityApiError.Detail = ex.Message;
-                return StatusCode((int)HttpStatusCode.InternalServerError, _flexibilityApiError);
+                flexibilityDTO = await _flexibilityService.FindByIDAsync(Guid.Parse(id));
+                await _redisCache.SetRecordAsync<FlexibilityDTO>(recordKey, flexibilityDTO, TimeSpan.FromDays(1));
             }
+
+            var flexibilityApi = new FlexibilityApi()
+            {
+                Id = flexibilityDTO.Id,
+                Description = flexibilityDTO.Description,
+                Active = flexibilityDTO.Active,
+                Link = new FlexibilityApiLink()
+                {
+                    Self = new LinkApi()
+                    {
+                        Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
+                    }
+                }
+            };
+
+            flexibilityApiResponse.Flexibility = flexibilityApi;
+
+            return StatusCode((int)HttpStatusCode.OK, flexibilityApiResponse);
+        }
+        catch (InputException inputException)
+        {
+            _flexibilityApiError.Detail = inputException.Message;
+            return StatusCode((int)HttpStatusCode.BadRequest, _flexibilityApiError);
+        }
+        catch (NotFoundException notFoundException)
+        {
+            _flexibilityApiError.Detail = notFoundException.Message;
+            return StatusCode((int)HttpStatusCode.NotFound, _flexibilityApiError);
+        }
+        catch (Exception ex)
+        {
+            _flexibilityApiError.Detail = ex.Message;
+            return StatusCode((int)HttpStatusCode.InternalServerError, _flexibilityApiError);
         }
     }
 }

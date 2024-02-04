@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -11,8 +10,8 @@ namespace Valeting.Helpers
 {
     public class RedisCache : IRedisCache
     {
-        private IDistributedCache _cache;
-        private IConfiguration _configuration;
+        private readonly IDistributedCache _cache;
+        private readonly IConfiguration _configuration;
 
         public RedisCache(IDistributedCache cache, IConfiguration configuration)
         {
@@ -24,10 +23,11 @@ namespace Valeting.Helpers
         {
             try
             {
-                var options = new DistributedCacheEntryOptions();
-
-                options.AbsoluteExpirationRelativeToNow = absoluteExpireTime ?? TimeSpan.FromSeconds(60);
-                options.SlidingExpiration = slidingExpireTime;
+                var options = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = absoluteExpireTime ?? TimeSpan.FromSeconds(60),
+                    SlidingExpiration = slidingExpireTime
+                };
 
                 var jsonData = JsonSerializer.Serialize(data);
                 await _cache.SetStringAsync(recordId, jsonData, options);
@@ -37,23 +37,22 @@ namespace Valeting.Helpers
 
         public async Task<T?> GetRecordAsync<T>(string recordId)
         {
-            var jsonData = string.Empty;
             try
             {
-                jsonData = await _cache.GetStringAsync(recordId);
+                var jsonData = await _cache.GetStringAsync(recordId);
 
                 if (jsonData is null)
                 {
-                    return default(T);
+                    return default;
                 }
                 return JsonSerializer.Deserialize<T>(jsonData);
             }
             catch (Exception) { }
 
-            return default(T);
+            return default;
         }
 
-        public async Task RemoveRecordAsync(string recordId)
+        public Task RemoveRecord(string recordId)
         {
             try
             {
@@ -63,14 +62,11 @@ namespace Valeting.Helpers
                 var endPoint = connection.GetEndPoints().First();
                 var keys = connection.GetServer(endPoint).Keys(pattern: recordId).ToList();
                 if (keys.Any())
-                {
-                    foreach (var key in keys)
-                    {
-                        await db.KeyDeleteAsync(key);
-                    }
-                }
+                    keys.ForEach(key => db.KeyDeleteAsync(key));
             }
             catch (Exception) { }
+
+            return Task.CompletedTask;
         }
     }
 }
