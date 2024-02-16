@@ -4,7 +4,6 @@ using Valeting.ApiObjects.Booking;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Valeting.SwaggerDocumentation.Parameter;
 
 namespace Valeting.Controllers.BaseController;
 

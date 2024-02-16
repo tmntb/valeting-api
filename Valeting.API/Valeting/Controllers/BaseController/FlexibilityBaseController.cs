@@ -7,7 +7,7 @@ using Valeting.ApiObjects.Flexibility;
 
 namespace Valeting.Controllers.BaseController;
 
-[ApiController]
+[Produces("application/json")]
 public abstract class FlexibilityBaseController : ControllerBase
 {
     [HttpGet]
