@@ -4,12 +4,11 @@ using Valeting.ApiObjects.Booking;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-
-using Swashbuckle.AspNetCore.Annotations;
+using Valeting.SwaggerDocumentation.Parameter;
 
 namespace Valeting.Controllers.BaseController;
 
-[SwaggerTag("Booking operations")]
+[Produces("application/json")]
 public abstract class BookingBaseController : ControllerBase
 {
     [HttpGet]
@@ -18,7 +17,6 @@ public abstract class BookingBaseController : ControllerBase
     [ProducesResponseType(statusCode: 200, type: typeof(BookingApiPaginatedResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(BookingApiError))]
     [ProducesResponseType(statusCode: 500, type: typeof(BookingApiError))]
-    [SwaggerOperation(Summary = "List bookings", Description = "Return a list of all **Bookings**, it can be filtered by the page number and page size")]
     public abstract Task<IActionResult> ListAllAsync([FromQuery] BookingApiParameters bookingApiParameters);
 
     [HttpPost]

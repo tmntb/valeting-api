@@ -1,5 +1,6 @@
 using System.Text;
 
+using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -7,7 +8,8 @@ using Valeting.Helpers;
 using Valeting.Services;
 using Valeting.Repositories;
 using Valeting.Helpers.Interfaces;
-using Microsoft.OpenApi.Models;
+using Valeting.SwaggerDocumentation.Document;
+using Valeting.SwaggerDocumentation.Parameter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,8 +64,9 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    c.DocInclusionPredicate((docName, apiDesc) => true);
-    c.TagActionsBy(api => new[] { api.GroupName });
+    c.AddServer(new OpenApiServer { Url = "https://localhost:7230" });
+    c.DocumentFilter<BookingDocumentFilter>();
+    c.ParameterFilter<ParameterFilter>();
 });
 
 var app = builder.Build();
