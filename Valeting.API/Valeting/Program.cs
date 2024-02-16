@@ -67,6 +67,7 @@ builder.Services.AddSwaggerGen(c =>
     c.AddServer(new OpenApiServer { Url = "https://localhost:7230" });
     c.DocumentFilter<BookingDocumentFilter>();
     c.DocumentFilter<FlexibilityDocumentFilter>();
+    c.DocumentFilter<VehicleSizeDocumentFilter>();
     c.ParameterFilter<ParameterFilter>();
 });
 

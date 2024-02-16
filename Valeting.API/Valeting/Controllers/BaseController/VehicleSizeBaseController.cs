@@ -7,7 +7,7 @@ using Valeting.ApiObjects.VehicleSize;
 
 namespace Valeting.Controllers.BaseController;
 
-[ApiController]
+[Produces("application/json")]
 public abstract class VehicleSizeBaseController : ControllerBase
 {
     [HttpGet]
