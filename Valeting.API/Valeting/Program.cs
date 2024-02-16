@@ -68,6 +68,7 @@ builder.Services.AddSwaggerGen(c =>
     c.DocumentFilter<BookingDocumentFilter>();
     c.DocumentFilter<FlexibilityDocumentFilter>();
     c.DocumentFilter<VehicleSizeDocumentFilter>();
+    c.DocumentFilter<UserDocumentFilter>();
     c.ParameterFilter<ParameterFilter>();
 });
 

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Valeting.Controllers.BaseController;
 
-[ApiController]
+[Produces("application/json")]
 public abstract class UserBaseController : ControllerBase
 {
     [HttpPost]
