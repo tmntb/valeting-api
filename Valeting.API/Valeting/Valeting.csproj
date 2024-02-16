@@ -7,7 +7,6 @@
     <UserSecretsId>2186d259-fe31-44c7-8d17-be2a6993e975</UserSecretsId>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(RunConfiguration)' == 'OpenAPI' " />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -21,7 +20,6 @@
     <None Remove="Microsoft.Extensions.Caching.StackExchangeRedis" />
     <None Remove="ApiObjects\Booking\" />
     <None Remove="Helpers\Interfaces\" />
-    <None Remove="Swashbuckle.AspNetCore.ReDoc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
@@ -40,8 +38,6 @@
     <Folder Include="ApiObjects\VehicleSize\" />
     <Folder Include="ApiObjects\Booking\" />
     <Folder Include="Helpers\Interfaces\" />
-    <Folder Include="wwwroot\" />
-    <Folder Include="wwwroot\contract\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.16">
@@ -52,9 +48,5 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.27" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.27" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Remove="wwwroot\" />
-    <Content Remove="wwwroot\contract\" />
   </ItemGroup>
 </Project>

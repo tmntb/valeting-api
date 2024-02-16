@@ -74,10 +74,6 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-
-    app.UseReDocConfig();
-
-    app.EnableStaticFiles();
 }
 
 app.UsePathBase("/Valeting");
