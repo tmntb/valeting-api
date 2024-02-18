@@ -32,7 +32,8 @@ namespace Valeting.SwaggerDocumentation.Parameter
                 parameter.Description = item.Description;
                 parameter.Schema.Example = new OpenApiString(item.Example);
                 parameter.Schema.Minimum = item.Minimum;
-                parameter.Schema.Maximum = item.Maximum;
+                if(item.Maximum != 0)
+                    parameter.Schema.Maximum = item.Maximum;
             }
         }
 
