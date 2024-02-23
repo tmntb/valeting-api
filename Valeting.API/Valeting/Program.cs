@@ -64,8 +64,8 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    c.AddServer(new OpenApiServer { Url = "https://localhost:7230/Valeting" });
-    c.AddServer(new OpenApiServer { Url = "https://localhost:5001/Valeting" });
+    c.AddServer(new OpenApiServer { Description = "IIS-Local", Url = "https://localhost:44376/Valeting" });
+    c.AddServer(new OpenApiServer { Description = "MAC_Dev", Url = "https://localhost:5001/Valeting" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme() 
     { 
@@ -102,9 +102,7 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
-{
     app.UseDeveloperExceptionPage();
-}
 
 app.UsePathBase("/Valeting");
 
