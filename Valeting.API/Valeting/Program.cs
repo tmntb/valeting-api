@@ -119,11 +119,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapSwagger();
-});
+app.MapControllers();
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
