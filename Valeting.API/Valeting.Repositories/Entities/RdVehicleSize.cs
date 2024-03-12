@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Valeting.Repositories.Entities
+﻿namespace Valeting.Repositories.Entities
 {
     public partial class RdVehicleSize
     {
