@@ -1,14 +1,13 @@
-﻿namespace Valeting.ApiObjects.Flexibility
+﻿namespace Valeting.ApiObjects.Flexibility;
+
+public class FlexibilityApiPaginatedResponse : PaginationApi
 {
-    public class FlexibilityApiPaginatedResponse : PaginationApi
-    {
-        public List<FlexibilityApi> Flexibilities { get; set; }
-    }
-
-    public class FlexibilityApiResponse
-    {
-        public FlexibilityApi Flexibility { get; set; }
-    }
-
-    public class FlexibilityApiError : ErrorApi { }
+    public List<FlexibilityApi> Flexibilities { get; set; }
 }
+
+public class FlexibilityApiResponse
+{
+    public FlexibilityApi Flexibility { get; set; }
+}
+
+public class FlexibilityApiError : ErrorApi { }

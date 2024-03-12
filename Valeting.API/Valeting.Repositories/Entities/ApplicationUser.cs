@@ -1,10 +1,9 @@
-﻿namespace Valeting.Repositories.Entities
+﻿namespace Valeting.Repositories.Entities;
+
+public partial class ApplicationUser
 {
-    public partial class ApplicationUser
-    {
-        public Guid Id { get; set; }
-        public string Username { get; set; } = null!;
-        public string Password { get; set; } = null!;
-        public string Salt { get; set; } = null!;
-    }
+    public Guid Id { get; set; }
+    public string Username { get; set; } = null!;
+    public string Password { get; set; } = null!;
+    public string Salt { get; set; } = null!;
 }

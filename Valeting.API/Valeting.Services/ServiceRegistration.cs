@@ -3,19 +3,17 @@
 using Valeting.Service;
 using Valeting.Services.Interfaces;
 
-namespace Valeting.Services
+namespace Valeting.Services;
+
+public static class ServiceRegistration
 {
-    public static class ServiceRegistration
+    public static void AddServicesLayer(this IServiceCollection services)
     {
-        public static void AddServicesLayer(this IServiceCollection services)
-        {
-            services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped<IBookingService, BookingService>();
-            services.AddScoped<IFlexibilityService, FlexibilityService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IVehicleSizeService, VehicleSizeService>();
-            services.AddScoped<IUrlService, UrlService>();
-        }
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IBookingService, BookingService>();
+        services.AddScoped<IFlexibilityService, FlexibilityService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IVehicleSizeService, VehicleSizeService>();
+        services.AddScoped<IUrlService, UrlService>();
     }
 }
-

@@ -4,28 +4,27 @@ using Valeting.Services.Interfaces;
 using Valeting.Business.VehicleSize;
 using Valeting.Repositories.Interfaces;
 
-namespace Valeting.Service
+namespace Valeting.Service;
+
+public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository) : IVehicleSizeService
 {
-    public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository) : IVehicleSizeService
+    public async Task<VehicleSizeDTO> FindByIDAsync(Guid id)
     {
-        public async Task<VehicleSizeDTO> FindByIDAsync(Guid id)
-        {
-            if (id.Equals(Guid.Empty))
-                throw new InputException(Messages.InvalidVehicleSizeId);
+        if (id.Equals(Guid.Empty))
+            throw new InputException(Messages.InvalidVehicleSizeId);
 
-            var vehicleSizeDTO = await vehicleSizeRepository.FindByIDAsync(id);
-            if (vehicleSizeDTO == null)
-                throw new NotFoundException(Messages.VehicleSizeNotFound);
+        var vehicleSizeDTO = await vehicleSizeRepository.FindByIDAsync(id);
+        if (vehicleSizeDTO == null)
+            throw new NotFoundException(Messages.VehicleSizeNotFound);
 
-            return vehicleSizeDTO;
-        }
+        return vehicleSizeDTO;
+    }
 
-        public async Task<VehicleSizeListDTO> ListAllAsync(VehicleSizeFilterDTO vehicleSizeFilterDTO)
-        {
-            if (vehicleSizeFilterDTO.PageNumber == 0)
-                throw new InputException(Messages.InvalidPageNumber);
+    public async Task<VehicleSizeListDTO> ListAllAsync(VehicleSizeFilterDTO vehicleSizeFilterDTO)
+    {
+        if (vehicleSizeFilterDTO.PageNumber == 0)
+            throw new InputException(Messages.InvalidPageNumber);
 
-            return await vehicleSizeRepository.ListAsync(vehicleSizeFilterDTO);
-        }
+        return await vehicleSizeRepository.ListAsync(vehicleSizeFilterDTO);
     }
 }

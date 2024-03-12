@@ -1,8 +1,6 @@
-﻿namespace Valeting.ApiObjects
-{
-    public class LinkApi
-    {        
-        public string Href { get; set; }
-    }
-}
+﻿namespace Valeting.ApiObjects;
 
+public class LinkApi
+{        
+    public string Href { get; set; }
+}

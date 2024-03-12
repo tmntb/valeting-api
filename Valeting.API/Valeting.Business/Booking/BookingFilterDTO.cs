@@ -1,7 +1,3 @@
-﻿namespace Valeting.Business.Booking
-{
-    public class BookingFilterDTO : PageDTO
-    {
-    }
-}
+﻿namespace Valeting.Business.Booking;
 
+public class BookingFilterDTO : PageDTO { }

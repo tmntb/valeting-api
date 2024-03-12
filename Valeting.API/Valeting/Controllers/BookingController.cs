@@ -3,16 +3,11 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.ApiObjects;
 using Valeting.Business.Booking;
 using Valeting.Common.Exceptions;
 using Valeting.Helpers.Interfaces;
 using Valeting.ApiObjects.Booking;
 using Valeting.Services.Interfaces;
-using Valeting.Business.Flexibility;
-using Valeting.Business.VehicleSize;
-using Valeting.ApiObjects.Flexibility;
-using Valeting.ApiObjects.VehicleSize;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;

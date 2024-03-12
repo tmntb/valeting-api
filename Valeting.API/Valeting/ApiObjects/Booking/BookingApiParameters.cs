@@ -1,7 +1,3 @@
-﻿namespace Valeting.ApiObjects.Booking
-{
-    public class BookingApiParameters : QueryStringParametersApi
-    {
-    }
-}
+﻿namespace Valeting.ApiObjects.Booking;
 
+public class BookingApiParameters : QueryStringParametersApi { }

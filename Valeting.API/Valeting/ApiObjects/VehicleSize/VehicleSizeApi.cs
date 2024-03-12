@@ -1,13 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Valeting.ApiObjects.VehicleSize
+namespace Valeting.ApiObjects.VehicleSize;
+
+public class VehicleSizeApi
 {
-    public class VehicleSizeApi
-    {
-        public Guid Id { get; set; }
-        public string Description { get; set; }
-        public bool Active { get; set; }
-        [JsonPropertyName("_link")]
-        public VehicleSizeApiLink Link { get; set; }
-    }
+    public Guid Id { get; set; }
+    public string Description { get; set; }
+    public bool Active { get; set; }
+    [JsonPropertyName("_link")]
+    public VehicleSizeApiLink Link { get; set; }
 }

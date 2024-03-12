@@ -1,10 +1,9 @@
 ﻿using Valeting.Business.Flexibility;
 
-namespace Valeting.Repositories.Interfaces
+namespace Valeting.Repositories.Interfaces;
+
+public interface IFlexibilityRepository
 {
-    public interface IFlexibilityRepository
-    {
-        Task<FlexibilityDTO> FindByIDAsync(Guid id);
-        Task<FlexibilityListDTO> ListAsync(FlexibilityFilterDTO flexibilityFilterDTO);
-    }
+    Task<FlexibilityDTO> FindByIDAsync(Guid id);
+    Task<FlexibilityListDTO> ListAsync(FlexibilityFilterDTO flexibilityFilterDTO);
 }

@@ -1,10 +1,9 @@
 ﻿using Valeting.Business.VehicleSize;
 
-namespace Valeting.Repositories.Interfaces
+namespace Valeting.Repositories.Interfaces;
+
+public interface IVehicleSizeRepository
 {
-    public interface IVehicleSizeRepository
-    {
-        Task<VehicleSizeDTO> FindByIDAsync(Guid id);
-        Task<VehicleSizeListDTO> ListAsync(VehicleSizeFilterDTO vehicleSizeFilterDTO);
-    }
+    Task<VehicleSizeDTO> FindByIDAsync(Guid id);
+    Task<VehicleSizeListDTO> ListAsync(VehicleSizeFilterDTO vehicleSizeFilterDTO);
 }
