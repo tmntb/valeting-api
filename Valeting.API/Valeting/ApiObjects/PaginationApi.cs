@@ -5,7 +5,7 @@
         public int TotalItems { get; set; } = 1;
         public int CurrentPage { get; set; } = 1;
         public int TotalPages { get; set; } = 1;
-        public PaginationLinksApi Links { get; set; } //https://code-maze.com/hateoas-aspnet-core-web-api/
+        public PaginationLinksApi Links { get; set; }
     }
 
     public class PaginationLinksApi

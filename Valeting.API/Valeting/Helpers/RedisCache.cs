@@ -8,17 +8,8 @@ using Valeting.Helpers.Interfaces;
 
 namespace Valeting.Helpers
 {
-    public class RedisCache : IRedisCache
+    public class RedisCache(IDistributedCache cache, IConfiguration configuration) : IRedisCache
     {
-        private readonly IDistributedCache _cache;
-        private readonly IConfiguration _configuration;
-
-        public RedisCache(IDistributedCache cache, IConfiguration configuration)
-        {
-            _cache = cache;
-            _configuration = configuration;
-        }
-
         public async Task SetRecordAsync<T>(string recordId, T data, TimeSpan? absoluteExpireTime = null, TimeSpan? slidingExpireTime = null)
         {
             try
@@ -30,7 +21,7 @@ namespace Valeting.Helpers
                 };
 
                 var jsonData = JsonSerializer.Serialize(data);
-                await _cache.SetStringAsync(recordId, jsonData, options);
+                await cache.SetStringAsync(recordId, jsonData, options);
             }
             catch (Exception) { }
         }
@@ -39,7 +30,7 @@ namespace Valeting.Helpers
         {
             try
             {
-                var jsonData = await _cache.GetStringAsync(recordId);
+                var jsonData = await cache.GetStringAsync(recordId);
 
                 if (jsonData is null)
                 {
@@ -56,7 +47,7 @@ namespace Valeting.Helpers
         {
             try
             {
-                var options = ConfigurationOptions.Parse(_configuration["ConnectionStrings:Redis"]);
+                var options = ConfigurationOptions.Parse(configuration["ConnectionStrings:Redis"]);
                 var connection = ConnectionMultiplexer.Connect(options);
                 var db = connection.GetDatabase();
                 var endPoint = connection.GetEndPoints().First();
