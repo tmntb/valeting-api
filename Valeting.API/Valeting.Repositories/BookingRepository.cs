@@ -8,15 +8,8 @@ using Valeting.Repositories.Interfaces;
 
 namespace Valeting.Repositories
 {
-    public class BookingRepository : IBookingRepository
+    public class BookingRepository(ValetingContext valetingContext) : IBookingRepository
     {
-        private readonly ValetingContext _valetingContext;
-
-        public BookingRepository(ValetingContext valetingContext)
-        {
-            this._valetingContext = valetingContext;
-        }
-
         public async Task CreateAsync(BookingDTO bookingDTO)
         {
             var booking = new Booking()
@@ -30,13 +23,13 @@ namespace Valeting.Repositories
                 Email = bookingDTO.Email,
             };
 
-            await _valetingContext.Bookings.AddAsync(booking);
-            await _valetingContext.SaveChangesAsync();
+            await valetingContext.Bookings.AddAsync(booking);
+            await valetingContext.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(BookingDTO bookingDTO)
         {
-            var booking = await _valetingContext.Bookings.FindAsync(bookingDTO.Id);
+            var booking = await valetingContext.Bookings.FindAsync(bookingDTO.Id);
             if (booking == null)
                 return;
 
@@ -48,23 +41,23 @@ namespace Valeting.Repositories
             booking.Email = bookingDTO.Email;
             booking.Approved = bookingDTO.Approved;
 
-            _valetingContext.Bookings.Update(booking);
-            await _valetingContext.SaveChangesAsync();
+            valetingContext.Bookings.Update(booking);
+            await valetingContext.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            var booking = await _valetingContext.Bookings.FindAsync(id);
+            var booking = await valetingContext.Bookings.FindAsync(id);
             if (booking == null)
                 return;
 
-            _valetingContext.Bookings.Remove(booking);
-            await _valetingContext.SaveChangesAsync();
+            valetingContext.Bookings.Remove(booking);
+            await valetingContext.SaveChangesAsync();
         }
 
         public async Task<BookingDTO> FindByIdAsync(Guid id)
         {
-            var booking = await _valetingContext.Bookings.FindAsync(id);
+            var booking = await valetingContext.Bookings.FindAsync(id);
             if (booking == null)
                 return null;
 
@@ -87,7 +80,7 @@ namespace Valeting.Repositories
         {
             var bookingListDTO = new BookingListDTO() { Bookings = new List<BookingDTO>() };
 
-            var initialList = await _valetingContext.Bookings.ToListAsync();
+            var initialList = await valetingContext.Bookings.ToListAsync();
             var listBookings = from booking in initialList
                                select booking;
 

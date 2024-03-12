@@ -6,18 +6,11 @@ using Valeting.Repositories.Interfaces;
 
 namespace Valeting.Repositories
 {
-    public class FlexibilityRepository : IFlexibilityRepository
+    public class FlexibilityRepository(ValetingContext valetingContext) : IFlexibilityRepository
     {
-        private readonly ValetingContext _valetingContext;
-
-        public FlexibilityRepository(ValetingContext valetingContext)
-        {
-            this._valetingContext = valetingContext;
-        }
-
         public async Task<FlexibilityDTO> FindByIDAsync(Guid id)
         {
-            var rdFlexibility = await _valetingContext.RdFlexibilities.FindAsync(id);
+            var rdFlexibility = await valetingContext.RdFlexibilities.FindAsync(id);
             if (rdFlexibility == null)
                 return null;
 
@@ -35,9 +28,9 @@ namespace Valeting.Repositories
         {
             var flexibilityListDTO = new FlexibilityListDTO() { Flexibilities = new List<FlexibilityDTO>() };
 
-            var initialList = await _valetingContext.RdFlexibilities.ToListAsync();
+            var initialList = await valetingContext.RdFlexibilities.ToListAsync();
             var listFlexibility = from rdFlexibility in initialList
-                                  where (!flexibilityFilterDTO.Active.HasValue || rdFlexibility.Active == flexibilityFilterDTO.Active)
+                                  where !flexibilityFilterDTO.Active.HasValue || rdFlexibility.Active == flexibilityFilterDTO.Active
                                   select rdFlexibility;
 
             if (listFlexibility == null)

@@ -6,18 +6,11 @@ using Valeting.Repositories.Interfaces;
 
 namespace Valeting.Repositories
 {
-    public class VehicleSizeRepository : IVehicleSizeRepository
+    public class VehicleSizeRepository(ValetingContext valetingContext) : IVehicleSizeRepository
     {
-        private readonly ValetingContext _valetingContext;
-
-        public VehicleSizeRepository(ValetingContext valetingContext)
-        {
-            this._valetingContext = valetingContext;
-        }
-
         public async Task<VehicleSizeDTO> FindByIDAsync(Guid id)
         {
-            var rdVehicleSize = await _valetingContext.RdVehicleSizes.FindAsync(id);
+            var rdVehicleSize = await valetingContext.RdVehicleSizes.FindAsync(id);
             if (rdVehicleSize == null)
                 return null;
 
@@ -35,7 +28,7 @@ namespace Valeting.Repositories
         {
             var vehicleSizeListDTO = new VehicleSizeListDTO() { VehicleSizes = new List<VehicleSizeDTO>() };
 
-            var initialList = await _valetingContext.RdVehicleSizes.ToListAsync();
+            var initialList = await valetingContext.RdVehicleSizes.ToListAsync();
             var listVehicleSize = from rdVehicleSize in initialList
                                                          where (!vehicleSizeFilterDTO.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDTO.Active)
                                                          select rdVehicleSize;
