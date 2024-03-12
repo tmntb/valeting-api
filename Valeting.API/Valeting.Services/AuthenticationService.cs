@@ -5,8 +5,8 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 
+using Valeting.Business;
 using Valeting.Common.Messages;
-using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
 using Valeting.Repositories.Interfaces;
 using Valeting.Business.Authentication;
@@ -17,9 +17,20 @@ public class AuthenticationService(IUserRepository userRepository, IConfiguratio
 {
     public async Task<AuthenticationDTO> GenerateTokenJWT(UserDTO userDTO)
     {
+        var authenticationDTO = new AuthenticationDTO(){ Errors = [] };
+
         var userDTO_DB = await userRepository.FindUserByEmail(userDTO.Username);
         if (userDTO_DB == null)
-            throw new NotFoundException(Messages.UserNotFound);
+        {
+            authenticationDTO.Errors.Add(new ErrorDTO()
+            {
+                Id = Guid.NewGuid(),
+                ErrorCode = 404,
+                Detail = Messages.UserNotFound
+            });
+
+            return authenticationDTO;
+        }
 
         var secret = configuration["Jwt:Key"];
         var issuer = configuration["Jwt:Issuer"];
@@ -30,13 +41,13 @@ public class AuthenticationService(IUserRepository userRepository, IConfiguratio
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[]
-            {
+            Subject = new ClaimsIdentity(
+            [
                 new Claim("Id", Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Sub, userDTO.Username),
                 new Claim(JwtRegisteredClaimNames.Email, userDTO.Username),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            }),
+            ]),
             Expires = DateTime.Now.AddMinutes(60),
             Issuer = issuer,
             Audience = audience,
@@ -46,13 +57,10 @@ public class AuthenticationService(IUserRepository userRepository, IConfiguratio
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        var authenticationDTO = new AuthenticationDTO()
-        {
-            Token = tokenHandler.WriteToken(token),
-            ExpiryDate = token.ValidTo.ToLocalTime(),
-            TokenType = tokenHandler.TokenType.Name
-        };
-        
+        authenticationDTO.Token = tokenHandler.WriteToken(token);
+        authenticationDTO.ExpiryDate = token.ValidTo.ToLocalTime();
+        authenticationDTO.TokenType = tokenHandler.TokenType.Name;
+
         return authenticationDTO;
     }
 }

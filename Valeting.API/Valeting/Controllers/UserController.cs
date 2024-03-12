@@ -32,6 +32,17 @@ public class UserController(IUserService userService, IAuthenticationService aut
             if (await userService.ValidateLogin(userDTO))
             {
                 var auth = await authenticationService.GenerateTokenJWT(userDTO);
+                if(auth.Errors.Any())
+                {
+                    var error = auth.Errors.FirstOrDefault();
+                    var userApiError = new UserApiError() 
+                    { 
+                        Id = error.Id,
+                        Detail = error.Detail
+                    };
+                    return StatusCode(error.ErrorCode, userApiError);
+                }
+
                 response.Token = auth.Token;
                 response.ExpiryDate = auth.ExpiryDate;
                 response.TokenType = auth.TokenType;
@@ -47,15 +58,6 @@ public class UserController(IUserService userService, IAuthenticationService aut
                 Detail = inputException.Message
             };
             return StatusCode((int)HttpStatusCode.BadRequest, userApiError);
-        }
-        catch(NotFoundException notFoundException)
-        {
-            var userApiError = new UserApiError() 
-            { 
-                Id = Guid.NewGuid(),
-                Detail = notFoundException.Message
-            };
-            return StatusCode((int)HttpStatusCode.NotFound, userApiError);
         }
         catch (Exception ex)
         {
