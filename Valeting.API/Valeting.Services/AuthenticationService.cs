@@ -4,9 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-using Valeting.Business;
 using Valeting.Common.Messages;
 using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
@@ -15,26 +13,17 @@ using Valeting.Business.Authentication;
 
 namespace Valeting.Services
 {
-    public class AuthenticationService : IAuthenticationService
+    public class AuthenticationService(IUserRepository userRepository, IConfiguration configuration) : IAuthenticationService
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IConfiguration _configuration;
-
-        public AuthenticationService(IUserRepository userRepository, IConfiguration configuration)
-        {
-            _userRepository = userRepository ?? throw new Exception(string.Format(Messages.NotInitializeRepository, "User Repository")); ;
-            _configuration = configuration;
-        }
-
         public async Task<AuthenticationDTO> GenerateTokenJWT(UserDTO userDTO)
         {
-            var userDTO_DB = await _userRepository.FindUserByEmail(userDTO.Username);
+            var userDTO_DB = await userRepository.FindUserByEmail(userDTO.Username);
             if (userDTO_DB == null)
                 throw new NotFoundException(Messages.UserNotFound);
 
-            var secret = _configuration["Jwt:Key"];
-            var issuer = _configuration["Jwt:Issuer"];
-            var audience = _configuration["Jwt:Audience"];
+            var secret = configuration["Jwt:Key"];
+            var issuer = configuration["Jwt:Issuer"];
+            var audience = configuration["Jwt:Audience"];
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);

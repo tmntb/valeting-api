@@ -6,21 +6,14 @@ using Valeting.Repositories.Interfaces;
 
 namespace Valeting.Service
 {
-    public class VehicleSizeService : IVehicleSizeService
+    public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository) : IVehicleSizeService
     {
-        private readonly IVehicleSizeRepository _vehicleSizeRepository;
-
-        public VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository)
-        {
-            _vehicleSizeRepository = vehicleSizeRepository ?? throw new Exception(string.Format(Messages.NotInitializeRepository, "Vehicle Size Repository"));
-        }
-
         public async Task<VehicleSizeDTO> FindByIDAsync(Guid id)
         {
             if (id.Equals(Guid.Empty))
                 throw new InputException(Messages.InvalidVehicleSizeId);
 
-            var vehicleSizeDTO = await _vehicleSizeRepository.FindByIDAsync(id);
+            var vehicleSizeDTO = await vehicleSizeRepository.FindByIDAsync(id);
             if (vehicleSizeDTO == null)
                 throw new NotFoundException(Messages.VehicleSizeNotFound);
 
@@ -32,7 +25,7 @@ namespace Valeting.Service
             if (vehicleSizeFilterDTO.PageNumber == 0)
                 throw new InputException(Messages.InvalidPageNumber);
 
-            return await _vehicleSizeRepository.ListAsync(vehicleSizeFilterDTO);
+            return await vehicleSizeRepository.ListAsync(vehicleSizeFilterDTO);
         }
     }
 }

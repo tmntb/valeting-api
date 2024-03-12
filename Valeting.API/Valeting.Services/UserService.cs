@@ -1,8 +1,5 @@
 ﻿using System.Text;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
 
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 using Valeting.Common.Messages;
@@ -13,15 +10,8 @@ using Valeting.Business.Authentication;
 
 namespace Valeting.Service
 {
-    public class UserService : IUserService
+    public class UserService(IUserRepository userRepository) : IUserService
     {
-        private readonly IUserRepository _userRepository;
-
-        public UserService(IUserRepository userRepository)
-        {
-            _userRepository = userRepository ?? throw new Exception(string.Format(Messages.NotInitializeRepository, "User Repository"));
-        }
-
         public async Task<bool> ValidateLogin(UserDTO userDTO)
         {
             if (userDTO == null)
@@ -33,7 +23,7 @@ namespace Valeting.Service
                 throw new InputException(errorMsg);
             }
 
-            var userDTO_DB = await _userRepository.FindUserByEmail(userDTO.Username);
+            var userDTO_DB = await userRepository.FindUserByEmail(userDTO.Username);
             if (userDTO_DB == null || string.IsNullOrEmpty(userDTO_DB.Password))
                 throw new NotFoundException(Messages.UserNotFound);
 

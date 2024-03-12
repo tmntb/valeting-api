@@ -2,20 +2,12 @@
 using Valeting.Business.Booking;
 using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
-using Valeting.Business.VehicleSize;
 using Valeting.Repositories.Interfaces;
 
 namespace Valeting.Service
 {
-    public class BookingService : IBookingService
+    public class BookingService(IBookingRepository bookingRepository) : IBookingService
     {
-        private readonly IBookingRepository _bookingRepository;
-
-        public BookingService(IBookingRepository bookingRepository)
-        {
-            this._bookingRepository = bookingRepository ?? throw new Exception(string.Format(Messages.NotInitializeRepository, "Booking Repository"));
-        }
-
         public async Task<BookingDTO> CreateAsync(BookingDTO bookingDTO)
         {
             ValidateGeneralInput(bookingDTO);
@@ -25,7 +17,7 @@ namespace Valeting.Service
 
             bookingDTO.Id = Guid.NewGuid();
 
-            await _bookingRepository.CreateAsync(bookingDTO);
+            await bookingRepository.CreateAsync(bookingDTO);
             return bookingDTO;
         }
 
@@ -41,29 +33,29 @@ namespace Valeting.Service
             if (bookingDTO.BookingDate < DateTime.Now)
                 throw new BusinessObjectException(Messages.DateInThePast);
 
-            BookingDTO bookingDTO_Check = await _bookingRepository.FindByIdAsync(bookingDTO.Id);
+            BookingDTO bookingDTO_Check = await bookingRepository.FindByIdAsync(bookingDTO.Id);
             if (bookingDTO_Check == null)
                 throw new NotFoundException(Messages.BookingNotFound);
 
-            await _bookingRepository.UpdateAsync(bookingDTO);
+            await bookingRepository.UpdateAsync(bookingDTO);
         }
 
         public async Task DeleteAsync(Guid id)
         {
             ValidateBookingId(id);
 
-            BookingDTO bookingDTO_Check = await _bookingRepository.FindByIdAsync(id);
+            BookingDTO bookingDTO_Check = await bookingRepository.FindByIdAsync(id);
             if (bookingDTO_Check == null)
                 throw new NotFoundException(Messages.BookingNotFound);
 
-            await _bookingRepository.DeleteAsync(id);
+            await bookingRepository.DeleteAsync(id);
         }
 
         public async Task<BookingDTO> FindByIDAsync(Guid id)
         {
             ValidateBookingId(id);
 
-            var bookingDTO = await _bookingRepository.FindByIdAsync(id);
+            var bookingDTO = await bookingRepository.FindByIdAsync(id);
             if (bookingDTO == null)
                 throw new NotFoundException(Messages.BookingNotFound);
 
@@ -75,7 +67,7 @@ namespace Valeting.Service
             if (bookingFilterDTO.PageNumber == 0)
                 throw new InputException(Messages.InvalidPageNumber);
 
-            return await _bookingRepository.ListAsync(bookingFilterDTO);
+            return await bookingRepository.ListAsync(bookingFilterDTO);
         }
 
         private void ValidateGeneralInput(BookingDTO bookingDTO)
