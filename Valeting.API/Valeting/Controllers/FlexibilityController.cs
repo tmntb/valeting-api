@@ -13,21 +13,8 @@ using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
 
-public class FlexibilityController : FlexibilityBaseController
+public class FlexibilityController(IRedisCache redisCache, IFlexibilityService flexibilityService, IUrlService urlService) : FlexibilityBaseController
 {
-    private IRedisCache _redisCache;
-    private readonly IUrlService _urlService;
-    private readonly IFlexibilityService _flexibilityService;
-    private FlexibilityApiError _flexibilityApiError;
-
-    public FlexibilityController(IRedisCache redisCache, IFlexibilityService flexibilityService, IUrlService urlService)
-    {
-        _redisCache = redisCache;
-        _flexibilityService = flexibilityService;
-        _urlService = urlService;
-        _flexibilityApiError = new FlexibilityApiError() { Id = Guid.NewGuid() };
-    }
-
     public override async Task<IActionResult> ListAllAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
     {
         try
@@ -53,17 +40,17 @@ public class FlexibilityController : FlexibilityBaseController
 
             var recordKey = string.Format("ListFlexibility_{0}_{1}_{2}", flexibilityFilterDTO.PageNumber, flexibilityFilterDTO.PageSize, flexibilityFilterDTO.Active);
 
-            var flexibilityListDTO = await _redisCache.GetRecordAsync<FlexibilityListDTO>(recordKey);
+            var flexibilityListDTO = await redisCache.GetRecordAsync<FlexibilityListDTO>(recordKey);
             if (flexibilityListDTO == null)
             {
-                flexibilityListDTO = await _flexibilityService.ListAllAsync(flexibilityFilterDTO);
-                await _redisCache.SetRecordAsync<FlexibilityListDTO>(recordKey, flexibilityListDTO, TimeSpan.FromMinutes(5));
+                flexibilityListDTO = await flexibilityService.ListAllAsync(flexibilityFilterDTO);
+                await redisCache.SetRecordAsync<FlexibilityListDTO>(recordKey, flexibilityListDTO, TimeSpan.FromMinutes(5));
             }
 
             flexibilityApiPaginatedResponse.TotalItems = flexibilityListDTO.TotalItems;
             flexibilityApiPaginatedResponse.TotalPages = flexibilityListDTO.TotalPages;
 
-            var linkDTO = _urlService.GeneratePaginatedLinks
+            var linkDTO = urlService.GeneratePaginatedLinks
             (
                 Request.Host.Value,
                 Request.Path.HasValue ? Request.Path.Value : string.Empty,
@@ -85,7 +72,7 @@ public class FlexibilityController : FlexibilityBaseController
                     {
                         Self = new LinkApi()
                         {
-                            Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
+                            Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
                         }
                     }
                 }
@@ -96,13 +83,21 @@ public class FlexibilityController : FlexibilityBaseController
         }
         catch (InputException inputException)
         {
-            _flexibilityApiError.Detail = inputException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _flexibilityApiError);
+            var flexibilityApiError = new FlexibilityApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = inputException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, flexibilityApiError);
         }
         catch (Exception ex)
         {
-            _flexibilityApiError.Detail = ex.Message;
-            return StatusCode((int)HttpStatusCode.InternalServerError, _flexibilityApiError);
+            var flexibilityApiError = new FlexibilityApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = ex.Message
+            };
+            return StatusCode((int)HttpStatusCode.InternalServerError, flexibilityApiError);
         }
     }
 
@@ -117,11 +112,11 @@ public class FlexibilityController : FlexibilityBaseController
 
             var recordKey = string.Format("Flexibility_{0}", id);
 
-            var flexibilityDTO = await _redisCache.GetRecordAsync<FlexibilityDTO>(recordKey);
+            var flexibilityDTO = await redisCache.GetRecordAsync<FlexibilityDTO>(recordKey);
             if(flexibilityDTO == null)
             {
-                flexibilityDTO = await _flexibilityService.FindByIDAsync(Guid.Parse(id));
-                await _redisCache.SetRecordAsync<FlexibilityDTO>(recordKey, flexibilityDTO, TimeSpan.FromDays(1));
+                flexibilityDTO = await flexibilityService.FindByIDAsync(Guid.Parse(id));
+                await redisCache.SetRecordAsync<FlexibilityDTO>(recordKey, flexibilityDTO, TimeSpan.FromDays(1));
             }
 
             var flexibilityApi = new FlexibilityApi()
@@ -133,7 +128,7 @@ public class FlexibilityController : FlexibilityBaseController
                 {
                     Self = new LinkApi()
                     {
-                        Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
+                        Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
                     }
                 }
             };
@@ -144,18 +139,30 @@ public class FlexibilityController : FlexibilityBaseController
         }
         catch (InputException inputException)
         {
-            _flexibilityApiError.Detail = inputException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _flexibilityApiError);
+            var flexibilityApiError = new FlexibilityApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = inputException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, flexibilityApiError);
         }
         catch (NotFoundException notFoundException)
         {
-            _flexibilityApiError.Detail = notFoundException.Message;
-            return StatusCode((int)HttpStatusCode.NotFound, _flexibilityApiError);
+            var flexibilityApiError = new FlexibilityApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = notFoundException.Message
+            };
+            return StatusCode((int)HttpStatusCode.NotFound, flexibilityApiError);
         }
         catch (Exception ex)
         {
-            _flexibilityApiError.Detail = ex.Message;
-            return StatusCode((int)HttpStatusCode.InternalServerError, _flexibilityApiError);
+            var flexibilityApiError = new FlexibilityApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = ex.Message
+            };
+            return StatusCode((int)HttpStatusCode.InternalServerError, flexibilityApiError);
         }
     }
 }

@@ -10,19 +10,8 @@ using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
 
-public class UserController : UserBaseController
+public class UserController(IUserService userService, IAuthenticationService authenticationService) : UserBaseController
 {
-    private readonly IUserService _userService;
-    private readonly IAuthenticationService _authenticationService;
-    private UserApiError _userApiError;
-
-    public UserController(IUserService userService, IAuthenticationService authenticationService)
-    {
-        _userService = userService;
-        _authenticationService = authenticationService;
-        _userApiError = new UserApiError() { Id = Guid.NewGuid() };
-    }
-
     public override async Task<IActionResult> ValidateLogin([FromBody] ValidateLoginRequest validateLoginRequest)
     {
         try
@@ -40,9 +29,9 @@ public class UserController : UserBaseController
                 Password = validateLoginRequest.Password
             };
 
-            if (await _userService.ValidateLogin(userDTO))
+            if (await userService.ValidateLogin(userDTO))
             {
-                var auth = await _authenticationService.GenerateTokenJWT(userDTO);
+                var auth = await authenticationService.GenerateTokenJWT(userDTO);
                 response.Token = auth.Token;
                 response.ExpiryDate = auth.ExpiryDate;
                 response.TokenType = auth.TokenType;
@@ -52,18 +41,30 @@ public class UserController : UserBaseController
         }
         catch(InputException inputException)
         {
-            _userApiError.Detail = inputException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _userApiError);
+            var userApiError = new UserApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = inputException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, userApiError);
         }
         catch(NotFoundException notFoundException)
         {
-            _userApiError.Detail = notFoundException.Message;
-            return StatusCode((int)HttpStatusCode.NotFound, _userApiError);
+            var userApiError = new UserApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = notFoundException.Message
+            };
+            return StatusCode((int)HttpStatusCode.NotFound, userApiError);
         }
         catch (Exception ex)
         {
-            _userApiError.Detail = ex.Message;
-            return StatusCode((int)HttpStatusCode.InternalServerError, _userApiError);
+            var userApiError = new UserApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = ex.Message
+            };
+            return StatusCode((int)HttpStatusCode.InternalServerError, userApiError);
         }
     }
 }
