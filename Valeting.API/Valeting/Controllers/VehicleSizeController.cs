@@ -85,7 +85,6 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
         {
             var vehicleSizeApiError = new VehicleSizeApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = inputException.Message
             };
             return StatusCode((int)HttpStatusCode.BadRequest, vehicleSizeApiError);
@@ -94,7 +93,6 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
         {
             var vehicleSizeApiError = new VehicleSizeApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, vehicleSizeApiError);
@@ -141,7 +139,6 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
         {
             var vehicleSizeApiError = new VehicleSizeApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = inputException.Message
             };
             return StatusCode((int)HttpStatusCode.BadRequest, vehicleSizeApiError);
@@ -150,7 +147,6 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
         {
             var vehicleSizeApiError = new VehicleSizeApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = notFoundException.Message
             };
             return StatusCode((int)HttpStatusCode.NotFound, vehicleSizeApiError);
@@ -159,7 +155,6 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
         {
             var vehicleSizeApiError = new VehicleSizeApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, vehicleSizeApiError);

@@ -85,7 +85,6 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
         {
             var flexibilityApiError = new FlexibilityApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = inputException.Message
             };
             return StatusCode((int)HttpStatusCode.BadRequest, flexibilityApiError);
@@ -94,7 +93,6 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
         {
             var flexibilityApiError = new FlexibilityApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, flexibilityApiError);
@@ -141,7 +139,6 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
         {
             var flexibilityApiError = new FlexibilityApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = inputException.Message
             };
             return StatusCode((int)HttpStatusCode.BadRequest, flexibilityApiError);
@@ -150,7 +147,6 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
         {
             var flexibilityApiError = new FlexibilityApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = notFoundException.Message
             };
             return StatusCode((int)HttpStatusCode.NotFound, flexibilityApiError);
@@ -159,7 +155,6 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
         {
             var flexibilityApiError = new FlexibilityApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, flexibilityApiError);

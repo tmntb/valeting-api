@@ -34,7 +34,6 @@ public class UserController(IUserService userService, IAuthenticationService aut
                 var error = login.Errors.FirstOrDefault();
                 var userApiError = new UserApiError()
                 {
-                    Id = error.Id,
                     Detail = error.Detail
                 };
                 return StatusCode(error.ErrorCode, userApiError);
@@ -48,7 +47,6 @@ public class UserController(IUserService userService, IAuthenticationService aut
                     var error = auth.Errors.FirstOrDefault();
                     var userApiError = new UserApiError() 
                     { 
-                        Id = error.Id,
                         Detail = error.Detail
                     };
                     return StatusCode(error.ErrorCode, userApiError);
@@ -65,7 +63,6 @@ public class UserController(IUserService userService, IAuthenticationService aut
         {
             var userApiError = new UserApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, userApiError);

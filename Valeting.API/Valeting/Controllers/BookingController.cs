@@ -9,6 +9,7 @@ using Valeting.Helpers.Interfaces;
 using Valeting.ApiObjects.Booking;
 using Valeting.Services.Interfaces;
 using Valeting.Controllers.BaseController;
+using Valeting.Services.Objects.Booking;
 
 namespace Valeting.Controllers;
 
@@ -112,7 +113,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = inpuException.Message
             };
             return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
@@ -121,7 +121,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
@@ -132,17 +131,35 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
     {
         try
         {
-            var bookingDTO = createBookingApiRequest == null ? null : new BookingDTO()
+            //Criar middleware para verificar se o request está populado.
+            if(createBookingApiRequest == null)
+            {
+                var bookingApiError = new BookingApiError() 
+                { 
+                    Detail = "Invalid request body"
+                }; 
+                return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
+            }
+
+            var createBookingSVRequest = new CreateBookingSVRequest()
             {
                 Name = createBookingApiRequest.Name,
                 BookingDate = createBookingApiRequest.BookingDate,
-                Flexibility = createBookingApiRequest.Flexibility != null ? new() { Id = createBookingApiRequest.Flexibility.Id } : null,
-                VehicleSize = createBookingApiRequest.VehicleSize != null ? new() { Id = createBookingApiRequest.VehicleSize.Id } : null,
+                //Flexibility = createBookingApiRequest.Flexibility != null ? new() { Id = createBookingApiRequest.Flexibility.Id } : null,
+                //VehicleSize = createBookingApiRequest.VehicleSize != null ? new() { Id = createBookingApiRequest.VehicleSize.Id } : null,
                 ContactNumber = createBookingApiRequest.ContactNumber,
                 Email = createBookingApiRequest.Email
             };
 
-            //var booking = await bookingService.CreateAsync(bookingDTO);
+            var booking = await bookingService.CreateAsync(createBookingSVRequest);
+            if(booking.HasError)
+            {
+                var bookingApiError = new BookingApiError() 
+                { 
+                    Detail = booking.Error.Message
+                };
+                return StatusCode(booking.Error.ErrorCode, bookingApiError);
+            }
 
             //Limpar redis cache caso exista lista de bookings em cache, validar de como ter todas as keys para "List_"
             var recordKey = "*ListBooking_*";
@@ -150,34 +167,15 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
 
             var createBookingApiResponse = new CreateBookingApiResponse()
             {
-                //Id = booking.Id
+                Id = booking.Id
             };
 
             return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
-        }
-        catch (BusinessObjectException businessObjectException)
-        {
-            var bookingApiError = new BookingApiError() 
-            { 
-                Id = Guid.NewGuid(),
-                Detail = businessObjectException.Message
-            };
-            return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
-        }
-        catch (InputException inpuException)
-        {
-            var bookingApiError = new BookingApiError() 
-            { 
-                Id = Guid.NewGuid(),
-                Detail = inpuException.Message
-            };
-            return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
         }
         catch (Exception ex)
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
@@ -253,7 +251,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = inpuException.Message
             };
             return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
@@ -262,7 +259,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = notFoundException.Message
             };
             return StatusCode((int)HttpStatusCode.NotFound, bookingApiError);
@@ -271,7 +267,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
@@ -308,7 +303,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = businessObjectException.Message
             };
             return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
@@ -317,7 +311,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = inpuException.Message
             };
             return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
@@ -326,7 +319,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = notFoundException.Message
             };
             return StatusCode((int)HttpStatusCode.NotFound, bookingApiError);
@@ -335,7 +327,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
@@ -359,7 +350,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = inpuException.Message
             };
             return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
@@ -368,7 +358,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = notFoundException.Message
             };
             return StatusCode((int)HttpStatusCode.NotFound, bookingApiError);
@@ -377,7 +366,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Id = Guid.NewGuid(),
                 Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
