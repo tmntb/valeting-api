@@ -13,21 +13,8 @@ using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
 
-public class VehicleSizeController : VehicleSizeBaseController
+public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService vehicleSizeService, IUrlService urlService) : VehicleSizeBaseController
 {
-    private IRedisCache _redisCache;
-    private readonly IUrlService _urlService;
-    private readonly IVehicleSizeService _vehicleSizeService;
-    private VehicleSizeApiError _vehicleSizeApiError;
-
-    public VehicleSizeController(IRedisCache redisCache, IVehicleSizeService vehicleSizeService, IUrlService urlService)
-    {
-        _redisCache = redisCache;
-        _vehicleSizeService = vehicleSizeService;
-        _urlService = urlService;
-        _vehicleSizeApiError = new VehicleSizeApiError() { Id = Guid.NewGuid() };
-    }
-
     public override async Task<IActionResult> ListAllAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
     {
         try
@@ -53,17 +40,17 @@ public class VehicleSizeController : VehicleSizeBaseController
 
             var recordKey = string.Format("ListVehicleSize_{0}_{1}_{2}", vehicleSizeFilterDTO.PageNumber, vehicleSizeFilterDTO.PageSize, vehicleSizeFilterDTO.Active);
 
-            var vehicleSizeListDTO = await _redisCache.GetRecordAsync<VehicleSizeListDTO>(recordKey);
+            var vehicleSizeListDTO = await redisCache.GetRecordAsync<VehicleSizeListDTO>(recordKey);
             if (vehicleSizeListDTO == null)
             {
-                vehicleSizeListDTO = await _vehicleSizeService.ListAllAsync(vehicleSizeFilterDTO);
-                await _redisCache.SetRecordAsync<VehicleSizeListDTO>(recordKey, vehicleSizeListDTO, TimeSpan.FromMinutes(5));
+                vehicleSizeListDTO = await vehicleSizeService.ListAllAsync(vehicleSizeFilterDTO);
+                await redisCache.SetRecordAsync<VehicleSizeListDTO>(recordKey, vehicleSizeListDTO, TimeSpan.FromMinutes(5));
             }
 
             vehicleSizeApiPaginatedResponse.TotalItems = vehicleSizeListDTO.TotalItems;
             vehicleSizeApiPaginatedResponse.TotalPages = vehicleSizeListDTO.TotalPages;
 
-            var linkDTO = _urlService.GeneratePaginatedLinks
+            var linkDTO = urlService.GeneratePaginatedLinks
             (
                 Request.Host.Value,
                 Request.Path.HasValue ? Request.Path.Value : string.Empty,
@@ -85,7 +72,7 @@ public class VehicleSizeController : VehicleSizeBaseController
                     {
                         Self = new LinkApi()
                         {
-                            Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
+                            Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
                         }
                     }
                 }
@@ -96,13 +83,21 @@ public class VehicleSizeController : VehicleSizeBaseController
         }
         catch (InputException inputException)
         {
-            _vehicleSizeApiError.Detail = inputException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _vehicleSizeApiError);
+            var vehicleSizeApiError = new VehicleSizeApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = inputException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, vehicleSizeApiError);
         }
         catch (Exception ex)
         {
-            _vehicleSizeApiError.Detail = ex.Message;
-            return StatusCode((int)HttpStatusCode.InternalServerError, _vehicleSizeApiError);
+            var vehicleSizeApiError = new VehicleSizeApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = ex.Message
+            };
+            return StatusCode((int)HttpStatusCode.InternalServerError, vehicleSizeApiError);
         }
     }
 
@@ -117,11 +112,11 @@ public class VehicleSizeController : VehicleSizeBaseController
 
             var recordKey = string.Format("VehicleSize_{0}", id);
 
-            var vehicleSizeDTO = await _redisCache.GetRecordAsync<VehicleSizeDTO>(recordKey);
+            var vehicleSizeDTO = await redisCache.GetRecordAsync<VehicleSizeDTO>(recordKey);
             if(vehicleSizeDTO == null)
             {
-                vehicleSizeDTO = await _vehicleSizeService.FindByIDAsync(Guid.Parse(id));
-                await _redisCache.SetRecordAsync<VehicleSizeDTO>(recordKey, vehicleSizeDTO, TimeSpan.FromDays(1));
+                vehicleSizeDTO = await vehicleSizeService.FindByIDAsync(Guid.Parse(id));
+                await redisCache.SetRecordAsync<VehicleSizeDTO>(recordKey, vehicleSizeDTO, TimeSpan.FromDays(1));
             }
 
             var vehicleSizeApi = new VehicleSizeApi()
@@ -133,7 +128,7 @@ public class VehicleSizeController : VehicleSizeBaseController
                 {
                     Self = new LinkApi()
                     {
-                        Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
+                        Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
                     }
                 }
             };
@@ -144,18 +139,30 @@ public class VehicleSizeController : VehicleSizeBaseController
         }
         catch (InputException inputException)
         {
-            _vehicleSizeApiError.Detail = inputException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _vehicleSizeApiError);
+            var vehicleSizeApiError = new VehicleSizeApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = inputException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, vehicleSizeApiError);
         }
         catch (NotFoundException notFoundException)
         {
-            _vehicleSizeApiError.Detail = notFoundException.Message;
-            return StatusCode((int)HttpStatusCode.NotFound, _vehicleSizeApiError);
+            var vehicleSizeApiError = new VehicleSizeApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = notFoundException.Message
+            };
+            return StatusCode((int)HttpStatusCode.NotFound, vehicleSizeApiError);
         }
         catch (Exception ex)
         {
-            _vehicleSizeApiError.Detail = ex.Message;
-            return StatusCode((int)HttpStatusCode.InternalServerError, _vehicleSizeApiError);
+            var vehicleSizeApiError = new VehicleSizeApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = ex.Message
+            };
+            return StatusCode((int)HttpStatusCode.InternalServerError, vehicleSizeApiError);
         }
     }
 }

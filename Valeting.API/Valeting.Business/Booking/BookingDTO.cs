@@ -1,17 +1,16 @@
 ﻿using Valeting.Business.Flexibility;
 using Valeting.Business.VehicleSize;
 
-namespace Valeting.Business.Booking
+namespace Valeting.Business.Booking;
+
+public class BookingDTO
 {
-    public class BookingDTO
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public DateTime BookingDate { get; set; }
-        public FlexibilityDTO Flexibility { get; set; }
-        public VehicleSizeDTO VehicleSize { get; set; }
-        public int? ContactNumber { get; set; }
-        public string Email { get; set; }
-        public bool? Approved { get; set; }
-    }
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public DateTime BookingDate { get; set; }
+    public FlexibilityDTO Flexibility { get; set; }
+    public VehicleSizeDTO VehicleSize { get; set; }
+    public int? ContactNumber { get; set; }
+    public string Email { get; set; }
+    public bool? Approved { get; set; }
 }

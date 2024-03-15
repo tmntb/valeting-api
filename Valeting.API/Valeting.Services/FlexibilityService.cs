@@ -4,35 +4,27 @@ using Valeting.Services.Interfaces;
 using Valeting.Business.Flexibility;
 using Valeting.Repositories.Interfaces;
 
-namespace Valeting.Service
+namespace Valeting.Service;
+
+public class FlexibilityService(IFlexibilityRepository flexibilityRepository) :IFlexibilityService
 {
-    public class FlexibilityService :IFlexibilityService
+    public async Task<FlexibilityDTO> FindByIDAsync(Guid id)
     {
-        private readonly IFlexibilityRepository _flexibilityRepository;
+        if (id.Equals(Guid.Empty))
+            throw new InputException(Messages.InvalidFlexibilityId);
 
-        public FlexibilityService(IFlexibilityRepository flexibilityRepository)
-        {
-            _flexibilityRepository = flexibilityRepository ?? throw new Exception(string.Format(Messages.NotInitializeRepository, "Flexibility Repository"));
-        }
+        var flexibilityDTO = await flexibilityRepository.FindByIDAsync(id);
+        if (flexibilityDTO == null)
+            throw new NotFoundException(Messages.FlexibilityNotFound);
 
-        public async Task<FlexibilityDTO> FindByIDAsync(Guid id)
-        {
-            if (id.Equals(Guid.Empty))
-                throw new InputException(Messages.InvalidFlexibilityId);
+        return flexibilityDTO;
+    }
 
-            var flexibilityDTO = await _flexibilityRepository.FindByIDAsync(id);
-            if (flexibilityDTO == null)
-                throw new NotFoundException(Messages.FlexibilityNotFound);
+    public async Task<FlexibilityListDTO> ListAllAsync(FlexibilityFilterDTO flexibilityFilterDTO)
+    {
+        if (flexibilityFilterDTO.PageNumber == 0)
+            throw new InputException(Messages.InvalidPageNumber);
 
-            return flexibilityDTO;
-        }
-
-        public async Task<FlexibilityListDTO> ListAllAsync(FlexibilityFilterDTO flexibilityFilterDTO)
-        {
-            if (flexibilityFilterDTO.PageNumber == 0)
-                throw new InputException(Messages.InvalidPageNumber);
-
-            return await _flexibilityRepository.ListAsync(flexibilityFilterDTO);
-        }
+        return await flexibilityRepository.ListAsync(flexibilityFilterDTO);
     }
 }

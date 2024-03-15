@@ -6,68 +6,57 @@ using StackExchange.Redis;
 
 using Valeting.Helpers.Interfaces;
 
-namespace Valeting.Helpers
+namespace Valeting.Helpers;
+
+public class RedisCache(IDistributedCache cache, IConfiguration configuration) : IRedisCache
 {
-    public class RedisCache : IRedisCache
+    public async Task SetRecordAsync<T>(string recordId, T data, TimeSpan? absoluteExpireTime = null, TimeSpan? slidingExpireTime = null)
     {
-        private readonly IDistributedCache _cache;
-        private readonly IConfiguration _configuration;
-
-        public RedisCache(IDistributedCache cache, IConfiguration configuration)
+        try
         {
-            _cache = cache;
-            _configuration = configuration;
-        }
-
-        public async Task SetRecordAsync<T>(string recordId, T data, TimeSpan? absoluteExpireTime = null, TimeSpan? slidingExpireTime = null)
-        {
-            try
+            var options = new DistributedCacheEntryOptions
             {
-                var options = new DistributedCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = absoluteExpireTime ?? TimeSpan.FromSeconds(60),
-                    SlidingExpiration = slidingExpireTime
-                };
+                AbsoluteExpirationRelativeToNow = absoluteExpireTime ?? TimeSpan.FromSeconds(60),
+                SlidingExpiration = slidingExpireTime
+            };
 
-                var jsonData = JsonSerializer.Serialize(data);
-                await _cache.SetStringAsync(recordId, jsonData, options);
-            }
-            catch (Exception) { }
+            var jsonData = JsonSerializer.Serialize(data);
+            await cache.SetStringAsync(recordId, jsonData, options);
         }
+        catch (Exception) { }
+    }
 
-        public async Task<T?> GetRecordAsync<T>(string recordId)
+    public async Task<T?> GetRecordAsync<T>(string recordId)
+    {
+        try
         {
-            try
+            var jsonData = await cache.GetStringAsync(recordId);
+
+            if (jsonData is null)
             {
-                var jsonData = await _cache.GetStringAsync(recordId);
-
-                if (jsonData is null)
-                {
-                    return default;
-                }
-                return JsonSerializer.Deserialize<T>(jsonData);
+                return default;
             }
-            catch (Exception) { }
-
-            return default;
+            return JsonSerializer.Deserialize<T>(jsonData);
         }
+        catch (Exception) { }
 
-        public Task RemoveRecord(string recordId)
+        return default;
+    }
+
+    public Task RemoveRecord(string recordId)
+    {
+        try
         {
-            try
-            {
-                var options = ConfigurationOptions.Parse(_configuration["ConnectionStrings:Redis"]);
-                var connection = ConnectionMultiplexer.Connect(options);
-                var db = connection.GetDatabase();
-                var endPoint = connection.GetEndPoints().First();
-                var keys = connection.GetServer(endPoint).Keys(pattern: recordId).ToList();
-                if (keys.Any())
-                    keys.ForEach(key => db.KeyDeleteAsync(key));
-            }
-            catch (Exception) { }
-
-            return Task.CompletedTask;
+            var options = ConfigurationOptions.Parse(configuration["ConnectionStrings:Redis"]);
+            var connection = ConnectionMultiplexer.Connect(options);
+            var db = connection.GetDatabase();
+            var endPoint = connection.GetEndPoints().First();
+            var keys = connection.GetServer(endPoint).Keys(pattern: recordId).ToList();
+            if (keys.Any())
+                keys.ForEach(key => db.KeyDeleteAsync(key));
         }
+        catch (Exception) { }
+
+        return Task.CompletedTask;
     }
 }
-

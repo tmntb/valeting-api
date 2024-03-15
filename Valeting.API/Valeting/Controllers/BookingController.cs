@@ -3,48 +3,30 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.ApiObjects;
 using Valeting.Business.Booking;
 using Valeting.Common.Exceptions;
 using Valeting.Helpers.Interfaces;
 using Valeting.ApiObjects.Booking;
 using Valeting.Services.Interfaces;
-using Valeting.Business.Flexibility;
-using Valeting.Business.VehicleSize;
-using Valeting.ApiObjects.Flexibility;
-using Valeting.ApiObjects.VehicleSize;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
 
-public class BookingController : BookingBaseController
+public class BookingController(IRedisCache redisCache, IBookingService bookingService, IUrlService urlService) : BookingBaseController
 {
-    private readonly IRedisCache _redisCache;
-    private readonly IUrlService _urlService;
-    private readonly IBookingService _bookingService;
-    private readonly BookingApiError _bookingApiError;
-
-    public BookingController(IRedisCache redisCache, IBookingService bookingService, IUrlService urlService)
-    {
-        _redisCache = redisCache;
-        _bookingService = bookingService;
-        _urlService = urlService;
-        _bookingApiError = new BookingApiError() { Id = Guid.NewGuid() };
-    }
-
     public override async Task<IActionResult> ListAllAsync([FromQuery] BookingApiParameters bookingApiParameters)
     {
         try
         {
             var bookingApiPaginatedResponse = new BookingApiPaginatedResponse()
             {
-                Bookings = new List<BookingApi>(),
+                Bookings = [],
                 CurrentPage = bookingApiParameters.PageNumber,
-                Links = new PaginationLinksApi()
+                Links = new()
                 {
-                    Prev = new LinkApi() { Href = string.Empty },
-                    Next = new LinkApi() { Href = string.Empty },
-                    Self = new LinkApi() { Href = string.Empty }
+                    Prev = new() { Href = string.Empty },
+                    Next = new() { Href = string.Empty },
+                    Self = new() { Href = string.Empty }
                 }
             };
 
@@ -56,17 +38,17 @@ public class BookingController : BookingBaseController
 
             var recordKey = string.Format("ListBooking_{0}_{1}", bookingApiParameters.PageNumber, bookingApiParameters.PageSize);
 
-            var bookingListDTO = await _redisCache.GetRecordAsync<BookingListDTO>(recordKey);
+            var bookingListDTO = await redisCache.GetRecordAsync<BookingListDTO>(recordKey);
             if (bookingListDTO == null)
             {
-                bookingListDTO = await _bookingService.ListAllAsync(bookingFilterDTO);
-                await _redisCache.SetRecordAsync<BookingListDTO>(recordKey, bookingListDTO, TimeSpan.FromMinutes(5));
+                bookingListDTO = await bookingService.ListAllAsync(bookingFilterDTO);
+                await redisCache.SetRecordAsync(recordKey, bookingListDTO, TimeSpan.FromMinutes(5));
             }
 
             bookingApiPaginatedResponse.TotalItems = bookingListDTO.TotalItems;
             bookingApiPaginatedResponse.TotalPages = bookingListDTO.TotalPages;
 
-            var linkDTO = _urlService.GeneratePaginatedLinks
+            var linkDTO = urlService.GeneratePaginatedLinks
             (
                 Request.Host.Value,
                 Request.Path.HasValue ? Request.Path.Value : string.Empty,
@@ -84,40 +66,40 @@ public class BookingController : BookingBaseController
                     Id = item.Id,
                     Name = item.Name,
                     BookingDate = item.BookingDate,
-                    Flexibility = new FlexibilityApi()
+                    Flexibility = new()
                     {
                         Id = item.Flexibility.Id,
                         Description = item.Flexibility.Description,
                         Active = item.Flexibility.Active,
-                        Link = new FlexibilityApiLink()
+                        Link = new()
                         {
-                            Self = new LinkApi()
+                            Self = new()
                             {
-                                Href = _urlService.GenerateSelf(Request.Host.Value, "/Valeting/flexibilities", item.Flexibility.Id)
+                                Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/flexibilities", item.Flexibility.Id)
                             }
                         }
                     },
-                    VehicleSize = new VehicleSizeApi()
+                    VehicleSize = new()
                     {
                         Id = item.VehicleSize.Id,
                         Description = item.VehicleSize.Description,
                         Active = item.VehicleSize.Active,
-                        Link = new VehicleSizeApiLink()
+                        Link = new()
                         {
-                            Self = new LinkApi()
+                            Self = new()
                             {
-                                Href = _urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", item.VehicleSize.Id)
+                                Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", item.VehicleSize.Id)
                             }
                         }
                     },
                     ContactNumber = item.ContactNumber.Value,
                     Email = item.Email,
                     Approved = item.Approved,
-                    Link = new BookingApiLink()
+                    Link = new()
                     {
-                        Self = new LinkApi()
+                        Self = new()
                         {
-                            Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
+                            Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
                         }
                     }
                 }
@@ -128,13 +110,21 @@ public class BookingController : BookingBaseController
         }
         catch (InputException inpuException)
         {
-            _bookingApiError.Detail = inpuException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = inpuException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
         }
         catch (Exception ex)
         {
-            _bookingApiError.Detail = ex.Message;
-            return StatusCode((int)HttpStatusCode.InternalServerError, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = ex.Message
+            };
+            return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
     }
 
@@ -146,17 +136,17 @@ public class BookingController : BookingBaseController
             {
                 Name = createBookingApiRequest.Name,
                 BookingDate = createBookingApiRequest.BookingDate,
-                Flexibility = createBookingApiRequest.Flexibility != null ? new FlexibilityDTO() { Id = createBookingApiRequest.Flexibility.Id } : null,
-                VehicleSize = createBookingApiRequest.VehicleSize != null ? new VehicleSizeDTO() { Id = createBookingApiRequest.VehicleSize.Id } : null,
+                Flexibility = createBookingApiRequest.Flexibility != null ? new() { Id = createBookingApiRequest.Flexibility.Id } : null,
+                VehicleSize = createBookingApiRequest.VehicleSize != null ? new() { Id = createBookingApiRequest.VehicleSize.Id } : null,
                 ContactNumber = createBookingApiRequest.ContactNumber,
                 Email = createBookingApiRequest.Email
             };
 
-            var booking = await _bookingService.CreateAsync(bookingDTO);
+            var booking = await bookingService.CreateAsync(bookingDTO);
 
             //Limpar redis cache caso exista lista de bookings em cache, validar de como ter todas as keys para "List_"
             var recordKey = "*ListBooking_*";
-            await _redisCache.RemoveRecord(recordKey);
+            await redisCache.RemoveRecord(recordKey);
 
             var createBookingApiResponse = new CreateBookingApiResponse()
             {
@@ -167,18 +157,30 @@ public class BookingController : BookingBaseController
         }
         catch (BusinessObjectException businessObjectException)
         {
-            _bookingApiError.Detail = businessObjectException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = businessObjectException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
         }
         catch (InputException inpuException)
         {
-            _bookingApiError.Detail = inpuException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = inpuException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
         }
         catch (Exception ex)
         {
-            _bookingApiError.Detail = ex.Message;
-            return StatusCode((int)HttpStatusCode.InternalServerError, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = ex.Message
+            };
+            return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
     }
 
@@ -188,16 +190,16 @@ public class BookingController : BookingBaseController
         {
             var bookingApiResponse = new BookingApiResponse()
             {
-                Booking = new BookingApi()
+                Booking = new()
             };
 
             var recordKey = string.Format("Booking_{0}", id);
 
-            var bookingDTO = await _redisCache.GetRecordAsync<BookingDTO>(recordKey);
+            var bookingDTO = await redisCache.GetRecordAsync<BookingDTO>(recordKey);
             if (bookingDTO == null)
             {
-                bookingDTO = await _bookingService.FindByIDAsync(Guid.Parse(id));
-                await _redisCache.SetRecordAsync<BookingDTO>(recordKey, bookingDTO, TimeSpan.FromDays(1));
+                bookingDTO = await bookingService.FindByIDAsync(Guid.Parse(id));
+                await redisCache.SetRecordAsync(recordKey, bookingDTO, TimeSpan.FromDays(1));
             }
 
             var bookingApi = new BookingApi()
@@ -205,40 +207,40 @@ public class BookingController : BookingBaseController
                 Id = bookingDTO.Id,
                 Name = bookingDTO.Name,
                 BookingDate = bookingDTO.BookingDate,
-                Flexibility = new FlexibilityApi()
+                Flexibility = new()
                 {
                     Id = bookingDTO.Flexibility.Id,
                     Description = bookingDTO.Flexibility.Description,
                     Active = bookingDTO.Flexibility.Active,
-                    Link = new FlexibilityApiLink()
+                    Link = new()
                     {
-                        Self = new LinkApi()
+                        Self = new()
                         {
-                            Href = _urlService.GenerateSelf(Request.Host.Value, "/Valeting/flexibilities", bookingDTO.Flexibility.Id)
+                            Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/flexibilities", bookingDTO.Flexibility.Id)
                         }
                     }
                 },
-                VehicleSize = new VehicleSizeApi()
+                VehicleSize = new()
                 {
                     Id = bookingDTO.VehicleSize.Id,
                     Description = bookingDTO.VehicleSize.Description,
                     Active = bookingDTO.VehicleSize.Active,
-                    Link = new VehicleSizeApiLink()
+                    Link = new()
                     {
-                        Self = new LinkApi()
+                        Self = new()
                         {
-                            Href = _urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", bookingDTO.VehicleSize.Id)
+                            Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", bookingDTO.VehicleSize.Id)
                         }
                     }
                 },
                 ContactNumber = bookingDTO.ContactNumber.Value,
                 Email = bookingDTO.Email,
                 Approved = bookingDTO.Approved,
-                Link = new BookingApiLink()
+                Link = new()
                 {
-                    Self = new LinkApi()
+                    Self = new()
                     {
-                        Href = _urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
+                        Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
                     }
                 }
             };
@@ -249,18 +251,30 @@ public class BookingController : BookingBaseController
         }
         catch (InputException inpuException)
         {
-            _bookingApiError.Detail = inpuException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = inpuException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
         }
         catch (NotFoundException notFoundException)
         {
-            _bookingApiError.Detail = notFoundException.Message;
-            return StatusCode((int)HttpStatusCode.NotFound, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = notFoundException.Message
+            };
+            return StatusCode((int)HttpStatusCode.NotFound, bookingApiError);
         }
         catch (Exception ex)
         {
-            _bookingApiError.Detail = ex.Message;
-            return StatusCode((int)HttpStatusCode.InternalServerError, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = ex.Message
+            };
+            return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
     }
 
@@ -273,42 +287,58 @@ public class BookingController : BookingBaseController
                 Id = Guid.Parse(id),
                 Name = updateBookingApiRequest.Name,
                 BookingDate = updateBookingApiRequest.BookingDate,
-                Flexibility = updateBookingApiRequest.Flexibility != null ? new FlexibilityDTO() { Id = updateBookingApiRequest.Flexibility.Id } : null,
-                VehicleSize = updateBookingApiRequest.VehicleSize != null ? new VehicleSizeDTO() { Id = updateBookingApiRequest.VehicleSize.Id } : null,
+                Flexibility = updateBookingApiRequest.Flexibility != null ? new() { Id = updateBookingApiRequest.Flexibility.Id } : null,
+                VehicleSize = updateBookingApiRequest.VehicleSize != null ? new() { Id = updateBookingApiRequest.VehicleSize.Id } : null,
                 ContactNumber = updateBookingApiRequest.ContactNumber,
                 Email = updateBookingApiRequest.Email,
                 Approved = updateBookingApiRequest.Approved
             };
 
-            await _bookingService.UpdateAsync(bookingDTO);
+            await bookingService.UpdateAsync(bookingDTO);
 
             //Limpar redis cache caso exista lista e para individual
             var recordKeyList = "*ListBooking_*";
-            await _redisCache.RemoveRecord(recordKeyList);
+            await redisCache.RemoveRecord(recordKeyList);
             var recordKeyInd = string.Format("*Booking_{0}*", id);
-            await _redisCache.RemoveRecord(recordKeyInd);
+            await redisCache.RemoveRecord(recordKeyInd);
 
             return StatusCode((int)HttpStatusCode.NoContent);
         }
         catch (BusinessObjectException businessObjectException)
         {
-            _bookingApiError.Detail = businessObjectException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = businessObjectException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
         }
         catch (InputException inpuException)
         {
-            _bookingApiError.Detail = inpuException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = inpuException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
         }
         catch (NotFoundException notFoundException)
         {
-            _bookingApiError.Detail = notFoundException.Message;
-            return StatusCode((int)HttpStatusCode.NotFound, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = notFoundException.Message
+            };
+            return StatusCode((int)HttpStatusCode.NotFound, bookingApiError);
         }
         catch (Exception ex)
         {
-            _bookingApiError.Detail = ex.Message;
-            return StatusCode((int)HttpStatusCode.InternalServerError, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = ex.Message
+            };
+            return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
     }
 
@@ -316,29 +346,41 @@ public class BookingController : BookingBaseController
     {
         try
         {
-            await _bookingService.DeleteAsync(Guid.Parse(id));
+            await bookingService.DeleteAsync(Guid.Parse(id));
             //Limpar redis cache caso exista lista e para individual
             var recordKeyList = "*ListBooking_*";
-            await _redisCache.RemoveRecord(recordKeyList);
+            await redisCache.RemoveRecord(recordKeyList);
             var recordKeyInd = string.Format("*Booking_{0}*", id);
-            await _redisCache.RemoveRecord(recordKeyInd);
+            await redisCache.RemoveRecord(recordKeyInd);
 
             return StatusCode((int)HttpStatusCode.NoContent);
         }
         catch (InputException inpuException)
         {
-            _bookingApiError.Detail = inpuException.Message;
-            return StatusCode((int)HttpStatusCode.BadRequest, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = inpuException.Message
+            };
+            return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
         }
         catch (NotFoundException notFoundException)
         {
-            _bookingApiError.Detail = notFoundException.Message;
-            return StatusCode((int)HttpStatusCode.NotFound, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = notFoundException.Message
+            };
+            return StatusCode((int)HttpStatusCode.NotFound, bookingApiError);
         }
         catch (Exception ex)
         {
-            _bookingApiError.Detail = ex.Message;
-            return StatusCode((int)HttpStatusCode.InternalServerError, _bookingApiError);
+            var bookingApiError = new BookingApiError() 
+            { 
+                Id = Guid.NewGuid(),
+                Detail = ex.Message
+            };
+            return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
     }
 }

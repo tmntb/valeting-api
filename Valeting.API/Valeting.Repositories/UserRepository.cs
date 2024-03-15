@@ -2,31 +2,23 @@
 using Valeting.Repositories.Entities;
 using Valeting.Repositories.Interfaces;
 
-namespace Valeting.Repositories
+namespace Valeting.Repositories;
+
+public class UserRepository(ValetingContext valetingContext) : IUserRepository
 {
-    public class UserRepository : IUserRepository
+    public async Task<UserDTO> FindUserByEmail(string username)
     {
-        private readonly ValetingContext _valetingContext;
+        var applicationUser = await valetingContext.ApplicationUsers.FindAsync(username);
 
-        public UserRepository(ValetingContext valetingContext)
+        if (applicationUser == null)
+            return null;
+
+        return new UserDTO()
         {
-            this._valetingContext = valetingContext;
-        }
-
-        public async Task<UserDTO> FindUserByEmail(string username)
-        {
-            var applicationUser = await _valetingContext.ApplicationUsers.FindAsync(username);
-
-            if (applicationUser == null)
-                return null;
-
-            return new UserDTO()
-            {
-                Id = applicationUser.Id,
-                Username = username,
-                Password = applicationUser.Password,
-                Salt = applicationUser.Salt
-            };
-        }
+            Id = applicationUser.Id,
+            Username = username,
+            Password = applicationUser.Password,
+            Salt = applicationUser.Salt
+        };
     }
 }
