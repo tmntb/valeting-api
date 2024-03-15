@@ -1,11 +1,11 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 
-using Valeting.Business;
 using Valeting.Common.Messages;
 using Valeting.Services.Interfaces;
 using Valeting.Repositories.Interfaces;
@@ -22,10 +22,10 @@ public class AuthenticationService(IUserRepository userRepository, IConfiguratio
         var userDTO_DB = await userRepository.FindUserByEmail(userDTO.Username);
         if (userDTO_DB == null)
         {
-            authenticationDTO.Errors.Add(new ErrorDTO()
+            authenticationDTO.Errors.Add(new()
             {
                 Id = Guid.NewGuid(),
-                ErrorCode = 404,
+                ErrorCode = (int)HttpStatusCode.NotFound,
                 Detail = Messages.UserNotFound
             });
 

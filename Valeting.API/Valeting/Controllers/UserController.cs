@@ -3,7 +3,6 @@
 using Microsoft.AspNetCore.Mvc;
 
 using Valeting.ApiObjects.User;
-using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
 using Valeting.Business.Authentication;
 using Valeting.Controllers.BaseController;
@@ -29,7 +28,19 @@ public class UserController(IUserService userService, IAuthenticationService aut
                 Password = validateLoginRequest.Password
             };
 
-            if (await userService.ValidateLogin(userDTO))
+            var login = await userService.ValidateLogin(userDTO);
+            if(login.Errors.Any())
+            {
+                var error = login.Errors.FirstOrDefault();
+                var userApiError = new UserApiError()
+                {
+                    Id = error.Id,
+                    Detail = error.Detail
+                };
+                return StatusCode(error.ErrorCode, userApiError);
+            }
+
+            if (login.Valid)
             {
                 var auth = await authenticationService.GenerateTokenJWT(userDTO);
                 if(auth.Errors.Any())
@@ -49,15 +60,6 @@ public class UserController(IUserService userService, IAuthenticationService aut
             }
 
             return StatusCode((int)HttpStatusCode.OK, response);
-        }
-        catch(InputException inputException)
-        {
-            var userApiError = new UserApiError() 
-            { 
-                Id = Guid.NewGuid(),
-                Detail = inputException.Message
-            };
-            return StatusCode((int)HttpStatusCode.BadRequest, userApiError);
         }
         catch (Exception ex)
         {

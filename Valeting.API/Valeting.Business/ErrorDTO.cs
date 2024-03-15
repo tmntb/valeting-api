@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Valeting.Business;
 
 public class ErrorDTO

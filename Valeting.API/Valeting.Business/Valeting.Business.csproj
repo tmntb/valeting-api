@@ -15,7 +15,7 @@
   <ItemGroup>
     <Folder Include="Flexibility\" />
     <Folder Include="VehicleSize\" />
-    <Folder Include="Authentication\" />
+    <Folder Include="User\" />
     <Folder Include="Booking\" />
   </ItemGroup>
 </Project>

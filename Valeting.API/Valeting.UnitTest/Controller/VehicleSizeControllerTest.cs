@@ -1,46 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Moq;
-
-using Valeting.Controllers;
-using Valeting.Common.Exceptions;
-using Valeting.Helpers.Interfaces;
-using Valeting.Services.Interfaces;
+﻿using Moq;
 using Valeting.Business.VehicleSize;
-using Valeting.ApiObjects.VehicleSize;
 using Valeting.Business;
+using Valeting.Common.Exceptions;
+using Valeting.Services.Interfaces;
+using Valeting.Helpers.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Valeting.Controllers;
+using Valeting.ApiObjects.VehicleSize;
 
 namespace Valeting.UnitTest.Controller;
 
-[TestClass]
 public class VehicleSizeControllerTest
-{
-    private Mock<IRedisCache> _redisCacheMock;
-    private Mock<IVehicleSizeService> _vehicleSizeServiceMock;
-    private Mock<IUrlService> _urlServiceMock;
-
-    [TestInitialize]
-    public void Init()
-    {
-        _redisCacheMock = new Mock<IRedisCache>();
-        _vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
-        _urlServiceMock = new Mock<IUrlService>();
-    }
-
-    [TestCleanup]
-    public void Clean()
-    {
-        _redisCacheMock = null;
-        _vehicleSizeServiceMock = null;
-        _urlServiceMock = null;
-    }
-
-    [TestMethod]
+{ 
+    [Fact]
     public void FindById_Status200_WithoutCache()
     {
         //Arrange
+        var redisCacheMock = new Mock<IRedisCache>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+
         var request = new Mock<HttpRequest>();
         request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
         request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/vehicleSizes/{0}"));
@@ -61,13 +41,13 @@ public class VehicleSizeControllerTest
                 Active = It.IsAny<bool>()
             };
         });
-        _vehicleSizeServiceMock.Setup(x => x.FindByIDAsync(id)).Returns(vehicleSizeDTO_Mock);
+        vehicleSizeServiceMock.Setup(x => x.FindByIDAsync(id)).Returns(vehicleSizeDTO_Mock);
 
         var href_Mock = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id);
-        _urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<string>(), It.IsAny<string>())).Returns(href_Mock);
+        urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<string>(), It.IsAny<string>())).Returns(href_Mock);
 
         //Act
-        var vehicleSizeController = new VehicleSizeController(_redisCacheMock.Object, _vehicleSizeServiceMock.Object, _urlServiceMock.Object)
+        var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)
         {
             ControllerContext = controllerContext
         };
@@ -76,22 +56,26 @@ public class VehicleSizeControllerTest
         var response = (VehicleSizeApiResponse)objResult.Value;
 
         //Assert
-        Assert.IsNotNull(objResult);
-        Assert.IsTrue(objResult.StatusCode == 200);
-        Assert.IsTrue(objResult.Value.GetType() == typeof(VehicleSizeApiResponse));
-        Assert.IsNotNull(response);
-        Assert.IsTrue(response.VehicleSize.Id.Equals(id));
-        Assert.IsTrue(response.VehicleSize.Description.Equals("Van"));
-        Assert.IsFalse(response.VehicleSize.Active);
-        Assert.IsNotNull(response.VehicleSize.Link.Self);
-        Assert.IsFalse(string.IsNullOrEmpty(response.VehicleSize.Link.Self.Href));
-        Assert.IsTrue(response.VehicleSize.Link.Self.Href.Contains(string.Format("/Valeting/vehicleSizes/{0}", id)));
+        Assert.NotNull(objResult);
+        Assert.Equal(200, objResult.StatusCode);
+        Assert.True(objResult.Value.GetType() == typeof(VehicleSizeApiResponse));
+        Assert.NotNull(response);
+        Assert.True(response.VehicleSize.Id.Equals(id));
+        Assert.Equal("Van", response.VehicleSize.Description);
+        Assert.False(response.VehicleSize.Active);
+        Assert.NotNull(response.VehicleSize.Link.Self);
+        Assert.False(string.IsNullOrEmpty(response.VehicleSize.Link.Self.Href));
+        Assert.Contains(string.Format("/Valeting/vehicleSizes/{0}", id), response.VehicleSize.Link.Self.Href);
     }
 
-    [TestMethod]
+    [Fact]
     public void FindById_Status200_WithCache()
     {
         //Arrange
+        var redisCacheMock = new Mock<IRedisCache>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+
         var request = new Mock<HttpRequest>();
         request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
         request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/vehicleSizes/{0}"));
@@ -112,13 +96,13 @@ public class VehicleSizeControllerTest
                 Active = It.IsAny<bool>()
             };
         });
-        _redisCacheMock.Setup(x => x.GetRecordAsync<VehicleSizeDTO>(It.IsAny<string>())).Returns(vehicleSizeDTO_Mock);
+        redisCacheMock.Setup(x => x.GetRecordAsync<VehicleSizeDTO>(It.IsAny<string>())).Returns(vehicleSizeDTO_Mock);
 
         var href_Mock = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id);
-        _urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<string>(), It.IsAny<string>())).Returns(href_Mock);
+        urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<string>(), It.IsAny<string>())).Returns(href_Mock);
 
         //Act
-        var vehicleSizeController = new VehicleSizeController(_redisCacheMock.Object, _vehicleSizeServiceMock.Object, _urlServiceMock.Object)
+        var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)
         {
             ControllerContext = controllerContext
         };
@@ -127,74 +111,90 @@ public class VehicleSizeControllerTest
         var response = (VehicleSizeApiResponse)objResult.Value;
 
         //Assert
-        Assert.IsNotNull(objResult);
-        Assert.IsTrue(objResult.StatusCode == 200);
-        Assert.IsTrue(objResult.Value.GetType() == typeof(VehicleSizeApiResponse));
-        Assert.IsNotNull(response);
-        Assert.IsTrue(response.VehicleSize.Id.Equals(id));
-        Assert.IsTrue(response.VehicleSize.Description.Equals("Van"));
-        Assert.IsFalse(response.VehicleSize.Active);
-        Assert.IsNotNull(response.VehicleSize.Link.Self);
-        Assert.IsFalse(string.IsNullOrEmpty(response.VehicleSize.Link.Self.Href));
-        Assert.IsTrue(response.VehicleSize.Link.Self.Href.Contains(string.Format("/Valeting/vehicleSizes/{0}", id)));
+        Assert.NotNull(objResult);
+        Assert.Equal(200, objResult.StatusCode);
+        Assert.True(objResult.Value.GetType() == typeof(VehicleSizeApiResponse));
+        Assert.NotNull(response);
+        Assert.True(response.VehicleSize.Id.Equals(id));
+        Assert.Equal("Van", response.VehicleSize.Description);
+        Assert.False(response.VehicleSize.Active);
+        Assert.NotNull(response.VehicleSize.Link.Self);
+        Assert.False(string.IsNullOrEmpty(response.VehicleSize.Link.Self.Href));
+        Assert.Contains(string.Format("/Valeting/vehicleSizes/{0}", id), response.VehicleSize.Link.Self.Href);
     }
 
-    [TestMethod]
+    [Fact]
     public void FindById_Status400()
     {
         //Arrange
-        _vehicleSizeServiceMock.Setup(x => x.FindByIDAsync(It.IsAny<Guid>())).Throws(new InputException(It.IsAny<string>()));
+        var redisCacheMock = new Mock<IRedisCache>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+
+        vehicleSizeServiceMock.Setup(x => x.FindByIDAsync(It.IsAny<Guid>())).Throws(new InputException(It.IsAny<string>()));
 
         //Act
-        var vehicleSizeController = new VehicleSizeController(_redisCacheMock.Object, _vehicleSizeServiceMock.Object, _urlServiceMock.Object);
+        var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
         var objResult = (ObjectResult)vehicleSizeController.FindByIdAsync(string.Format("{0}", Guid.Empty)).ConfigureAwait(false).GetAwaiter().GetResult();
         var response = (VehicleSizeApiError)objResult.Value;
 
         //Assert
-        Assert.IsNotNull(objResult);
-        Assert.IsTrue(objResult.StatusCode == 400);
-        Assert.IsNotNull(response);
-        Assert.IsFalse(string.IsNullOrEmpty(response.Detail));
+        Assert.NotNull(objResult);
+        Assert.Equal(400, objResult.StatusCode);
+        Assert.NotNull(response);
+        Assert.False(string.IsNullOrEmpty(response.Detail));
     }
 
-    [TestMethod]
+    [Fact]
     public void FindById_Status404()
     {
         //Arrange
+        var redisCacheMock = new Mock<IRedisCache>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+
         var id = Guid.NewGuid();
-        _vehicleSizeServiceMock.Setup(x => x.FindByIDAsync(id)).Throws(new NotFoundException(It.IsAny<string>()));
+        vehicleSizeServiceMock.Setup(x => x.FindByIDAsync(id)).Throws(new NotFoundException(It.IsAny<string>()));
 
         //Act
-        var vehicleSizeController = new VehicleSizeController(_redisCacheMock.Object, _vehicleSizeServiceMock.Object, _urlServiceMock.Object);
+        var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
         var objResult = (ObjectResult)vehicleSizeController.FindByIdAsync(id.ToString()).ConfigureAwait(false).GetAwaiter().GetResult();
         var response = (VehicleSizeApiError)objResult.Value;
 
         //Assert
-        Assert.IsNotNull(objResult);
-        Assert.IsTrue(objResult.StatusCode == 404);
-        Assert.IsNotNull(response);
-        Assert.IsFalse(string.IsNullOrEmpty(response.Detail));
+        Assert.NotNull(objResult);
+        Assert.Equal(404, objResult.StatusCode);
+        Assert.NotNull(response);
+        Assert.False(string.IsNullOrEmpty(response.Detail));
     }
 
-    [TestMethod]
+    [Fact]
     public void FindById_Status500()
     {
         //Act
-        var vehicleSizeController = new VehicleSizeController(_redisCacheMock.Object, _vehicleSizeServiceMock.Object, _urlServiceMock.Object);
+        var redisCacheMock = new Mock<IRedisCache>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+
+        var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
         var objResult = (ObjectResult)vehicleSizeController.FindByIdAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
         var response = (VehicleSizeApiError)objResult.Value;
 
         //Assert
-        Assert.IsNotNull(objResult);
-        Assert.IsTrue(objResult.StatusCode == 500);
-        Assert.IsNotNull(response);
-        Assert.IsFalse(string.IsNullOrEmpty(response.Detail));
+        Assert.NotNull(objResult);
+        Assert.Equal(500, objResult.StatusCode);
+        Assert.NotNull(response);
+        Assert.False(string.IsNullOrEmpty(response.Detail));
     }
 
-    [TestMethod]
+    [Fact]
     public void ListAll_Status200_WithCache()
     {
         //Arrange
+        var redisCacheMock = new Mock<IRedisCache>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+
         var request = new Mock<HttpRequest>();
         request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
         request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/Valeting/vehicleSizes"));
@@ -219,62 +219,66 @@ public class VehicleSizeControllerTest
                 TotalPages = 1
             };
         });
-        _redisCacheMock.Setup(x => x.GetRecordAsync<VehicleSizeListDTO>(It.IsAny<string>())).Returns(vehicleSizeListDTO_Mock);
+        redisCacheMock.Setup(x => x.GetRecordAsync<VehicleSizeListDTO>(It.IsAny<string>())).Returns(vehicleSizeListDTO_Mock);
 
         var linkDTO_Mock = new LinkDTO()
         {
             Next = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2),
             Prev = string.Empty,
             Self = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2),
-        };        
-        _urlServiceMock.Setup(x => x.GeneratePaginatedLinks(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<object>())).Returns(linkDTO_Mock);
-
-         
-
+        };
+        urlServiceMock.Setup(x => x.GeneratePaginatedLinks(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<object>())).Returns(linkDTO_Mock);
 
         //Act
 
         //Assert
     }
 
-    [TestMethod]
+    [Fact]
     public void ListAll_Status200_WithoutCache()
     {
 
     }
 
-    [TestMethod]
+    [Fact]
     public void ListAll_Status400()
     {
         //Arrange
-        _vehicleSizeServiceMock.Setup(x => x.ListAllAsync(It.IsAny<VehicleSizeFilterDTO>())).Throws(new InputException(It.IsAny<string>()));
+        var redisCacheMock = new Mock<IRedisCache>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+
+        vehicleSizeServiceMock.Setup(x => x.ListAllAsync(It.IsAny<VehicleSizeFilterDTO>())).Throws(new InputException(It.IsAny<string>()));
 
         //Act
-        var vehicleSizeController = new VehicleSizeController(_redisCacheMock.Object, _vehicleSizeServiceMock.Object, _urlServiceMock.Object);
+        var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
         var objResult = (ObjectResult)vehicleSizeController.ListAllAsync(new VehicleSizeApiParameters()).ConfigureAwait(false).GetAwaiter().GetResult();
         var response = (VehicleSizeApiError)objResult.Value;
 
         //Assert
-        Assert.IsNotNull(objResult);
-        Assert.IsTrue(objResult.StatusCode == 400);
-        Assert.IsNotNull(response);
-        Assert.IsFalse(string.IsNullOrEmpty(response.Detail));
+        Assert.NotNull(objResult);
+        Assert.Equal(400, objResult.StatusCode);
+        Assert.NotNull(response);
+        Assert.False(string.IsNullOrEmpty(response.Detail));
     }
 
-    [TestMethod]
+    [Fact]
     public void ListAll_Status500()
     {
         //Arrange
+        var redisCacheMock = new Mock<IRedisCache>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
 
         //Act
-        var vehicleSizeController = new VehicleSizeController(_redisCacheMock.Object, _vehicleSizeServiceMock.Object, _urlServiceMock.Object);
+        var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
         var objResult = (ObjectResult)vehicleSizeController.ListAllAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
         var response = (VehicleSizeApiError)objResult.Value;
 
         //Assert
-        Assert.IsNotNull(objResult);
-        Assert.IsTrue(objResult.StatusCode == 500);
-        Assert.IsNotNull(response);
-        Assert.IsFalse(string.IsNullOrEmpty(response.Detail));
+        Assert.NotNull(objResult);
+        Assert.Equal(500, objResult.StatusCode);
+        Assert.NotNull(response);
+        Assert.False(string.IsNullOrEmpty(response.Detail));
     }
 }
