@@ -142,7 +142,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 Email = createBookingApiRequest.Email
             };
 
-            var booking = await bookingService.CreateAsync(bookingDTO);
+            //var booking = await bookingService.CreateAsync(bookingDTO);
 
             //Limpar redis cache caso exista lista de bookings em cache, validar de como ter todas as keys para "List_"
             var recordKey = "*ListBooking_*";
@@ -150,7 +150,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
 
             var createBookingApiResponse = new CreateBookingApiResponse()
             {
-                Id = booking.Id
+                //Id = booking.Id
             };
 
             return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
