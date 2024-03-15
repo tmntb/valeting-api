@@ -1,4 +1,6 @@
-﻿namespace Valeting.Business.VehicleSize;
+﻿using Valeting.Business.Core;
+
+namespace Valeting.Business.VehicleSize;
 
 public class VehicleSizeListDTO : ContentDTO
 {

@@ -4,7 +4,7 @@ using Valeting.Services.Interfaces;
 using Valeting.Business.VehicleSize;
 using Valeting.Repositories.Interfaces;
 
-namespace Valeting.Service;
+namespace Valeting.Services;
 
 public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository) : IVehicleSizeService
 {

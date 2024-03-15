@@ -1,4 +1,4 @@
-﻿namespace Valeting.Services.Objects;
+﻿namespace Valeting.Services.Objects.Core;
 
 public class ValetingOutputSV
 {

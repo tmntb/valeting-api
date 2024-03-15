@@ -1,10 +1,13 @@
-﻿using Valeting.Business.Booking;
+﻿using System.Net;
+
+using Valeting.Common.Messages;
+using Valeting.Business.Booking;
 using Valeting.Services.Validators;
 using Valeting.Services.Interfaces;
 using Valeting.Repositories.Interfaces;
 using Valeting.Services.Objects.Booking;
 
-namespace Valeting.Service;
+namespace Valeting.Services;
 
 public class BookingService(IBookingRepository bookingRepository) : IBookingService
 {
@@ -17,10 +20,9 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
         {
             createBookingSVResponse.Error = new()
             {
-                ErrorCode = 400,
+                ErrorCode = (int)HttpStatusCode.BadRequest,
                 Message = result.Errors.FirstOrDefault().ErrorMessage
             };
-
             return createBookingSVResponse;
         }
 
@@ -39,88 +41,160 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
         return createBookingSVResponse;
     }
 
-    public async Task UpdateAsync(BookingDTO bookingDTO)
+    public async Task<UpdateBookingSVResponse> UpdateAsync(UpdateBookingSVRequest updateBookingSVRequest)
     {
-        throw new NotImplementedException();
-        //ValidateGeneralInput(bookingDTO);
+        var updateBookingSVResponse = new UpdateBookingSVResponse() { Error = new() };
+        var validator = new UpdateBookinValidator();
+        var result = await validator.ValidateAsync(updateBookingSVRequest);
+        if(!result.IsValid)
+        {
+            updateBookingSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.BadRequest,
+                Message = result.Errors.FirstOrDefault().ErrorMessage
+            };
+            return updateBookingSVResponse;
+        }
 
-        //ValidateBookingId(bookingDTO.Id);
+        var bookingDTO = await bookingRepository.FindByIdAsync(updateBookingSVRequest.Id);
+        if (bookingDTO == null)
+        {
+            updateBookingSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.NotFound,
+                Message = Messages.BookingNotFound
+            };
+            return updateBookingSVResponse;
+        }
 
-        //if (!bookingDTO.Approved.HasValue)
-        //    throw new InputException(Messages.ApprovedEmpty);
+        bookingDTO.Id = updateBookingSVRequest.Id;
+        bookingDTO.Name = updateBookingSVRequest.Name;
+        bookingDTO.BookingDate = updateBookingSVRequest.BookingDate;
+        //bookingDTO.Flexibility = updateBookingApiRequest.Flexibility != null ? new() { Id = updateBookingApiRequest.Flexibility.Id } : null,
+        //bookingDTO.VehicleSize = updateBookingApiRequest.VehicleSize != null ? new() { Id = updateBookingApiRequest.VehicleSize.Id } : null,
+        bookingDTO.ContactNumber = updateBookingSVRequest.ContactNumber;
+        bookingDTO.Email = updateBookingSVRequest.Email;
+        bookingDTO.Approved = updateBookingSVRequest.Approved;
+        await bookingRepository.UpdateAsync(bookingDTO);
 
-        //if (bookingDTO.BookingDate < DateTime.Now)
-        //    throw new BusinessObjectException(Messages.DateInThePast);
-
-        //BookingDTO bookingDTO_Check = await bookingRepository.FindByIdAsync(bookingDTO.Id);
-        //if (bookingDTO_Check == null)
-        //    throw new NotFoundException(Messages.BookingNotFound);
-
-        //await bookingRepository.UpdateAsync(bookingDTO);
+        return updateBookingSVResponse;
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task<DeleteBookingSVResponse> DeleteAsync(DeleteBookingSVRequest deleteBookingSVRequest)
     {
-        throw new NotImplementedException();
-        //ValidateBookingId(id);
+        var deleteBookingSVResponse = new DeleteBookingSVResponse() { Error = new() };
+        var validator = new DeleteBookingValidator();
+        var result = validator.Validate(deleteBookingSVRequest);
+        if(!result.IsValid)
+        {
+            deleteBookingSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.BadRequest,
+                Message = result.Errors.FirstOrDefault().ErrorMessage
+            };
+            return deleteBookingSVResponse;
+        }
 
-        //BookingDTO bookingDTO_Check = await bookingRepository.FindByIdAsync(id);
-        //if (bookingDTO_Check == null)
-        //    throw new NotFoundException(Messages.BookingNotFound);
+        var bookingDTO = await bookingRepository.FindByIdAsync(deleteBookingSVRequest.Id);
+        if (bookingDTO == null)
+        {
+            deleteBookingSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.NotFound,
+                Message = Messages.BookingNotFound
+            };
+            return deleteBookingSVResponse;
+        }
 
-        //await bookingRepository.DeleteAsync(id);
+        await bookingRepository.DeleteAsync(deleteBookingSVRequest.Id);
+
+        return deleteBookingSVResponse;
     }
 
-    public async Task<BookingDTO> FindByIDAsync(Guid id)
+    public async Task<GetBookingSVResponse> GetAsync(GetBookingSVRequest getBookingSVRequest)
     {
-        throw new NotImplementedException();
-        //ValidateBookingId(id);
+        var getBookingSVResponse = new GetBookingSVResponse() { Error = new() };
 
-        //var bookingDTO = await bookingRepository.FindByIdAsync(id);
-        //if (bookingDTO == null)
-        //    throw new NotFoundException(Messages.BookingNotFound);
+        var validator = new GetBookingValidator();
+        var result = validator.Validate(getBookingSVRequest);
+        if(!result.IsValid)
+        {
+            getBookingSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.BadRequest,
+                Message = result.Errors.FirstOrDefault().ErrorMessage
+            };
+            return getBookingSVResponse;
+        }
 
-        //return bookingDTO;
+        var bookingDTO = await bookingRepository.FindByIdAsync(getBookingSVRequest.Id);
+        if (bookingDTO == null)
+        {
+            getBookingSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.NotFound,
+                Message = Messages.BookingNotFound
+            };
+            return getBookingSVResponse;
+        }
+
+        getBookingSVResponse.Id = bookingDTO.Id;
+        getBookingSVResponse.Name = bookingDTO.Name;
+        getBookingSVResponse.BookingDate = bookingDTO.BookingDate;
+        getBookingSVResponse.ContactNumber = bookingDTO.ContactNumber;
+        getBookingSVResponse.Email = bookingDTO.Email;
+        getBookingSVResponse.Approved = bookingDTO.Approved;
+        return getBookingSVResponse;
     }
 
-    public async Task<BookingListDTO> ListAllAsync(BookingFilterDTO bookingFilterDTO)
+    public async Task<PaginatedBookingSVResponse> ListAllAsync(PaginatedBookingSVRequest paginatedBookingSVRequest)
     {
-        throw new NotImplementedException();
-        //if (bookingFilterDTO.PageNumber == 0)
-        //    throw new InputException(Messages.InvalidPageNumber);
+        var paginatedBookingSVResponse = new PaginatedBookingSVResponse() { Error = new() };
+        
+        var validator = new PaginatedBookingValidator();
+        var result = validator.Validate(paginatedBookingSVRequest);
+        if(!result.IsValid)
+        {
+            paginatedBookingSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.BadRequest,
+                Message = result.Errors.FirstOrDefault().ErrorMessage
+            };
+            return paginatedBookingSVResponse;
+        }
 
-        //return await bookingRepository.ListAsync(bookingFilterDTO);
+        var bookingFilterDTO = new BookingFilterDTO()
+        {
+            PageNumber = paginatedBookingSVRequest.Filter.PageNumber,
+            PageSize = paginatedBookingSVRequest.Filter.PageSize
+        };
+
+        var bookingListDTO = await bookingRepository.ListAsync(bookingFilterDTO);
+        if(bookingListDTO == null)
+        {
+            paginatedBookingSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.NotFound,
+                Message = Messages.BookingNotFound
+            };
+            return paginatedBookingSVResponse;
+        }
+
+        paginatedBookingSVResponse.TotalItems = bookingListDTO.TotalItems;
+        paginatedBookingSVResponse.TotalPages = bookingListDTO.TotalPages;
+
+        paginatedBookingSVResponse.Bookings = bookingListDTO.Bookings.Select(x => 
+            new BookingSV()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                BookingDate = x.BookingDate,
+                ContactNumber = x.ContactNumber,
+                Email = x.Email,
+                Approved = x.Approved
+            }
+        ).ToList();
+
+        return paginatedBookingSVResponse;
     }
-
-    //private void ValidateGeneralInput(BookingDTO bookingDTO)
-    //{
-    //    if (bookingDTO == null)
-    //        throw new BusinessObjectException(Messages.BookingDTONotPopulated);
-
-    //    if (bookingDTO.Flexibility == null || bookingDTO.Flexibility.Id.Equals(Guid.Empty))
-    //    {
-    //        string errorMsg = bookingDTO.Flexibility == null ? Messages.FlexibilityNull : Messages.FlexibilityEmpty;
-    //        throw new InputException(errorMsg);
-    //    }
-
-    //    if (bookingDTO.VehicleSize == null || bookingDTO.VehicleSize.Id.Equals(Guid.Empty))
-    //    {
-    //        string errorMsg = bookingDTO.Flexibility == null ? Messages.VehicleSizeNull : Messages.VehicleSizeEmpty;
-    //        throw new InputException(errorMsg);
-    //    }
-
-    //    if (string.IsNullOrEmpty(bookingDTO.Name) || string.IsNullOrEmpty(bookingDTO.Email) || !bookingDTO.ContactNumber.HasValue || bookingDTO.BookingDate.Equals(DateTime.MinValue))
-    //    {
-    //        string errorMsg = string.IsNullOrEmpty(bookingDTO.Name) ? Messages.InvalidBookingName :
-    //                        string.IsNullOrEmpty(bookingDTO.Email) ? Messages.InvalidBookingEmail :
-    //                        !bookingDTO.ContactNumber.HasValue ? Messages.InvalidBookingContactNumber : Messages.InvalidBookingDate;
-    //        throw new InputException(errorMsg);
-    //    }
-    //}
-
-    //private void ValidateBookingId(Guid id)
-    //{
-    //    if (id.Equals(Guid.Empty))
-    //        throw new InputException(Messages.InvalidBookingId);
-    //}
 }

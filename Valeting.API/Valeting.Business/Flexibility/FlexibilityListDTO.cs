@@ -1,4 +1,6 @@
-﻿namespace Valeting.Business.Flexibility;
+﻿using Valeting.Business.Core;
+
+namespace Valeting.Business.Flexibility;
 
 public class FlexibilityListDTO : ContentDTO
 {

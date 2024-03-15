@@ -4,7 +4,7 @@ using Valeting.Services.Interfaces;
 using Valeting.Business.Flexibility;
 using Valeting.Repositories.Interfaces;
 
-namespace Valeting.Service;
+namespace Valeting.Services;
 
 public class FlexibilityService(IFlexibilityRepository flexibilityRepository) :IFlexibilityService
 {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-using Valeting.Service;
 using Valeting.Services.Interfaces;
 
 namespace Valeting.Services;

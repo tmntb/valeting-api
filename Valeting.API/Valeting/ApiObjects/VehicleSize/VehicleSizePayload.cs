@@ -1,4 +1,6 @@
-﻿namespace Valeting.ApiObjects.VehicleSize;
+﻿using Valeting.ApiObjects.Core;
+
+namespace Valeting.ApiObjects.VehicleSize;
 
 public class VehicleSizeApiPaginatedResponse : PaginationApi
 {

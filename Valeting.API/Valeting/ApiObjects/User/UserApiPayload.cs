@@ -1,4 +1,6 @@
-﻿namespace Valeting.ApiObjects.User;
+﻿using Valeting.ApiObjects.Core;
+
+namespace Valeting.ApiObjects.User;
 
 public class ValidateLoginRequest
 {

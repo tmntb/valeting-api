@@ -88,7 +88,7 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
             return bookingListDTO;
 
         bookingListDTO.TotalItems = listBookings.Count();
-        var nrPages = Decimal.Divide(bookingListDTO.TotalItems, bookingFilterDTO.PageSize);
+        var nrPages = decimal.Divide(bookingListDTO.TotalItems, bookingFilterDTO.PageSize);
         var nrPagesTruncate = Math.Truncate(nrPages);
         bookingListDTO.TotalPages = (int)(nrPages - nrPagesTruncate > 0 ? nrPagesTruncate + 1 : nrPagesTruncate);
 

@@ -1,4 +1,4 @@
-﻿using Valeting.Business;
+﻿using Valeting.Business.Core;
 
 namespace Valeting.Services.Interfaces;
 

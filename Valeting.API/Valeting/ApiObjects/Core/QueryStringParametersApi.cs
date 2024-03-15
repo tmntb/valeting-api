@@ -1,6 +1,6 @@
 ﻿using Valeting.SwaggerDocumentation.Parameter;
 
-namespace Valeting.ApiObjects;
+namespace Valeting.ApiObjects.Core;
 
 public abstract class QueryStringParametersApi
 {

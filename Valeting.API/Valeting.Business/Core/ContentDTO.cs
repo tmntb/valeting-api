@@ -1,4 +1,4 @@
-﻿namespace Valeting.Business;
+﻿namespace Valeting.Business.Core;
 
 public class ContentDTO
 {

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Valeting.Business.Core;
+using System.ComponentModel.DataAnnotations;
 
 namespace Valeting.Business.Flexibility;
 

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.ApiObjects;
+using Valeting.ApiObjects.Core;
 using Valeting.Common.Exceptions;
 using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;

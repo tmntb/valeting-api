@@ -1,4 +1,6 @@
-﻿namespace Valeting.ApiObjects.Flexibility;
+﻿using Valeting.ApiObjects.Core;
+
+namespace Valeting.ApiObjects.Flexibility;
 
 public class FlexibilityApiParameters : QueryStringParametersApi
 {

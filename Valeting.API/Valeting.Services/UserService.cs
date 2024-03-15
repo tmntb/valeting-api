@@ -8,7 +8,7 @@ using Valeting.Repositories.Interfaces;
 using Valeting.Business.Authentication;
 using System.Net;
 
-namespace Valeting.Service;
+namespace Valeting.Services;
 
 public class UserService(IUserRepository userRepository) : IUserService
 {

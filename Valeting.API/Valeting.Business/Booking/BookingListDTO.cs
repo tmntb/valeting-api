@@ -1,4 +1,6 @@
-﻿namespace Valeting.Business.Booking;
+﻿using Valeting.Business.Core;
+
+namespace Valeting.Business.Booking;
 
 public class BookingListDTO : ContentDTO
 {

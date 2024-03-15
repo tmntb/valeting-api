@@ -1,4 +1,4 @@
-﻿namespace Valeting.ApiObjects;
+﻿namespace Valeting.ApiObjects.Core;
 
 public class LinkApi
 {        
