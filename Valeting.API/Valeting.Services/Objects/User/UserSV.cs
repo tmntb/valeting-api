@@ -1,12 +1,9 @@
-﻿using Valeting.Business.Core;
+namespace Valeting.Services.Objects.User;
 
-namespace Valeting.Business.Authentication;
-
-public class UserDTO
+public class UserSV
 {
     public Guid Id { get; set; }
     public string Username { get; set; }
     public string Password { get; set; }
     public string Salt { get; set; }
-    public List<ErrorDTO> Errors { get; set; }
 }

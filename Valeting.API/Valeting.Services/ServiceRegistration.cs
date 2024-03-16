@@ -8,7 +8,6 @@ public static class ServiceRegistration
 {
     public static void AddServicesLayer(this IServiceCollection services)
     {
-        services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<IFlexibilityService, FlexibilityService>();
         services.AddScoped<IUserService, UserService>();

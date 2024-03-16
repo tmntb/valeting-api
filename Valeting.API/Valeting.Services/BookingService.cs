@@ -13,7 +13,7 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
 {
     public async Task<CreateBookingSVResponse> CreateAsync(CreateBookingSVRequest createBookingSVRequest)
     {
-        var createBookingSVResponse = new CreateBookingSVResponse() { Error = new() };
+        var createBookingSVResponse = new CreateBookingSVResponse();
         var validator = new CreateBookingValidator();
         var result = validator.Validate(createBookingSVRequest);
         if (!result.IsValid)
@@ -43,7 +43,7 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
 
     public async Task<UpdateBookingSVResponse> UpdateAsync(UpdateBookingSVRequest updateBookingSVRequest)
     {
-        var updateBookingSVResponse = new UpdateBookingSVResponse() { Error = new() };
+        var updateBookingSVResponse = new UpdateBookingSVResponse();
         var validator = new UpdateBookinValidator();
         var result = await validator.ValidateAsync(updateBookingSVRequest);
         if(!result.IsValid)
@@ -82,7 +82,7 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
 
     public async Task<DeleteBookingSVResponse> DeleteAsync(DeleteBookingSVRequest deleteBookingSVRequest)
     {
-        var deleteBookingSVResponse = new DeleteBookingSVResponse() { Error = new() };
+        var deleteBookingSVResponse = new DeleteBookingSVResponse();
         var validator = new DeleteBookingValidator();
         var result = validator.Validate(deleteBookingSVRequest);
         if(!result.IsValid)
@@ -113,7 +113,7 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
 
     public async Task<GetBookingSVResponse> GetAsync(GetBookingSVRequest getBookingSVRequest)
     {
-        var getBookingSVResponse = new GetBookingSVResponse() { Error = new() };
+        var getBookingSVResponse = new GetBookingSVResponse();
 
         var validator = new GetBookingValidator();
         var result = validator.Validate(getBookingSVRequest);
@@ -149,7 +149,7 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
 
     public async Task<PaginatedBookingSVResponse> ListAllAsync(PaginatedBookingSVRequest paginatedBookingSVRequest)
     {
-        var paginatedBookingSVResponse = new PaginatedBookingSVResponse() { Error = new() };
+        var paginatedBookingSVResponse = new PaginatedBookingSVResponse();
         
         var validator = new PaginatedBookingValidator();
         var result = validator.Validate(paginatedBookingSVRequest);

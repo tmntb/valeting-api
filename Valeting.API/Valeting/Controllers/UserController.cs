@@ -3,61 +3,65 @@
 using Microsoft.AspNetCore.Mvc;
 
 using Valeting.ApiObjects.User;
+using Valeting.Common.Messages;
 using Valeting.Services.Interfaces;
-using Valeting.Business.Authentication;
+using Valeting.Services.Objects.User;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
 
-public class UserController(IUserService userService, IAuthenticationService authenticationService) : UserBaseController
+public class UserController(IUserService userService) : UserBaseController
 {
     public override async Task<IActionResult> ValidateLogin([FromBody] ValidateLoginRequest validateLoginRequest)
     {
         try
         {
-            var response = new ValidateLoginResponse()
-            {
-                Token = string.Empty,
-                ExpiryDate = DateTime.MinValue,
-                TokenType = string.Empty
-            };
-
-            var userDTO = new UserDTO()
+            var validateLoginSVRequest = new ValidateLoginSVRequest()
             {
                 Username = validateLoginRequest.Username,
                 Password = validateLoginRequest.Password
             };
 
-            var login = await userService.ValidateLogin(userDTO);
-            if(login.Errors.Any())
+            var validateLoginSVResponse = await userService.ValidateLogin(validateLoginSVRequest);
+            if(validateLoginSVResponse.HasError)
             {
-                var error = login.Errors.FirstOrDefault();
                 var userApiError = new UserApiError()
                 {
-                    Detail = error.Detail
+                    Detail = validateLoginSVResponse.Error.Message
                 };
-                return StatusCode(error.ErrorCode, userApiError);
+                return StatusCode(validateLoginSVResponse.Error.ErrorCode, userApiError);
             }
 
-            if (login.Valid)
+            if (!validateLoginSVResponse.Valid)
             {
-                var auth = await authenticationService.GenerateTokenJWT(userDTO);
-                if(auth.Errors.Any())
+                var userApiError = new UserApiError()
                 {
-                    var error = auth.Errors.FirstOrDefault();
-                    var userApiError = new UserApiError() 
-                    { 
-                        Detail = error.Detail
-                    };
-                    return StatusCode(error.ErrorCode, userApiError);
-                }
-
-                response.Token = auth.Token;
-                response.ExpiryDate = auth.ExpiryDate;
-                response.TokenType = auth.TokenType;
+                    Detail = Messages.InvalidPassword
+                };
+                return StatusCode((int)HttpStatusCode.Unauthorized, userApiError);
             }
 
-            return StatusCode((int)HttpStatusCode.OK, response);
+            var generateTokenJWTSVRequest = new GenerateTokenJWTSVRequest()
+            {
+                Username = validateLoginRequest.Username
+            };
+            var generateTokenJWTSVResponse = await userService.GenerateTokenJWT(generateTokenJWTSVRequest);
+            if(generateTokenJWTSVResponse.HasError)
+            {
+                var userApiError = new UserApiError()
+                {
+                    Detail = generateTokenJWTSVResponse.Error.Message
+                };
+                return StatusCode(generateTokenJWTSVResponse.Error.ErrorCode, userApiError);
+            }
+
+            var validateLoginResponse = new ValidateLoginResponse()
+            {
+                Token = generateTokenJWTSVResponse.Token,
+                ExpiryDate = generateTokenJWTSVResponse.ExpiryDate,
+                TokenType = generateTokenJWTSVResponse.TokenType
+            };
+            return StatusCode((int)HttpStatusCode.OK, validateLoginResponse);
         }
         catch (Exception ex)
         {
