@@ -31,7 +31,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
             {
                 Name = createBookingApiRequest.Name,
                 BookingDate = createBookingApiRequest.BookingDate,
-                //Flexibility = createBookingApiRequest.Flexibility != null ? new() { Id = createBookingApiRequest.Flexibility.Id } : null,
+                Flexibility = createBookingApiRequest.Flexibility != null ? new() { Id = createBookingApiRequest.Flexibility.Id } : null,
                 //VehicleSize = createBookingApiRequest.VehicleSize != null ? new() { Id = createBookingApiRequest.VehicleSize.Id } : null,
                 ContactNumber = createBookingApiRequest.ContactNumber,
                 Email = createBookingApiRequest.Email
@@ -76,7 +76,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 Id = Guid.Parse(id),
                 Name = updateBookingApiRequest.Name,
                 BookingDate = updateBookingApiRequest.BookingDate,
-                //Flexibility = updateBookingApiRequest.Flexibility != null ? new() { Id = updateBookingApiRequest.Flexibility.Id } : null,
+                Flexibility = updateBookingApiRequest.Flexibility != null ? new() { Id = updateBookingApiRequest.Flexibility.Id } : null,
                 //VehicleSize = updateBookingApiRequest.VehicleSize != null ? new() { Id = updateBookingApiRequest.VehicleSize.Id } : null,
                 ContactNumber = updateBookingApiRequest.ContactNumber,
                 Email = updateBookingApiRequest.Email,
@@ -181,7 +181,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                     Id = getBookingSVResponse.Id,
                     Name = getBookingSVResponse.Name,
                     BookingDate = getBookingSVResponse.BookingDate,
-                    /*Flexibility = new()
+                    Flexibility = new()
                     {
                         Id = getBookingSVResponse.Flexibility.Id,
                         Description = getBookingSVResponse.Flexibility.Description,
@@ -194,7 +194,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                             }
                         }
                     },
-                    VehicleSize = new()
+                    /*VehicleSize = new()
                     {
                         Id = getBookingSVResponse.VehicleSize.Id,
                         Description = getBookingSVResponse.VehicleSize.Description,
@@ -290,51 +290,51 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
             bookingApiPaginatedResponse.Links.Self.Href = linkDTO.Self;
 
             bookingApiPaginatedResponse.Bookings.AddRange(
-                paginatedBookingSVResponse.Bookings.Select(item => new BookingApi()
-                {
-                    Id = item.Id,
-                    Name = item.Name,
-                    BookingDate = item.BookingDate,
-                    /*Flexibility = new()
+                paginatedBookingSVResponse.Bookings.Select(item => 
+                new BookingApi()
                     {
-                        Id = item.Flexibility.Id,
-                        Description = item.Flexibility.Description,
-                        Active = item.Flexibility.Active,
+                        Id = item.Id,
+                        Name = item.Name,
+                        BookingDate = item.BookingDate,
+                        Flexibility = new()
+                        {
+                            Id = item.Flexibility.Id,
+                            Description = item.Flexibility.Description,
+                            Active = item.Flexibility.Active,
+                            Link = new()
+                            {
+                                Self = new()
+                                {
+                                    Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/flexibilities", item.Flexibility.Id)
+                                }
+                            }
+                        },
+                        /*VehicleSize = new()
+                        {
+                            Id = item.VehicleSize.Id,
+                            Description = item.VehicleSize.Description,
+                            Active = item.VehicleSize.Active,
+                            Link = new()
+                            {
+                                Self = new()
+                                {
+                                    Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", item.VehicleSize.Id)
+                                }
+                            }
+                        },*/
+                        ContactNumber = item.ContactNumber.Value,
+                        Email = item.Email,
+                        Approved = item.Approved,
                         Link = new()
                         {
                             Self = new()
                             {
-                                Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/flexibilities", item.Flexibility.Id)
+                                Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
                             }
-                        }
-                    },
-                    VehicleSize = new()
-                    {
-                        Id = item.VehicleSize.Id,
-                        Description = item.VehicleSize.Description,
-                        Active = item.VehicleSize.Active,
-                        Link = new()
-                        {
-                            Self = new()
-                            {
-                                Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", item.VehicleSize.Id)
-                            }
-                        }
-                    },*/
-                    ContactNumber = item.ContactNumber.Value,
-                    Email = item.Email,
-                    Approved = item.Approved,
-                    Link = new()
-                    {
-                        Self = new()
-                        {
-                            Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
                         }
                     }
-                }
                 ).ToList()
             );
-
             return StatusCode((int)HttpStatusCode.OK, bookingApiPaginatedResponse);
         }
         catch (Exception ex)

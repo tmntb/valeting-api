@@ -1,9 +1,9 @@
-﻿using Valeting.Business.Flexibility;
+﻿using Valeting.Services.Objects.Flexibility;
 
 namespace Valeting.Services.Interfaces;
 
 public interface IFlexibilityService
 {
-    Task<FlexibilityDTO> FindByIDAsync(Guid id);
-    Task<FlexibilityListDTO> ListAllAsync(FlexibilityFilterDTO flexibilityFilterDTO);
+    Task<GetFlexibilitySVResponse> GetAsync(GetFlexibilitySVRequest getFlexibilitySVRequest);
+    Task<PaginatedFlexibilitySVResponse> ListAllAsync(PaginatedFlexibilitySVRequest paginatedFlexibilitySVRequest);
 }
