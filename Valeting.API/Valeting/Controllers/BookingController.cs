@@ -32,7 +32,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 Name = createBookingApiRequest.Name,
                 BookingDate = createBookingApiRequest.BookingDate,
                 Flexibility = createBookingApiRequest.Flexibility != null ? new() { Id = createBookingApiRequest.Flexibility.Id } : null,
-                //VehicleSize = createBookingApiRequest.VehicleSize != null ? new() { Id = createBookingApiRequest.VehicleSize.Id } : null,
+                VehicleSize = createBookingApiRequest.VehicleSize != null ? new() { Id = createBookingApiRequest.VehicleSize.Id } : null,
                 ContactNumber = createBookingApiRequest.ContactNumber,
                 Email = createBookingApiRequest.Email
             };
@@ -77,7 +77,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 Name = updateBookingApiRequest.Name,
                 BookingDate = updateBookingApiRequest.BookingDate,
                 Flexibility = updateBookingApiRequest.Flexibility != null ? new() { Id = updateBookingApiRequest.Flexibility.Id } : null,
-                //VehicleSize = updateBookingApiRequest.VehicleSize != null ? new() { Id = updateBookingApiRequest.VehicleSize.Id } : null,
+                VehicleSize = updateBookingApiRequest.VehicleSize != null ? new() { Id = updateBookingApiRequest.VehicleSize.Id } : null,
                 ContactNumber = updateBookingApiRequest.ContactNumber,
                 Email = updateBookingApiRequest.Email,
                 Approved = updateBookingApiRequest.Approved ?? false
@@ -194,7 +194,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                             }
                         }
                     },
-                    /*VehicleSize = new()
+                    VehicleSize = new()
                     {
                         Id = getBookingSVResponse.VehicleSize.Id,
                         Description = getBookingSVResponse.VehicleSize.Description,
@@ -206,7 +206,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                                 Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", getBookingSVResponse.VehicleSize.Id)
                             }
                         }
-                    },*/
+                    },
                     ContactNumber = getBookingSVResponse.ContactNumber.Value,
                     Email = getBookingSVResponse.Email,
                     Approved = getBookingSVResponse.Approved,
@@ -291,7 +291,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
 
             bookingApiPaginatedResponse.Bookings.AddRange(
                 paginatedBookingSVResponse.Bookings.Select(item => 
-                new BookingApi()
+                    new BookingApi()
                     {
                         Id = item.Id,
                         Name = item.Name,
@@ -309,7 +309,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                                 }
                             }
                         },
-                        /*VehicleSize = new()
+                        VehicleSize = new()
                         {
                             Id = item.VehicleSize.Id,
                             Description = item.VehicleSize.Description,
@@ -321,7 +321,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                                     Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", item.VehicleSize.Id)
                                 }
                             }
-                        },*/
+                        },
                         ContactNumber = item.ContactNumber.Value,
                         Email = item.Email,
                         Approved = item.Approved,

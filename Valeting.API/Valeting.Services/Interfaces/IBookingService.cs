@@ -1,5 +1,4 @@
-﻿using Valeting.Business.Booking;
-using Valeting.Services.Objects.Booking;
+﻿using Valeting.Services.Objects.Booking;
 
 namespace Valeting.Services.Interfaces;
 

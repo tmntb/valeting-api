@@ -1,9 +1,9 @@
-﻿using Valeting.Business.VehicleSize;
+﻿using Valeting.Services.Objects.VehicleSize;
 
 namespace Valeting.Services.Interfaces;
 
 public interface IVehicleSizeService
 {
-    Task<VehicleSizeDTO> FindByIDAsync(Guid id);
-    Task<VehicleSizeListDTO> ListAllAsync(VehicleSizeFilterDTO vehicleSizeFilterDTO);
+    Task<GetVehicleSizeSVResponse> GetAsync(GetVehicleSizeSVRequest getVehicleSizeSVRequest);
+    Task<PaginatedVehicleSizeSVResponse> ListAllAsync(PaginatedVehicleSizeSVRequest paginatedVehicleSizeSVRequest);
 }

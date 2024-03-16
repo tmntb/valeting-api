@@ -10,6 +10,7 @@ using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
 using Valeting.Business.VehicleSize;
 using Valeting.ApiObjects.VehicleSize;
+using Valeting.Services.Objects.VehicleSize;
 
 namespace Valeting.UnitTest.Controller;
 
@@ -34,16 +35,16 @@ public class VehicleSizeControllerTest
         };
 
         var id = Guid.NewGuid();
-        var vehicleSizeDTO_Mock = Task<VehicleSizeDTO>.Factory.StartNew(() =>
+        var getVehicleSizeSVResponse_Mock = Task<GetVehicleSizeSVResponse>.Factory.StartNew(() =>
         {
-            return new VehicleSizeDTO()
+            return new GetVehicleSizeSVResponse()
             {
                 Id = id,
                 Description = "Van",
                 Active = It.IsAny<bool>()
             };
         });
-        vehicleSizeServiceMock.Setup(x => x.FindByIDAsync(id)).Returns(vehicleSizeDTO_Mock);
+        vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<GetVehicleSizeSVRequest>())).Returns(getVehicleSizeSVResponse_Mock);
 
         var href_Mock = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id);
         urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<string>(), It.IsAny<string>())).Returns(href_Mock);
@@ -133,7 +134,7 @@ public class VehicleSizeControllerTest
         var urlServiceMock = new Mock<IUrlService>();
         var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
 
-        vehicleSizeServiceMock.Setup(x => x.FindByIDAsync(It.IsAny<Guid>())).Throws(new InputException(It.IsAny<string>()));
+        vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<GetVehicleSizeSVRequest>())).Throws(new InputException(It.IsAny<string>()));
 
         //Act
         var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
@@ -156,7 +157,7 @@ public class VehicleSizeControllerTest
         var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
 
         var id = Guid.NewGuid();
-        vehicleSizeServiceMock.Setup(x => x.FindByIDAsync(id)).Throws(new NotFoundException(It.IsAny<string>()));
+        vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<GetVehicleSizeSVRequest>())).Throws(new NotFoundException(It.IsAny<string>()));
 
         //Act
         var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
@@ -250,7 +251,7 @@ public class VehicleSizeControllerTest
         var urlServiceMock = new Mock<IUrlService>();
         var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
 
-        vehicleSizeServiceMock.Setup(x => x.ListAllAsync(It.IsAny<VehicleSizeFilterDTO>())).Throws(new InputException(It.IsAny<string>()));
+        vehicleSizeServiceMock.Setup(x => x.ListAllAsync(It.IsAny<PaginatedVehicleSizeSVRequest>())).Throws(new InputException(It.IsAny<string>()));
 
         //Act
         var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);

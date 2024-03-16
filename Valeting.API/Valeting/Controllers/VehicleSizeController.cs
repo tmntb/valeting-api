@@ -3,91 +3,59 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.ApiObjects.Core;
-using Valeting.Common.Exceptions;
 using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
-using Valeting.Business.VehicleSize;
 using Valeting.ApiObjects.VehicleSize;
 using Valeting.Controllers.BaseController;
+using Valeting.Services.Objects.VehicleSize;
 
 namespace Valeting.Controllers;
 
 public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService vehicleSizeService, IUrlService urlService) : VehicleSizeBaseController
 {
-    public override async Task<IActionResult> ListAllAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
+    public override async Task<IActionResult> FindByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
         try
         {
-            var vehicleSizeApiPaginatedResponse = new VehicleSizeApiPaginatedResponse()
+            var getVehicleSizeSVRequest = new GetVehicleSizeSVRequest()
             {
-                VehicleSizes = new List<VehicleSizeApi>(),
-                CurrentPage = vehicleSizeApiParameters.PageNumber,
-                Links = new PaginationLinksApi()
+                Id = Guid.Parse(id)
+            };
+
+            var recordKey = string.Format("VehicleSize_{0}", id);
+            var getVehicleSizeSVResponse = await redisCache.GetRecordAsync<GetVehicleSizeSVResponse>(recordKey);
+            if(getVehicleSizeSVResponse == null)
+            {
+                getVehicleSizeSVResponse = await vehicleSizeService.GetAsync(getVehicleSizeSVRequest);
+                if(getVehicleSizeSVResponse.HasError)
                 {
-                    Prev = new LinkApi() { Href = string.Empty },
-                    Next = new LinkApi() { Href = string.Empty },
-                    Self = new LinkApi() { Href = string.Empty }
+                    var vehicleSizeApiError = new VehicleSizeApiError() 
+                    { 
+                        Detail = getVehicleSizeSVResponse.Error.Message
+                    };
+                    return StatusCode(getVehicleSizeSVResponse.Error.ErrorCode, vehicleSizeApiError);
                 }
-            };
 
-            var vehicleSizeFilterDTO = new VehicleSizeFilterDTO()
-            {
-                PageNumber = vehicleSizeApiParameters.PageNumber,
-                PageSize = vehicleSizeApiParameters.PageSize,
-                Active = vehicleSizeApiParameters.Active
-            };
-
-            var recordKey = string.Format("ListVehicleSize_{0}_{1}_{2}", vehicleSizeFilterDTO.PageNumber, vehicleSizeFilterDTO.PageSize, vehicleSizeFilterDTO.Active);
-
-            var vehicleSizeListDTO = await redisCache.GetRecordAsync<VehicleSizeListDTO>(recordKey);
-            if (vehicleSizeListDTO == null)
-            {
-                vehicleSizeListDTO = await vehicleSizeService.ListAllAsync(vehicleSizeFilterDTO);
-                await redisCache.SetRecordAsync<VehicleSizeListDTO>(recordKey, vehicleSizeListDTO, TimeSpan.FromMinutes(5));
+                await redisCache.SetRecordAsync(recordKey, getVehicleSizeSVResponse, TimeSpan.FromDays(1));
             }
 
-            vehicleSizeApiPaginatedResponse.TotalItems = vehicleSizeListDTO.TotalItems;
-            vehicleSizeApiPaginatedResponse.TotalPages = vehicleSizeListDTO.TotalPages;
-
-            var linkDTO = urlService.GeneratePaginatedLinks
-            (
-                Request.Host.Value,
-                Request.Path.HasValue ? Request.Path.Value : string.Empty,
-                Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
-                vehicleSizeApiParameters.PageNumber, vehicleSizeListDTO.TotalPages, vehicleSizeFilterDTO
-            );
-
-            vehicleSizeApiPaginatedResponse.Links.Prev.Href = linkDTO.Prev;
-            vehicleSizeApiPaginatedResponse.Links.Next.Href = linkDTO.Next;
-            vehicleSizeApiPaginatedResponse.Links.Self.Href = linkDTO.Self;
-
-            vehicleSizeApiPaginatedResponse.VehicleSizes.AddRange(
-                vehicleSizeListDTO.VehicleSizes.Select(item => new VehicleSizeApi()
+            var vehicleSizeApiResponse = new VehicleSizeApiResponse()
+            {
+                VehicleSize = new()
                 {
-                    Id = item.Id,
-                    Description = item.Description,
-                    Active = item.Active,
-                    Link = new VehicleSizeApiLink()
+                    Id = getVehicleSizeSVResponse.Id,
+                    Description = getVehicleSizeSVResponse.Description,
+                    Active = getVehicleSizeSVResponse.Active,
+                    Link = new()
                     {
-                        Self = new LinkApi()
+                        Self = new()
                         {
-                            Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
+                            Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
                         }
                     }
                 }
-                ).ToList()
-            );
-
-            return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiPaginatedResponse);
-        }
-        catch (InputException inputException)
-        {
-            var vehicleSizeApiError = new VehicleSizeApiError() 
-            { 
-                Detail = inputException.Message
             };
-            return StatusCode((int)HttpStatusCode.BadRequest, vehicleSizeApiError);
+            return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiResponse);
         }
         catch (Exception ex)
         {
@@ -99,57 +67,83 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
         }
     }
 
-    public override async Task<IActionResult> FindByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
+    public override async Task<IActionResult> ListAllAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
     {
         try
         {
-            var vehicleSizeApiResponse = new VehicleSizeApiResponse()
+            var paginatedVehicleSizeSVRequest = new PaginatedVehicleSizeSVRequest()
             {
-                VehicleSize =  new VehicleSizeApi()
-            };
-
-            var recordKey = string.Format("VehicleSize_{0}", id);
-
-            var vehicleSizeDTO = await redisCache.GetRecordAsync<VehicleSizeDTO>(recordKey);
-            if(vehicleSizeDTO == null)
-            {
-                vehicleSizeDTO = await vehicleSizeService.FindByIDAsync(Guid.Parse(id));
-                await redisCache.SetRecordAsync<VehicleSizeDTO>(recordKey, vehicleSizeDTO, TimeSpan.FromDays(1));
-            }
-
-            var vehicleSizeApi = new VehicleSizeApi()
-            {
-                Id = vehicleSizeDTO.Id,
-                Description = vehicleSizeDTO.Description,
-                Active = vehicleSizeDTO.Active,
-                Link = new VehicleSizeApiLink()
+                Filter = new()
                 {
-                    Self = new LinkApi()
-                    {
-                        Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
-                    }
+                    PageNumber = vehicleSizeApiParameters.PageNumber,
+                    PageSize = vehicleSizeApiParameters.PageSize,
+                    Active = vehicleSizeApiParameters.Active
                 }
             };
 
-            vehicleSizeApiResponse.VehicleSize = vehicleSizeApi;
+            var recordKey = string.Format("ListVehicleSize_{0}_{1}_{2}", vehicleSizeApiParameters.PageNumber, vehicleSizeApiParameters.PageSize, vehicleSizeApiParameters.Active);
+            var paginatedVehicleSizeSVResponse = await redisCache.GetRecordAsync<PaginatedVehicleSizeSVResponse>(recordKey);
+            if (paginatedVehicleSizeSVResponse == null)
+            {
+                paginatedVehicleSizeSVResponse = await vehicleSizeService.ListAllAsync(paginatedVehicleSizeSVRequest);
+                if(paginatedVehicleSizeSVResponse.HasError)
+                {
+                    var vehicleSizeApiError = new VehicleSizeApiError()
+                    {
+                        Detail = paginatedVehicleSizeSVResponse.Error.Message
+                    };
+                    return StatusCode(paginatedVehicleSizeSVResponse.Error.ErrorCode, vehicleSizeApiError);
+                }
 
-            return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiResponse);
-        }
-        catch (InputException inputException)
-        {
-            var vehicleSizeApiError = new VehicleSizeApiError() 
-            { 
-                Detail = inputException.Message
+                await redisCache.SetRecordAsync(recordKey, paginatedVehicleSizeSVResponse, TimeSpan.FromMinutes(5));
+            }
+
+            var vehicleSizeApiPaginatedResponse = new VehicleSizeApiPaginatedResponse
+            {
+                VehicleSizes = [],
+                CurrentPage = vehicleSizeApiParameters.PageNumber,
+                TotalItems = paginatedVehicleSizeSVResponse.TotalItems,
+                TotalPages = paginatedVehicleSizeSVResponse.TotalPages,
+                Links = new()
+                {
+                    Prev = new() { Href = string.Empty },
+                    Next = new() { Href = string.Empty },
+                    Self = new() { Href = string.Empty }
+                },
             };
-            return StatusCode((int)HttpStatusCode.BadRequest, vehicleSizeApiError);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            var vehicleSizeApiError = new VehicleSizeApiError() 
-            { 
-                Detail = notFoundException.Message
-            };
-            return StatusCode((int)HttpStatusCode.NotFound, vehicleSizeApiError);
+
+            var linkDTO = urlService.GeneratePaginatedLinks
+            (
+                Request.Host.Value,
+                Request.Path.HasValue ? Request.Path.Value : string.Empty,
+                Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                vehicleSizeApiParameters.PageNumber, 
+                paginatedVehicleSizeSVResponse.TotalPages, 
+                paginatedVehicleSizeSVRequest.Filter
+            );
+
+            vehicleSizeApiPaginatedResponse.Links.Prev.Href = linkDTO.Prev;
+            vehicleSizeApiPaginatedResponse.Links.Next.Href = linkDTO.Next;
+            vehicleSizeApiPaginatedResponse.Links.Self.Href = linkDTO.Self;
+
+            vehicleSizeApiPaginatedResponse.VehicleSizes.AddRange(
+                paginatedVehicleSizeSVResponse.VehicleSizes.Select(item => 
+                    new VehicleSizeApi()
+                    {
+                        Id = item.Id,
+                        Description = item.Description,
+                        Active = item.Active,
+                        Link = new()
+                        {
+                            Self = new()
+                            {
+                                Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
+                            }
+                        }
+                    }
+                ).ToList()
+            );
+            return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiPaginatedResponse);
         }
         catch (Exception ex)
         {

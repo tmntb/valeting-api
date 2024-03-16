@@ -64,7 +64,8 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository) :I
         var flexibilityFilterDTO = new FlexibilityFilterDTO()
         {
             PageNumber = paginatedFlexibilitySVRequest.Filter.PageNumber,
-            PageSize = paginatedFlexibilitySVRequest.Filter.PageSize
+            PageSize = paginatedFlexibilitySVRequest.Filter.PageSize,
+            Active = paginatedFlexibilitySVRequest.Filter.Active
         };
 
         var flexibilityListDTO =  await flexibilityRepository.ListAsync(flexibilityFilterDTO);
@@ -89,7 +90,6 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository) :I
                 Active = x.Active
             }
         ).ToList();
-
         return paginatedFlexibilitySVResponse;
     }
 }

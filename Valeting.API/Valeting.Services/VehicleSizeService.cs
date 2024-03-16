@@ -3,28 +3,92 @@ using Valeting.Common.Exceptions;
 using Valeting.Services.Interfaces;
 using Valeting.Business.VehicleSize;
 using Valeting.Repositories.Interfaces;
+using Valeting.Services.Objects.VehicleSize;
+using Valeting.Services.Validators;
+using System.Net;
 
 namespace Valeting.Services;
 
 public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository) : IVehicleSizeService
 {
-    public async Task<VehicleSizeDTO> FindByIDAsync(Guid id)
+    public async Task<GetVehicleSizeSVResponse> GetAsync(GetVehicleSizeSVRequest getVehicleSizeSVRequest)
     {
-        if (id.Equals(Guid.Empty))
-            throw new InputException(Messages.InvalidVehicleSizeId);
+        var getVehicleSizeSVResponse = new GetVehicleSizeSVResponse();
 
-        var vehicleSizeDTO = await vehicleSizeRepository.FindByIDAsync(id);
+        var validator = new GetVehicleSizeValidator();
+        var result = validator.Validate(getVehicleSizeSVRequest);
+        if(!result.IsValid)
+        {
+            getVehicleSizeSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.BadRequest,
+                Message = result.Errors.FirstOrDefault().ErrorMessage
+            };
+            return getVehicleSizeSVResponse;
+        }
+
+        var vehicleSizeDTO = await vehicleSizeRepository.FindByIDAsync(getVehicleSizeSVRequest.Id);
         if (vehicleSizeDTO == null)
-            throw new NotFoundException(Messages.VehicleSizeNotFound);
+        {
+            getVehicleSizeSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.NotFound,
+                Message = Messages.VehicleSizeNotFound
+            };
+            return getVehicleSizeSVResponse;
+        }
 
-        return vehicleSizeDTO;
+        getVehicleSizeSVResponse.Id = vehicleSizeDTO.Id;
+        getVehicleSizeSVResponse.Description = vehicleSizeDTO.Description;
+        getVehicleSizeSVResponse.Active = vehicleSizeDTO.Active;
+        return getVehicleSizeSVResponse;
     }
 
-    public async Task<VehicleSizeListDTO> ListAllAsync(VehicleSizeFilterDTO vehicleSizeFilterDTO)
+    public async Task<PaginatedVehicleSizeSVResponse> ListAllAsync(PaginatedVehicleSizeSVRequest paginatedVehicleSizeSVRequest)
     {
-        if (vehicleSizeFilterDTO.PageNumber == 0)
-            throw new InputException(Messages.InvalidPageNumber);
+        var paginatedVehicleSizeSVResponse = new PaginatedVehicleSizeSVResponse();
 
-        return await vehicleSizeRepository.ListAsync(vehicleSizeFilterDTO);
+        var validator = new PaginatedVehicleSizeValidator();
+        var result = validator.Validate(paginatedVehicleSizeSVRequest);
+        if(!result.IsValid)
+        {
+            paginatedVehicleSizeSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.BadRequest,
+                Message = result.Errors.FirstOrDefault().ErrorMessage
+            };
+            return paginatedVehicleSizeSVResponse;
+        }
+
+        var vehicleSizeFilterDTO = new VehicleSizeFilterDTO()
+        {
+            PageNumber = paginatedVehicleSizeSVRequest.Filter.PageNumber,
+            PageSize = paginatedVehicleSizeSVRequest.Filter.PageSize,
+            Active = paginatedVehicleSizeSVRequest.Filter.Active
+        };
+        
+        var vehicleSizeListDTO = await vehicleSizeRepository.ListAsync(vehicleSizeFilterDTO);
+        if(vehicleSizeListDTO == null)
+        {
+            paginatedVehicleSizeSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.NotFound,
+                Message = Messages.VehicleSizeNotFound
+            };
+            return paginatedVehicleSizeSVResponse;
+        }
+
+        paginatedVehicleSizeSVResponse.TotalItems = vehicleSizeListDTO.TotalItems;
+        paginatedVehicleSizeSVResponse.TotalPages = vehicleSizeListDTO.TotalPages;
+
+        paginatedVehicleSizeSVResponse.VehicleSizes = vehicleSizeListDTO.VehicleSizes.Select(x => 
+            new VehicleSizeSV()
+            {
+                Id = x.Id,
+                Description = x.Description,
+                Active = x.Active
+            }
+        ).ToList();
+        return paginatedVehicleSizeSVResponse;
     }
 }

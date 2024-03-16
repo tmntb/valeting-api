@@ -3,11 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.ApiObjects.Core;
-using Valeting.Common.Exceptions;
 using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
-using Valeting.Business.Flexibility;
 using Valeting.ApiObjects.Flexibility;
 using Valeting.Controllers.BaseController;
 using Valeting.Services.Objects.Flexibility;
@@ -49,9 +46,9 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
                     Id = getFlexibilitySVResponse.Id,
                     Description = getFlexibilitySVResponse.Description,
                     Active = getFlexibilitySVResponse.Active,
-                    Link = new FlexibilityApiLink()
+                    Link = new()
                     {
-                        Self = new LinkApi()
+                        Self = new()
                         {
                             Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
                         }
@@ -107,7 +104,7 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
                 CurrentPage = flexibilityApiParameters.PageNumber,
                 TotalItems = paginatedFlexibilitySVResponse.TotalItems,
                 TotalPages = paginatedFlexibilitySVResponse.TotalPages,
-                Links = new PaginationLinksApi()
+                Links = new()
                 {
                     Prev = new() { Href = string.Empty },
                     Next = new() { Href = string.Empty },
@@ -131,7 +128,7 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
 
             flexibilityApiPaginatedResponse.Flexibilities.AddRange(
                 paginatedFlexibilitySVResponse.Flexibilities.Select(item => 
-                new FlexibilityApi()
+                    new FlexibilityApi()
                     {
                         Id = item.Id,
                         Description = item.Description,
