@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Valeting.Helpers.Interfaces;
 using Valeting.ApiObjects.Booking;
 using Valeting.Services.Interfaces;
-using Valeting.Controllers.BaseController;
+using Valeting.Services.Objects.Link;
 using Valeting.Services.Objects.Booking;
+using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
 
@@ -190,7 +191,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                         {
                             Self = new()
                             {
-                                Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/flexibilities", getBookingSVResponse.Flexibility.Id)
+                                Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/flexibilities", Id = getBookingSVResponse.Flexibility.Id }).Self
                             }
                         }
                     },
@@ -203,7 +204,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                         {
                             Self = new()
                             {
-                                Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", getBookingSVResponse.VehicleSize.Id)
+                                Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/vehicleSizes", Id = getBookingSVResponse.VehicleSize.Id }).Self
                             }
                         }
                     },
@@ -214,7 +215,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                     {
                         Self = new()
                         {
-                            Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
+                            Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
                         }
                     }
                 }

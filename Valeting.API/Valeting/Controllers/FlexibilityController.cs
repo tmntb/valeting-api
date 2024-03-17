@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
+using Valeting.Services.Objects.Link;
 using Valeting.ApiObjects.Flexibility;
 using Valeting.Controllers.BaseController;
 using Valeting.Services.Objects.Flexibility;
@@ -50,7 +51,7 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
                     {
                         Self = new()
                         {
-                            Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
+                            Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
                         }
                     }
                 }
@@ -137,7 +138,7 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
                         {
                             Self = new()
                             {
-                                Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
+                                Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = item.Id }).Self
                             }
                         }
                     }

@@ -1,10 +1,9 @@
-﻿using Valeting.Business.Core;
+﻿using Valeting.Services.Objects.Link;
 
 namespace Valeting.Services.Interfaces;
 
 public interface IUrlService
 {
-    string GenerateSelf(string baseUrl, string path);
-    string GenerateSelf(string baseUrl, string path, Guid id);
-    LinkDTO GeneratePaginatedLinks(string baseUrl, string path, string queryString, int pageNumber, int totalPages, object filter);
+    GenerateSelfUrlSVResponse GenerateSelf(GenerateSelfUrlSVRequest generateSelfUrlSVRequest);
+    GeneratePaginatedLinksSVResponse GeneratePaginatedLinks(GeneratePaginatedLinksSVRequest generatePaginatedLinksSVRequest);
 }

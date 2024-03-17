@@ -1,63 +1,60 @@
 ﻿using System.Web;
 
-using Valeting.Business;
-using Valeting.Business.Core;
 using Valeting.Services.Interfaces;
+using Valeting.Services.Objects.Link;
 
 namespace Valeting.Services;
 
 public class UrlService : IUrlService
 {
-    public string GenerateSelf(string baseUrl, string path)
+    public GenerateSelfUrlSVResponse GenerateSelf(GenerateSelfUrlSVRequest generateSelfUrlSVRequest)
     {
-        return string.Format("https://{0}{1}", baseUrl, path);
+        return new()
+        {
+            Self = generateSelfUrlSVRequest.Id == default ? 
+                    string.Format("https://{0}{1}", generateSelfUrlSVRequest.BaseUrl, generateSelfUrlSVRequest.Path) : 
+                    string.Format("https://{0}{1}/{2}", generateSelfUrlSVRequest.BaseUrl, generateSelfUrlSVRequest.Path, generateSelfUrlSVRequest.Id)
+        };
     }
 
-    public string GenerateSelf(string baseUrl, string path, Guid id)
+    public GeneratePaginatedLinksSVResponse GeneratePaginatedLinks(GeneratePaginatedLinksSVRequest generatePaginatedLinksSVRequest)
     {
-        return string.Format("https://{0}{1}/{2}", baseUrl, path, id);
-    }
-
-    public LinkDTO GeneratePaginatedLinks(string baseUrl, string path, string queryString, int pageNumber, int totalPages, object filter)
-    {
-        var linkDTO = new LinkDTO()
+        var generatePaginatedLinksSVResponse = new GeneratePaginatedLinksSVResponse()
         {
             Prev = string.Empty,
             Next = string.Empty,
             Self = string.Empty
         };
 
-        var queryStringStr = string.Empty;
-
-        if (pageNumber > 1)
+        if (generatePaginatedLinksSVRequest.PageNumber > 1)
         {
-            var pg = filter.GetType().GetProperty("PageNumber");
-            pg.SetValue(filter, pageNumber - 1);
-            queryStringStr = BuildQueryString(filter);
+            var pg = generatePaginatedLinksSVRequest.Filter.GetType().GetProperty("PageNumber");
+            pg.SetValue(generatePaginatedLinksSVRequest.Filter, generatePaginatedLinksSVRequest.PageNumber - 1);
+            var queryStringStr = BuildQueryString(generatePaginatedLinksSVRequest.Filter);
 
-            linkDTO.Prev = string.Format("https://{0}{1}?{2}", baseUrl, path, queryStringStr);
+            generatePaginatedLinksSVResponse.Prev = string.Format("https://{0}{1}?{2}", generatePaginatedLinksSVRequest.BaseUrl, generatePaginatedLinksSVRequest.Path, queryStringStr);
         }
 
-        if (pageNumber < totalPages)
+        if (generatePaginatedLinksSVRequest.PageNumber < generatePaginatedLinksSVRequest.TotalPages)
         {
-            var pg = filter.GetType().GetProperty("PageNumber");
-            pg.SetValue(filter, pageNumber + 1);
-            queryStringStr = BuildQueryString(filter);
+            var pg = generatePaginatedLinksSVRequest.Filter.GetType().GetProperty("PageNumber");
+            pg.SetValue(generatePaginatedLinksSVRequest.Filter, generatePaginatedLinksSVRequest.PageNumber + 1);
+            var queryStringStr = BuildQueryString(generatePaginatedLinksSVRequest.Filter);
 
-            linkDTO.Next = string.Format("https://{0}{1}?{2}", baseUrl, path, queryStringStr);
+            generatePaginatedLinksSVResponse.Next = string.Format("https://{0}{1}?{2}", generatePaginatedLinksSVRequest.BaseUrl, generatePaginatedLinksSVRequest.Path, queryStringStr);
         }
 
-        linkDTO.Self = string.Format("https://{0}{1}{2}", baseUrl, path, queryString);
+        generatePaginatedLinksSVResponse.Self = string.Format("https://{0}{1}{2}", generatePaginatedLinksSVRequest.BaseUrl, generatePaginatedLinksSVRequest.Path, generatePaginatedLinksSVRequest.QueryString);
 
-        return linkDTO;
+        return generatePaginatedLinksSVResponse;
     }
 
     private string BuildQueryString(object filter)
     {
         var properties = from p in filter.GetType().GetProperties().OrderBy(y => y.CustomAttributes.FirstOrDefault().NamedArguments.FirstOrDefault(i => i.MemberName.Equals("Order")).TypedValue.Value)
-                            where p.GetValue(filter, null) != null
-                            select p.CustomAttributes.FirstOrDefault().NamedArguments.FirstOrDefault().TypedValue.Value + "=" + HttpUtility.UrlEncode(p.GetValue(filter, null).ToString());
+                         where p.GetValue(filter, null) != null
+                         select p.CustomAttributes.FirstOrDefault().NamedArguments.FirstOrDefault().TypedValue.Value + "=" + HttpUtility.UrlEncode(p.GetValue(filter, null).ToString());
 
-        return String.Join("&", properties.ToArray());
+        return string.Join("&", properties.ToArray());
     }
 }
