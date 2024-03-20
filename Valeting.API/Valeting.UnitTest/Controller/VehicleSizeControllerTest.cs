@@ -256,7 +256,7 @@ public class VehicleSizeControllerTest
 
         //Act
         var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
-        var objResult = (ObjectResult)vehicleSizeController.ListAllAsync(new VehicleSizeApiParameters()).ConfigureAwait(false).GetAwaiter().GetResult();
+        var objResult = (ObjectResult)vehicleSizeController.GetAsync(new VehicleSizeApiParameters()).ConfigureAwait(false).GetAwaiter().GetResult();
         var response = (VehicleSizeApiError)objResult.Value;
 
         //Assert
@@ -276,7 +276,7 @@ public class VehicleSizeControllerTest
 
         //Act
         var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
-        var objResult = (ObjectResult)vehicleSizeController.ListAllAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
+        var objResult = (ObjectResult)vehicleSizeController.GetAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
         var response = (VehicleSizeApiError)objResult.Value;
 
         //Assert

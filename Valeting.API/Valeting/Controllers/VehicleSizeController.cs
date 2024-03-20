@@ -68,7 +68,7 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
         }
     }
 
-    public override async Task<IActionResult> ListAllAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
+    public override async Task<IActionResult> GetAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
     {
         try
         {

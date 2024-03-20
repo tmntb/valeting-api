@@ -6,6 +6,6 @@ namespace Valeting.Services.Objects.VehicleSize;
 
 public class VehicleSizeFilterSV : PageSV
 {
-     [Display(Name = "active", Order = 3)]
+    [Display(Name = "active", Order = 3)]
     public bool? Active { get; set; }
 } 

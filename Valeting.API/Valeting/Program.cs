@@ -42,7 +42,13 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options => {
+    options.AddPolicy("RequireJwt", policy =>
+    {
+        policy.AuthenticationSchemes.Add("JwtBearer");
+        policy.RequireAuthenticatedUser();
+    });
+});
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {

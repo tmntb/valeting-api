@@ -16,7 +16,7 @@ public abstract class VehicleSizeBaseController : ControllerBase
     [ProducesResponseType(statusCode: 200, type: typeof(IEnumerable<VehicleSizeApiPaginatedResponse>))]
     [ProducesResponseType(statusCode: 400, type: typeof(VehicleSizeApiError))]
     [ProducesResponseType(statusCode: 500, type: typeof(VehicleSizeApiError))]
-    public abstract Task<IActionResult> ListAllAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters);
+    public abstract Task<IActionResult> GetAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters);
 
     [HttpGet]
     [Authorize]

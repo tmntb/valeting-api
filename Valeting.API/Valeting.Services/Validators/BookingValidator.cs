@@ -91,6 +91,6 @@ public class PaginatedBookingValidator : AbstractValidator<PaginatedBookingSVReq
             .NotNull();
 
         RuleFor(x => x.Filter.PageNumber)
-            .LessThanOrEqualTo(0);
+            .GreaterThanOrEqualTo(0);
     }
 }
