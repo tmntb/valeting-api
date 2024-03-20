@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
+using Valeting.Services.Objects.Link;
 using Valeting.ApiObjects.VehicleSize;
 using Valeting.Controllers.BaseController;
 using Valeting.Services.Objects.VehicleSize;
@@ -50,7 +51,7 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
                     {
                         Self = new()
                         {
-                            Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.HasValue ? Request.Path.Value : string.Empty)
+                            Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
                         }
                     }
                 }
@@ -112,19 +113,22 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
                 },
             };
 
-            var linkDTO = urlService.GeneratePaginatedLinks
+            var paginatedLinks = urlService.GeneratePaginatedLinks
             (
-                Request.Host.Value,
-                Request.Path.HasValue ? Request.Path.Value : string.Empty,
-                Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
-                vehicleSizeApiParameters.PageNumber, 
-                paginatedVehicleSizeSVResponse.TotalPages, 
-                paginatedVehicleSizeSVRequest.Filter
+                new GeneratePaginatedLinksSVRequest()
+                {
+                    BaseUrl = Request.Host.Value,
+                    Path = Request.Path.HasValue ? Request.Path.Value : string.Empty,
+                    QueryString = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                    PageNumber = vehicleSizeApiParameters.PageNumber, 
+                    TotalPages = paginatedVehicleSizeSVResponse.TotalPages, 
+                    Filter = paginatedVehicleSizeSVRequest.Filter
+                }
             );
 
-            vehicleSizeApiPaginatedResponse.Links.Prev.Href = linkDTO.Prev;
-            vehicleSizeApiPaginatedResponse.Links.Next.Href = linkDTO.Next;
-            vehicleSizeApiPaginatedResponse.Links.Self.Href = linkDTO.Self;
+            vehicleSizeApiPaginatedResponse.Links.Prev.Href = paginatedLinks.Prev;
+            vehicleSizeApiPaginatedResponse.Links.Next.Href = paginatedLinks.Next;
+            vehicleSizeApiPaginatedResponse.Links.Self.Href = paginatedLinks.Self;
 
             vehicleSizeApiPaginatedResponse.VehicleSizes.AddRange(
                 paginatedVehicleSizeSVResponse.VehicleSizes.Select(item => 
@@ -137,7 +141,7 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
                         {
                             Self = new()
                             {
-                                Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
+                                Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = item.Id }).Self
                             }
                         }
                     }

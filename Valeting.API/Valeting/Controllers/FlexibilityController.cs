@@ -113,19 +113,22 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
                 },
             };
 
-            var linkDTO = urlService.GeneratePaginatedLinks
+            var paginatedLinks = urlService.GeneratePaginatedLinks
             (
-                Request.Host.Value,
-                Request.Path.HasValue ? Request.Path.Value : string.Empty,
-                Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
-                flexibilityApiParameters.PageNumber, 
-                paginatedFlexibilitySVResponse.TotalPages, 
-                paginatedFlexibilitySVRequest.Filter
+                new GeneratePaginatedLinksSVRequest()
+                {
+                    BaseUrl =  Request.Host.Value,
+                    Path = Request.Path.HasValue ? Request.Path.Value : string.Empty,
+                    QueryString = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                    PageNumber = flexibilityApiParameters.PageNumber, 
+                    TotalPages = paginatedFlexibilitySVResponse.TotalPages, 
+                    Filter = paginatedFlexibilitySVRequest.Filter
+                }
             );
 
-            flexibilityApiPaginatedResponse.Links.Prev.Href = linkDTO.Prev;
-            flexibilityApiPaginatedResponse.Links.Next.Href = linkDTO.Next;
-            flexibilityApiPaginatedResponse.Links.Self.Href = linkDTO.Self;
+            flexibilityApiPaginatedResponse.Links.Prev.Href = paginatedLinks.Prev;
+            flexibilityApiPaginatedResponse.Links.Next.Href = paginatedLinks.Next;
+            flexibilityApiPaginatedResponse.Links.Self.Href = paginatedLinks.Self;
 
             flexibilityApiPaginatedResponse.Flexibilities.AddRange(
                 paginatedFlexibilitySVResponse.Flexibilities.Select(item => 

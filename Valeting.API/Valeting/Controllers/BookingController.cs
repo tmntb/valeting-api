@@ -276,19 +276,22 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 }
             };
 
-            var linkDTO = urlService.GeneratePaginatedLinks
+            var paginatedLinks = urlService.GeneratePaginatedLinks
             (
-                Request.Host.Value,
-                Request.Path.HasValue ? Request.Path.Value : string.Empty,
-                Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
-                bookingApiParameters.PageNumber, 
-                paginatedBookingSVResponse.TotalPages,
-                paginatedBookingSVRequest.Filter
+                new GeneratePaginatedLinksSVRequest()
+                {
+                    BaseUrl = Request.Host.Value,
+                    Path = Request.Path.HasValue ? Request.Path.Value : string.Empty,
+                    QueryString = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                    PageNumber = bookingApiParameters.PageNumber, 
+                    TotalPages = paginatedBookingSVResponse.TotalPages,
+                    Filter = paginatedBookingSVRequest.Filter
+                }
             );
 
-            bookingApiPaginatedResponse.Links.Prev.Href = linkDTO.Prev;
-            bookingApiPaginatedResponse.Links.Next.Href = linkDTO.Next;
-            bookingApiPaginatedResponse.Links.Self.Href = linkDTO.Self;
+            bookingApiPaginatedResponse.Links.Prev.Href = paginatedLinks.Prev;
+            bookingApiPaginatedResponse.Links.Next.Href = paginatedLinks.Next;
+            bookingApiPaginatedResponse.Links.Self.Href = paginatedLinks.Self;
 
             bookingApiPaginatedResponse.Bookings.AddRange(
                 paginatedBookingSVResponse.Bookings.Select(item => 
@@ -306,7 +309,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                             {
                                 Self = new()
                                 {
-                                    Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/flexibilities", item.Flexibility.Id)
+                                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/flexibilities", Id = item.Flexibility.Id }).Self
                                 }
                             }
                         },
@@ -319,7 +322,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                             {
                                 Self = new()
                                 {
-                                    Href = urlService.GenerateSelf(Request.Host.Value, "/Valeting/vehicleSizes", item.VehicleSize.Id)
+                                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/vehicleSizes", Id = item.VehicleSize.Id }).Self
                                 }
                             }
                         },
@@ -330,7 +333,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                         {
                             Self = new()
                             {
-                                Href = urlService.GenerateSelf(Request.Host.Value, Request.Path.Value, item.Id)
+                                Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = item.Id }).Self
                             }
                         }
                     }

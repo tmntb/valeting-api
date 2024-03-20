@@ -11,6 +11,7 @@ using Valeting.Services.Interfaces;
 using Valeting.Business.VehicleSize;
 using Valeting.ApiObjects.VehicleSize;
 using Valeting.Services.Objects.VehicleSize;
+using Valeting.Services.Objects.Link;
 
 namespace Valeting.UnitTest.Controller;
 
@@ -46,8 +47,8 @@ public class VehicleSizeControllerTest
         });
         vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<GetVehicleSizeSVRequest>())).Returns(getVehicleSizeSVResponse_Mock);
 
-        var href_Mock = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id);
-        urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<string>(), It.IsAny<string>())).Returns(href_Mock);
+        var href_Mock = new GenerateSelfUrlSVResponse() {  Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id) };
+        urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(href_Mock);
 
         //Act
         var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)
@@ -101,8 +102,8 @@ public class VehicleSizeControllerTest
         });
         redisCacheMock.Setup(x => x.GetRecordAsync<VehicleSizeDTO>(It.IsAny<string>())).Returns(vehicleSizeDTO_Mock);
 
-        var href_Mock = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id);
-        urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<string>(), It.IsAny<string>())).Returns(href_Mock);
+        var href_Mock = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id) };
+        urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(href_Mock);
 
         //Act
         var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)
@@ -224,13 +225,13 @@ public class VehicleSizeControllerTest
         });
         redisCacheMock.Setup(x => x.GetRecordAsync<VehicleSizeListDTO>(It.IsAny<string>())).Returns(vehicleSizeListDTO_Mock);
 
-        var linkDTO_Mock = new LinkDTO()
+        var paginatedLinks_Mock = new GeneratePaginatedLinksSVResponse()
         {
             Next = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2),
             Prev = string.Empty,
             Self = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2),
         };
-        urlServiceMock.Setup(x => x.GeneratePaginatedLinks(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<object>())).Returns(linkDTO_Mock);
+        urlServiceMock.Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksSVRequest>())).Returns(paginatedLinks_Mock);
 
         //Act
 
