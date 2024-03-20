@@ -18,7 +18,6 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
     {
         try
         {
-            //Criar middleware para verificar se o request está populado.
             if(createBookingApiRequest == null)
             {
                 var bookingApiError = new BookingApiError() 
@@ -72,6 +71,15 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
     {
         try
         {
+            if(updateBookingApiRequest == null)
+            {
+                var bookingApiError = new BookingApiError() 
+                { 
+                    Detail = "Invalid request body"
+                }; 
+                return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
+            }
+
             var updateBookingSVRequest = new UpdateBookingSVRequest()
             {
                 Id = Guid.Parse(id),
