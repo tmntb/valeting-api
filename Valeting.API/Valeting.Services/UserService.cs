@@ -98,10 +98,8 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         {
             Subject = new ClaimsIdentity(
             [
-                new Claim("Id", Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub, userDTO.Username),
-                new Claim(JwtRegisteredClaimNames.Email, userDTO.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim("UserId", userDTO.Id.ToString()),
+                new Claim("Username", userDTO.Username)
             ]),
             Expires = DateTime.Now.AddMinutes(60),
             Issuer = issuer,

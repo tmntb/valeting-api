@@ -1,6 +1,4 @@
-﻿using Valeting.Business.Core;
-
-namespace Valeting.Business.Authentication;
+﻿namespace Valeting.Business.Authentication;
 
 public class UserDTO
 {
@@ -8,5 +6,4 @@ public class UserDTO
     public string Username { get; set; }
     public string Password { get; set; }
     public string Salt { get; set; }
-    public List<ErrorDTO> Errors { get; set; }
 }
