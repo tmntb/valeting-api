@@ -27,6 +27,6 @@ public class PaginatedVehicleSizeValidator : AbstractValidator<PaginatedVehicleS
             .NotNull();
 
         RuleFor(x => x.Filter.PageNumber)
-            .LessThanOrEqualTo(0);
+            .GreaterThanOrEqualTo(0);
     }
 }
