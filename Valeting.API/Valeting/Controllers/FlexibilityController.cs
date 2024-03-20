@@ -62,7 +62,7 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
         {
             var flexibilityApiError = new FlexibilityApiError() 
             { 
-                Detail = ex.Message
+                Detail = ex.StackTrace
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, flexibilityApiError);
         }
@@ -153,7 +153,7 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
         {
             var flexibilityApiError = new FlexibilityApiError() 
             { 
-                Detail = ex.Message
+                Detail = ex.StackTrace
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, flexibilityApiError);
         }

@@ -67,7 +67,7 @@ public class UserController(IUserService userService) : UserBaseController
         {
             var userApiError = new UserApiError() 
             { 
-                Detail = ex.Message
+                Detail = ex.StackTrace
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, userApiError);
         }

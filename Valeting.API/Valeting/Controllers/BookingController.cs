@@ -61,7 +61,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Detail = ex.Message
+                Detail = ex.StackTrace
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
@@ -114,7 +114,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Detail = ex.Message
+                Detail = ex.StackTrace
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
@@ -151,7 +151,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Detail = ex.Message
+                Detail = ex.StackTrace
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
@@ -234,7 +234,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Detail = ex.Message
+                Detail = ex.StackTrace
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
@@ -353,7 +353,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Detail = ex.Message
+                Detail = ex.StackTrace
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }

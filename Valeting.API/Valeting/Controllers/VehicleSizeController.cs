@@ -62,7 +62,7 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
         {
             var vehicleSizeApiError = new VehicleSizeApiError() 
             { 
-                Detail = ex.Message
+                Detail = ex.StackTrace
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, vehicleSizeApiError);
         }
