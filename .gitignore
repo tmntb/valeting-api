@@ -13,3 +13,5 @@ Valeting.API/Valeting.Common/obj/
 Valeting.API/Valeting.UnitTest/bin/
 Valeting.API/Valeting.UnitTest/obj/
 .DS_Store
+Valeting.API/Valeting.UnitTest/coverage.xml
+Valeting.API/Valeting.UnitTest/TestResults
