@@ -24,7 +24,13 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingSVRequest>
 
         RuleFor(x => x.BookingDate)
             .NotEqual(DateTime.MinValue)
-            .LessThan(DateTime.Now);
+            .GreaterThan(DateTime.Now);
+                
+        RuleFor(x => x.Flexibility.Id)
+            .NotEqual(Guid.Empty);
+
+        RuleFor(x => x.VehicleSize.Id)
+            .NotEqual(Guid.Empty);
     }
 }
 
@@ -52,7 +58,13 @@ public class UpdateBookinValidator : AbstractValidator<UpdateBookingSVRequest>
 
         RuleFor(x => x.BookingDate)
             .NotEqual(DateTime.MinValue)
-            .LessThan(DateTime.Now);
+            .GreaterThan(DateTime.Now);
+
+        RuleFor(x => x.Flexibility.Id)
+           .NotEqual(Guid.Empty);
+
+        RuleFor(x => x.VehicleSize.Id)
+            .NotEqual(Guid.Empty);
     }
 }
 

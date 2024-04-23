@@ -31,8 +31,8 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
             {
                 Name = createBookingApiRequest.Name,
                 BookingDate = createBookingApiRequest.BookingDate,
-                Flexibility = createBookingApiRequest.Flexibility != null ? new() { Id = createBookingApiRequest.Flexibility.Id } : null,
-                VehicleSize = createBookingApiRequest.VehicleSize != null ? new() { Id = createBookingApiRequest.VehicleSize.Id } : null,
+                Flexibility = createBookingApiRequest.Flexibility != null ? new() { Id = createBookingApiRequest.Flexibility.Id } : new(),
+                VehicleSize = createBookingApiRequest.VehicleSize != null ? new() { Id = createBookingApiRequest.VehicleSize.Id } : new(),
                 ContactNumber = createBookingApiRequest.ContactNumber,
                 Email = createBookingApiRequest.Email
             };
@@ -85,8 +85,8 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 Id = Guid.Parse(id),
                 Name = updateBookingApiRequest.Name,
                 BookingDate = updateBookingApiRequest.BookingDate,
-                Flexibility = updateBookingApiRequest.Flexibility != null ? new() { Id = updateBookingApiRequest.Flexibility.Id } : null,
-                VehicleSize = updateBookingApiRequest.VehicleSize != null ? new() { Id = updateBookingApiRequest.VehicleSize.Id } : null,
+                Flexibility = updateBookingApiRequest.Flexibility != null ? new() { Id = updateBookingApiRequest.Flexibility.Id } : new(),
+                VehicleSize = updateBookingApiRequest.VehicleSize != null ? new() { Id = updateBookingApiRequest.VehicleSize.Id } : new(),
                 ContactNumber = updateBookingApiRequest.ContactNumber,
                 Email = updateBookingApiRequest.Email,
                 Approved = updateBookingApiRequest.Approved ?? false

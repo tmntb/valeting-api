@@ -33,7 +33,10 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
             Name = createBookingSVRequest.Name,
             Email = createBookingSVRequest.Email,
             ContactNumber = createBookingSVRequest.ContactNumber,
-            BookingDate = createBookingSVRequest.BookingDate
+            BookingDate = createBookingSVRequest.BookingDate,
+            Flexibility = new() { Id = createBookingSVRequest.Flexibility.Id },
+            VehicleSize = new() { Id = createBookingSVRequest.VehicleSize.Id },
+            Approved = false
         };
         await bookingRepository.CreateAsync(bookingDTO);
         
@@ -70,8 +73,8 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
         bookingDTO.Id = updateBookingSVRequest.Id;
         bookingDTO.Name = updateBookingSVRequest.Name;
         bookingDTO.BookingDate = updateBookingSVRequest.BookingDate;
-        //bookingDTO.Flexibility = updateBookingApiRequest.Flexibility != null ? new() { Id = updateBookingApiRequest.Flexibility.Id } : null,
-        //bookingDTO.VehicleSize = updateBookingApiRequest.VehicleSize != null ? new() { Id = updateBookingApiRequest.VehicleSize.Id } : null,
+        bookingDTO.Flexibility = updateBookingSVRequest.Flexibility != null ? new() { Id = updateBookingSVRequest.Flexibility.Id } : null;
+        bookingDTO.VehicleSize = updateBookingSVRequest.VehicleSize != null ? new() { Id = updateBookingSVRequest.VehicleSize.Id } : null;
         bookingDTO.ContactNumber = updateBookingSVRequest.ContactNumber;
         bookingDTO.Email = updateBookingSVRequest.Email;
         bookingDTO.Approved = updateBookingSVRequest.Approved;
@@ -142,6 +145,8 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
         getBookingSVResponse.Name = bookingDTO.Name;
         getBookingSVResponse.BookingDate = bookingDTO.BookingDate;
         getBookingSVResponse.ContactNumber = bookingDTO.ContactNumber;
+        getBookingSVResponse.Flexibility = new() { Id = bookingDTO.Flexibility.Id, Description = bookingDTO.Flexibility.Description, Active = bookingDTO.Flexibility.Active };
+        getBookingSVResponse.VehicleSize = new() { Id = bookingDTO.VehicleSize.Id, Description = bookingDTO.VehicleSize.Description, Active = bookingDTO.VehicleSize.Active };
         getBookingSVResponse.Email = bookingDTO.Email;
         getBookingSVResponse.Approved = bookingDTO.Approved;
         return getBookingSVResponse;
@@ -190,6 +195,8 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
                 Name = x.Name,
                 BookingDate = x.BookingDate,
                 ContactNumber = x.ContactNumber,
+                Flexibility = new() { Id = x.Flexibility.Id, Description = x.Flexibility.Description, Active = x.Flexibility.Active},
+                VehicleSize = new() { Id = x.VehicleSize.Id, Description = x.VehicleSize.Description, Active = x.VehicleSize.Active},
                 Email = x.Email,
                 Approved = x.Approved
             }

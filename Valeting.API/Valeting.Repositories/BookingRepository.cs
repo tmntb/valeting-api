@@ -21,6 +21,7 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
             VehicleSizeId = bookingDTO.VehicleSize.Id,
             ContactNumber = bookingDTO.ContactNumber.Value,
             Email = bookingDTO.Email,
+            Approved = bookingDTO.Approved
         };
 
         await valetingContext.Bookings.AddAsync(booking);
