@@ -9,10 +9,11 @@ using Valeting.Services.Interfaces;
 using Valeting.Services.Objects.Link;
 using Valeting.Services.Objects.Booking;
 using Valeting.Controllers.BaseController;
+using AutoMapper;
 
 namespace Valeting.Controllers;
 
-public class BookingController(IRedisCache redisCache, IBookingService bookingService, IUrlService urlService) : BookingBaseController
+public class BookingController(IRedisCache redisCache, IBookingService bookingService, IUrlService urlService, IMapper mapper) : BookingBaseController
 {
     public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
     {
@@ -27,6 +28,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
             }
 
+            var test = mapper.Map<CreateBookingSVRequest>(createBookingApiRequest);
             var createBookingSVRequest = new CreateBookingSVRequest()
             {
                 Name = createBookingApiRequest.Name,

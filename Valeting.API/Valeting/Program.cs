@@ -10,6 +10,7 @@ using Valeting.Repositories;
 using Valeting.Helpers.Interfaces;
 using Valeting.SwaggerDocumentation.Document;
 using Valeting.SwaggerDocumentation.Parameter;
+using Valeting.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,6 +105,9 @@ builder.Services.AddSwaggerGen(c =>
 
     c.ParameterFilter<ParameterFilter>();
 });
+
+// Register AutoMapper
+builder.Services.AddAutoMapper(typeof(BookingMapper));
 
 var app = builder.Build();
 
