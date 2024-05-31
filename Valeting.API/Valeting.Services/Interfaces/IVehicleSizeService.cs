@@ -4,6 +4,6 @@ namespace Valeting.Services.Interfaces;
 
 public interface IVehicleSizeService
 {
-    Task<GetVehicleSizeSVResponse> GetAsync(GetVehicleSizeSVRequest getVehicleSizeSVRequest);
-    Task<PaginatedVehicleSizeSVResponse> ListAllAsync(PaginatedVehicleSizeSVRequest paginatedVehicleSizeSVRequest);
+    Task<PaginatedVehicleSizeSVResponse> GetAsync(PaginatedVehicleSizeSVRequest paginatedVehicleSizeSVRequest);
+    Task<GetVehicleSizeSVResponse> GetByIdAsync(GetVehicleSizeSVRequest getVehicleSizeSVRequest);
 }

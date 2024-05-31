@@ -108,6 +108,7 @@ builder.Services.AddSwaggerGen(c =>
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(BookingMapper));
+builder.Services.AddAutoMapper(typeof(VehicleSizeMapper));
 
 var app = builder.Build();
 

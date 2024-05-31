@@ -4,6 +4,6 @@ namespace Valeting.Repositories.Interfaces;
 
 public interface IVehicleSizeRepository
 {
-    Task<VehicleSizeDTO> FindByIDAsync(Guid id);
-    Task<VehicleSizeListDTO> ListAsync(VehicleSizeFilterDTO vehicleSizeFilterDTO);
+    Task<VehicleSizeListDTO> GetAsync(VehicleSizeFilterDTO vehicleSizeFilterDTO);
+    Task<VehicleSizeDTO> GetByIDAsync(Guid id);
 }

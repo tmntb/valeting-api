@@ -44,7 +44,7 @@ public class VehicleSizeControllerTest
                 Active = It.IsAny<bool>()
             };
         });
-        vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<GetVehicleSizeSVRequest>())).Returns(getVehicleSizeSVResponse_Mock);
+        vehicleSizeServiceMock.Setup(x => x.GetByIdAsync(It.IsAny<GetVehicleSizeSVRequest>())).Returns(getVehicleSizeSVResponse_Mock);
 
         var href_Mock = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id) };
         urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(href_Mock);
@@ -55,7 +55,7 @@ public class VehicleSizeControllerTest
             ControllerContext = controllerContext
         };
 
-        var objResult = (ObjectResult)vehicleSizeController.FindByIdAsync(id.ToString()).ConfigureAwait(false).GetAwaiter().GetResult();
+        var objResult = (ObjectResult)vehicleSizeController.GetByIdAsync(id.ToString()).ConfigureAwait(false).GetAwaiter().GetResult();
         var response = (VehicleSizeApiResponse)objResult.Value;
 
         //Assert
@@ -97,7 +97,7 @@ public class VehicleSizeControllerTest
                 Error = new() { ErrorCode = 404, Message = "NotFound" }
             };
         });
-        vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<GetVehicleSizeSVRequest>())).Returns(getVehicleSizeSVResponse_Mock);
+        vehicleSizeServiceMock.Setup(x => x.GetByIdAsync(It.IsAny<GetVehicleSizeSVRequest>())).Returns(getVehicleSizeSVResponse_Mock);
 
         //Act
         var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)
@@ -105,7 +105,7 @@ public class VehicleSizeControllerTest
             ControllerContext = controllerContext
         };
 
-        var objResult = (ObjectResult)vehicleSizeController.FindByIdAsync(id.ToString()).ConfigureAwait(false).GetAwaiter().GetResult();
+        var objResult = (ObjectResult)vehicleSizeController.GetByIdAsync(id.ToString()).ConfigureAwait(false).GetAwaiter().GetResult();
         var response = (VehicleSizeApiError)objResult.Value;
 
         //Assert
@@ -155,7 +155,7 @@ public class VehicleSizeControllerTest
             ControllerContext = controllerContext
         };
 
-        var objResult = (ObjectResult)vehicleSizeController.FindByIdAsync(id.ToString()).ConfigureAwait(false).GetAwaiter().GetResult();
+        var objResult = (ObjectResult)vehicleSizeController.GetByIdAsync(id.ToString()).ConfigureAwait(false).GetAwaiter().GetResult();
         var response = (VehicleSizeApiResponse)objResult.Value;
 
         //Assert
@@ -180,7 +180,7 @@ public class VehicleSizeControllerTest
         var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
 
         var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
-        var objResult = (ObjectResult)vehicleSizeController.FindByIdAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
+        var objResult = (ObjectResult)vehicleSizeController.GetByIdAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
         var response = (VehicleSizeApiError)objResult.Value;
 
         //Assert
@@ -225,7 +225,7 @@ public class VehicleSizeControllerTest
                 TotalPages = 1
             };
         });
-        vehicleSizeServiceMock.Setup(x => x.ListAllAsync(It.IsAny<PaginatedVehicleSizeSVRequest>())).Returns(paginatedVehicleSizeSVResponse_Mock);
+        vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<PaginatedVehicleSizeSVRequest>())).Returns(paginatedVehicleSizeSVResponse_Mock);
 
         var paginatedLinks_Mock = new GeneratePaginatedLinksSVResponse()
         {
@@ -367,7 +367,7 @@ public class VehicleSizeControllerTest
                 Error = new() { ErrorCode = 404, Message = "NotFound" }
             };
         });
-        vehicleSizeServiceMock.Setup(x => x.ListAllAsync(It.IsAny<PaginatedVehicleSizeSVRequest>())).Returns(paginatedVehicleSizeSVResponse_Mock);
+        vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<PaginatedVehicleSizeSVRequest>())).Returns(paginatedVehicleSizeSVResponse_Mock);
 
         //Act
         var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)

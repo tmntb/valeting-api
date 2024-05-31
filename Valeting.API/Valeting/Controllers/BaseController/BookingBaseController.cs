@@ -27,7 +27,7 @@ public abstract class BookingBaseController : ControllerBase
     [ProducesResponseType(statusCode: 400, type: typeof(BookingApiError))]
     [ProducesResponseType(statusCode: 404, type: typeof(BookingApiError))]
     [ProducesResponseType(statusCode: 500, type: typeof(BookingApiError))]
-    public abstract Task<IActionResult> Update([FromRoute(Name = "id")][Required][MinLength(1)] string id, [FromBody] UpdateBookingApiRequest updateBookingApiRequest);
+    public abstract Task<IActionResult> UpdateAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id, [FromBody] UpdateBookingApiRequest updateBookingApiRequest);
 
     [HttpDelete]
     [Authorize]
@@ -36,7 +36,7 @@ public abstract class BookingBaseController : ControllerBase
     [ProducesResponseType(statusCode: 400, type: typeof(BookingApiError))]
     [ProducesResponseType(statusCode: 404, type: typeof(BookingApiError))]
     [ProducesResponseType(statusCode: 500, type: typeof(BookingApiError))]
-    public abstract Task<IActionResult> Delete([FromRoute(Name = "id")][Required][MinLength(1)] string id);
+    public abstract Task<IActionResult> DeleteAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id);
 
     [HttpGet]
     [Authorize]
@@ -45,7 +45,7 @@ public abstract class BookingBaseController : ControllerBase
     [ProducesResponseType(statusCode: 400, type: typeof(BookingApiError))]
     [ProducesResponseType(statusCode: 404, type: typeof(BookingApiError))]
     [ProducesResponseType(statusCode: 500, type: typeof(BookingApiError))]
-    public abstract Task<IActionResult> GetAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id);
+    public abstract Task<IActionResult> GetByIdAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id);
 
     [HttpGet]
     [Authorize]
@@ -53,5 +53,5 @@ public abstract class BookingBaseController : ControllerBase
     [ProducesResponseType(statusCode: 200, type: typeof(BookingApiPaginatedResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(BookingApiError))]
     [ProducesResponseType(statusCode: 500, type: typeof(BookingApiError))]
-    public abstract Task<IActionResult> ListAllAsync([FromQuery] BookingApiParameters bookingApiParameters);
+    public abstract Task<IActionResult> GetAsync([FromQuery] BookingApiParameters bookingApiParameters);
 }

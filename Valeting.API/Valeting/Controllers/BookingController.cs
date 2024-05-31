@@ -69,7 +69,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         }
     }
 
-    public override async Task<IActionResult> Update([FromRoute(Name = "id"), MinLength(1), Required] string id, [FromBody] UpdateBookingApiRequest updateBookingApiRequest)
+    public override async Task<IActionResult> UpdateAsync([FromRoute(Name = "id"), MinLength(1), Required] string id, [FromBody] UpdateBookingApiRequest updateBookingApiRequest)
     {
         try
         {
@@ -122,7 +122,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         }
     }
 
-    public override async Task<IActionResult> Delete([FromRoute(Name = "id"), MinLength(1), Required] string id)
+    public override async Task<IActionResult> DeleteAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
         try
         {
@@ -159,7 +159,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         }
     }
 
-    public override async Task<IActionResult> GetAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
+    public override async Task<IActionResult> GetByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
         try
         {
@@ -242,7 +242,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         }
     }
 
-    public override async Task<IActionResult> ListAllAsync([FromQuery] BookingApiParameters bookingApiParameters)
+    public override async Task<IActionResult> GetAsync([FromQuery] BookingApiParameters bookingApiParameters)
     {
         try
         {

@@ -25,5 +25,5 @@ public abstract class VehicleSizeBaseController : ControllerBase
     [ProducesResponseType(statusCode: 400, type: typeof(VehicleSizeApiError))]
     [ProducesResponseType(statusCode: 404, type: typeof(VehicleSizeApiError))]
     [ProducesResponseType(statusCode: 500, type: typeof(VehicleSizeApiError))]
-    public abstract Task<IActionResult> FindByIdAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id);
+    public abstract Task<IActionResult> GetByIdAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id);
 }
