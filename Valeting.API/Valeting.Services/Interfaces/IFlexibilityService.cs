@@ -4,6 +4,6 @@ namespace Valeting.Services.Interfaces;
 
 public interface IFlexibilityService
 {
-    Task<GetFlexibilitySVResponse> GetAsync(GetFlexibilitySVRequest getFlexibilitySVRequest);
-    Task<PaginatedFlexibilitySVResponse> ListAllAsync(PaginatedFlexibilitySVRequest paginatedFlexibilitySVRequest);
+    Task<PaginatedFlexibilitySVResponse> GetAsync(PaginatedFlexibilitySVRequest paginatedFlexibilitySVRequest);
+    Task<GetFlexibilitySVResponse> GetByIdAsync(GetFlexibilitySVRequest getFlexibilitySVRequest);
 }

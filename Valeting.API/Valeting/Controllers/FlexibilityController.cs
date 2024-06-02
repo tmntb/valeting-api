@@ -1,7 +1,9 @@
-﻿using System.Net;
-using System.ComponentModel.DataAnnotations;
+﻿using AutoMapper;
 
 using Microsoft.AspNetCore.Mvc;
+
+using System.Net;
+using System.ComponentModel.DataAnnotations;
 
 using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
@@ -12,27 +14,19 @@ using Valeting.Services.Objects.Flexibility;
 
 namespace Valeting.Controllers;
 
-public class FlexibilityController(IRedisCache redisCache, IFlexibilityService flexibilityService, IUrlService urlService) : FlexibilityBaseController
+public class FlexibilityController(IRedisCache redisCache, IFlexibilityService flexibilityService, IUrlService urlService, IMapper mapper) : FlexibilityBaseController
 {
     public override async Task<IActionResult> GetAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
     {
         try
         {
-            var paginatedFlexibilitySVRequest = new PaginatedFlexibilitySVRequest()
-            {
-                Filter = new()
-                {
-                    PageNumber = flexibilityApiParameters.PageNumber,
-                    PageSize = flexibilityApiParameters.PageSize,
-                    Active = flexibilityApiParameters.Active
-                }
-            };
+            var paginatedFlexibilitySVRequest = mapper.Map<PaginatedFlexibilitySVRequest>(flexibilityApiParameters);
 
             var recordKey = string.Format("ListFlexibility_{0}_{1}_{2}", flexibilityApiParameters.PageNumber, flexibilityApiParameters.PageSize, flexibilityApiParameters.Active);
             var paginatedFlexibilitySVResponse = await redisCache.GetRecordAsync<PaginatedFlexibilitySVResponse>(recordKey);
             if (paginatedFlexibilitySVResponse == null)
             {
-                paginatedFlexibilitySVResponse = await flexibilityService.ListAllAsync(paginatedFlexibilitySVRequest);
+                paginatedFlexibilitySVResponse = await flexibilityService.GetAsync(paginatedFlexibilitySVRequest);
                 if (paginatedFlexibilitySVResponse.HasError)
                 {
                     var flexibilityApiError = new FlexibilityApiError()
@@ -76,23 +70,18 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
             flexibilityApiPaginatedResponse.Links.Next.Href = paginatedLinks.Next;
             flexibilityApiPaginatedResponse.Links.Self.Href = paginatedLinks.Self;
 
-            flexibilityApiPaginatedResponse.Flexibilities.AddRange(
-                paginatedFlexibilitySVResponse.Flexibilities.Select(item =>
-                    new FlexibilityApi()
-                    {
-                        Id = item.Id,
-                        Description = item.Description,
-                        Active = item.Active,
-                        Link = new()
-                        {
-                            Self = new()
-                            {
-                                Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = item.Id }).Self
-                            }
-                        }
-                    }
-                ).ToList()
+            var flexibilityApis = mapper.Map<List<FlexibilityApi>>(paginatedFlexibilitySVResponse.Flexibilities);
+            flexibilityApis.ForEach(f => 
+                f.Link = new() 
+                { 
+                    Self = new() 
+                    { 
+                        Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = f.Id }).Self 
+                    } 
+                }
             );
+            flexibilityApiPaginatedResponse.Flexibilities = flexibilityApis;
+
             return StatusCode((int)HttpStatusCode.OK, flexibilityApiPaginatedResponse);
         }
         catch (Exception ex)
@@ -116,13 +105,13 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
 
             var recordKey = string.Format("Flexibility_{0}", id);
             var getFlexibilitySVResponse = await redisCache.GetRecordAsync<GetFlexibilitySVResponse>(recordKey);
-            if(getFlexibilitySVResponse == null)
+            if (getFlexibilitySVResponse == null)
             {
-                getFlexibilitySVResponse = await flexibilityService.GetAsync(getFlexibilitySVRequest);
-                if(getFlexibilitySVResponse.HasError)
+                getFlexibilitySVResponse = await flexibilityService.GetByIdAsync(getFlexibilitySVRequest);
+                if (getFlexibilitySVResponse.HasError)
                 {
-                    var flexibilityApiError = new FlexibilityApiError() 
-                    { 
+                    var flexibilityApiError = new FlexibilityApiError()
+                    {
                         Detail = getFlexibilitySVResponse.Error.Message
                     };
                     return StatusCode(getFlexibilitySVResponse.Error.ErrorCode, flexibilityApiError);
@@ -131,28 +120,25 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
                 await redisCache.SetRecordAsync(recordKey, getFlexibilitySVResponse, TimeSpan.FromDays(1));
             }
 
+            var flexibilityApi = mapper.Map<FlexibilityApi>(getFlexibilitySVResponse.Flexibility);
+            flexibilityApi.Link = new()
+            {
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
+                }
+            };
+
             var flexibilityApiResponse = new FlexibilityApiResponse()
             {
-                Flexibility = new()
-                {
-                    Id = getFlexibilitySVResponse.Id,
-                    Description = getFlexibilitySVResponse.Description,
-                    Active = getFlexibilitySVResponse.Active,
-                    Link = new()
-                    {
-                        Self = new()
-                        {
-                            Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
-                        }
-                    }
-                }
+                Flexibility = flexibilityApi
             };
             return StatusCode((int)HttpStatusCode.OK, flexibilityApiResponse);
         }
         catch (Exception ex)
         {
-            var flexibilityApiError = new FlexibilityApiError() 
-            { 
+            var flexibilityApiError = new FlexibilityApiError()
+            {
                 Detail = ex.StackTrace
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, flexibilityApiError);

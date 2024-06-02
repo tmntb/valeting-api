@@ -9,9 +9,7 @@ public class GetFlexibilitySVRequest
 
 public class GetFlexibilitySVResponse : ValetingOutputSV
 {
-    public Guid Id { get; set; }
-    public string Description { get; set; }
-    public bool Active { get; set; }
+    public FlexibilitySV Flexibility { get; set; }
 }
 
 public class PaginatedFlexibilitySVRequest

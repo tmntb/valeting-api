@@ -9,9 +9,7 @@ public class GetVehicleSizeSVRequest
 
 public class GetVehicleSizeSVResponse : ValetingOutputSV
 {
-    public Guid Id { get; set; }
-    public string Description { get; set; }
-    public bool Active { get; set; }
+    public VehicleSizeSV VehicleSize { get; set; }
 }
 
 public class PaginatedVehicleSizeSVRequest

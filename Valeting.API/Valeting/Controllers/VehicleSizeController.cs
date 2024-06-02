@@ -23,7 +23,7 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
             var paginatedVehicleSizeSVRequest = mapper.Map<PaginatedVehicleSizeSVRequest>(vehicleSizeApiParameters);
 
             var recordKey = string.Format("ListVehicleSize_{0}_{1}_{2}", vehicleSizeApiParameters.PageNumber, vehicleSizeApiParameters.PageSize, vehicleSizeApiParameters.Active);
-            PaginatedVehicleSizeSVResponse paginatedVehicleSizeSVResponse = null; // await redisCache.GetRecordAsync<PaginatedVehicleSizeSVResponse>(recordKey);
+            var paginatedVehicleSizeSVResponse = await redisCache.GetRecordAsync<PaginatedVehicleSizeSVResponse>(recordKey);
             if (paginatedVehicleSizeSVResponse == null)
             {
                 paginatedVehicleSizeSVResponse = await vehicleSizeService.GetAsync(paginatedVehicleSizeSVRequest);
@@ -71,9 +71,17 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
             vehicleSizeApiPaginatedResponse.Links.Self.Href = paginatedLinks.Self;
 
             var vehicleSizeApis = mapper.Map<List<VehicleSizeApi>>(paginatedVehicleSizeSVResponse.VehicleSizes);
-            vehicleSizeApis.ForEach(v => v.Link = new() { Self = new() { Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = v.Id }).Self } });
+            vehicleSizeApis.ForEach(v => 
+                v.Link = new() 
+                { 
+                    Self = new() 
+                    { 
+                        Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = v.Id }).Self 
+                    } 
+                }
+            );
             vehicleSizeApiPaginatedResponse.VehicleSizes = vehicleSizeApis;
-            
+
             return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiPaginatedResponse);
         }
         catch (Exception ex)
@@ -112,21 +120,18 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
                 await redisCache.SetRecordAsync(recordKey, getVehicleSizeSVResponse, TimeSpan.FromDays(1));
             }
 
+            var vehicleSizeApi = mapper.Map<VehicleSizeApi>(getVehicleSizeSVResponse.VehicleSize);
+            vehicleSizeApi.Link = new() 
+            { 
+                Self = new() 
+                { 
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self 
+                } 
+            };
+
             var vehicleSizeApiResponse = new VehicleSizeApiResponse()
             {
-                VehicleSize = new()
-                {
-                    Id = getVehicleSizeSVResponse.Id,
-                    Description = getVehicleSizeSVResponse.Description,
-                    Active = getVehicleSizeSVResponse.Active,
-                    Link = new()
-                    {
-                        Self = new()
-                        {
-                            Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
-                        }
-                    }
-                }
+                VehicleSize = vehicleSizeApi
             };
             return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiResponse);
         }

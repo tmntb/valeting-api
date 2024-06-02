@@ -72,9 +72,6 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IM
             return getVehicleSizeSVResponse;
         }
 
-        getVehicleSizeSVResponse.Id = vehicleSizeDTO.Id;
-        getVehicleSizeSVResponse.Description = vehicleSizeDTO.Description;
-        getVehicleSizeSVResponse.Active = vehicleSizeDTO.Active;
-        return getVehicleSizeSVResponse;
+        return mapper.Map<GetVehicleSizeSVResponse>(vehicleSizeDTO);
     }
 }

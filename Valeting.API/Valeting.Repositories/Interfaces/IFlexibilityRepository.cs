@@ -4,6 +4,6 @@ namespace Valeting.Repositories.Interfaces;
 
 public interface IFlexibilityRepository
 {
-    Task<FlexibilityDTO> FindByIDAsync(Guid id);
-    Task<FlexibilityListDTO> ListAsync(FlexibilityFilterDTO flexibilityFilterDTO);
+    Task<FlexibilityListDTO> GetAsync(FlexibilityFilterDTO flexibilityFilterDTO);
+    Task<FlexibilityDTO> GetByIDAsync(Guid id);
 }

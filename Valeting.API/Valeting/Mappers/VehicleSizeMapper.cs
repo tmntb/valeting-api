@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
-using Valeting.ApiObjects.VehicleSize;
+
 using Valeting.Business.VehicleSize;
 using Valeting.Repositories.Entities;
+using Valeting.ApiObjects.VehicleSize;
 using Valeting.Services.Objects.VehicleSize;
 
 namespace Valeting.Mappers;

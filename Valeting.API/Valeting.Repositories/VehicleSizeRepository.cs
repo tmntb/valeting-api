@@ -16,8 +16,8 @@ public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapp
 
         var initialList = await valetingContext.RdVehicleSizes.ToListAsync();
         var listVehicleSize = from rdVehicleSize in initialList
-                                                        where (!vehicleSizeFilterDTO.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDTO.Active)
-                                                        select rdVehicleSize;
+                                where (!vehicleSizeFilterDTO.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDTO.Active)
+                                select rdVehicleSize;
 
         if (listVehicleSize == null)
             return vehicleSizeListDTO;
@@ -27,11 +27,8 @@ public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapp
         vehicleSizeListDTO.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
 
         listVehicleSize = listVehicleSize.OrderBy(x => x.Id);
-
         listVehicleSize = listVehicleSize.Skip((vehicleSizeFilterDTO.PageNumber - 1) * vehicleSizeFilterDTO.PageSize).Take(vehicleSizeFilterDTO.PageSize);
-
         vehicleSizeListDTO.VehicleSizes = mapper.Map<List<VehicleSizeDTO>>(listVehicleSize);
-
         return vehicleSizeListDTO;
     }
 
@@ -41,13 +38,11 @@ public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapp
         if (rdVehicleSize == null)
             return null;
 
-        var vehicleSizeDTO = new VehicleSizeDTO()
+       return new VehicleSizeDTO()
         {
             Id = id,
             Description = rdVehicleSize.Description,
             Active = rdVehicleSize.Active
         };
-
-        return vehicleSizeDTO;
     }
 }
