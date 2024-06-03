@@ -71,7 +71,8 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IM
             };
             return getFlexibilitySVResponse;
         }
-
-        return mapper.Map<GetFlexibilitySVResponse>(flexibilityDTO);
+        
+        getFlexibilitySVResponse.Flexibility = mapper.Map<FlexibilitySV>(flexibilityDTO);
+        return getFlexibilitySVResponse;
     }
 }

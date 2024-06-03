@@ -72,6 +72,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IM
             return getVehicleSizeSVResponse;
         }
 
-        return mapper.Map<GetVehicleSizeSVResponse>(vehicleSizeDTO);
+        getVehicleSizeSVResponse.VehicleSize = mapper.Map<VehicleSizeSV>(vehicleSizeDTO);
+        return getVehicleSizeSVResponse;
     }
 }

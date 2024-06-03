@@ -51,10 +51,18 @@ public class UrlService : IUrlService
 
     private string BuildQueryString(object filter)
     {
-        var properties = from p in filter.GetType().GetProperties().OrderBy(y => y.CustomAttributes.FirstOrDefault().NamedArguments.FirstOrDefault(i => i.MemberName.Equals("Order")).TypedValue.Value)
-                         where p.GetValue(filter, null) != null
-                         select p.CustomAttributes.FirstOrDefault().NamedArguments.FirstOrDefault().TypedValue.Value + "=" + HttpUtility.UrlEncode(p.GetValue(filter, null).ToString());
+        var properties = from p in filter.GetType().GetProperties().OrderBy(y => 
+                            y.CustomAttributes.FirstOrDefault()?.NamedArguments.FirstOrDefault(
+                                i => i.MemberName.Equals("Order")).TypedValue.Value)
+                          where p.GetValue(filter, null) != null
+                          select p.CustomAttributes.FirstOrDefault()?.NamedArguments.FirstOrDefault().TypedValue.Value 
+                            + "=" + HttpUtility.UrlEncode(FormatPropertyValue(p.GetValue(filter, null)));
 
         return string.Join("&", properties.ToArray());
+    }
+
+    private string FormatPropertyValue(object value)
+    {
+        return value is bool boolValue ? (boolValue ? "true" : "false") : value.ToString();
     }
 }
