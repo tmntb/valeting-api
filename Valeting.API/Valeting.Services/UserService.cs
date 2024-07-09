@@ -33,18 +33,18 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             return validateLoginSVResponse;
         }
 
-        // var userDTO = await userRepository.FindUserByEmail(validateLoginSVRequest.Username);
-        // if (userDTO == null)
-        // {
-        //     validateLoginSVResponse.Error = new()
-        //     {
-        //         ErrorCode = (int)HttpStatusCode.NotFound,
-        //         Message = Messages.UserNotFound
-        //     };
-        //     return validateLoginSVResponse;
-        // }
+        var userDTO = await userRepository.FindUserByEmail(validateLoginSVRequest.Username);
+        if (userDTO == null)
+        {
+            validateLoginSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.NotFound,
+                Message = Messages.UserNotFound
+            };
+            return validateLoginSVResponse;
+        }
 
-        // byte[] salt = Encoding.ASCII.GetBytes(userDTO.Salt);
+        byte[] salt = Encoding.ASCII.GetBytes(userDTO.Salt);
 
         /*
             * Criar Salt
@@ -55,8 +55,8 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         }
         */
 
-        // var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(validateLoginSVRequest.Password, salt, KeyDerivationPrf.HMACSHA256, 100000, 256 / 8));
-        // validateLoginSVResponse.Valid = userDTO.Password.Equals(hashed);
+        var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(validateLoginSVRequest.Password, salt, KeyDerivationPrf.HMACSHA256, 100000, 256 / 8));
+        validateLoginSVResponse.Valid = userDTO.Password.Equals(hashed);
         return validateLoginSVResponse;
     }
 
@@ -76,43 +76,43 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             return generateTokenJWTSVResponse;
         }
 
-        // var userDTO = await userRepository.FindUserByEmail(generateTokenJWTSVRequest.Username);
-        // if (userDTO == null)
-        // {
-        //     generateTokenJWTSVResponse.Error = new()
-        //     {
-        //         ErrorCode = (int)HttpStatusCode.NotFound,
-        //         Message = Messages.UserNotFound
-        //     };
-        //     return generateTokenJWTSVResponse;
-        // }
+        var userDTO = await userRepository.FindUserByEmail(generateTokenJWTSVRequest.Username);
+        if (userDTO == null)
+        {
+            generateTokenJWTSVResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.NotFound,
+                Message = Messages.UserNotFound
+            };
+            return generateTokenJWTSVResponse;
+        }
 
-        // var secret = configuration["Jwt:Key"];
-        // var issuer = configuration["Jwt:Issuer"];
-        // var audience = configuration["Jwt:Audience"];
+        var secret = configuration["Jwt:Key"];
+        var issuer = configuration["Jwt:Issuer"];
+        var audience = configuration["Jwt:Audience"];
 
-        // var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
-        // var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        // var tokenDescriptor = new SecurityTokenDescriptor
-        // {
-        //     Subject = new ClaimsIdentity(
-        //     [
-        //         new Claim("UserId", userDTO.Id.ToString()),
-        //         new Claim("Username", userDTO.Username)
-        //     ]),
-        //     Expires = DateTime.Now.AddMinutes(60),
-        //     Issuer = issuer,
-        //     Audience = audience,
-        //     SigningCredentials = credentials
-        // };
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(
+            [
+                new Claim("UserId", userDTO.Id.ToString()),
+                new Claim("Username", userDTO.Username)
+            ]),
+            Expires = DateTime.Now.AddMinutes(60),
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = credentials
+        };
 
-        // var tokenHandler = new JwtSecurityTokenHandler();
-        // var token = tokenHandler.CreateToken(tokenDescriptor);
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        // generateTokenJWTSVResponse.Token = tokenHandler.WriteToken(token);
-        // generateTokenJWTSVResponse.ExpiryDate = token.ValidTo.ToLocalTime();
-        // generateTokenJWTSVResponse.TokenType = tokenHandler.TokenType.Name;
+        generateTokenJWTSVResponse.Token = tokenHandler.WriteToken(token);
+        generateTokenJWTSVResponse.ExpiryDate = token.ValidTo.ToLocalTime();
+        generateTokenJWTSVResponse.TokenType = tokenHandler.TokenType.Name;
         return generateTokenJWTSVResponse;
     }
 }

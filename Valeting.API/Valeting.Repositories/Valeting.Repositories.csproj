@@ -17,4 +17,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Valeting.Business\Valeting.Business.csproj" />
+  </ItemGroup>
+
 </Project>

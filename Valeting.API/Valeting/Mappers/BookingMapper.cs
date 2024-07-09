@@ -1,6 +1,8 @@
 using AutoMapper;
 
 using Valeting.ApiObjects.Booking;
+using Valeting.Business.Booking;
+using Valeting.Repositories.Entities;
 using Valeting.Services.Objects.Booking;
 
 namespace Valeting.Mappers;
@@ -9,9 +11,13 @@ public class BookingMapper : Profile
 {
     public BookingMapper()
     {
-        //Service -> API
+        //API -> Service
+        CreateMap<CreateBookingApiRequest, CreateBookingSVRequest>();
 
-        //API -> Out
-        CreateMap<BookingSV, BookingApi>();
+        //Service -> DTO
+        CreateMap<CreateBookingSVRequest, BookingDTO>();
+
+        //DTO -> Entity
+        CreateMap<BookingDTO, Booking>();
     }
 }

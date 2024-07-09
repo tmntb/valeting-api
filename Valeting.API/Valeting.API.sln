@@ -6,6 +6,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting", "Valeting\Valeti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting.Repositories", "Valeting.Repositories\Valeting.Repositories.csproj", "{ABFFD5DB-5451-42E7-9C42-72B4C94168B8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting.Business", "Valeting.Business\Valeting.Business.csproj", "{A70D9DC9-41A2-4108-B637-5621A39DFFA5}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting.Services", "Valeting.Services\Valeting.Services.csproj", "{A0FE761D-4B01-467C-BF67-BF576F93E11F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E3A21F04-3985-4097-B388-2CC10EE0439A}"
@@ -31,6 +33,10 @@ Global
 		{ABFFD5DB-5451-42E7-9C42-72B4C94168B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABFFD5DB-5451-42E7-9C42-72B4C94168B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABFFD5DB-5451-42E7-9C42-72B4C94168B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A70D9DC9-41A2-4108-B637-5621A39DFFA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A70D9DC9-41A2-4108-B637-5621A39DFFA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A70D9DC9-41A2-4108-B637-5621A39DFFA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A70D9DC9-41A2-4108-B637-5621A39DFFA5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A0FE761D-4B01-467C-BF67-BF576F93E11F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A0FE761D-4B01-467C-BF67-BF576F93E11F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0FE761D-4B01-467C-BF67-BF576F93E11F}.Release|Any CPU.ActiveCfg = Release|Any CPU
