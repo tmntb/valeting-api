@@ -20,17 +20,17 @@ public class FlexibilityMapper : Profile
             .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.PageSize))
             .ForMember(dest => dest.Active, opt => opt.MapFrom(src => src.Active));
 
-        //Service -> Repository
+        //Service -> DTO
         CreateMap<FlexibilityFilterSV, FlexibilityFilterDTO>();
 
-        //Repository -> Service
+        //Entity -> DTO
         CreateMap<RdFlexibility, FlexibilityDTO>();
 
-        //Service -> API
+        //DTO -> Service
         CreateMap<FlexibilityDTO, FlexibilitySV>();
         CreateMap<FlexibilityListDTO, PaginatedFlexibilitySVResponse>();
 
-        //API -> Out
+        //Service -> API
         CreateMap<FlexibilitySV, FlexibilityApi>();
     }
 }

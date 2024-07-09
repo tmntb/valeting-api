@@ -71,8 +71,7 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    c.AddServer(new OpenApiServer { Description = "IIS-Local", Url = "https://localhost:44376/Valeting" });
-    c.AddServer(new OpenApiServer { Description = "MAC_Dev", Url = "https://localhost:5001/Valeting" });
+    c.AddServer(new OpenApiServer { Description = "Local", Url = "https://localhost:44376/Valeting" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme() 
     { 

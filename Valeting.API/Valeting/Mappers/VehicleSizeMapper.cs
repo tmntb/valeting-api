@@ -20,17 +20,17 @@ public class VehicleSizeMapper : Profile
             .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.PageSize))
             .ForMember(dest => dest.Active, opt => opt.MapFrom(src => src.Active));
 
-        //Service -> Repository
+        //Service -> DTO
         CreateMap<VehicleSizeFilterSV, VehicleSizeFilterDTO>();
 
-        //Repository -> Service
+        //Entity -> DTO
         CreateMap<RdVehicleSize, VehicleSizeDTO>();
 
-        //Service -> API
+        //DTO -> Service
         CreateMap<VehicleSizeDTO, VehicleSizeSV>();
         CreateMap<VehicleSizeListDTO, PaginatedVehicleSizeSVResponse>();
 
-        //API -> Out
+        //Service -> API
         CreateMap<VehicleSizeSV, VehicleSizeApi>();
     }
 }

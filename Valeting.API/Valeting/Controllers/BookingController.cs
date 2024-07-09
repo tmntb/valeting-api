@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using AutoMapper;
+
+using System.Net;
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,6 @@ using Valeting.Services.Interfaces;
 using Valeting.Services.Objects.Link;
 using Valeting.Services.Objects.Booking;
 using Valeting.Controllers.BaseController;
-using AutoMapper;
 
 namespace Valeting.Controllers;
 
@@ -28,17 +29,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
             }
 
-            var test = mapper.Map<CreateBookingSVRequest>(createBookingApiRequest);
-            var createBookingSVRequest = new CreateBookingSVRequest()
-            {
-                Name = createBookingApiRequest.Name,
-                BookingDate = createBookingApiRequest.BookingDate,
-                Flexibility = createBookingApiRequest.Flexibility != null ? new() { Id = createBookingApiRequest.Flexibility.Id } : new(),
-                VehicleSize = createBookingApiRequest.VehicleSize != null ? new() { Id = createBookingApiRequest.VehicleSize.Id } : new(),
-                ContactNumber = createBookingApiRequest.ContactNumber,
-                Email = createBookingApiRequest.Email
-            };
-
+            var createBookingSVRequest = mapper.Map<CreateBookingSVRequest>(createBookingApiRequest);
             var createBookingSVResponse = await bookingService.CreateAsync(createBookingSVRequest);
             if(createBookingSVResponse.HasError)
             {
@@ -53,17 +44,14 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
             var recordKey = "*ListBooking_*";
             await redisCache.RemoveRecord(recordKey);
 
-            var createBookingApiResponse = new CreateBookingApiResponse()
-            {
-                Id = createBookingSVResponse.Id
-            };
+            var createBookingApiResponse = mapper.Map<CreateBookingApiResponse>(createBookingSVResponse);
             return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
         }
         catch (Exception ex)
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Detail = ex.StackTrace
+                Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
