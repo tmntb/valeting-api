@@ -5,7 +5,6 @@ using System.Net;
 using Valeting.Common.Messages;
 using Valeting.Services.Interfaces;
 using Valeting.Services.Validators;
-using Valeting.Business.Flexibility;
 using Valeting.Repositories.Interfaces;
 using Valeting.Services.Objects.Flexibility;
 
@@ -29,20 +28,21 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IM
             return paginatedFlexibilitySVResponse;
         }
 
-        var flexibilityFilterDTO = mapper.Map<FlexibilityFilterDTO>(paginatedFlexibilitySVRequest.Filter);
+        // var flexibilityFilterDTO = mapper.Map<FlexibilityFilterDTO>(paginatedFlexibilitySVRequest.Filter);
 
-        var flexibilityListDTO = await flexibilityRepository.GetAsync(flexibilityFilterDTO);
-        if (flexibilityListDTO == null)
-        {
-            paginatedFlexibilitySVResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.FlexibilityNotFound
-            };
-            return paginatedFlexibilitySVResponse;
-        }
+        // var flexibilityListDTO = await flexibilityRepository.GetAsync(flexibilityFilterDTO);
+        // if (flexibilityListDTO == null)
+        // {
+        //     paginatedFlexibilitySVResponse.Error = new()
+        //     {
+        //         ErrorCode = (int)HttpStatusCode.NotFound,
+        //         Message = Messages.FlexibilityNotFound
+        //     };
+        //     return paginatedFlexibilitySVResponse;
+        // }
 
-        return mapper.Map<PaginatedFlexibilitySVResponse>(flexibilityListDTO);
+        // return mapper.Map<PaginatedFlexibilitySVResponse>(flexibilityListDTO);
+        return paginatedFlexibilitySVResponse;
     }
 
     public async Task<GetFlexibilitySVResponse> GetByIdAsync(GetFlexibilitySVRequest getFlexibilitySVRequest)
@@ -61,18 +61,18 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IM
             return getFlexibilitySVResponse;
         }
 
-        var flexibilityDTO = await flexibilityRepository.GetByIDAsync(getFlexibilitySVRequest.Id);
-        if (flexibilityDTO == null)
-        {
-            getFlexibilitySVResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.FlexibilityNotFound
-            };
-            return getFlexibilitySVResponse;
-        }
+        // var flexibilityDTO = await flexibilityRepository.GetByIDAsync(getFlexibilitySVRequest.Id);
+        // if (flexibilityDTO == null)
+        // {
+        //     getFlexibilitySVResponse.Error = new()
+        //     {
+        //         ErrorCode = (int)HttpStatusCode.NotFound,
+        //         Message = Messages.FlexibilityNotFound
+        //     };
+        //     return getFlexibilitySVResponse;
+        // }
         
-        getFlexibilitySVResponse.Flexibility = mapper.Map<FlexibilitySV>(flexibilityDTO);
+        // getFlexibilitySVResponse.Flexibility = mapper.Map<FlexibilitySV>(flexibilityDTO);
         return getFlexibilitySVResponse;
     }
 }

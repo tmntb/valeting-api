@@ -172,7 +172,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
             var getBookingSVResponse = await redisCache.GetRecordAsync<GetBookingSVResponse>(recordKey);
             if (getBookingSVResponse == null)
             {
-                getBookingSVResponse = await bookingService.GetAsync(getBookingSVRequest);
+                getBookingSVResponse = await bookingService.GetByIdAsync(getBookingSVRequest);
                 if(getBookingSVResponse.HasError)
                 {
                     var bookingApiError = new BookingApiError() 
@@ -185,51 +185,57 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 await redisCache.SetRecordAsync(recordKey, getBookingSVResponse, TimeSpan.FromDays(1));
             }
 
+            var bokingApi = mapper.Map<BookingApi>(getBookingSVResponse.Booking);
+
             var bookingApiResponse = new BookingApiResponse()
             {
-                Booking = new()
-                {
-                    Id = getBookingSVResponse.Id,
-                    Name = getBookingSVResponse.Name,
-                    BookingDate = getBookingSVResponse.BookingDate,
-                    Flexibility = new()
-                    {
-                        Id = getBookingSVResponse.Flexibility.Id,
-                        Description = getBookingSVResponse.Flexibility.Description,
-                        Active = getBookingSVResponse.Flexibility.Active,
-                        Link = new()
-                        {
-                            Self = new()
-                            {
-                                Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/flexibilities", Id = getBookingSVResponse.Flexibility.Id }).Self
-                            }
-                        }
-                    },
-                    VehicleSize = new()
-                    {
-                        Id = getBookingSVResponse.VehicleSize.Id,
-                        Description = getBookingSVResponse.VehicleSize.Description,
-                        Active = getBookingSVResponse.VehicleSize.Active,
-                        Link = new()
-                        {
-                            Self = new()
-                            {
-                                Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/vehicleSizes", Id = getBookingSVResponse.VehicleSize.Id }).Self
-                            }
-                        }
-                    },
-                    ContactNumber = getBookingSVResponse.ContactNumber.Value,
-                    Email = getBookingSVResponse.Email,
-                    Approved = getBookingSVResponse.Approved,
-                    Link = new()
-                    {
-                        Self = new()
-                        {
-                            Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
-                        }
-                    }
-                }
+                Booking = bokingApi
             };
+            // var bookingApiResponse = new BookingApiResponse()
+            // {
+            //     Booking = new()
+            //     {
+            //         Id = getBookingSVResponse.Id,
+            //         Name = getBookingSVResponse.Name,
+            //         BookingDate = getBookingSVResponse.BookingDate,
+            //         Flexibility = new()
+            //         {
+            //             Id = getBookingSVResponse.Flexibility.Id,
+            //             Description = getBookingSVResponse.Flexibility.Description,
+            //             Active = getBookingSVResponse.Flexibility.Active,
+            //             Link = new()
+            //             {
+            //                 Self = new()
+            //                 {
+            //                     Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/flexibilities", Id = getBookingSVResponse.Flexibility.Id }).Self
+            //                 }
+            //             }
+            //         },
+            //         VehicleSize = new()
+            //         {
+            //             Id = getBookingSVResponse.VehicleSize.Id,
+            //             Description = getBookingSVResponse.VehicleSize.Description,
+            //             Active = getBookingSVResponse.VehicleSize.Active,
+            //             Link = new()
+            //             {
+            //                 Self = new()
+            //                 {
+            //                     Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/vehicleSizes", Id = getBookingSVResponse.VehicleSize.Id }).Self
+            //                 }
+            //             }
+            //         },
+            //         ContactNumber = getBookingSVResponse.ContactNumber.Value,
+            //         Email = getBookingSVResponse.Email,
+            //         Approved = getBookingSVResponse.Approved,
+            //         Link = new()
+            //         {
+            //             Self = new()
+            //             {
+            //                 Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
+            //             }
+            //         }
+            //     }
+            // };
             return StatusCode((int)HttpStatusCode.OK, bookingApiResponse);
         }
         catch (Exception ex)
@@ -259,7 +265,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
             var paginatedBookingSVResponse = await redisCache.GetRecordAsync<PaginatedBookingSVResponse>(recordKey);
             if (paginatedBookingSVResponse == null)
             {
-                paginatedBookingSVResponse = await bookingService.ListAllAsync(paginatedBookingSVRequest);
+                paginatedBookingSVResponse = await bookingService.GetAsync(paginatedBookingSVRequest);
                 if(paginatedBookingSVResponse.HasError)
                 {
                     var bookingApiError = new BookingApiError() 

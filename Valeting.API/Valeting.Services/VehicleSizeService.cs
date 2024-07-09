@@ -5,7 +5,6 @@ using System.Net;
 using Valeting.Common.Messages;
 using Valeting.Services.Validators;
 using Valeting.Services.Interfaces;
-using Valeting.Business.VehicleSize;
 using Valeting.Repositories.Interfaces;
 using Valeting.Services.Objects.VehicleSize;
 
@@ -29,20 +28,21 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IM
             return paginatedVehicleSizeSVResponse;
         }
 
-        var vehicleSizeFilterDTO = mapper.Map<VehicleSizeFilterDTO>(paginatedVehicleSizeSVRequest.Filter);
+        //var vehicleSizeFilterDTO = mapper.Map<VehicleSizeFilterDTO>(paginatedVehicleSizeSVRequest.Filter);
 
-        var vehicleSizeListDTO = await vehicleSizeRepository.GetAsync(vehicleSizeFilterDTO);
-        if(vehicleSizeListDTO == null)
-        {
-            paginatedVehicleSizeSVResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.VehicleSizeNotFound
-            };
-            return paginatedVehicleSizeSVResponse;
-        }
+        // var vehicleSizeListDTO = await vehicleSizeRepository.GetAsync(vehicleSizeFilterDTO);
+        // if(vehicleSizeListDTO == null)
+        // {
+        //     paginatedVehicleSizeSVResponse.Error = new()
+        //     {
+        //         ErrorCode = (int)HttpStatusCode.NotFound,
+        //         Message = Messages.VehicleSizeNotFound
+        //     };
+        //     return paginatedVehicleSizeSVResponse;
+        // }
 
-        return mapper.Map<PaginatedVehicleSizeSVResponse>(vehicleSizeListDTO);
+        //return mapper.Map<PaginatedVehicleSizeSVResponse>(vehicleSizeListDTO);
+        return paginatedVehicleSizeSVResponse;
     }
 
     public async Task<GetVehicleSizeSVResponse> GetByIdAsync(GetVehicleSizeSVRequest getVehicleSizeSVRequest)
@@ -61,18 +61,18 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IM
             return getVehicleSizeSVResponse;
         }
 
-        var vehicleSizeDTO = await vehicleSizeRepository.GetByIDAsync(getVehicleSizeSVRequest.Id);
-        if (vehicleSizeDTO == null)
-        {
-            getVehicleSizeSVResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.VehicleSizeNotFound
-            };
-            return getVehicleSizeSVResponse;
-        }
+        // var vehicleSizeDTO = await vehicleSizeRepository.GetByIDAsync(getVehicleSizeSVRequest.Id);
+        // if (vehicleSizeDTO == null)
+        // {
+        //     getVehicleSizeSVResponse.Error = new()
+        //     {
+        //         ErrorCode = (int)HttpStatusCode.NotFound,
+        //         Message = Messages.VehicleSizeNotFound
+        //     };
+        //     return getVehicleSizeSVResponse;
+        // }
 
-        getVehicleSizeSVResponse.VehicleSize = mapper.Map<VehicleSizeSV>(vehicleSizeDTO);
+        // getVehicleSizeSVResponse.VehicleSize = mapper.Map<VehicleSizeSV>(vehicleSizeDTO);
         return getVehicleSizeSVResponse;
     }
 }

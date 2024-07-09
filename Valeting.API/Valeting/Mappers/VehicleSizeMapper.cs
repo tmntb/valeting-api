@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 
-using Valeting.Business.VehicleSize;
 using Valeting.Repositories.Entities;
 using Valeting.ApiObjects.VehicleSize;
 using Valeting.Services.Objects.VehicleSize;
@@ -20,17 +19,11 @@ public class VehicleSizeMapper : Profile
             .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.PageSize))
             .ForMember(dest => dest.Active, opt => opt.MapFrom(src => src.Active));
 
-        //Service -> Repository
-        CreateMap<VehicleSizeFilterSV, VehicleSizeFilterDTO>();
+        //Service -> Entity
 
-        //Repository -> Service
-        CreateMap<RdVehicleSize, VehicleSizeDTO>();
+        //Entity -> Service
 
         //Service -> API
-        CreateMap<VehicleSizeDTO, VehicleSizeSV>();
-        CreateMap<VehicleSizeListDTO, PaginatedVehicleSizeSVResponse>();
-
-        //API -> Out
         CreateMap<VehicleSizeSV, VehicleSizeApi>();
     }
 }

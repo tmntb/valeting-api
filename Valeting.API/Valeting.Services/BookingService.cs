@@ -1,15 +1,15 @@
 ﻿using System.Net;
 
 using Valeting.Common.Messages;
-using Valeting.Business.Booking;
 using Valeting.Services.Validators;
 using Valeting.Services.Interfaces;
 using Valeting.Repositories.Interfaces;
 using Valeting.Services.Objects.Booking;
+using AutoMapper;
 
 namespace Valeting.Services;
 
-public class BookingService(IBookingRepository bookingRepository) : IBookingService
+public class BookingService(IBookingRepository bookingRepository, IMapper mapper) : IBookingService
 {
     public async Task<CreateBookingSVResponse> CreateAsync(CreateBookingSVRequest createBookingSVRequest)
     {
@@ -27,18 +27,18 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
         }
 
         var id = Guid.NewGuid();
-        var bookingDTO = new BookingDTO()
-        {
-            Id = id,
-            Name = createBookingSVRequest.Name,
-            Email = createBookingSVRequest.Email,
-            ContactNumber = createBookingSVRequest.ContactNumber,
-            BookingDate = createBookingSVRequest.BookingDate,
-            Flexibility = new() { Id = createBookingSVRequest.Flexibility.Id },
-            VehicleSize = new() { Id = createBookingSVRequest.VehicleSize.Id },
-            Approved = false
-        };
-        await bookingRepository.CreateAsync(bookingDTO);
+        // var bookingDTO = new BookingDTO()
+        // {
+        //     Id = id,
+        //     Name = createBookingSVRequest.Name,
+        //     Email = createBookingSVRequest.Email,
+        //     ContactNumber = createBookingSVRequest.ContactNumber,
+        //     BookingDate = createBookingSVRequest.BookingDate,
+        //     Flexibility = new() { Id = createBookingSVRequest.Flexibility.Id },
+        //     VehicleSize = new() { Id = createBookingSVRequest.VehicleSize.Id },
+        //     Approved = false
+        // };
+        // await bookingRepository.CreateAsync(bookingDTO);
         
         createBookingSVResponse.Id = id;
         return createBookingSVResponse;
@@ -59,26 +59,26 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
             return updateBookingSVResponse;
         }
 
-        var bookingDTO = await bookingRepository.FindByIdAsync(updateBookingSVRequest.Id);
-        if (bookingDTO == null)
-        {
-            updateBookingSVResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.BookingNotFound
-            };
-            return updateBookingSVResponse;
-        }
+        // var bookingDTO = await bookingRepository.FindByIdAsync(updateBookingSVRequest.Id);
+        // if (bookingDTO == null)
+        // {
+        //     updateBookingSVResponse.Error = new()
+        //     {
+        //         ErrorCode = (int)HttpStatusCode.NotFound,
+        //         Message = Messages.BookingNotFound
+        //     };
+        //     return updateBookingSVResponse;
+        // }
 
-        bookingDTO.Id = updateBookingSVRequest.Id;
-        bookingDTO.Name = updateBookingSVRequest.Name;
-        bookingDTO.BookingDate = updateBookingSVRequest.BookingDate;
-        bookingDTO.Flexibility = updateBookingSVRequest.Flexibility != null ? new() { Id = updateBookingSVRequest.Flexibility.Id } : null;
-        bookingDTO.VehicleSize = updateBookingSVRequest.VehicleSize != null ? new() { Id = updateBookingSVRequest.VehicleSize.Id } : null;
-        bookingDTO.ContactNumber = updateBookingSVRequest.ContactNumber;
-        bookingDTO.Email = updateBookingSVRequest.Email;
-        bookingDTO.Approved = updateBookingSVRequest.Approved;
-        await bookingRepository.UpdateAsync(bookingDTO);
+        // bookingDTO.Id = updateBookingSVRequest.Id;
+        // bookingDTO.Name = updateBookingSVRequest.Name;
+        // bookingDTO.BookingDate = updateBookingSVRequest.BookingDate;
+        // bookingDTO.Flexibility = updateBookingSVRequest.Flexibility != null ? new() { Id = updateBookingSVRequest.Flexibility.Id } : null;
+        // bookingDTO.VehicleSize = updateBookingSVRequest.VehicleSize != null ? new() { Id = updateBookingSVRequest.VehicleSize.Id } : null;
+        // bookingDTO.ContactNumber = updateBookingSVRequest.ContactNumber;
+        // bookingDTO.Email = updateBookingSVRequest.Email;
+        // bookingDTO.Approved = updateBookingSVRequest.Approved;
+        // await bookingRepository.UpdateAsync(bookingDTO);
 
         return updateBookingSVResponse;
     }
@@ -98,23 +98,23 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
             return deleteBookingSVResponse;
         }
 
-        var bookingDTO = await bookingRepository.FindByIdAsync(deleteBookingSVRequest.Id);
-        if (bookingDTO == null)
-        {
-            deleteBookingSVResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.BookingNotFound
-            };
-            return deleteBookingSVResponse;
-        }
+        // var bookingDTO = await bookingRepository.FindByIdAsync(deleteBookingSVRequest.Id);
+        // if (bookingDTO == null)
+        // {
+        //     deleteBookingSVResponse.Error = new()
+        //     {
+        //         ErrorCode = (int)HttpStatusCode.NotFound,
+        //         Message = Messages.BookingNotFound
+        //     };
+        //     return deleteBookingSVResponse;
+        // }
 
-        await bookingRepository.DeleteAsync(deleteBookingSVRequest.Id);
+        //await bookingRepository.DeleteAsync(deleteBookingSVRequest.Id);
 
         return deleteBookingSVResponse;
     }
 
-    public async Task<GetBookingSVResponse> GetAsync(GetBookingSVRequest getBookingSVRequest)
+    public async Task<GetBookingSVResponse> GetByIdAsync(GetBookingSVRequest getBookingSVRequest)
     {
         var getBookingSVResponse = new GetBookingSVResponse();
 
@@ -130,29 +130,31 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
             return getBookingSVResponse;
         }
 
-        var bookingDTO = await bookingRepository.FindByIdAsync(getBookingSVRequest.Id);
-        if (bookingDTO == null)
-        {
-            getBookingSVResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.BookingNotFound
-            };
-            return getBookingSVResponse;
-        }
+        // var bookingDTO = await bookingRepository.FindByIdAsync(getBookingSVRequest.Id);
+        // if (bookingDTO == null)
+        // {
+        //     getBookingSVResponse.Error = new()
+        //     {
+        //         ErrorCode = (int)HttpStatusCode.NotFound,
+        //         Message = Messages.BookingNotFound
+        //     };
+        //     return getBookingSVResponse;
+        // }
 
-        getBookingSVResponse.Id = bookingDTO.Id;
-        getBookingSVResponse.Name = bookingDTO.Name;
-        getBookingSVResponse.BookingDate = bookingDTO.BookingDate;
-        getBookingSVResponse.ContactNumber = bookingDTO.ContactNumber;
-        getBookingSVResponse.Flexibility = new() { Id = bookingDTO.Flexibility.Id, Description = bookingDTO.Flexibility.Description, Active = bookingDTO.Flexibility.Active };
-        getBookingSVResponse.VehicleSize = new() { Id = bookingDTO.VehicleSize.Id, Description = bookingDTO.VehicleSize.Description, Active = bookingDTO.VehicleSize.Active };
-        getBookingSVResponse.Email = bookingDTO.Email;
-        getBookingSVResponse.Approved = bookingDTO.Approved;
+        //getBookingSVResponse.Booking = mapper.Map<BookingSV>(bookingDTO);
+
+        // getBookingSVResponse.Id = bookingDTO.Id;
+        // getBookingSVResponse.Name = bookingDTO.Name;
+        // getBookingSVResponse.BookingDate = bookingDTO.BookingDate;
+        // getBookingSVResponse.ContactNumber = bookingDTO.ContactNumber;
+        // getBookingSVResponse.Flexibility = new() { Id = bookingDTO.Flexibility.Id, Description = bookingDTO.Flexibility.Description, Active = bookingDTO.Flexibility.Active };
+        // getBookingSVResponse.VehicleSize = new() { Id = bookingDTO.VehicleSize.Id, Description = bookingDTO.VehicleSize.Description, Active = bookingDTO.VehicleSize.Active };
+        // getBookingSVResponse.Email = bookingDTO.Email;
+        // getBookingSVResponse.Approved = bookingDTO.Approved;
         return getBookingSVResponse;
     }
 
-    public async Task<PaginatedBookingSVResponse> ListAllAsync(PaginatedBookingSVRequest paginatedBookingSVRequest)
+    public async Task<PaginatedBookingSVResponse> GetAsync(PaginatedBookingSVRequest paginatedBookingSVRequest)
     {
         var paginatedBookingSVResponse = new PaginatedBookingSVResponse();
         
@@ -168,39 +170,39 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
             return paginatedBookingSVResponse;
         }
 
-        var bookingFilterDTO = new BookingFilterDTO()
-        {
-            PageNumber = paginatedBookingSVRequest.Filter.PageNumber,
-            PageSize = paginatedBookingSVRequest.Filter.PageSize
-        };
+        // var bookingFilterDTO = new BookingFilterDTO()
+        // {
+        //     PageNumber = paginatedBookingSVRequest.Filter.PageNumber,
+        //     PageSize = paginatedBookingSVRequest.Filter.PageSize
+        // };
 
-        var bookingListDTO = await bookingRepository.ListAsync(bookingFilterDTO);
-        if(bookingListDTO == null)
-        {
-            paginatedBookingSVResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.BookingNotFound
-            };
-            return paginatedBookingSVResponse;
-        }
+        // var bookingListDTO = await bookingRepository.ListAsync(bookingFilterDTO);
+        // if(bookingListDTO == null)
+        // {
+        //     paginatedBookingSVResponse.Error = new()
+        //     {
+        //         ErrorCode = (int)HttpStatusCode.NotFound,
+        //         Message = Messages.BookingNotFound
+        //     };
+        //     return paginatedBookingSVResponse;
+        // }
 
-        paginatedBookingSVResponse.TotalItems = bookingListDTO.TotalItems;
-        paginatedBookingSVResponse.TotalPages = bookingListDTO.TotalPages;
+        // paginatedBookingSVResponse.TotalItems = bookingListDTO.TotalItems;
+        // paginatedBookingSVResponse.TotalPages = bookingListDTO.TotalPages;
 
-        paginatedBookingSVResponse.Bookings = bookingListDTO.Bookings.Select(x => 
-            new BookingSV()
-            {
-                Id = x.Id,
-                Name = x.Name,
-                BookingDate = x.BookingDate,
-                ContactNumber = x.ContactNumber,
-                Flexibility = new() { Id = x.Flexibility.Id, Description = x.Flexibility.Description, Active = x.Flexibility.Active},
-                VehicleSize = new() { Id = x.VehicleSize.Id, Description = x.VehicleSize.Description, Active = x.VehicleSize.Active},
-                Email = x.Email,
-                Approved = x.Approved
-            }
-        ).ToList();
+        // paginatedBookingSVResponse.Bookings = bookingListDTO.Bookings.Select(x => 
+        //     new BookingSV()
+        //     {
+        //         Id = x.Id,
+        //         Name = x.Name,
+        //         BookingDate = x.BookingDate,
+        //         ContactNumber = x.ContactNumber,
+        //         Flexibility = new() { Id = x.Flexibility.Id, Description = x.Flexibility.Description, Active = x.Flexibility.Active},
+        //         VehicleSize = new() { Id = x.VehicleSize.Id, Description = x.VehicleSize.Description, Active = x.VehicleSize.Active},
+        //         Email = x.Email,
+        //         Approved = x.Approved
+        //     }
+        // ).ToList();
 
         return paginatedBookingSVResponse;
     }
