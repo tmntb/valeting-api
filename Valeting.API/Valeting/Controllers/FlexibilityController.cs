@@ -6,11 +6,11 @@ using System.Net;
 using System.ComponentModel.DataAnnotations;
 
 using Valeting.Helpers.Interfaces;
-using Valeting.Services.Interfaces;
-using Valeting.Services.Objects.Link;
+using Valeting.Core.Services.Interfaces;
+using Valeting.Core.Models.Link;
 using Valeting.ApiObjects.Flexibility;
 using Valeting.Controllers.BaseController;
-using Valeting.Services.Objects.Flexibility;
+using Valeting.Core.Models.Flexibility;
 
 namespace Valeting.Controllers;
 

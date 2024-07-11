@@ -4,9 +4,9 @@ VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting", "Valeting\Valeting.csproj", "{F587E43D-4F1B-4AE7-AAF9-7E1CB13C17F5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting.Repositories", "Valeting.Repositories\Valeting.Repositories.csproj", "{ABFFD5DB-5451-42E7-9C42-72B4C94168B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting.Repository", "Valeting.Repository\Valeting.Repository.csproj", "{ABFFD5DB-5451-42E7-9C42-72B4C94168B8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting.Services", "Valeting.Services\Valeting.Services.csproj", "{A0FE761D-4B01-467C-BF67-BF576F93E11F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting.Core", "Valeting.Core\Valeting.Core.csproj", "{A0FE761D-4B01-467C-BF67-BF576F93E11F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E3A21F04-3985-4097-B388-2CC10EE0439A}"
 	ProjectSection(SolutionItems) = preProject

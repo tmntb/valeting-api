@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 using Valeting.Helpers.Interfaces;
 using Valeting.ApiObjects.Booking;
-using Valeting.Services.Interfaces;
-using Valeting.Services.Objects.Link;
-using Valeting.Services.Objects.Booking;
+using Valeting.Core.Services.Interfaces;
+using Valeting.Core.Models.Link;
+using Valeting.Core.Models.Booking;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;

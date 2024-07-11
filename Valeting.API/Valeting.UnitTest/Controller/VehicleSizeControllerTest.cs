@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Http;
 
 using Valeting.Controllers;
 using Valeting.Helpers.Interfaces;
-using Valeting.Services.Interfaces;
+using Valeting.Core.Services.Interfaces;
 using Valeting.Repository.Models.VehicleSize;
 using Valeting.ApiObjects.VehicleSize;
-using Valeting.Services.Objects.VehicleSize;
-using Valeting.Services.Objects.Link;
+using Valeting.Core.Models.VehicleSize;
+using Valeting.Core.Models.Link;
 using Valeting.ApiObjects.Core;
 
 namespace Valeting.UnitTest.Controller;

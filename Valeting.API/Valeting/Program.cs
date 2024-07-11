@@ -5,8 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 using Valeting.Helpers;
-using Valeting.Services;
-using Valeting.Repositories;
+using Valeting.Core;
+using Valeting.Repository;
 using Valeting.Helpers.Interfaces;
 using Valeting.SwaggerDocumentation.Document;
 using Valeting.SwaggerDocumentation.Parameter;

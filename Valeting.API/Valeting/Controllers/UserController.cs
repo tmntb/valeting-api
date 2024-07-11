@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using Valeting.ApiObjects.User;
 using Valeting.Common.Messages;
-using Valeting.Services.Interfaces;
-using Valeting.Services.Objects.User;
+using Valeting.Core.Services.Interfaces;
+using Valeting.Core.Models.User;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;

@@ -2,10 +2,10 @@ using AutoMapper;
 
 using Valeting.ApiObjects.Booking;
 using Valeting.Repository.Models.Booking;
-using Valeting.Repositories.Entities;
-using Valeting.Services.Objects.Booking;
-using Valeting.Services.Objects.Flexibility;
-using Valeting.Services.Objects.VehicleSize;
+using Valeting.Repository.Entities;
+using Valeting.Core.Models.Booking;
+using Valeting.Core.Models.Flexibility;
+using Valeting.Core.Models.VehicleSize;
 
 namespace Valeting.Mappers;
 

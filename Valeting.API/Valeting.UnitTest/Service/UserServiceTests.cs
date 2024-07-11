@@ -1,10 +1,10 @@
 using Moq;
 using Microsoft.Extensions.Configuration;
-using Valeting.Repositories.Interfaces;
-using Valeting.Services;
+using Valeting.Repository.Repositories.Interfaces;
+using Valeting.Core.Services;
 using Valeting.Repository.Models.User;
 using System.Net;
-using Valeting.Services.Objects.User;
+using Valeting.Core.Models.User;
 
 namespace Valeting.UnitTest.Service;
 
