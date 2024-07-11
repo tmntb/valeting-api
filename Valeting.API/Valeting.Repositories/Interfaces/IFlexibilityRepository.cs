@@ -1,4 +1,4 @@
-﻿using Valeting.Business.Flexibility;
+﻿using Valeting.Repository.Models.Flexibility;
 
 namespace Valeting.Repositories.Interfaces;
 

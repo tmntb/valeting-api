@@ -1,7 +1,7 @@
 using AutoMapper;
 
 using Valeting.ApiObjects.Booking;
-using Valeting.Business.Booking;
+using Valeting.Repository.Models.Booking;
 using Valeting.Repositories.Entities;
 using Valeting.Services.Objects.Booking;
 using Valeting.Services.Objects.Flexibility;

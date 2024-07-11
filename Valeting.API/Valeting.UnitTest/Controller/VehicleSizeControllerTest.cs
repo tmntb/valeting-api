@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Valeting.Controllers;
 using Valeting.Helpers.Interfaces;
 using Valeting.Services.Interfaces;
-using Valeting.Business.VehicleSize;
+using Valeting.Repository.Models.VehicleSize;
 using Valeting.ApiObjects.VehicleSize;
 using Valeting.Services.Objects.VehicleSize;
 using Valeting.Services.Objects.Link;

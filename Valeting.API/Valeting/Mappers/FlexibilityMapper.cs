@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-using Valeting.Business.Flexibility;
+using Valeting.Repository.Models.Flexibility;
 using Valeting.Repositories.Entities;
 using Valeting.ApiObjects.Flexibility;
 using Valeting.Services.Objects.Flexibility;

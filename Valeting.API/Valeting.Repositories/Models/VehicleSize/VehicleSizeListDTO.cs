@@ -1,6 +1,6 @@
-﻿using Valeting.Business.Core;
+﻿using Valeting.Repository.Models.Core;
 
-namespace Valeting.Business.VehicleSize;
+namespace Valeting.Repository.Models.VehicleSize;
 
 public class VehicleSizeListDTO : ContentDTO
 {

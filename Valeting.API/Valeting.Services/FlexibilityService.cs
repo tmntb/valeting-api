@@ -5,7 +5,7 @@ using System.Net;
 using Valeting.Common.Messages;
 using Valeting.Services.Interfaces;
 using Valeting.Services.Validators;
-using Valeting.Business.Flexibility;
+using Valeting.Repository.Models.Flexibility;
 using Valeting.Repositories.Interfaces;
 using Valeting.Services.Objects.Flexibility;
 

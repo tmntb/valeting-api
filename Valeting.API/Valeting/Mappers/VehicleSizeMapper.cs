@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-using Valeting.Business.VehicleSize;
+using Valeting.Repository.Models.VehicleSize;
 using Valeting.Repositories.Entities;
 using Valeting.ApiObjects.VehicleSize;
 using Valeting.Services.Objects.VehicleSize;

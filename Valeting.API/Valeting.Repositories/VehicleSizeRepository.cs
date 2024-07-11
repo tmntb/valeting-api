@@ -2,7 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using Valeting.Business.VehicleSize;
+using Valeting.Repository.Models.VehicleSize;
 using Valeting.Repositories.Entities;
 using Valeting.Repositories.Interfaces;
 

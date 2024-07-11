@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using Valeting.Business.Booking;
-using Valeting.Business.Flexibility;
-using Valeting.Business.VehicleSize;
+using Valeting.Repository.Models.Booking;
+using Valeting.Repository.Models.Flexibility;
+using Valeting.Repository.Models.VehicleSize;
 using Valeting.Repositories.Entities;
 using Valeting.Repositories.Interfaces;
 

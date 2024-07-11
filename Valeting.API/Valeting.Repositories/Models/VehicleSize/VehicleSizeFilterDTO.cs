@@ -1,7 +1,7 @@
-﻿using Valeting.Business.Core;
+﻿using Valeting.Repository.Models.Core;
 using System.ComponentModel.DataAnnotations;
 
-namespace Valeting.Business.VehicleSize;
+namespace Valeting.Repository.Models.VehicleSize;
 
 public class VehicleSizeFilterDTO : PageDTO
 {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Valeting.Business.Core;
+namespace Valeting.Repository.Models.Core;
 
 public class PageDTO
 {

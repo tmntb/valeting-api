@@ -1,4 +1,4 @@
-﻿using Valeting.Business.Authentication;
+﻿using Valeting.Repository.Models.User;
 using Valeting.Repositories.Entities;
 using Valeting.Repositories.Interfaces;
 

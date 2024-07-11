@@ -1,6 +1,6 @@
-﻿using Valeting.Business.Core;
+﻿using Valeting.Repository.Models.Core;
 
-namespace Valeting.Business.Booking;
+namespace Valeting.Repository.Models.Booking;
 
 public class BookingListDTO : ContentDTO
 {

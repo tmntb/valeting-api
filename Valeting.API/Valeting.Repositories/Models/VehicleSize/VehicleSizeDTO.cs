@@ -1,6 +1,6 @@
-﻿namespace Valeting.Business.Flexibility;
+﻿namespace Valeting.Repository.Models.VehicleSize;
 
-public class FlexibilityDTO
+public class VehicleSizeDTO
 {
     public Guid Id { get; set; }
     public string Description { get; set; }

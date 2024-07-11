@@ -5,7 +5,7 @@ using System.Net;
 using Valeting.Common.Messages;
 using Valeting.Services.Validators;
 using Valeting.Services.Interfaces;
-using Valeting.Business.VehicleSize;
+using Valeting.Repository.Models.VehicleSize;
 using Valeting.Repositories.Interfaces;
 using Valeting.Services.Objects.VehicleSize;
 

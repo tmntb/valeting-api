@@ -1,6 +1,6 @@
-﻿using Valeting.Business.Core;
+﻿using Valeting.Repository.Models.Core;
 
-namespace Valeting.Business.Flexibility;
+namespace Valeting.Repository.Models.Flexibility;
 
 public class FlexibilityListDTO : ContentDTO
 {

@@ -2,7 +2,7 @@ using Moq;
 using Microsoft.Extensions.Configuration;
 using Valeting.Repositories.Interfaces;
 using Valeting.Services;
-using Valeting.Business.Authentication;
+using Valeting.Repository.Models.User;
 using System.Net;
 using Valeting.Services.Objects.User;
 

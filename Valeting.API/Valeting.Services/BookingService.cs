@@ -1,7 +1,7 @@
 ﻿using System.Net;
 
 using Valeting.Common.Messages;
-using Valeting.Business.Booking;
+using Valeting.Repository.Models.Booking;
 using Valeting.Services.Validators;
 using Valeting.Services.Interfaces;
 using Valeting.Repositories.Interfaces;

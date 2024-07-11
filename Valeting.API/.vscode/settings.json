@@ -1,3 +1,9 @@
 {
-    "dotnet.defaultSolution": "Valeting.API.sln"
+    "dotnet.defaultSolution": "Valeting.API.sln",
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        ".vs": true,
+        "**/*.csproj.user": true
+    }
 }

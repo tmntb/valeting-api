@@ -1,4 +1,4 @@
-﻿using Valeting.Business.VehicleSize;
+﻿using Valeting.Repository.Models.VehicleSize;
 
 namespace Valeting.Repositories.Interfaces;
 

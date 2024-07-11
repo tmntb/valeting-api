@@ -1,4 +1,4 @@
-﻿using Valeting.Business.Booking;
+﻿using Valeting.Repository.Models.Booking;
 
 namespace Valeting.Repositories.Interfaces;
 
