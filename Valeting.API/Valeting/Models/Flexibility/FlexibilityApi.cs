@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Valeting.ApiObjects.Flexibility;
+namespace Valeting.Models.Flexibility;
 
 public class FlexibilityApi
 {

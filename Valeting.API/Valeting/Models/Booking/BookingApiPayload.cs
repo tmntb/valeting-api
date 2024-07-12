@@ -1,8 +1,8 @@
-﻿using Valeting.ApiObjects.Core;
-using Valeting.ApiObjects.Flexibility;
-using Valeting.ApiObjects.VehicleSize;
+﻿using Valeting.Models.Core;
+using Valeting.Models.Flexibility;
+using Valeting.Models.VehicleSize;
 
-namespace Valeting.ApiObjects.Booking;
+namespace Valeting.Models.Booking;
 
 public class CreateBookingApiRequest
 {

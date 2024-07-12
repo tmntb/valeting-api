@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using Valeting.Helpers.Interfaces;
 using Valeting.Core.Services.Interfaces;
 using Valeting.Core.Models.Link;
-using Valeting.ApiObjects.Flexibility;
+using Valeting.Models.Flexibility;
 using Valeting.Controllers.BaseController;
 using Valeting.Core.Models.Flexibility;
 

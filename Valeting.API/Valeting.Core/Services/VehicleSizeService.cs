@@ -4,10 +4,10 @@ using System.Net;
 
 using Valeting.Common.Messages;
 using Valeting.Core.Validators;
+using Valeting.Core.Models.VehicleSize;
 using Valeting.Core.Services.Interfaces;
 using Valeting.Repository.Models.VehicleSize;
 using Valeting.Repository.Repositories.Interfaces;
-using Valeting.Core.Models.VehicleSize;
 
 namespace Valeting.Core.Services;
 

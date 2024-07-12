@@ -3,7 +3,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
-using Valeting.ApiObjects.VehicleSize;
+using Valeting.Models.VehicleSize;
 
 namespace Valeting.Controllers.BaseController;
 

@@ -1,6 +1,6 @@
-﻿using Valeting.ApiObjects.Core;
+﻿using Valeting.Models.Core;
 
-namespace Valeting.ApiObjects.Booking;
+namespace Valeting.Models.Booking;
 
 public class BookingApiLink
 {

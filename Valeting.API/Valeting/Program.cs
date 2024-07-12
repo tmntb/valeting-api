@@ -4,13 +4,13 @@ using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-using Valeting.Helpers;
 using Valeting.Core;
+using Valeting.Mappers;
+using Valeting.Helpers;
 using Valeting.Repository;
 using Valeting.Helpers.Interfaces;
 using Valeting.SwaggerDocumentation.Document;
 using Valeting.SwaggerDocumentation.Parameter;
-using Valeting.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,7 +73,7 @@ builder.Services.AddSwaggerGen(c =>
 
     c.AddServer(new OpenApiServer { Description = "Local", Url = "https://localhost:44376/Valeting" });
 
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme() 
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     { 
         Name = "Authorization", 
         Type = SecuritySchemeType.ApiKey, 

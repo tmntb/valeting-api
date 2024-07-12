@@ -3,7 +3,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
-using Valeting.ApiObjects.Flexibility;
+using Valeting.Models.Flexibility;
 
 namespace Valeting.Controllers.BaseController;
 

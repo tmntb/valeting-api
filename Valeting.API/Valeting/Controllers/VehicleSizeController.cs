@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.ComponentModel.DataAnnotations;
 
-using Valeting.Helpers.Interfaces;
-using Valeting.Core.Services.Interfaces;
+using Valeting.Models.Core;
 using Valeting.Core.Models.Link;
-using Valeting.ApiObjects.VehicleSize;
-using Valeting.Controllers.BaseController;
+using Valeting.Helpers.Interfaces;
+using Valeting.Models.VehicleSize;
 using Valeting.Core.Models.VehicleSize;
+using Valeting.Core.Services.Interfaces;
+using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
 
@@ -29,7 +30,7 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
                 paginatedVehicleSizeSVResponse = await vehicleSizeService.GetAsync(paginatedVehicleSizeSVRequest);
                 if (paginatedVehicleSizeSVResponse.HasError)
                 {
-                    var vehicleSizeApiError = new VehicleSizeApiError()
+                    var vehicleSizeApiError = new VehicleSizeApiError
                     {
                         Detail = paginatedVehicleSizeSVResponse.Error.Message
                     };
@@ -55,7 +56,7 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
 
             var paginatedLinks = urlService.GeneratePaginatedLinks
             (
-                new GeneratePaginatedLinksSVRequest()
+                new GeneratePaginatedLinksSVRequest
                 {
                     BaseUrl = Request.Host.Value,
                     Path = Request.Path.HasValue ? Request.Path.Value : string.Empty,
@@ -66,9 +67,8 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
                 }
             );
 
-            vehicleSizeApiPaginatedResponse.Links.Prev.Href = paginatedLinks.Prev;
-            vehicleSizeApiPaginatedResponse.Links.Next.Href = paginatedLinks.Next;
-            vehicleSizeApiPaginatedResponse.Links.Self.Href = paginatedLinks.Self;
+            var links = mapper.Map<PaginationLinksApi>(paginatedLinks);
+            vehicleSizeApiPaginatedResponse.Links = links;
 
             var vehicleSizeApis = mapper.Map<List<VehicleSizeApi>>(paginatedVehicleSizeSVResponse.VehicleSizes);
             vehicleSizeApis.ForEach(v => 
@@ -76,7 +76,7 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
                 { 
                     Self = new() 
                     { 
-                        Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = v.Id }).Self 
+                        Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = v.Id }).Self 
                     } 
                 }
             );
@@ -86,9 +86,9 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
         }
         catch (Exception ex)
         {
-            var vehicleSizeApiError = new VehicleSizeApiError()
+            var vehicleSizeApiError = new VehicleSizeApiError
             {
-                Detail = ex.StackTrace
+                Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, vehicleSizeApiError);
         }
@@ -98,7 +98,7 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
     {
         try
         {
-            var getVehicleSizeSVRequest = new GetVehicleSizeSVRequest()
+            var getVehicleSizeSVRequest = new GetVehicleSizeSVRequest
             {
                 Id = Guid.Parse(id)
             };
@@ -121,15 +121,15 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
             }
 
             var vehicleSizeApi = mapper.Map<VehicleSizeApi>(getVehicleSizeSVResponse.VehicleSize);
-            vehicleSizeApi.Link = new() 
+            vehicleSizeApi.Link = new()
             { 
                 Self = new() 
                 { 
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self 
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self 
                 } 
             };
 
-            var vehicleSizeApiResponse = new VehicleSizeApiResponse()
+            var vehicleSizeApiResponse = new VehicleSizeApiResponse
             {
                 VehicleSize = vehicleSizeApi
             };
@@ -137,9 +137,9 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
         }
         catch (Exception ex)
         {
-            var vehicleSizeApiError = new VehicleSizeApiError()
+            var vehicleSizeApiError = new VehicleSizeApiError
             {
-                Detail = ex.StackTrace
+                Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, vehicleSizeApiError);
         }

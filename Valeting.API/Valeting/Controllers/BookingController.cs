@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 
 using Valeting.Helpers.Interfaces;
-using Valeting.ApiObjects.Booking;
+using Valeting.Models.Booking;
 using Valeting.Core.Services.Interfaces;
 using Valeting.Core.Models.Link;
 using Valeting.Core.Models.Booking;

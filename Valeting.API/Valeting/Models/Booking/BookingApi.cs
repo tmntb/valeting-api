@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-using Valeting.ApiObjects.Flexibility;
-using Valeting.ApiObjects.VehicleSize;
+using Valeting.Models.Flexibility;
+using Valeting.Models.VehicleSize;
 
-namespace Valeting.ApiObjects.Booking;
+namespace Valeting.Models.Booking;
 
 public class BookingApi
 {

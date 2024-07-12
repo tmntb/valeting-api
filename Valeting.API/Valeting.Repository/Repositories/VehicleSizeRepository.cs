@@ -2,8 +2,8 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using Valeting.Repository.Models.VehicleSize;
 using Valeting.Repository.Entities;
+using Valeting.Repository.Models.VehicleSize;
 using Valeting.Repository.Repositories.Interfaces;
 
 namespace Valeting.Repository.Repositories;
@@ -38,11 +38,6 @@ public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapp
         if (rdVehicleSize == null)
             return null;
 
-       return new VehicleSizeDTO()
-        {
-            Id = id,
-            Description = rdVehicleSize.Description,
-            Active = rdVehicleSize.Active
-        };
+       return mapper.Map<VehicleSizeDTO>(rdVehicleSize);
     }
 }

@@ -1,6 +1,6 @@
-﻿using Valeting.ApiObjects.Core;
+﻿using Valeting.Models.Core;
 
-namespace Valeting.ApiObjects.VehicleSize;
+namespace Valeting.Models.VehicleSize;
 
 public class VehicleSizeApiParameters : QueryStringParametersApi
 {

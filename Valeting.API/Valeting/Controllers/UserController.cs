@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.ApiObjects.User;
+using Valeting.Models.User;
 using Valeting.Common.Messages;
 using Valeting.Core.Services.Interfaces;
 using Valeting.Core.Models.User;

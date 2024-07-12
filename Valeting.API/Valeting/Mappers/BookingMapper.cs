@@ -1,6 +1,6 @@
 using AutoMapper;
 
-using Valeting.ApiObjects.Booking;
+using Valeting.Models.Booking;
 using Valeting.Repository.Models.Booking;
 using Valeting.Repository.Entities;
 using Valeting.Core.Models.Booking;

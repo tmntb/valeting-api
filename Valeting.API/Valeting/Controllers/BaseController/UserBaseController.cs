@@ -1,4 +1,4 @@
-﻿using Valeting.ApiObjects.User;
+﻿using Valeting.Models.User;
 
 using Microsoft.AspNetCore.Mvc;
 

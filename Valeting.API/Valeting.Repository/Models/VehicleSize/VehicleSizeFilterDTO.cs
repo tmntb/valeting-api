@@ -1,5 +1,6 @@
-﻿using Valeting.Repository.Models.Core;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+
+using Valeting.Repository.Models.Core;
 
 namespace Valeting.Repository.Models.VehicleSize;
 

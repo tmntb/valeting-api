@@ -2,7 +2,7 @@
 
 using Valeting.Repository.Models.Flexibility;
 using Valeting.Repository.Entities;
-using Valeting.ApiObjects.Flexibility;
+using Valeting.Models.Flexibility;
 using Valeting.Core.Models.Flexibility;
 
 namespace Valeting.Mappers;
