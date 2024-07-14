@@ -8,7 +8,7 @@ using Valeting.Repository.Repositories.Interfaces;
 
 namespace Valeting.Repository;
 
-public static class ServiceRegistration
+public static class RepositoryRegistration
 {
     public static void AddInfrastructureDataLayer(this IServiceCollection services, IConfiguration configuration)
     {

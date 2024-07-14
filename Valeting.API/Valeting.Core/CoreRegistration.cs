@@ -5,7 +5,7 @@ using Valeting.Core.Services.Interfaces;
 
 namespace Valeting.Core;
 
-public static class ServiceRegistration
+public static class CoreRegistration
 {
     public static void AddServicesLayer(this IServiceCollection services)
     {

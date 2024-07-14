@@ -1,4 +1,5 @@
 using FluentValidation;
+
 using Valeting.Core.Models.User;
 
 namespace Valeting.Core.Validators;

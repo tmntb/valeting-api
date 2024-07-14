@@ -1,10 +1,12 @@
-﻿using Valeting.Repository.Models.User;
+﻿using AutoMapper;
+
 using Valeting.Repository.Entities;
+using Valeting.Repository.Models.User;
 using Valeting.Repository.Repositories.Interfaces;
 
 namespace Valeting.Repository.Repositories;
 
-public class UserRepository(ValetingContext valetingContext) : IUserRepository
+public class UserRepository(ValetingContext valetingContext, IMapper mapper) : IUserRepository
 {
     public async Task<UserDTO> FindUserByEmail(string username)
     {
@@ -13,12 +15,6 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
         if (applicationUser == null)
             return null;
 
-        return new UserDTO()
-        {
-            Id = applicationUser.Id,
-            Username = username,
-            Password = applicationUser.Password,
-            Salt = applicationUser.Salt
-        };
+        return mapper.Map<UserDTO>(applicationUser);
     }
 }

@@ -8,9 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 using Valeting.Common.Messages;
-using Valeting.Core.Services.Interfaces;
 using Valeting.Core.Validators;
 using Valeting.Core.Models.User;
+using Valeting.Core.Services.Interfaces;
 using Valeting.Repository.Repositories.Interfaces;
 
 namespace Valeting.Core.Services;
@@ -19,11 +19,11 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 {
     public async Task<ValidateLoginSVResponse> ValidateLogin(ValidateLoginSVRequest validateLoginSVRequest)
     {
-        var validateLoginSVResponse = new ValidateLoginSVResponse() { Error = new() };
+        var validateLoginSVResponse = new ValidateLoginSVResponse();
 
         var validator = new ValidateLoginValidator();
         var result = validator.Validate(validateLoginSVRequest);
-        if(!result.IsValid)
+        if (!result.IsValid)
         {
             validateLoginSVResponse.Error = new()
             {
@@ -44,8 +44,6 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             return validateLoginSVResponse;
         }
 
-        byte[] salt = Encoding.ASCII.GetBytes(userDTO.Salt);
-
         /*
             * Criar Salt
         byte[] salt = new byte[128 / 8];
@@ -54,6 +52,8 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             rngCsp.GetNonZeroBytes(salt);
         }
         */
+
+        byte[] salt = Encoding.ASCII.GetBytes(userDTO.Salt);
 
         var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(validateLoginSVRequest.Password, salt, KeyDerivationPrf.HMACSHA256, 100000, 256 / 8));
         validateLoginSVResponse.Valid = userDTO.Password.Equals(hashed);
@@ -66,7 +66,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
         var validator = new GenerateTokenJWTValidator();
         var result = validator.Validate(generateTokenJWTSVRequest);
-        if(!result.IsValid)
+        if (!result.IsValid)
         {
             generateTokenJWTSVResponse.Error = new()
             {
