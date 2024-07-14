@@ -1,4 +1,5 @@
 using FluentValidation;
+
 using Valeting.Core.Models.VehicleSize;
 
 namespace Valeting.Core.Validators;

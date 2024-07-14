@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.ComponentModel.DataAnnotations;
 
-using Valeting.Helpers.Interfaces;
-using Valeting.Core.Services.Interfaces;
+using Valeting.Models.Core;
 using Valeting.Core.Models.Link;
 using Valeting.Models.Flexibility;
-using Valeting.Controllers.BaseController;
+using Valeting.Helpers.Interfaces;
 using Valeting.Core.Models.Flexibility;
+using Valeting.Core.Services.Interfaces;
+using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
 
@@ -66,9 +67,8 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
                 }
             );
 
-            flexibilityApiPaginatedResponse.Links.Prev.Href = paginatedLinks.Prev;
-            flexibilityApiPaginatedResponse.Links.Next.Href = paginatedLinks.Next;
-            flexibilityApiPaginatedResponse.Links.Self.Href = paginatedLinks.Self;
+            var links = mapper.Map<PaginationLinksApi>(paginatedLinks);
+            flexibilityApiPaginatedResponse.Links = links;
 
             var flexibilityApis = mapper.Map<List<FlexibilityApi>>(paginatedFlexibilitySVResponse.Flexibilities);
             flexibilityApis.ForEach(f => 

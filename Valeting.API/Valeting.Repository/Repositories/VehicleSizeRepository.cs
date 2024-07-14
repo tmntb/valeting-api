@@ -16,7 +16,7 @@ public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapp
 
         var initialList = await valetingContext.RdVehicleSizes.ToListAsync();
         var listVehicleSize = from rdVehicleSize in initialList
-                                where (!vehicleSizeFilterDTO.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDTO.Active)
+                                where !vehicleSizeFilterDTO.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDTO.Active
                                 select rdVehicleSize;
 
         if (listVehicleSize == null)

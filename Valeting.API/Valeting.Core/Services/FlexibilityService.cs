@@ -3,11 +3,11 @@
 using System.Net;
 
 using Valeting.Common.Messages;
-using Valeting.Core.Services.Interfaces;
 using Valeting.Core.Validators;
+using Valeting.Core.Models.Flexibility;
+using Valeting.Core.Services.Interfaces;
 using Valeting.Repository.Models.Flexibility;
 using Valeting.Repository.Repositories.Interfaces;
-using Valeting.Core.Models.Flexibility;
 
 namespace Valeting.Core.Services;
 
@@ -51,7 +51,7 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IM
 
         var validator = new GetFlexibilityValidator();
         var result = validator.Validate(getFlexibilitySVRequest);
-        if(!result.IsValid)
+        if (!result.IsValid)
         {
             getFlexibilitySVResponse.Error = new()
             {

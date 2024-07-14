@@ -2,8 +2,8 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using Valeting.Repository.Models.Flexibility;
 using Valeting.Repository.Entities;
+using Valeting.Repository.Models.Flexibility;
 using Valeting.Repository.Repositories.Interfaces;
 
 namespace Valeting.Repository.Repositories;
@@ -12,7 +12,7 @@ public class FlexibilityRepository(ValetingContext valetingContext, IMapper mapp
 {
     public async Task<FlexibilityListDTO> GetAsync(FlexibilityFilterDTO flexibilityFilterDTO)
     {
-        var flexibilityListDTO = new FlexibilityListDTO() { Flexibilities = new List<FlexibilityDTO>() };
+        var flexibilityListDTO = new FlexibilityListDTO() { Flexibilities = [] };
 
         var initialList = await valetingContext.RdFlexibilities.ToListAsync();
         var listFlexibility = from rdFlexibility in initialList
@@ -38,11 +38,6 @@ public class FlexibilityRepository(ValetingContext valetingContext, IMapper mapp
         if (rdFlexibility == null)
             return null;
 
-        return new FlexibilityDTO()
-        {
-            Id = id,
-            Description = rdFlexibility.Description,
-            Active = rdFlexibility.Active
-        };
+        return mapper.Map<FlexibilityDTO>(rdFlexibility);
     }
 }
