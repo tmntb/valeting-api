@@ -59,7 +59,7 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
             return updateBookingSVResponse;
         }
 
-        var bookingDTO = await bookingRepository.FindByIdAsync(updateBookingSVRequest.Id);
+        var bookingDTO = await bookingRepository.GetByIDAsync(updateBookingSVRequest.Id);
         if (bookingDTO == null)
         {
             updateBookingSVResponse.Error = new()
@@ -98,7 +98,7 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
             return deleteBookingSVResponse;
         }
 
-        var bookingDTO = await bookingRepository.FindByIdAsync(deleteBookingSVRequest.Id);
+        var bookingDTO = await bookingRepository.GetByIDAsync(deleteBookingSVRequest.Id);
         if (bookingDTO == null)
         {
             deleteBookingSVResponse.Error = new()
@@ -130,7 +130,7 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
             return getBookingSVResponse;
         }
 
-        var bookingDTO = await bookingRepository.FindByIdAsync(getBookingSVRequest.Id);
+        var bookingDTO = await bookingRepository.GetByIDAsync(getBookingSVRequest.Id);
         if (bookingDTO == null)
         {
             getBookingSVResponse.Error = new()
@@ -174,7 +174,7 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
             PageSize = paginatedBookingSVRequest.Filter.PageSize
         };
 
-        var bookingListDTO = await bookingRepository.ListAsync(bookingFilterDTO);
+        var bookingListDTO = await bookingRepository.GetAsync(bookingFilterDTO);
         if(bookingListDTO == null)
         {
             paginatedBookingSVResponse.Error = new()

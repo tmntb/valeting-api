@@ -7,6 +7,6 @@ public interface IBookingRepository
     Task CreateAsync(BookingDTO bookingDTO);
     Task UpdateAsync(BookingDTO bookingDTO);
     Task DeleteAsync(Guid id);
-    Task<BookingDTO> FindByIdAsync(Guid id);
-    Task<BookingListDTO> ListAsync(BookingFilterDTO bookingFilterDTO);
+    Task<BookingDTO> GetByIDAsync(Guid id);
+    Task<BookingListDTO> GetAsync(BookingFilterDTO bookingFilterDTO);
 }
