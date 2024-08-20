@@ -32,7 +32,7 @@ public class FlexibilityRepository(ValetingContext valetingContext, IMapper mapp
         return flexibilityListDTO;
     }
 
-    public async Task<FlexibilityDTO> GetByIDAsync(Guid id)
+    public async Task<FlexibilityDTO> GetByIdAsync(Guid id)
     {
         var rdFlexibility = await valetingContext.RdFlexibilities.FindAsync(id);
         if (rdFlexibility == null)

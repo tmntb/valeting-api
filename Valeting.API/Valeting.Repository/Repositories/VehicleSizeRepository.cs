@@ -32,7 +32,7 @@ public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapp
         return vehicleSizeListDTO;
     }
 
-    public async Task<VehicleSizeDTO> GetByIDAsync(Guid id)
+    public async Task<VehicleSizeDTO> GetByIdAsync(Guid id)
     {
         var rdVehicleSize = await valetingContext.RdVehicleSizes.FindAsync(id);
         if (rdVehicleSize == null)

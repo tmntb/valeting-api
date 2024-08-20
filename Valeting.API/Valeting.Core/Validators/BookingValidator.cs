@@ -1,12 +1,18 @@
 ﻿using FluentValidation;
+
 using Valeting.Core.Models.Booking;
+using Valeting.Core.Validators.Helper;
 
 namespace Valeting.Core.Validators;
 
 public class CreateBookingValidator : AbstractValidator<CreateBookingSVRequest>
 {
-    public CreateBookingValidator()
+    private readonly ValidationHelpers _validationHelpers;
+
+    public CreateBookingValidator(ValidationHelpers validationHelpers)
     {
+        _validationHelpers = validationHelpers;
+
         RuleFor(x => x)
             .NotNull();
 
@@ -27,10 +33,12 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingSVRequest>
             .GreaterThan(DateTime.Now);
                 
         RuleFor(x => x.Flexibility.Id)
-            .NotEqual(Guid.Empty);
+            .NotEqual(Guid.Empty)
+            .MustAsync(_validationHelpers.FlexibilityIsValid);
 
         RuleFor(x => x.VehicleSize.Id)
-            .NotEqual(Guid.Empty);
+            .NotEqual(Guid.Empty)
+            .MustAsync(_validationHelpers.VehicleSizeIsValid);
     }
 }
 

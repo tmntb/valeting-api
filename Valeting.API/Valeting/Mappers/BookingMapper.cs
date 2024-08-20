@@ -21,12 +21,16 @@ public class BookingMapper : Profile
             .ForMember(dest => dest.VehicleSize, opt => opt.MapFrom(src => new VehicleSizeSV { Id = src.VehicleSize.Id }));
 
         //Service -> DTO
-        CreateMap<CreateBookingSVRequest, BookingDTO>();
+        CreateMap<CreateBookingSVRequest, BookingDTO>()
+            .ForMember(dest => dest.Flexibility, opt => opt.MapFrom(src => new FlexibilityDTO { Id = src.Flexibility.Id }))
+            .ForMember(dest => dest.VehicleSize, opt => opt.MapFrom(src => new VehicleSizeDTO { Id = src.VehicleSize.Id }));
 
         //DTO -> Entity
         CreateMap<FlexibilityDTO, RdFlexibility>();
         CreateMap<VehicleSizeDTO, RdVehicleSize>();
-        CreateMap<BookingDTO, Booking>();
+        CreateMap<BookingDTO, Booking>()
+            .ForMember(dest => dest.Flexibility, opt => opt.Ignore())
+            .ForMember(dest => dest.VehicleSize, opt => opt.Ignore());
 
         //Entity -> DTO
         CreateMap<RdFlexibility, FlexibilityDTO>();

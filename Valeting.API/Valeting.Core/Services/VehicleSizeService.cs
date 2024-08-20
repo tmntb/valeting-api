@@ -61,7 +61,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IM
             return getVehicleSizeSVResponse;
         }
 
-        var vehicleSizeDTO = await vehicleSizeRepository.GetByIDAsync(getVehicleSizeSVRequest.Id);
+        var vehicleSizeDTO = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeSVRequest.Id);
         if (vehicleSizeDTO == null)
         {
             getVehicleSizeSVResponse.Error = new()

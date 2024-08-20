@@ -1,21 +1,24 @@
-﻿using System.Net;
+﻿using AutoMapper;
+
+using System.Net;
 
 using Valeting.Common.Messages;
-using Valeting.Core.Models.Booking;
 using Valeting.Core.Validators;
+using Valeting.Core.Models.Booking;
+using Valeting.Core.Validators.Helper;
 using Valeting.Core.Services.Interfaces;
 using Valeting.Repository.Models.Booking;
 using Valeting.Repository.Repositories.Interfaces;
 
 namespace Valeting.Core.Services;
 
-public class BookingService(IBookingRepository bookingRepository) : IBookingService
+public class BookingService(IBookingRepository bookingRepository, ValidationHelpers validationHelpers, IMapper mapper) : IBookingService
 {
     public async Task<CreateBookingSVResponse> CreateAsync(CreateBookingSVRequest createBookingSVRequest)
     {
         var createBookingSVResponse = new CreateBookingSVResponse();
-        var validator = new CreateBookingValidator();
-        var result = validator.Validate(createBookingSVRequest);
+        var validator = new CreateBookingValidator(validationHelpers);
+        var result = await validator.ValidateAsync(createBookingSVRequest);
         if (!result.IsValid)
         {
             createBookingSVResponse.Error = new()
@@ -27,17 +30,10 @@ public class BookingService(IBookingRepository bookingRepository) : IBookingServ
         }
 
         var id = Guid.NewGuid();
-        var bookingDTO = new BookingDTO()
-        {
-            Id = id,
-            Name = createBookingSVRequest.Name,
-            Email = createBookingSVRequest.Email,
-            ContactNumber = createBookingSVRequest.ContactNumber,
-            BookingDate = createBookingSVRequest.BookingDate,
-            Flexibility = new() { Id = createBookingSVRequest.Flexibility.Id },
-            VehicleSize = new() { Id = createBookingSVRequest.VehicleSize.Id },
-            Approved = false
-        };
+
+        var bookingDTO = mapper.Map<BookingDTO>(createBookingSVRequest);
+        bookingDTO.Id = id;
+        
         await bookingRepository.CreateAsync(bookingDTO);
         
         createBookingSVResponse.Id = id;

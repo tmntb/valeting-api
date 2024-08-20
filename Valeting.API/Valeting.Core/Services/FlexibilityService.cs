@@ -61,7 +61,7 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IM
             return getFlexibilitySVResponse;
         }
 
-        var flexibilityDTO = await flexibilityRepository.GetByIDAsync(getFlexibilitySVRequest.Id);
+        var flexibilityDTO = await flexibilityRepository.GetByIdAsync(getFlexibilitySVRequest.Id);
         if (flexibilityDTO == null)
         {
             getFlexibilitySVResponse.Error = new()

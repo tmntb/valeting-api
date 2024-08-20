@@ -5,11 +5,11 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Valeting.Helpers.Interfaces;
 using Valeting.Models.Booking;
-using Valeting.Core.Services.Interfaces;
 using Valeting.Core.Models.Link;
+using Valeting.Helpers.Interfaces;
 using Valeting.Core.Models.Booking;
+using Valeting.Core.Services.Interfaces;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
