@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 
 using Valeting.Core.Models.Booking;
 using Valeting.Core.Validators.Helper;
@@ -46,8 +46,12 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingSVRequest>
 
 public class UpdateBookinValidator : AbstractValidator<UpdateBookingSVRequest>
 {
-    public UpdateBookinValidator()
+    private readonly ValidationHelpers _validationHelpers;
+
+    public UpdateBookinValidator(ValidationHelpers validationHelpers)
     {
+        _validationHelpers = validationHelpers;
+        
         RuleFor(x => x)
             .NotNull();
 
@@ -71,10 +75,14 @@ public class UpdateBookinValidator : AbstractValidator<UpdateBookingSVRequest>
             .GreaterThan(DateTime.Now);
 
         RuleFor(x => x.Flexibility.Id)
-           .NotEqual(Guid.Empty);
+            .NotEqual(Guid.Empty)
+            .MustAsync(_validationHelpers.FlexibilityIsValid)
+            .WithMessage("Invalid Flexibility Id.");
 
         RuleFor(x => x.VehicleSize.Id)
-            .NotEqual(Guid.Empty);
+            .NotEqual(Guid.Empty)
+            .MustAsync(_validationHelpers.VehicleSizeIsValid)
+            .WithMessage("Invalid VehicleSize Id.");
     }
 }
 

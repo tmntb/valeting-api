@@ -41,8 +41,10 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
             }
 
             //Limpar redis cache caso exista lista de bookings em cache, validar de como ter todas as keys para "List_"
+            /*
             var recordKey = "*ListBooking_*";
             await redisCache.RemoveRecord(recordKey);
+            */
 
             var createBookingApiResponse = mapper.Map<CreateBookingApiResponse>(createBookingSVResponse);
             return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
@@ -70,17 +72,8 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
             }
 
-            var updateBookingSVRequest = new UpdateBookingSVRequest()
-            {
-                Id = Guid.Parse(id),
-                Name = updateBookingApiRequest.Name,
-                BookingDate = updateBookingApiRequest.BookingDate,
-                Flexibility = updateBookingApiRequest.Flexibility != null ? new() { Id = updateBookingApiRequest.Flexibility.Id } : new(),
-                VehicleSize = updateBookingApiRequest.VehicleSize != null ? new() { Id = updateBookingApiRequest.VehicleSize.Id } : new(),
-                ContactNumber = updateBookingApiRequest.ContactNumber,
-                Email = updateBookingApiRequest.Email,
-                Approved = updateBookingApiRequest.Approved ?? false
-            };
+            var updateBookingSVRequest = mapper.Map<UpdateBookingSVRequest>(updateBookingApiRequest);
+            updateBookingSVRequest.Id = Guid.Parse(id);
 
             var updateBookingSVResponse = await bookingService.UpdateAsync(updateBookingSVRequest);
             if(updateBookingSVResponse.HasError)
@@ -93,10 +86,12 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
             }
 
             //Limpar redis cache caso exista lista e para individual
+            /*
             var recordKeyList = "*ListBooking_*";
             await redisCache.RemoveRecord(recordKeyList);
             var recordKeyInd = string.Format("*Booking_{0}*", id);
             await redisCache.RemoveRecord(recordKeyInd);
+            */
 
             return StatusCode((int)HttpStatusCode.NoContent);
         }
@@ -104,7 +99,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Detail = ex.StackTrace
+                Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }

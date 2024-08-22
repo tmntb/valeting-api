@@ -23,8 +23,7 @@ public class BookingRepository(ValetingContext valetingContext, IMapper mapper) 
         if (bookingCheck == null)
             return;
 
-        var booking = mapper.Map<Booking>(bookingDTO);
-        valetingContext.Bookings.Update(booking);
+        mapper.Map(bookingDTO, bookingCheck);
         await valetingContext.SaveChangesAsync();
     }
 

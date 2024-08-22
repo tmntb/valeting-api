@@ -19,9 +19,16 @@ public class BookingMapper : Profile
         CreateMap<CreateBookingApiRequest, CreateBookingSVRequest>()
             .ForMember(dest => dest.Flexibility, opt => opt.MapFrom(src => new FlexibilitySV { Id = src.Flexibility.Id }))
             .ForMember(dest => dest.VehicleSize, opt => opt.MapFrom(src => new VehicleSizeSV { Id = src.VehicleSize.Id }));
+        CreateMap<UpdateBookingApiRequest, UpdateBookingSVRequest>()
+            .ForMember(dest => dest.Flexibility, opt => opt.MapFrom(src => new FlexibilitySV { Id = src.Flexibility.Id }))
+            .ForMember(dest => dest.VehicleSize, opt => opt.MapFrom(src => new VehicleSizeSV { Id = src.VehicleSize.Id }));
 
         //Service -> DTO
         CreateMap<CreateBookingSVRequest, BookingDTO>()
+            .ForMember(dest => dest.Flexibility, opt => opt.MapFrom(src => new FlexibilityDTO { Id = src.Flexibility.Id }))
+            .ForMember(dest => dest.VehicleSize, opt => opt.MapFrom(src => new VehicleSizeDTO { Id = src.VehicleSize.Id }));
+
+        CreateMap<UpdateBookingSVRequest, BookingDTO>()
             .ForMember(dest => dest.Flexibility, opt => opt.MapFrom(src => new FlexibilityDTO { Id = src.Flexibility.Id }))
             .ForMember(dest => dest.VehicleSize, opt => opt.MapFrom(src => new VehicleSizeDTO { Id = src.VehicleSize.Id }));
 

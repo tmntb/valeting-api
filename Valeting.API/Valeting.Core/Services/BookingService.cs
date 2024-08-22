@@ -33,7 +33,7 @@ public class BookingService(IBookingRepository bookingRepository, ValidationHelp
 
         var bookingDTO = mapper.Map<BookingDTO>(createBookingSVRequest);
         bookingDTO.Id = id;
-        
+
         await bookingRepository.CreateAsync(bookingDTO);
         
         createBookingSVResponse.Id = id;
@@ -43,7 +43,7 @@ public class BookingService(IBookingRepository bookingRepository, ValidationHelp
     public async Task<UpdateBookingSVResponse> UpdateAsync(UpdateBookingSVRequest updateBookingSVRequest)
     {
         var updateBookingSVResponse = new UpdateBookingSVResponse();
-        var validator = new UpdateBookinValidator();
+        var validator = new UpdateBookinValidator(validationHelpers);
         var result = await validator.ValidateAsync(updateBookingSVRequest);
         if(!result.IsValid)
         {
@@ -66,14 +66,7 @@ public class BookingService(IBookingRepository bookingRepository, ValidationHelp
             return updateBookingSVResponse;
         }
 
-        bookingDTO.Id = updateBookingSVRequest.Id;
-        bookingDTO.Name = updateBookingSVRequest.Name;
-        bookingDTO.BookingDate = updateBookingSVRequest.BookingDate;
-        bookingDTO.Flexibility = updateBookingSVRequest.Flexibility != null ? new() { Id = updateBookingSVRequest.Flexibility.Id } : null;
-        bookingDTO.VehicleSize = updateBookingSVRequest.VehicleSize != null ? new() { Id = updateBookingSVRequest.VehicleSize.Id } : null;
-        bookingDTO.ContactNumber = updateBookingSVRequest.ContactNumber;
-        bookingDTO.Email = updateBookingSVRequest.Email;
-        bookingDTO.Approved = updateBookingSVRequest.Approved;
+        mapper.Map(updateBookingSVRequest, bookingDTO);
         await bookingRepository.UpdateAsync(bookingDTO);
 
         return updateBookingSVResponse;
