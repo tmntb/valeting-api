@@ -37,15 +37,6 @@ public class BookingRepository(ValetingContext valetingContext, IMapper mapper) 
         await valetingContext.SaveChangesAsync();
     }
 
-    public async Task<BookingDTO> GetByIDAsync(Guid id)
-    {
-        var booking = await valetingContext.Bookings.FindAsync(id);
-        if (booking == null)
-            return null;
-
-       return mapper.Map<BookingDTO>(booking);
-    }
-
     public async Task<BookingListDTO> GetAsync(BookingFilterDTO bookingFilterDTO)
     {
         var bookingListDTO = new BookingListDTO();
@@ -66,5 +57,14 @@ public class BookingRepository(ValetingContext valetingContext, IMapper mapper) 
         listBookings = listBookings.Skip((bookingFilterDTO.PageNumber - 1) * bookingFilterDTO.PageSize).Take(bookingFilterDTO.PageSize);
         bookingListDTO.Bookings = mapper.Map<List<BookingDTO>>(listBookings);
         return bookingListDTO;
+    }
+
+    public async Task<BookingDTO> GetByIdAsync(Guid id)
+    {
+        var booking = await valetingContext.Bookings.FindAsync(id);
+        if (booking == null)
+            return null;
+
+       return mapper.Map<BookingDTO>(booking);
     }
 }

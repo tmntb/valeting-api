@@ -8,6 +8,8 @@ using Valeting.Core.Models.VehicleSize;
 using Valeting.Repository.Models.Booking;
 using Valeting.Repository.Models.VehicleSize;
 using Valeting.Repository.Models.Flexibility;
+using Valeting.Models.Flexibility;
+using Valeting.Models.VehicleSize;
 
 namespace Valeting.Mappers;
 
@@ -45,8 +47,14 @@ public class BookingMapper : Profile
         CreateMap<Booking, BookingDTO>();
 
         //DTO -> Service
+        CreateMap<FlexibilityDTO, FlexibilitySV>();
+        CreateMap<VehicleSizeDTO, VehicleSizeSV>();
+        CreateMap<BookingDTO, BookingSV>();
 
         //Service -> API
         CreateMap<CreateBookingSVResponse, CreateBookingApiResponse>();
+        CreateMap<FlexibilitySV, FlexibilityApi>();
+        CreateMap<VehicleSizeSV, VehicleSizeApi>();
+        CreateMap<BookingSV, BookingApi>();
     }
 }

@@ -55,7 +55,7 @@ public class BookingService(IBookingRepository bookingRepository, ValidationHelp
             return updateBookingSVResponse;
         }
 
-        var bookingDTO = await bookingRepository.GetByIDAsync(updateBookingSVRequest.Id);
+        var bookingDTO = await bookingRepository.GetByIdAsync(updateBookingSVRequest.Id);
         if (bookingDTO == null)
         {
             updateBookingSVResponse.Error = new()
@@ -87,7 +87,7 @@ public class BookingService(IBookingRepository bookingRepository, ValidationHelp
             return deleteBookingSVResponse;
         }
 
-        var bookingDTO = await bookingRepository.GetByIDAsync(deleteBookingSVRequest.Id);
+        var bookingDTO = await bookingRepository.GetByIdAsync(deleteBookingSVRequest.Id);
         if (bookingDTO == null)
         {
             deleteBookingSVResponse.Error = new()
@@ -103,7 +103,7 @@ public class BookingService(IBookingRepository bookingRepository, ValidationHelp
         return deleteBookingSVResponse;
     }
 
-    public async Task<GetBookingSVResponse> GetAsync(GetBookingSVRequest getBookingSVRequest)
+    public async Task<GetBookingSVResponse> GetByIdAsync(GetBookingSVRequest getBookingSVRequest)
     {
         var getBookingSVResponse = new GetBookingSVResponse();
 
@@ -119,7 +119,7 @@ public class BookingService(IBookingRepository bookingRepository, ValidationHelp
             return getBookingSVResponse;
         }
 
-        var bookingDTO = await bookingRepository.GetByIDAsync(getBookingSVRequest.Id);
+        var bookingDTO = await bookingRepository.GetByIdAsync(getBookingSVRequest.Id);
         if (bookingDTO == null)
         {
             getBookingSVResponse.Error = new()
@@ -130,18 +130,11 @@ public class BookingService(IBookingRepository bookingRepository, ValidationHelp
             return getBookingSVResponse;
         }
 
-        getBookingSVResponse.Id = bookingDTO.Id;
-        getBookingSVResponse.Name = bookingDTO.Name;
-        getBookingSVResponse.BookingDate = bookingDTO.BookingDate;
-        getBookingSVResponse.ContactNumber = bookingDTO.ContactNumber;
-        getBookingSVResponse.Flexibility = new() { Id = bookingDTO.Flexibility.Id, Description = bookingDTO.Flexibility.Description, Active = bookingDTO.Flexibility.Active };
-        getBookingSVResponse.VehicleSize = new() { Id = bookingDTO.VehicleSize.Id, Description = bookingDTO.VehicleSize.Description, Active = bookingDTO.VehicleSize.Active };
-        getBookingSVResponse.Email = bookingDTO.Email;
-        getBookingSVResponse.Approved = bookingDTO.Approved;
+        getBookingSVResponse.Booking = mapper.Map<BookingSV>(bookingDTO);
         return getBookingSVResponse;
     }
 
-    public async Task<PaginatedBookingSVResponse> ListAllAsync(PaginatedBookingSVRequest paginatedBookingSVRequest)
+    public async Task<PaginatedBookingSVResponse> GetAsync(PaginatedBookingSVRequest paginatedBookingSVRequest)
     {
         var paginatedBookingSVResponse = new PaginatedBookingSVResponse();
         

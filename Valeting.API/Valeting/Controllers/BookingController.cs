@@ -125,10 +125,12 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
             }
 
             //Limpar redis cache caso exista lista e para individual
+            /*
             var recordKeyList = "*ListBooking_*";
             await redisCache.RemoveRecord(recordKeyList);
             var recordKeyInd = string.Format("*Booking_{0}*", id);
             await redisCache.RemoveRecord(recordKeyInd);
+            */
 
             return StatusCode((int)HttpStatusCode.NoContent);
         }
@@ -136,7 +138,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Detail = ex.StackTrace
+                Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
@@ -151,6 +153,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 Id = Guid.Parse(id)
             };
 
+            /*
             var recordKey = string.Format("Booking_{0}", id);
             var getBookingSVResponse = await redisCache.GetRecordAsync<GetBookingSVResponse>(recordKey);
             if (getBookingSVResponse == null)
@@ -167,51 +170,36 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
 
                 await redisCache.SetRecordAsync(recordKey, getBookingSVResponse, TimeSpan.FromDays(1));
             }
+            */
+
+            var getBookingSVResponse = await bookingService.GetByIdAsync(getBookingSVRequest);
+
+            var bookingApi = mapper.Map<BookingApi>(getBookingSVResponse.Booking);
+            bookingApi.Link = new()
+            {
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? string.Format("/Valeting{0}", Request.Path.Value) : string.Empty }).Self
+                }
+            };
+            bookingApi.Flexibility.Link = new()
+            {
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/flexibilities", Id = bookingApi.Flexibility.Id }).Self
+                }
+            };
+            bookingApi.VehicleSize.Link = new()
+            {
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/vehicleSizes", Id = bookingApi.VehicleSize.Id }).Self
+                }
+            };
 
             var bookingApiResponse = new BookingApiResponse()
             {
-                Booking = new()
-                {
-                    Id = getBookingSVResponse.Id,
-                    Name = getBookingSVResponse.Name,
-                    BookingDate = getBookingSVResponse.BookingDate,
-                    Flexibility = new()
-                    {
-                        Id = getBookingSVResponse.Flexibility.Id,
-                        Description = getBookingSVResponse.Flexibility.Description,
-                        Active = getBookingSVResponse.Flexibility.Active,
-                        Link = new()
-                        {
-                            Self = new()
-                            {
-                                Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/flexibilities", Id = getBookingSVResponse.Flexibility.Id }).Self
-                            }
-                        }
-                    },
-                    VehicleSize = new()
-                    {
-                        Id = getBookingSVResponse.VehicleSize.Id,
-                        Description = getBookingSVResponse.VehicleSize.Description,
-                        Active = getBookingSVResponse.VehicleSize.Active,
-                        Link = new()
-                        {
-                            Self = new()
-                            {
-                                Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/vehicleSizes", Id = getBookingSVResponse.VehicleSize.Id }).Self
-                            }
-                        }
-                    },
-                    ContactNumber = getBookingSVResponse.ContactNumber.Value,
-                    Email = getBookingSVResponse.Email,
-                    Approved = getBookingSVResponse.Approved,
-                    Link = new()
-                    {
-                        Self = new()
-                        {
-                            Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
-                        }
-                    }
-                }
+                Booking = bookingApi
             };
             return StatusCode((int)HttpStatusCode.OK, bookingApiResponse);
         }
@@ -219,7 +207,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Detail = ex.StackTrace
+                Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }
@@ -242,7 +230,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
             var paginatedBookingSVResponse = await redisCache.GetRecordAsync<PaginatedBookingSVResponse>(recordKey);
             if (paginatedBookingSVResponse == null)
             {
-                paginatedBookingSVResponse = await bookingService.ListAllAsync(paginatedBookingSVRequest);
+                paginatedBookingSVResponse = await bookingService.GetAsync(paginatedBookingSVRequest);
                 if(paginatedBookingSVResponse.HasError)
                 {
                     var bookingApiError = new BookingApiError() 
