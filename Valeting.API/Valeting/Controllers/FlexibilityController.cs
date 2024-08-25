@@ -23,6 +23,7 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
         {
             var paginatedFlexibilitySVRequest = mapper.Map<PaginatedFlexibilitySVRequest>(flexibilityApiParameters);
 
+            /*
             var recordKey = string.Format("ListFlexibility_{0}_{1}_{2}", flexibilityApiParameters.PageNumber, flexibilityApiParameters.PageSize, flexibilityApiParameters.Active);
             var paginatedFlexibilitySVResponse = await redisCache.GetRecordAsync<PaginatedFlexibilitySVResponse>(recordKey);
             if (paginatedFlexibilitySVResponse == null)
@@ -39,6 +40,9 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
 
                 await redisCache.SetRecordAsync(recordKey, paginatedFlexibilitySVResponse, TimeSpan.FromMinutes(5));
             }
+            */
+
+            var paginatedFlexibilitySVResponse = await flexibilityService.GetAsync(paginatedFlexibilitySVRequest);
 
             var flexibilityApiPaginatedResponse = new FlexibilityApiPaginatedResponse
             {
@@ -103,6 +107,7 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
                 Id = Guid.Parse(id)
             };
 
+            /*
             var recordKey = string.Format("Flexibility_{0}", id);
             var getFlexibilitySVResponse = await redisCache.GetRecordAsync<GetFlexibilitySVResponse>(recordKey);
             if (getFlexibilitySVResponse == null)
@@ -119,6 +124,9 @@ public class FlexibilityController(IRedisCache redisCache, IFlexibilityService f
 
                 await redisCache.SetRecordAsync(recordKey, getFlexibilitySVResponse, TimeSpan.FromDays(1));
             }
+            */
+
+            var getFlexibilitySVResponse = await flexibilityService.GetByIdAsync(getFlexibilitySVRequest);
 
             var flexibilityApi = mapper.Map<FlexibilityApi>(getFlexibilitySVResponse.Flexibility);
             flexibilityApi.Link = new()

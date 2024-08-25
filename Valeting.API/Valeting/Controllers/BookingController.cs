@@ -5,13 +5,13 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 
+using Valeting.Models.Core;
 using Valeting.Models.Booking;
 using Valeting.Core.Models.Link;
 using Valeting.Helpers.Interfaces;
 using Valeting.Core.Models.Booking;
 using Valeting.Core.Services.Interfaces;
 using Valeting.Controllers.BaseController;
-using Valeting.Models.Core;
 
 namespace Valeting.Controllers;
 
@@ -180,21 +180,21 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? string.Format("/Valeting{0}", Request.Path.Value) : string.Empty }).Self
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
                 }
             };
             bookingApi.Flexibility.Link = new()
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/flexibilities", Id = bookingApi.Flexibility.Id }).Self
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/flexibilities", Id = bookingApi.Flexibility.Id }).Self
                 }
             };
             bookingApi.VehicleSize.Link = new()
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/vehicleSizes", Id = bookingApi.VehicleSize.Id }).Self
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/vehicleSizes", Id = bookingApi.VehicleSize.Id }).Self
                 }
             };
 
@@ -299,7 +299,7 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 };
             });
             bookingApiPaginatedResponse.Bookings = bookingApis;
-            
+
             return StatusCode((int)HttpStatusCode.OK, bookingApiPaginatedResponse);
         }
         catch (Exception ex)

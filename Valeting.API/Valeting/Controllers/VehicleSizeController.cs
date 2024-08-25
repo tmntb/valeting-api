@@ -23,6 +23,7 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
         {
             var paginatedVehicleSizeSVRequest = mapper.Map<PaginatedVehicleSizeSVRequest>(vehicleSizeApiParameters);
 
+            /*
             var recordKey = string.Format("ListVehicleSize_{0}_{1}_{2}", vehicleSizeApiParameters.PageNumber, vehicleSizeApiParameters.PageSize, vehicleSizeApiParameters.Active);
             var paginatedVehicleSizeSVResponse = await redisCache.GetRecordAsync<PaginatedVehicleSizeSVResponse>(recordKey);
             if (paginatedVehicleSizeSVResponse == null)
@@ -39,6 +40,9 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
 
                 await redisCache.SetRecordAsync(recordKey, paginatedVehicleSizeSVResponse, TimeSpan.FromMinutes(5));
             }
+            */
+
+            var paginatedVehicleSizeSVResponse = await vehicleSizeService.GetAsync(paginatedVehicleSizeSVRequest);
 
             var vehicleSizeApiPaginatedResponse = new VehicleSizeApiPaginatedResponse
             {
@@ -103,6 +107,7 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
                 Id = Guid.Parse(id)
             };
 
+            /*
             var recordKey = string.Format("VehicleSize_{0}", id);
             var getVehicleSizeSVResponse = await redisCache.GetRecordAsync<GetVehicleSizeSVResponse>(recordKey);
             if (getVehicleSizeSVResponse == null)
@@ -119,6 +124,9 @@ public class VehicleSizeController(IRedisCache redisCache, IVehicleSizeService v
 
                 await redisCache.SetRecordAsync(recordKey, getVehicleSizeSVResponse, TimeSpan.FromDays(1));
             }
+            */
+
+            var getVehicleSizeSVResponse = await vehicleSizeService.GetByIdAsync(getVehicleSizeSVRequest);
 
             var vehicleSizeApi = mapper.Map<VehicleSizeApi>(getVehicleSizeSVResponse.VehicleSize);
             vehicleSizeApi.Link = new()
