@@ -4,6 +4,6 @@ namespace Valeting.Core.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<ValidateLoginSVResponse> ValidateLogin(ValidateLoginSVRequest validateLoginSVRequest);
-    Task<GenerateTokenJWTSVResponse> GenerateTokenJWT(GenerateTokenJWTSVRequest generateTokenJWTSVRequest);
+    Task<ValidateLoginSVResponse> ValidateLoginAsync(ValidateLoginSVRequest validateLoginSVRequest);
+    Task<GenerateTokenJWTSVResponse> GenerateTokenJWTAsync(GenerateTokenJWTSVRequest generateTokenJWTSVRequest);
 }

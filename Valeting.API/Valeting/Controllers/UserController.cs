@@ -1,6 +1,8 @@
-﻿using System.Net;
+﻿using AutoMapper;
 
 using Microsoft.AspNetCore.Mvc;
+
+using System.Net;
 
 using Valeting.Models.User;
 using Valeting.Common.Messages;
@@ -10,19 +12,15 @@ using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
 
-public class UserController(IUserService userService) : UserBaseController
+public class UserController(IUserService userService, IMapper mapper) : UserBaseController
 {
-    public override async Task<IActionResult> ValidateLogin([FromBody] ValidateLoginRequest validateLoginRequest)
+    public override async Task<IActionResult> ValidateLogin([FromBody] ValidateLoginApiRequest validateLoginApiRequest)
     {
         try
         {
-            var validateLoginSVRequest = new ValidateLoginSVRequest()
-            {
-                Username = validateLoginRequest.Username,
-                Password = validateLoginRequest.Password
-            };
+            var validateLoginSVRequest = mapper.Map<ValidateLoginSVRequest>(validateLoginApiRequest);
 
-            var validateLoginSVResponse = await userService.ValidateLogin(validateLoginSVRequest);
+            var validateLoginSVResponse = await userService.ValidateLoginAsync(validateLoginSVRequest);
             if(validateLoginSVResponse.HasError)
             {
                 var userApiError = new UserApiError()
@@ -41,11 +39,8 @@ public class UserController(IUserService userService) : UserBaseController
                 return StatusCode((int)HttpStatusCode.Unauthorized, userApiError);
             }
 
-            var generateTokenJWTSVRequest = new GenerateTokenJWTSVRequest()
-            {
-                Username = validateLoginRequest.Username
-            };
-            var generateTokenJWTSVResponse = await userService.GenerateTokenJWT(generateTokenJWTSVRequest);
+            var generateTokenJWTSVRequest = mapper.Map<GenerateTokenJWTSVRequest>(validateLoginApiRequest);
+            var generateTokenJWTSVResponse = await userService.GenerateTokenJWTAsync(generateTokenJWTSVRequest);
             if(generateTokenJWTSVResponse.HasError)
             {
                 var userApiError = new UserApiError()
@@ -55,13 +50,8 @@ public class UserController(IUserService userService) : UserBaseController
                 return StatusCode(generateTokenJWTSVResponse.Error.ErrorCode, userApiError);
             }
 
-            var validateLoginResponse = new ValidateLoginResponse()
-            {
-                Token = generateTokenJWTSVResponse.Token,
-                ExpiryDate = generateTokenJWTSVResponse.ExpiryDate,
-                TokenType = generateTokenJWTSVResponse.TokenType
-            };
-            return StatusCode((int)HttpStatusCode.OK, validateLoginResponse);
+            var validateLoginApiResponse = mapper.Map<ValidateLoginApiResponse>(generateTokenJWTSVResponse);
+            return StatusCode((int)HttpStatusCode.OK, validateLoginApiResponse);
         }
         catch (Exception ex)
         {

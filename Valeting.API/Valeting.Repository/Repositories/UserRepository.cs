@@ -8,7 +8,7 @@ namespace Valeting.Repository.Repositories;
 
 public class UserRepository(ValetingContext valetingContext, IMapper mapper) : IUserRepository
 {
-    public async Task<UserDTO> FindUserByEmail(string username)
+    public async Task<UserDTO> FindUserByEmailAsync(string username)
     {
         var applicationUser = await valetingContext.ApplicationUsers.FindAsync(username);
 

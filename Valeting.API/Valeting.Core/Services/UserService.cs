@@ -1,11 +1,11 @@
-﻿using System.Net;
+﻿using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+
+using System.Net;
 using System.Text;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 using Valeting.Common.Messages;
 using Valeting.Core.Validators;
@@ -17,7 +17,7 @@ namespace Valeting.Core.Services;
 
 public class UserService(IUserRepository userRepository, IConfiguration configuration) : IUserService
 {
-    public async Task<ValidateLoginSVResponse> ValidateLogin(ValidateLoginSVRequest validateLoginSVRequest)
+    public async Task<ValidateLoginSVResponse> ValidateLoginAsync(ValidateLoginSVRequest validateLoginSVRequest)
     {
         var validateLoginSVResponse = new ValidateLoginSVResponse();
 
@@ -33,7 +33,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             return validateLoginSVResponse;
         }
 
-        var userDTO = await userRepository.FindUserByEmail(validateLoginSVRequest.Username);
+        var userDTO = await userRepository.FindUserByEmailAsync(validateLoginSVRequest.Username);
         if (userDTO == null)
         {
             validateLoginSVResponse.Error = new()
@@ -60,7 +60,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         return validateLoginSVResponse;
     }
 
-    public async Task<GenerateTokenJWTSVResponse> GenerateTokenJWT(GenerateTokenJWTSVRequest generateTokenJWTSVRequest)
+    public async Task<GenerateTokenJWTSVResponse> GenerateTokenJWTAsync(GenerateTokenJWTSVRequest generateTokenJWTSVRequest)
     {
         var generateTokenJWTSVResponse = new GenerateTokenJWTSVResponse();
 
@@ -76,7 +76,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             return generateTokenJWTSVResponse;
         }
 
-        var userDTO = await userRepository.FindUserByEmail(generateTokenJWTSVRequest.Username);
+        var userDTO = await userRepository.FindUserByEmailAsync(generateTokenJWTSVRequest.Username);
         if (userDTO == null)
         {
             generateTokenJWTSVResponse.Error = new()
@@ -109,7 +109,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
-
+        
         generateTokenJWTSVResponse.Token = tokenHandler.WriteToken(token);
         generateTokenJWTSVResponse.ExpiryDate = token.ValidTo.ToLocalTime();
         generateTokenJWTSVResponse.TokenType = tokenHandler.TokenType.Name;

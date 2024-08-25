@@ -9,9 +9,9 @@ public abstract class UserBaseController : ControllerBase
 {
     [HttpPost]
     [Route("/user/verify")]
-    [ProducesResponseType(statusCode: 200, type: typeof(ValidateLoginResponse))]
+    [ProducesResponseType(statusCode: 200, type: typeof(ValidateLoginApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(UserApiError))]
     [ProducesResponseType(statusCode: 404, type: typeof(UserApiError))]
     [ProducesResponseType(statusCode: 500, type: typeof(UserApiError))]
-    public abstract Task<IActionResult> ValidateLogin([FromBody] ValidateLoginRequest validateLoginRequest);
+    public abstract Task<IActionResult> ValidateLogin([FromBody] ValidateLoginApiRequest validateLoginApiRequest);
 }
