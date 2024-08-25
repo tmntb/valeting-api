@@ -39,7 +39,7 @@ public class BookingRepository(ValetingContext valetingContext, IMapper mapper) 
 
     public async Task<BookingListDTO> GetAsync(BookingFilterDTO bookingFilterDTO)
     {
-        var bookingListDTO = new BookingListDTO();
+        var bookingListDTO = new BookingListDTO() { Bookings = [] };
 
         var initialList = await valetingContext.Bookings.ToListAsync();
         var listBookings = from booking in initialList

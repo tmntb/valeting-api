@@ -11,6 +11,7 @@ using Valeting.Helpers.Interfaces;
 using Valeting.Core.Models.Booking;
 using Valeting.Core.Services.Interfaces;
 using Valeting.Controllers.BaseController;
+using Valeting.Models.Core;
 
 namespace Valeting.Controllers;
 
@@ -217,15 +218,9 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
     {
         try
         {
-            var paginatedBookingSVRequest = new PaginatedBookingSVRequest()
-            {
-                Filter = new()
-                {
-                    PageNumber = bookingApiParameters.PageNumber,
-                    PageSize = bookingApiParameters.PageSize
-                }
-            };
+            var paginatedBookingSVRequest = mapper.Map<PaginatedBookingSVRequest>(bookingApiParameters);
 
+            /*
             var recordKey = string.Format("ListBooking_{0}_{1}", bookingApiParameters.PageNumber, bookingApiParameters.PageSize);
             var paginatedBookingSVResponse = await redisCache.GetRecordAsync<PaginatedBookingSVResponse>(recordKey);
             if (paginatedBookingSVResponse == null)
@@ -242,6 +237,9 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
 
                 await redisCache.SetRecordAsync(recordKey, paginatedBookingSVResponse, TimeSpan.FromMinutes(5));
             }
+            */
+
+            var paginatedBookingSVResponse = await bookingService.GetAsync(paginatedBookingSVRequest);
 
             var bookingApiPaginatedResponse = new BookingApiPaginatedResponse
             {
@@ -270,63 +268,45 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 }
             );
 
-            bookingApiPaginatedResponse.Links.Prev.Href = paginatedLinks.Prev;
-            bookingApiPaginatedResponse.Links.Next.Href = paginatedLinks.Next;
-            bookingApiPaginatedResponse.Links.Self.Href = paginatedLinks.Self;
+            var links = mapper.Map<PaginationLinksApi>(paginatedLinks);
+            bookingApiPaginatedResponse.Links = links;
 
-            bookingApiPaginatedResponse.Bookings.AddRange(
-                paginatedBookingSVResponse.Bookings.Select(item => 
-                    new BookingApi()
+            var bookingApis = mapper.Map<List<BookingApi>>(paginatedBookingSVResponse.Bookings);
+            bookingApis.ForEach(b => 
+            {
+                b.Flexibility.Link = new()
+                {
+                    Self = new()
                     {
-                        Id = item.Id,
-                        Name = item.Name,
-                        BookingDate = item.BookingDate,
-                        Flexibility = new()
-                        {
-                            Id = item.Flexibility.Id,
-                            Description = item.Flexibility.Description,
-                            Active = item.Flexibility.Active,
-                            Link = new()
-                            {
-                                Self = new()
-                                {
-                                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/flexibilities", Id = item.Flexibility.Id }).Self
-                                }
-                            }
-                        },
-                        VehicleSize = new()
-                        {
-                            Id = item.VehicleSize.Id,
-                            Description = item.VehicleSize.Description,
-                            Active = item.VehicleSize.Active,
-                            Link = new()
-                            {
-                                Self = new()
-                                {
-                                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/Valeting/vehicleSizes", Id = item.VehicleSize.Id }).Self
-                                }
-                            }
-                        },
-                        ContactNumber = item.ContactNumber.Value,
-                        Email = item.Email,
-                        Approved = item.Approved,
-                        Link = new()
-                        {
-                            Self = new()
-                            {
-                                Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = item.Id }).Self
-                            }
-                        }
+                        Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/flexibilities", Id = b.Flexibility.Id }).Self
                     }
-                ).ToList()
-            );
+                };
+
+                b.VehicleSize.Link = new()
+                {
+                    Self = new()
+                    {
+                        Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = "/vehicleSizes", Id = b.VehicleSize.Id }).Self
+                    }
+                };
+
+                b.Link = new()
+                {
+                    Self = new()
+                    {
+                        Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest() { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = b.Id }).Self
+                    }
+                };
+            });
+            bookingApiPaginatedResponse.Bookings = bookingApis;
+            
             return StatusCode((int)HttpStatusCode.OK, bookingApiPaginatedResponse);
         }
         catch (Exception ex)
         {
             var bookingApiError = new BookingApiError() 
             { 
-                Detail = ex.StackTrace
+                Detail = ex.Message
             };
             return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
         }

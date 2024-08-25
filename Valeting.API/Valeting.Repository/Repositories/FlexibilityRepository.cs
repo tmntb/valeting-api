@@ -24,7 +24,8 @@ public class FlexibilityRepository(ValetingContext valetingContext, IMapper mapp
 
         flexibilityListDTO.TotalItems = listFlexibility.Count();
         var nrPages = decimal.Divide(flexibilityListDTO.TotalItems, flexibilityFilterDTO.PageSize);
-        flexibilityListDTO.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
+        var nrPagesTruncate = Math.Truncate(nrPages);
+        flexibilityListDTO.TotalPages = (int)(nrPages - nrPagesTruncate > 0 ? nrPagesTruncate + 1 : nrPagesTruncate);
 
         listFlexibility = listFlexibility.OrderBy(x => x.Id);
         listFlexibility = listFlexibility.Skip((flexibilityFilterDTO.PageNumber - 1) * flexibilityFilterDTO.PageSize).Take(flexibilityFilterDTO.PageSize);

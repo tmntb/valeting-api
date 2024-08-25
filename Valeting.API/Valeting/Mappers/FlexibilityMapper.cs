@@ -13,7 +13,7 @@ public class FlexibilityMapper : Profile
     {
         //API -> Service
         CreateMap<FlexibilityApiParameters, PaginatedFlexibilitySVRequest>()
-            .ForMember(dest => dest.Filter, act => act.MapFrom(src => src));
+            .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src));
 
         CreateMap<FlexibilityApiParameters, FlexibilityFilterSV>()
             .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.PageNumber))

@@ -24,15 +24,20 @@ public class BookingMapper : Profile
         CreateMap<UpdateBookingApiRequest, UpdateBookingSVRequest>()
             .ForMember(dest => dest.Flexibility, opt => opt.MapFrom(src => new FlexibilitySV { Id = src.Flexibility.Id }))
             .ForMember(dest => dest.VehicleSize, opt => opt.MapFrom(src => new VehicleSizeSV { Id = src.VehicleSize.Id }));
+        CreateMap<BookingApiParameters, PaginatedBookingSVRequest>()
+            .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src));
+        CreateMap<BookingApiParameters, BookingFilterSV>()
+            .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.PageNumber))
+            .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.PageSize));
 
         //Service -> DTO
         CreateMap<CreateBookingSVRequest, BookingDTO>()
             .ForMember(dest => dest.Flexibility, opt => opt.MapFrom(src => new FlexibilityDTO { Id = src.Flexibility.Id }))
             .ForMember(dest => dest.VehicleSize, opt => opt.MapFrom(src => new VehicleSizeDTO { Id = src.VehicleSize.Id }));
-
         CreateMap<UpdateBookingSVRequest, BookingDTO>()
             .ForMember(dest => dest.Flexibility, opt => opt.MapFrom(src => new FlexibilityDTO { Id = src.Flexibility.Id }))
             .ForMember(dest => dest.VehicleSize, opt => opt.MapFrom(src => new VehicleSizeDTO { Id = src.VehicleSize.Id }));
+        CreateMap<BookingFilterSV, BookingFilterDTO>();
 
         //DTO -> Entity
         CreateMap<FlexibilityDTO, RdFlexibility>();
@@ -50,6 +55,7 @@ public class BookingMapper : Profile
         CreateMap<FlexibilityDTO, FlexibilitySV>();
         CreateMap<VehicleSizeDTO, VehicleSizeSV>();
         CreateMap<BookingDTO, BookingSV>();
+        CreateMap<BookingListDTO, PaginatedBookingSVResponse>();
 
         //Service -> API
         CreateMap<CreateBookingSVResponse, CreateBookingApiResponse>();
