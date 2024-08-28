@@ -7,15 +7,15 @@ using Microsoft.AspNetCore.Mvc;
 
 using Valeting.Models.Core;
 using Valeting.Models.Booking;
+using Valeting.Cache.Interfaces;
 using Valeting.Core.Models.Link;
-using Valeting.Helpers.Interfaces;
 using Valeting.Core.Models.Booking;
 using Valeting.Core.Services.Interfaces;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
 
-public class BookingController(IRedisCache redisCache, IBookingService bookingService, IUrlService urlService, IMapper mapper) : BookingBaseController
+public class BookingController(IBookingService bookingService, IUrlService urlService, ICacheHandler cacheHandler, IMapper mapper) : BookingBaseController
 {
     public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
     {
@@ -41,11 +41,8 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 return StatusCode(createBookingSVResponse.Error.ErrorCode, bookingApiError);
             }
 
-            //Limpar redis cache caso exista lista de bookings em cache, validar de como ter todas as keys para "List_"
-            /*
-            var recordKey = "*ListBooking_*";
-            await redisCache.RemoveRecord(recordKey);
-            */
+            var recordKey = "ListBooking_";
+            cacheHandler.RemoveRecordsWithPrefix(recordKey);
 
             var createBookingApiResponse = mapper.Map<CreateBookingApiResponse>(createBookingSVResponse);
             return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
@@ -86,13 +83,10 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 return StatusCode(updateBookingSVResponse.Error.ErrorCode, bookingApiError);
             }
 
-            //Limpar redis cache caso exista lista e para individual
-            /*
-            var recordKeyList = "*ListBooking_*";
-            await redisCache.RemoveRecord(recordKeyList);
-            var recordKeyInd = string.Format("*Booking_{0}*", id);
-            await redisCache.RemoveRecord(recordKeyInd);
-            */
+            var recordKeyList = "ListBooking_";
+            cacheHandler.RemoveRecordsWithPrefix(recordKeyList);
+            var recordKeyId = string.Format("Booking_{0}", id);
+            cacheHandler.RemoveRecord(recordKeyId);
 
             return StatusCode((int)HttpStatusCode.NoContent);
         }
@@ -125,13 +119,10 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 return StatusCode(deleteBookingSVResponse.Error.ErrorCode, bookingApiError);
             }
 
-            //Limpar redis cache caso exista lista e para individual
-            /*
-            var recordKeyList = "*ListBooking_*";
-            await redisCache.RemoveRecord(recordKeyList);
-            var recordKeyInd = string.Format("*Booking_{0}*", id);
-            await redisCache.RemoveRecord(recordKeyInd);
-            */
+            var recordKeyList = "ListBooking_";
+            cacheHandler.RemoveRecordsWithPrefix(recordKeyList);
+            var recordKeyId = string.Format("Booking_{0}", id);
+            cacheHandler.RemoveRecord(recordKeyId);
 
             return StatusCode((int)HttpStatusCode.NoContent);
         }
@@ -154,12 +145,11 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                 Id = Guid.Parse(id)
             };
 
-            /*
             var recordKey = string.Format("Booking_{0}", id);
-            var getBookingSVResponse = await redisCache.GetRecordAsync<GetBookingSVResponse>(recordKey);
+            var getBookingSVResponse = cacheHandler.GetRecord<GetBookingSVResponse>(recordKey);
             if (getBookingSVResponse == null)
             {
-                getBookingSVResponse = await bookingService.GetAsync(getBookingSVRequest);
+                getBookingSVResponse = await bookingService.GetByIdAsync(getBookingSVRequest);
                 if(getBookingSVResponse.HasError)
                 {
                     var bookingApiError = new BookingApiError() 
@@ -169,11 +159,8 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                     return StatusCode(getBookingSVResponse.Error.ErrorCode, bookingApiError);
                 }
 
-                await redisCache.SetRecordAsync(recordKey, getBookingSVResponse, TimeSpan.FromDays(1));
+                cacheHandler.SetRecord(recordKey, getBookingSVResponse, TimeSpan.FromDays(1));
             }
-            */
-
-            var getBookingSVResponse = await bookingService.GetByIdAsync(getBookingSVRequest);
 
             var bookingApi = mapper.Map<BookingApi>(getBookingSVResponse.Booking);
             bookingApi.Link = new()
@@ -220,9 +207,8 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
         {
             var paginatedBookingSVRequest = mapper.Map<PaginatedBookingSVRequest>(bookingApiParameters);
 
-            /*
             var recordKey = string.Format("ListBooking_{0}_{1}", bookingApiParameters.PageNumber, bookingApiParameters.PageSize);
-            var paginatedBookingSVResponse = await redisCache.GetRecordAsync<PaginatedBookingSVResponse>(recordKey);
+            var paginatedBookingSVResponse = cacheHandler.GetRecord<PaginatedBookingSVResponse>(recordKey);
             if (paginatedBookingSVResponse == null)
             {
                 paginatedBookingSVResponse = await bookingService.GetAsync(paginatedBookingSVRequest);
@@ -235,11 +221,8 @@ public class BookingController(IRedisCache redisCache, IBookingService bookingSe
                     return StatusCode(paginatedBookingSVResponse.Error.ErrorCode, bookingApiError);
                 }
 
-                await redisCache.SetRecordAsync(recordKey, paginatedBookingSVResponse, TimeSpan.FromMinutes(5));
+                cacheHandler.SetRecord(recordKey, paginatedBookingSVResponse, TimeSpan.FromMinutes(5));
             }
-            */
-
-            var paginatedBookingSVResponse = await bookingService.GetAsync(paginatedBookingSVRequest);
 
             var bookingApiPaginatedResponse = new BookingApiPaginatedResponse
             {

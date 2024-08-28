@@ -1,13 +1,13 @@
-using System.Text;
-
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
+using System.Text;
+
 using Valeting.Core;
+using Valeting.Cache;
 using Valeting.Mappers;
-using Valeting.Helpers;
 using Valeting.Repository;
-using Valeting.Helpers.Interfaces;
+using Valeting.Cache.Interfaces;
 using Valeting.SwaggerDocumentation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +19,8 @@ builder.Services.AddServicesLayer();
 
 builder.Services.AddInfrastructureDataLayer(builder.Configuration);
 
-builder.Services.AddScoped<IRedisCache, RedisCache>();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ICacheHandler, MemoryCacheHandler>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -41,19 +42,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization(options => {
-    options.AddPolicy("RequireJwt", policy =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("RequireJwt", policy =>
     {
         policy.AuthenticationSchemes.Add("JwtBearer");
         policy.RequireAuthenticatedUser();
     });
-});
-
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("Redis");
-    options.InstanceName = "Valeting_";
-});
 
 builder.Services.AddSwaggerDocumentation();
 

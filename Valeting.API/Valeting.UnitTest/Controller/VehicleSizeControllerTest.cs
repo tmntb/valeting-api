@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
 using Valeting.Controllers;
-using Valeting.Helpers.Interfaces;
+using Valeting.Cache.Interfaces;
 using Valeting.Core.Services.Interfaces;
 using Valeting.Repository.Models.VehicleSize;
 using Valeting.Models.VehicleSize;
