@@ -1,408 +1,535 @@
-﻿using Moq;
+﻿using AutoMapper;
+
+using Moq;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
 using Valeting.Controllers;
+using Valeting.Core.Models.Link;
 using Valeting.Cache.Interfaces;
-using Valeting.Core.Services.Interfaces;
-using Valeting.Repository.Models.VehicleSize;
 using Valeting.Models.VehicleSize;
 using Valeting.Core.Models.VehicleSize;
-using Valeting.Core.Models.Link;
+using Valeting.Core.Services.Interfaces;
 using Valeting.Models.Core;
 
 namespace Valeting.UnitTest.Controller;
 
 public class VehicleSizeControllerTest
 {
-    // [Fact]
-    // public void FindById_Status200_WithoutCache()
-    // {
-    //     //Arrange
-    //     var redisCacheMock = new Mock<IRedisCache>();
-    //     var urlServiceMock = new Mock<IUrlService>();
-    //     var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+    [Fact]
+    public async Task GetById_Status200_WithoutCache()
+    {
+        //Arrange
+        var cacheHandlerMock = new Mock<ICacheHandler>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        var mapperMock = new Mock<IMapper>();
 
-    //     var request = new Mock<HttpRequest>();
-    //     request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
-    //     request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/vehicleSizes/{0}"));
+        var request = new Mock<HttpRequest>();
+        request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
+        request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/vehicleSizes/{0}"));
 
-    //     var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
-    //     var controllerContext = new ControllerContext()
-    //     {
-    //         HttpContext = httpContext
-    //     };
+        var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
+        var controllerContext = new ControllerContext()
+        {
+            HttpContext = httpContext
+        };
 
-    //     var id = Guid.NewGuid();
-    //     var getVehicleSizeSVResponse_Mock = Task<GetVehicleSizeSVResponse>.Factory.StartNew(() =>
-    //     {
-    //         return new GetVehicleSizeSVResponse()
-    //         {
-    //             Id = id,
-    //             Description = "Van",
-    //             Active = It.IsAny<bool>()
-    //         };
-    //     });
-    //     vehicleSizeServiceMock.Setup(x => x.GetByIdAsync(It.IsAny<GetVehicleSizeSVRequest>())).Returns(getVehicleSizeSVResponse_Mock);
+        var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        var getVehicleSizeSVResponse_Mock = new GetVehicleSizeSVResponse()
+        {
+            VehicleSize = new()
+            {
+                Id = id,
+                Description = "Van",
+                Active = true
+            }
+        };
+        vehicleSizeServiceMock.Setup(x => x.GetByIdAsync(It.IsAny<GetVehicleSizeSVRequest>())).ReturnsAsync(getVehicleSizeSVResponse_Mock);
 
-    //     var href_Mock = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id) };
-    //     urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(href_Mock);
+        var vehicleSizeApiMapped = new VehicleSizeApi 
+        { 
+            Id = id,
+            Description = "Van",
+            Active = true
+        };
+        mapperMock.Setup(x => x.Map<VehicleSizeApi>(It.IsAny<VehicleSizeSV>())).Returns(vehicleSizeApiMapped);
 
-    //     //Act
-    //     var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)
-    //     {
-    //         ControllerContext = controllerContext
-    //     };
+        var href_Mock = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id) };
+        urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(href_Mock);
 
-    //     var objResult = (ObjectResult)vehicleSizeController.GetByIdAsync(id.ToString()).ConfigureAwait(false).GetAwaiter().GetResult();
-    //     var response = (VehicleSizeApiResponse)objResult.Value;
+        //Act
+        var vehicleSizeController = new VehicleSizeController(vehicleSizeServiceMock.Object, urlServiceMock.Object, cacheHandlerMock.Object, mapperMock.Object)
+        {
+            ControllerContext = controllerContext
+        };
 
-    //     //Assert
-    //     Assert.NotNull(objResult);
-    //     Assert.Equal(200, objResult.StatusCode);
-    //     Assert.True(objResult.Value.GetType() == typeof(VehicleSizeApiResponse));
-    //     Assert.NotNull(response);
-    //     Assert.True(response.VehicleSize.Id.Equals(id));
-    //     Assert.Equal("Van", response.VehicleSize.Description);
-    //     Assert.False(response.VehicleSize.Active);
-    //     Assert.NotNull(response.VehicleSize.Link.Self);
-    //     Assert.False(string.IsNullOrEmpty(response.VehicleSize.Link.Self.Href));
-    //     Assert.Contains(string.Format("/Valeting/vehicleSizes/{0}", id), response.VehicleSize.Link.Self.Href);
-    // }
+        var response = await vehicleSizeController.GetByIdAsync(id.ToString());
 
-    // [Fact]
-    // public void FindById_Status200_WithoutCache_WithError()
-    // {
-    //     //Arrange
-    //     var redisCacheMock = new Mock<IRedisCache>();
-    //     var urlServiceMock = new Mock<IUrlService>();
-    //     var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        // Assert
+        Assert.NotNull(response);
 
-    //     var request = new Mock<HttpRequest>();
-    //     request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
-    //     request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/vehicleSizes/{0}"));
+        var okResult = response as ObjectResult;
+        Assert.NotNull(okResult);
+        Assert.Equal(200, okResult.StatusCode);
 
-    //     var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
-    //     var controllerContext = new ControllerContext()
-    //     {
-    //         HttpContext = httpContext
-    //     };
+        var vehicleSizeApiResponse = okResult.Value as VehicleSizeApiResponse;
+        Assert.NotNull(vehicleSizeApiResponse);
+        Assert.Equal(id, vehicleSizeApiResponse.VehicleSize.Id);
+        Assert.Equal("Van", vehicleSizeApiResponse.VehicleSize.Description);
+        Assert.True(vehicleSizeApiResponse.VehicleSize.Active);
+        Assert.NotNull(vehicleSizeApiResponse.VehicleSize.Link.Self);
+        Assert.False(string.IsNullOrEmpty(vehicleSizeApiResponse.VehicleSize.Link.Self.Href));
+        Assert.Contains(string.Format("/Valeting/vehicleSizes/{0}", id), vehicleSizeApiResponse.VehicleSize.Link.Self.Href);
+    }
 
-    //     var id = Guid.NewGuid();
-    //     var getVehicleSizeSVResponse_Mock = Task<GetVehicleSizeSVResponse>.Factory.StartNew(() =>
-    //     {
-    //         return new()
-    //         {
-    //             Error = new() { ErrorCode = 404, Message = "NotFound" }
-    //         };
-    //     });
-    //     vehicleSizeServiceMock.Setup(x => x.GetByIdAsync(It.IsAny<GetVehicleSizeSVRequest>())).Returns(getVehicleSizeSVResponse_Mock);
+    [Fact]
+    public async Task GetById_Status200_WithoutCache_WithError()
+    {
+        //Arrange
+        var cacheHandlerMock = new Mock<ICacheHandler>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        var mapperMock = new Mock<IMapper>();
 
-    //     //Act
-    //     var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)
-    //     {
-    //         ControllerContext = controllerContext
-    //     };
+        var request = new Mock<HttpRequest>();
+        request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
+        request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/vehicleSizes/{0}"));
 
-    //     var objResult = (ObjectResult)vehicleSizeController.GetByIdAsync(id.ToString()).ConfigureAwait(false).GetAwaiter().GetResult();
-    //     var response = (VehicleSizeApiError)objResult.Value;
+        var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
+        var controllerContext = new ControllerContext()
+        {
+            HttpContext = httpContext
+        };
 
-    //     //Assert
-    //     Assert.NotNull(objResult);
-    //     Assert.Equal(404, objResult.StatusCode);
-    //     Assert.True(objResult.Value.GetType() == typeof(VehicleSizeApiError));
-    //     Assert.NotNull(response);
-    //     Assert.Equal("NotFound", response.Detail);
-    // }
+        var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        var getVehicleSizeSVResponse_Mock = new GetVehicleSizeSVResponse()
+        {
+            Error = new() { ErrorCode = 404, Message = "NotFound" }
+        };
+        vehicleSizeServiceMock.Setup(x => x.GetByIdAsync(It.IsAny<GetVehicleSizeSVRequest>())).ReturnsAsync(getVehicleSizeSVResponse_Mock);
 
-    // [Fact]
-    // public void FindById_Status200_WithCache()
-    // {
-    //     //Arrange
-    //     var redisCacheMock = new Mock<IRedisCache>();
-    //     var urlServiceMock = new Mock<IUrlService>();
-    //     var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        //Act
+        var vehicleSizeController = new VehicleSizeController(vehicleSizeServiceMock.Object, urlServiceMock.Object, cacheHandlerMock.Object, mapperMock.Object)
+        {
+            ControllerContext = controllerContext
+        };
 
-    //     var request = new Mock<HttpRequest>();
-    //     request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
-    //     request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/vehicleSizes/{0}"));
+        var response = await vehicleSizeController.GetByIdAsync(id.ToString());
 
-    //     var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
-    //     var controllerContext = new ControllerContext()
-    //     {
-    //         HttpContext = httpContext
-    //     };
+        //Assert
+        Assert.NotNull(response);
 
-    //     var id = Guid.NewGuid();
-    //     var getVehicleSizeSVResponse_Mock = Task<GetVehicleSizeSVResponse>.Factory.StartNew(() =>
-    //     {
-    //         return new GetVehicleSizeSVResponse()
-    //         {
-    //             Id = id,
-    //             Description = "Van",
-    //             Active = It.IsAny<bool>(),
-    //         };
-    //     });
-    //     redisCacheMock.Setup(x => x.GetRecordAsync<GetVehicleSizeSVResponse>(It.IsAny<string>())).Returns(getVehicleSizeSVResponse_Mock);
+        var okResult = response as ObjectResult;
+        Assert.NotNull(okResult);
+        Assert.Equal(404, okResult.StatusCode);
 
-    //     var href_Mock = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id) };
-    //     urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(href_Mock);
+        var vehicleSizeApiResponse = okResult.Value as VehicleSizeApiError;
+        Assert.NotNull(vehicleSizeApiResponse);
+        Assert.Equal("NotFound", vehicleSizeApiResponse.Detail);
+    }
 
-    //     //Act
-    //     var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)
-    //     {
-    //         ControllerContext = controllerContext
-    //     };
+    [Fact]
+    public async Task GetById_Status200_WithCache()
+    {
+        //Arrange
+        var cacheHandlerMock = new Mock<ICacheHandler>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        var mapperMock = new Mock<IMapper>();
 
-    //     var objResult = (ObjectResult)vehicleSizeController.GetByIdAsync(id.ToString()).ConfigureAwait(false).GetAwaiter().GetResult();
-    //     var response = (VehicleSizeApiResponse)objResult.Value;
+        var request = new Mock<HttpRequest>();
+        request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
+        request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/vehicleSizes/{0}"));
 
-    //     //Assert
-    //     Assert.NotNull(objResult);
-    //     Assert.Equal(200, objResult.StatusCode);
-    //     Assert.True(objResult.Value.GetType() == typeof(VehicleSizeApiResponse));
-    //     Assert.NotNull(response);
-    //     Assert.True(response.VehicleSize.Id.Equals(id));
-    //     Assert.Equal("Van", response.VehicleSize.Description);
-    //     Assert.False(response.VehicleSize.Active);
-    //     Assert.NotNull(response.VehicleSize.Link.Self);
-    //     Assert.False(string.IsNullOrEmpty(response.VehicleSize.Link.Self.Href));
-    //     Assert.Contains(string.Format("/Valeting/vehicleSizes/{0}", id), response.VehicleSize.Link.Self.Href);
-    // }
+        var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
+        var controllerContext = new ControllerContext()
+        {
+            HttpContext = httpContext
+        };
 
-    // [Fact]
-    // public void FindById_Status500_WithException()
-    // {
-    //     //Act
-    //     var redisCacheMock = new Mock<IRedisCache>();
-    //     var urlServiceMock = new Mock<IUrlService>();
-    //     var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        var getVehicleSizeSVResponse_Mock = new GetVehicleSizeSVResponse()
+        {
+            VehicleSize = new()
+            {
+                Id = id,
+                Description = "Van",
+                Active = true
+            }
+        };
+        cacheHandlerMock.Setup(x => x.GetRecord<GetVehicleSizeSVResponse>(It.IsAny<string>())).Returns(getVehicleSizeSVResponse_Mock);
 
-    //     var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
-    //     var objResult = (ObjectResult)vehicleSizeController.GetByIdAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
-    //     var response = (VehicleSizeApiError)objResult.Value;
+        var vehicleSizeApiMapped = new VehicleSizeApi 
+        { 
+            Id = id,
+            Description = "Van",
+            Active = true
+        };
+        mapperMock.Setup(x => x.Map<VehicleSizeApi>(It.IsAny<VehicleSizeSV>())).Returns(vehicleSizeApiMapped);
 
-    //     //Assert
-    //     Assert.NotNull(objResult);
-    //     Assert.Equal(500, objResult.StatusCode);
-    //     Assert.NotNull(response);
-    //     Assert.False(string.IsNullOrEmpty(response.Detail));
-    // }
+        var href_Mock = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id) };
+        urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(href_Mock);
 
-    // [Fact]
-    // public void ListAll_Status200_WithoutCache() 
-    // {
-    //     //Arrange
-    //     var redisCacheMock = new Mock<IRedisCache>();
-    //     var urlServiceMock = new Mock<IUrlService>();
-    //     var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        //Act
+        var vehicleSizeController = new VehicleSizeController(vehicleSizeServiceMock.Object, urlServiceMock.Object, cacheHandlerMock.Object, mapperMock.Object)
+        {
+            ControllerContext = controllerContext
+        };
 
-    //     var request = new Mock<HttpRequest>();
-    //     request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
-    //     request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/Valeting/vehicleSizes"));
+        var response = await vehicleSizeController.GetByIdAsync(id.ToString());
 
-    //     var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
-    //     var controllerContext = new ControllerContext()
-    //     {
-    //         HttpContext = httpContext
-    //     };
+        //Assert
+        Assert.NotNull(response);
 
-    //     var vehicleSizeApiParameters_Mock = new Mock<VehicleSizeApiParameters>();
-    //     var vehicleSizesSV_List = new List<VehicleSizeSV>()
-    //     {
-    //         new() { Id = Guid.NewGuid(), Description = "Van", Active = It.IsAny<bool>() },
-    //         new() { Id = Guid.NewGuid(), Description = "Small", Active = It.IsAny<bool>() },
-    //         new() { Id = Guid.NewGuid(), Description = "Medium", Active = It.IsAny<bool>() }
-    //     };
+        var okResult = response as ObjectResult;
+        Assert.NotNull(okResult);
+        Assert.Equal(200, okResult.StatusCode);
 
-    //     var paginatedVehicleSizeSVResponse_Mock = Task<PaginatedVehicleSizeSVResponse>.Factory.StartNew(() =>
-    //     {
-    //         return new()
-    //         {
-    //             VehicleSizes = vehicleSizesSV_List,
-    //             TotalItems = 3,
-    //             TotalPages = 1
-    //         };
-    //     });
-    //     vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<PaginatedVehicleSizeSVRequest>())).Returns(paginatedVehicleSizeSVResponse_Mock);
+        var vehicleSizeApiResponse = okResult.Value as VehicleSizeApiResponse;
+        Assert.NotNull(vehicleSizeApiResponse);
+        Assert.Equal(id, vehicleSizeApiResponse.VehicleSize.Id);
+        Assert.Equal("Van", vehicleSizeApiResponse.VehicleSize.Description);
+        Assert.True(vehicleSizeApiResponse.VehicleSize.Active);
+        Assert.NotNull(vehicleSizeApiResponse.VehicleSize.Link.Self);
+        Assert.False(string.IsNullOrEmpty(vehicleSizeApiResponse.VehicleSize.Link.Self.Href));
+        Assert.Contains(string.Format("/Valeting/vehicleSizes/{0}", id), vehicleSizeApiResponse.VehicleSize.Link.Self.Href);
+    }
 
-    //     var paginatedLinks_Mock = new GeneratePaginatedLinksSVResponse()
-    //     {
-    //         Next = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2),
-    //         Prev = string.Empty,
-    //         Self = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2),
-    //     };
-    //     urlServiceMock.Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksSVRequest>())).Returns(paginatedLinks_Mock);
+    [Fact]
+    public async Task GetById_Status500_WithException()
+    {
+        //Act
+        var cacheHandlerMock = new Mock<ICacheHandler>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        var mapperMock = new Mock<IMapper>();
 
-    //     vehicleSizesSV_List.ForEach(x =>
-    //     {
-    //         var href_Mock = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", x.Id) };
-    //         urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(href_Mock);
-    //     });
+        var vehicleSizeController = new VehicleSizeController(vehicleSizeServiceMock.Object, urlServiceMock.Object, cacheHandlerMock.Object, mapperMock.Object);
+        var response = await vehicleSizeController.GetByIdAsync(null);
 
-    //     //Act
-    //     var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)
-    //     {
-    //         ControllerContext = controllerContext
-    //     };
+        //Assert
+        Assert.NotNull(response);
 
-    //     var objResult = (ObjectResult)vehicleSizeController.GetAsync(vehicleSizeApiParameters_Mock.Object).ConfigureAwait(false).GetAwaiter().GetResult();
-    //     var response = (VehicleSizeApiPaginatedResponse)objResult.Value;
+        var okResult = response as ObjectResult;
+        Assert.NotNull(okResult);
+        Assert.Equal(500, okResult.StatusCode);
 
-    //     //Assert
-    //     Assert.NotNull(objResult);
-    //     Assert.Equal(200, objResult.StatusCode);
-    //     Assert.True(objResult.Value.GetType() == typeof(VehicleSizeApiPaginatedResponse));
-    //     Assert.NotNull(response);
-    //     Assert.NotEmpty(response.VehicleSizes);
-    //     Assert.Equal(3, response.VehicleSizes.Count);
-    //     Assert.Equal(1, response.TotalPages);
-    //     Assert.Equal(3, response.TotalItems);
-    //     Assert.NotNull(response.Links);
-    //     Assert.Contains(string.Format("/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2), response.Links.Next.Href);
-    //     Assert.Contains(string.Format("/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2), response.Links.Self.Href);
-    //     Assert.Contains(string.Empty, response.Links.Prev.Href);
-    // }
+        var vehicleSizeApiResponse = okResult.Value as VehicleSizeApiError;
+        Assert.NotNull(vehicleSizeApiResponse);
+        Assert.False(string.IsNullOrEmpty(vehicleSizeApiResponse.Detail));
+    }
 
-    // [Fact]
-    // public void ListAll_Status200_WithCache()
-    // {
-    //     //Arrange
-    //     var redisCacheMock = new Mock<IRedisCache>();
-    //     var urlServiceMock = new Mock<IUrlService>();
-    //     var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+    [Fact]
+    public async Task Get_Status200_WithoutCache() 
+    {
+        // Arrange
+        var cacheHandlerMock = new Mock<ICacheHandler>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        var mapperMock = new Mock<IMapper>();
 
-    //     var request = new Mock<HttpRequest>();
-    //     request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
-    //     request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/Valeting/vehicleSizes"));
+        var request = new Mock<HttpRequest>();
+        request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
+        request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/Valeting/vehicleSizes"));
 
-    //     var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
-    //     var controllerContext = new ControllerContext()
-    //     {
-    //         HttpContext = httpContext
-    //     };
+        var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
+        var controllerContext = new ControllerContext()
+        {
+            HttpContext = httpContext
+        };
 
-    //     var vehicleSizeApiParameters_Mock = new Mock<VehicleSizeApiParameters>();
-    //     var vehicleSizesSV_List = new List<VehicleSizeSV>()
-    //     {
-    //         new() { Id = Guid.NewGuid(), Description = "Van", Active = It.IsAny<bool>() },
-    //         new() { Id = Guid.NewGuid(), Description = "Small", Active = It.IsAny<bool>() },
-    //         new() { Id = Guid.NewGuid(), Description = "Medium", Active = It.IsAny<bool>() }
-    //     };
+        var vehicleSizeApiParameters = new VehicleSizeApiParameters
+        {
+            PageNumber = 1,
+            PageSize = 2,
+            Active = true
+        };
 
-    //     var paginatedVehicleSizeSVResponse_Mock = Task<PaginatedVehicleSizeSVResponse>.Factory.StartNew(() =>
-    //     {
-    //         return new()
-    //         {
-    //             VehicleSizes = vehicleSizesSV_List,
-    //             TotalItems = 3,
-    //             TotalPages = 1
-    //         };
-    //     });
-    //     redisCacheMock.Setup(x => x.GetRecordAsync<PaginatedVehicleSizeSVResponse>(It.IsAny<string>())).Returns(paginatedVehicleSizeSVResponse_Mock);
+        var paginatedVehicleSizeSVRequest_Mock = new PaginatedVehicleSizeSVRequest
+        {
+            Filter = new()
+            {
+                PageNumber = 1,
+                PageSize = 2,
+                Active = true
+            }
+        };
+        mapperMock.Setup(x => x.Map<PaginatedVehicleSizeSVRequest>(vehicleSizeApiParameters)).Returns(paginatedVehicleSizeSVRequest_Mock);
 
-    //     var paginatedLinks_Mock = new GeneratePaginatedLinksSVResponse()
-    //     {
-    //         Next = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2),
-    //         Prev = string.Empty,
-    //         Self = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2),
-    //     };
-    //     urlServiceMock.Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksSVRequest>())).Returns(paginatedLinks_Mock);
+        var vehicleSizesSV_List = new List<VehicleSizeSV>()
+        {
+            new() { Id = Guid.Parse("00000000-0000-0000-0000-000000000002"), Description = "Van", Active = true },
+            new() { Id = Guid.Parse("00000000-0000-0000-0000-000000000003"), Description = "Small", Active = true },
+            new() { Id = Guid.Parse("00000000-0000-0000-0000-000000000004"), Description = "Medium", Active = true }
+        };
 
-    //     vehicleSizesSV_List.ForEach(x =>
-    //     {
-    //         var href_Mock = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", x.Id) };
-    //         urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(href_Mock);
-    //     });
+        var paginatedVehicleSizeSVResponse_Mock = new PaginatedVehicleSizeSVResponse
+        {
+            VehicleSizes = vehicleSizesSV_List,
+            TotalItems = 3,
+            TotalPages = 1
+        };
+        vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<PaginatedVehicleSizeSVRequest>())).ReturnsAsync(paginatedVehicleSizeSVResponse_Mock);
 
-    //     //Act
-    //     var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)
-    //     {
-    //         ControllerContext = controllerContext
-    //     };
+        var paginatedLinks_Mock = new GeneratePaginatedLinksSVResponse
+        {
+            Next = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2),
+            Prev = string.Empty,
+            Self = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2)
+        };
+        urlServiceMock.Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksSVRequest>())).Returns(paginatedLinks_Mock);
 
-    //     var objResult = (ObjectResult)vehicleSizeController.GetAsync(vehicleSizeApiParameters_Mock.Object).ConfigureAwait(false).GetAwaiter().GetResult();
-    //     var response = (VehicleSizeApiPaginatedResponse)objResult.Value;
+        var paginationLinksApi_Mock = new PaginationLinksApi
+        {
+            Next = new() { Href = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2) },
+            Prev = new() { Href = string.Empty },
+            Self = new() { Href = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2) }
+        };
+        mapperMock.Setup(x => x.Map<PaginationLinksApi>(paginatedLinks_Mock)).Returns(paginationLinksApi_Mock);
 
-    //     //Assert
-    //     Assert.NotNull(objResult);
-    //     Assert.Equal(200, objResult.StatusCode);
-    //     Assert.True(objResult.Value.GetType() == typeof(VehicleSizeApiPaginatedResponse));
-    //     Assert.NotNull(response);
-    //     Assert.NotEmpty(response.VehicleSizes);
-    //     Assert.Equal(3, response.VehicleSizes.Count);
-    //     Assert.Equal(1, response.TotalPages);
-    //     Assert.Equal(3, response.TotalItems);
-    //     Assert.NotNull(response.Links);
-    //     Assert.Contains(string.Format("/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2), response.Links.Next.Href);
-    //     Assert.Contains(string.Format("/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2), response.Links.Self.Href);
-    //     Assert.Contains(string.Empty, response.Links.Prev.Href);
-    // }
+        var vehicleSizeApiList = vehicleSizesSV_List.Select(vs => new VehicleSizeApi
+        {
+            Id = vs.Id,
+            Description = vs.Description,
+            Active = vs.Active,
+            Link = new()
+            {
+                Self = new()
+                {
+                    Href = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", vs.Id)
+                }
+            }
+        }).ToList();
+        mapperMock.Setup(x => x.Map<List<VehicleSizeApi>>(vehicleSizesSV_List)).Returns(vehicleSizeApiList);
 
-    // [Fact]
-    // public void ListAll_Status200__WithoutCache_WithError() 
-    // {
-    //     //Arrange
-    //     var redisCacheMock = new Mock<IRedisCache>();
-    //     var urlServiceMock = new Mock<IUrlService>();
-    //     var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        vehicleSizesSV_List.ForEach(x =>
+        {
+            var href_Mock = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", x.Id) };
+            urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(href_Mock);
+        });
 
-    //     var request = new Mock<HttpRequest>();
-    //     request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
-    //     request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/Valeting/vehicleSizes"));
+        //Act
+        var vehicleSizeController = new VehicleSizeController(vehicleSizeServiceMock.Object, urlServiceMock.Object, cacheHandlerMock.Object, mapperMock.Object)
+        {
+            ControllerContext = controllerContext
+        };
 
-    //     var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
-    //     var controllerContext = new ControllerContext()
-    //     {
-    //         HttpContext = httpContext
-    //     };
+        var response = await vehicleSizeController.GetAsync(vehicleSizeApiParameters);
 
-    //     var vehicleSizeApiParameters_Mock = new Mock<VehicleSizeApiParameters>();
+        //Assert
+        Assert.NotNull(response);
 
-    //     var paginatedVehicleSizeSVResponse_Mock = Task<PaginatedVehicleSizeSVResponse>.Factory.StartNew(() =>
-    //     {
-    //         return new()
-    //         {
-    //             Error = new() { ErrorCode = 404, Message = "NotFound" }
-    //         };
-    //     });
-    //     vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<PaginatedVehicleSizeSVRequest>())).Returns(paginatedVehicleSizeSVResponse_Mock);
+        var okResult = response as ObjectResult;
+        Assert.NotNull(okResult);
+        Assert.Equal(200, okResult.StatusCode);
 
-    //     //Act
-    //     var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object)
-    //     {
-    //         ControllerContext = controllerContext
-    //     };
+        var vehicleSizeApiResponse = okResult.Value as VehicleSizeApiPaginatedResponse;
+        Assert.NotNull(vehicleSizeApiResponse);
+        Assert.NotEmpty(vehicleSizeApiResponse.VehicleSizes);
+        Assert.Equal(3, vehicleSizeApiResponse.VehicleSizes.Count);
+        Assert.Equal(1, vehicleSizeApiResponse.TotalPages);
+        Assert.Equal(3, vehicleSizeApiResponse.TotalItems);
+        Assert.NotNull(vehicleSizeApiResponse.Links);
+        Assert.Contains(string.Format("/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2), vehicleSizeApiResponse.Links.Next.Href);
+        Assert.Contains(string.Format("/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2), vehicleSizeApiResponse.Links.Self.Href);
+        Assert.Contains(string.Empty, vehicleSizeApiResponse.Links.Prev.Href);
+    }
 
-    //     var objResult = (ObjectResult)vehicleSizeController.GetAsync(vehicleSizeApiParameters_Mock.Object).ConfigureAwait(false).GetAwaiter().GetResult();
-    //     var response = (VehicleSizeApiError)objResult.Value;
+    [Fact]
+    public async Task Get_Status200_WithCache()
+    {
+        //Arrange
+        var cacheHandlerMock = new Mock<ICacheHandler>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        var mapperMock = new Mock<IMapper>();
 
-    //     //Assert
-    //     Assert.NotNull(objResult);
-    //     Assert.Equal(404, objResult.StatusCode);
-    //     Assert.True(objResult.Value.GetType() == typeof(VehicleSizeApiError));
-    //     Assert.NotNull(response);
-    //     Assert.Equal("NotFound", response.Detail);
-    // }
+        var request = new Mock<HttpRequest>();
+        request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
+        request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/Valeting/vehicleSizes"));
 
-    // [Fact]
-    // public void ListAll_Status500_WithException()
-    // {
-    //     //Arrange
-    //     var redisCacheMock = new Mock<IRedisCache>();
-    //     var urlServiceMock = new Mock<IUrlService>();
-    //     var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
+        var controllerContext = new ControllerContext()
+        {
+            HttpContext = httpContext
+        };
 
-    //     //Act
-    //     var vehicleSizeController = new VehicleSizeController(redisCacheMock.Object, vehicleSizeServiceMock.Object, urlServiceMock.Object);
-    //     var objResult = (ObjectResult)vehicleSizeController.GetAsync(null).ConfigureAwait(false).GetAwaiter().GetResult();
-    //     var response = (VehicleSizeApiError)objResult.Value;
+        var vehicleSizeApiParameters = new VehicleSizeApiParameters
+        {
+            PageNumber = 1,
+            PageSize = 2,
+            Active = true
+        };
 
-    //     //Assert
-    //     Assert.NotNull(objResult);
-    //     Assert.Equal(500, objResult.StatusCode);
-    //     Assert.NotNull(response);
-    //     Assert.False(string.IsNullOrEmpty(response.Detail));
-    // }
+        var paginatedVehicleSizeSVRequest_Mock = new PaginatedVehicleSizeSVRequest
+        {
+            Filter = new()
+            {
+                PageNumber = 1,
+                PageSize = 2,
+                Active = true
+            }
+        };
+        mapperMock.Setup(x => x.Map<PaginatedVehicleSizeSVRequest>(vehicleSizeApiParameters)).Returns(paginatedVehicleSizeSVRequest_Mock);
+
+        var vehicleSizesSV_List = new List<VehicleSizeSV>()
+        {
+            new() { Id = Guid.Parse("00000000-0000-0000-0000-000000000002"), Description = "Van", Active = true },
+            new() { Id = Guid.Parse("00000000-0000-0000-0000-000000000003"), Description = "Small", Active = true },
+            new() { Id = Guid.Parse("00000000-0000-0000-0000-000000000004"), Description = "Medium", Active = true }
+        };
+
+        var paginatedVehicleSizeSVResponse_Mock = new PaginatedVehicleSizeSVResponse
+        {
+            VehicleSizes = vehicleSizesSV_List,
+            TotalItems = 3,
+            TotalPages = 1
+        };
+        cacheHandlerMock.Setup(x => x.GetRecord<PaginatedVehicleSizeSVResponse>(It.IsAny<string>())).Returns(paginatedVehicleSizeSVResponse_Mock);
+
+        var paginatedLinks_Mock = new GeneratePaginatedLinksSVResponse()
+        {
+            Next = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2),
+            Prev = string.Empty,
+            Self = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2),
+        };
+        urlServiceMock.Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksSVRequest>())).Returns(paginatedLinks_Mock);
+
+        var paginationLinksApi_Mock = new PaginationLinksApi
+        {
+            Next = new() { Href = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2) },
+            Prev = new() { Href = string.Empty },
+            Self = new() { Href = string.Format("https://localhost:8080/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2) }
+        };
+        mapperMock.Setup(x => x.Map<PaginationLinksApi>(paginatedLinks_Mock)).Returns(paginationLinksApi_Mock);
+
+        var vehicleSizeApiList = vehicleSizesSV_List.Select(vs => new VehicleSizeApi
+        {
+            Id = vs.Id,
+            Description = vs.Description,
+            Active = vs.Active,
+            Link = new()
+            {
+                Self = new()
+                {
+                    Href = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", vs.Id)
+                }
+            }
+        }).ToList();
+        mapperMock.Setup(x => x.Map<List<VehicleSizeApi>>(vehicleSizesSV_List)).Returns(vehicleSizeApiList);
+
+        vehicleSizesSV_List.ForEach(x =>
+        {
+            var href_Mock = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", x.Id) };
+            urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(href_Mock);
+        });
+
+        //Act
+        var vehicleSizeController = new VehicleSizeController(vehicleSizeServiceMock.Object, urlServiceMock.Object, cacheHandlerMock.Object, mapperMock.Object)
+        {
+            ControllerContext = controllerContext
+        };
+
+        var response = await vehicleSizeController.GetAsync(vehicleSizeApiParameters);
+
+        //Assert
+        Assert.NotNull(response);
+
+        var okResult = response as ObjectResult;
+        Assert.NotNull(okResult);
+        Assert.Equal(200, okResult.StatusCode);
+
+        var vehicleSizeApiResponse = okResult.Value as VehicleSizeApiPaginatedResponse;
+        Assert.NotNull(vehicleSizeApiResponse);
+        Assert.NotEmpty(vehicleSizeApiResponse.VehicleSizes);
+        Assert.Equal(3, vehicleSizeApiResponse.VehicleSizes.Count);
+        Assert.Equal(1, vehicleSizeApiResponse.TotalPages);
+        Assert.Equal(3, vehicleSizeApiResponse.TotalItems);
+        Assert.NotNull(vehicleSizeApiResponse.Links);
+        Assert.Contains(string.Format("/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2), vehicleSizeApiResponse.Links.Next.Href);
+        Assert.Contains(string.Format("/Valeting/vehicleSizes?pageNumber={0}&pageSize={1}", 1, 2), vehicleSizeApiResponse.Links.Self.Href);
+        Assert.Contains(string.Empty, vehicleSizeApiResponse.Links.Prev.Href);
+    }
+
+    [Fact]
+    public async Task Get_Status200__WithoutCache_WithError() 
+    {
+        //Arrange
+        var cacheHandlerMock = new Mock<ICacheHandler>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        var mapperMock = new Mock<IMapper>();
+
+        var request = new Mock<HttpRequest>();
+        request.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
+        request.Setup(x => x.Path).Returns(PathString.FromUriComponent("/Valeting/vehicleSizes"));
+
+        var httpContext = Mock.Of<HttpContext>(x => x.Request == request.Object);
+        var controllerContext = new ControllerContext()
+        {
+            HttpContext = httpContext
+        };
+
+        var vehicleSizeApiParameters = new VehicleSizeApiParameters
+        {
+            PageNumber = 1,
+            PageSize = 2,
+            Active = true
+        };
+
+        var paginatedVehicleSizeSVResponse_Mock = Task<PaginatedVehicleSizeSVResponse>.Factory.StartNew(() =>
+        {
+            return new()
+            {
+                Error = new() { ErrorCode = 404, Message = "NotFound" }
+            };
+        });
+        vehicleSizeServiceMock.Setup(x => x.GetAsync(It.IsAny<PaginatedVehicleSizeSVRequest>())).Returns(paginatedVehicleSizeSVResponse_Mock);
+
+        //Act
+        var vehicleSizeController = new VehicleSizeController(vehicleSizeServiceMock.Object, urlServiceMock.Object, cacheHandlerMock.Object, mapperMock.Object)
+        {
+            ControllerContext = controllerContext
+        };
+
+        var response = await vehicleSizeController.GetAsync(vehicleSizeApiParameters);
+
+        //Assert
+        Assert.NotNull(response);
+
+        var notFoundResult = response as ObjectResult;
+        Assert.NotNull(notFoundResult);
+        Assert.Equal(404, notFoundResult.StatusCode);
+
+        var vehicleSizeApiResponse = notFoundResult.Value as VehicleSizeApiError;
+        Assert.NotNull(vehicleSizeApiResponse);
+        Assert.Equal("NotFound", vehicleSizeApiResponse.Detail);
+    }
+
+    [Fact]
+    public async Task Get_Status500_WithException()
+    {
+        //Arrange
+        var cacheHandlerMock = new Mock<ICacheHandler>();
+        var urlServiceMock = new Mock<IUrlService>();
+        var vehicleSizeServiceMock = new Mock<IVehicleSizeService>();
+        var mapperMock = new Mock<IMapper>();
+
+        //Act
+        var vehicleSizeController = new VehicleSizeController(vehicleSizeServiceMock.Object, urlServiceMock.Object, cacheHandlerMock.Object, mapperMock.Object);
+        var response = await vehicleSizeController.GetAsync(null);
+
+        //Assert
+        Assert.NotNull(response);
+
+        var internalServerErrorResult = response as ObjectResult;
+        Assert.NotNull(internalServerErrorResult);
+        Assert.Equal(500, internalServerErrorResult.StatusCode);
+
+        var vehicleSizeApiResponse = internalServerErrorResult.Value as VehicleSizeApiError;
+        Assert.NotNull(vehicleSizeApiResponse);
+        Assert.False(string.IsNullOrEmpty(vehicleSizeApiResponse.Detail));
+    }
 }
