@@ -6,14 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
 using Valeting.Controllers;
+
 using Valeting.Core.Models.Link;
-using Valeting.Cache.Interfaces;
-using Valeting.Models.VehicleSize;
 using Valeting.Core.Models.VehicleSize;
 using Valeting.Core.Services.Interfaces;
-using Valeting.Models.Core;
 
-namespace Valeting.UnitTest.Controller;
+using Valeting.Cache.Interfaces;
+
+using Valeting.Models.Core;
+using Valeting.Models.VehicleSize;
+
+namespace Valeting.UnitTest.Api;
 
 public class VehicleSizeControllerTest
 {
@@ -48,8 +51,8 @@ public class VehicleSizeControllerTest
         };
         vehicleSizeServiceMock.Setup(x => x.GetByIdAsync(It.IsAny<GetVehicleSizeSVRequest>())).ReturnsAsync(getVehicleSizeSVResponse_Mock);
 
-        var vehicleSizeApiMapped = new VehicleSizeApi 
-        { 
+        var vehicleSizeApiMapped = new VehicleSizeApi
+        {
             Id = id,
             Description = "Van",
             Active = true
@@ -161,8 +164,8 @@ public class VehicleSizeControllerTest
         };
         cacheHandlerMock.Setup(x => x.GetRecord<GetVehicleSizeSVResponse>(It.IsAny<string>())).Returns(getVehicleSizeSVResponse_Mock);
 
-        var vehicleSizeApiMapped = new VehicleSizeApi 
-        { 
+        var vehicleSizeApiMapped = new VehicleSizeApi
+        {
             Id = id,
             Description = "Van",
             Active = true
@@ -222,7 +225,7 @@ public class VehicleSizeControllerTest
     }
 
     [Fact]
-    public async Task Get_Status200_WithoutCache() 
+    public async Task Get_Status200_WithoutCache()
     {
         // Arrange
         var cacheHandlerMock = new Mock<ICacheHandler>();
@@ -454,7 +457,7 @@ public class VehicleSizeControllerTest
     }
 
     [Fact]
-    public async Task Get_Status200__WithoutCache_WithError() 
+    public async Task Get_Status200__WithoutCache_WithError()
     {
         //Arrange
         var cacheHandlerMock = new Mock<ICacheHandler>();
