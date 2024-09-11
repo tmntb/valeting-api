@@ -46,36 +46,22 @@ public class MemoryCacheHandler(IMemoryCache memoryCache, ILogger<MemoryCacheHan
 
     public void RemoveRecordsWithPrefix(string prefix)
     {
-        try
-        {
-            var keysToRemove = _cachedKeys.Where(k => k.StartsWith(prefix)).ToList();
+        var keysToRemove = _cachedKeys.Where(k => k.StartsWith(prefix)).ToList();
 
-            foreach (var key in keysToRemove)
-            {
-                memoryCache.Remove(key);
-                _cachedKeys.Remove(key);
-            }
-
-            UpdateCachedKeysInCache();
-        }
-        catch (Exception ex)
+        foreach (var key in keysToRemove)
         {
-            logger.LogError(ex, "Error removing records with prefix {Prefix}", prefix);
+            memoryCache.Remove(key);
+            _cachedKeys.Remove(key);
         }
+
+        UpdateCachedKeysInCache();
     }
 
     public void RemoveRecord(string recordKey)
     {
-        try
-        {
-            memoryCache.Remove(recordKey);
-            _cachedKeys.Remove(recordKey);
-            UpdateCachedKeysInCache();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error removing record with key {RecordKey}", recordKey);
-        }
+        memoryCache.Remove(recordKey);
+        _cachedKeys.Remove(recordKey);
+        UpdateCachedKeysInCache();
     }
 
     public void SetRecord<T>(string recordKey, T data, TimeSpan? absoluteExpireTime = null, TimeSpan? slidingExpireTime = null)

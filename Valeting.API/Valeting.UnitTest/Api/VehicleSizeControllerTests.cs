@@ -18,7 +18,7 @@ using Valeting.Models.VehicleSize;
 
 namespace Valeting.UnitTest.Api;
 
-public class VehicleSizeControllerTest
+public class VehicleSizeControllerTests
 {
     [Fact]
     public async Task GetById_Status200_WithoutCache()
@@ -457,7 +457,7 @@ public class VehicleSizeControllerTest
     }
 
     [Fact]
-    public async Task Get_Status200__WithoutCache_WithError()
+    public async Task Get_Status200_WithoutCache_WithError()
     {
         //Arrange
         var cacheHandlerMock = new Mock<ICacheHandler>();
