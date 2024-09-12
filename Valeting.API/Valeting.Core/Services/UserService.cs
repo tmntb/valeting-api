@@ -44,15 +44,6 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             return validateLoginSVResponse;
         }
 
-        /*
-            * Criar Salt
-        byte[] salt = new byte[128 / 8];
-        using (RNGCryptoServiceProvider rngCsp = new())
-        {
-            rngCsp.GetNonZeroBytes(salt);
-        }
-        */
-
         byte[] salt = Encoding.ASCII.GetBytes(userDTO.Salt);
 
         var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(validateLoginSVRequest.Password, salt, KeyDerivationPrf.HMACSHA256, 100000, 256 / 8));
@@ -114,5 +105,17 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         generateTokenJWTSVResponse.ExpiryDate = token.ValidTo.ToLocalTime();
         generateTokenJWTSVResponse.TokenType = tokenHandler.TokenType.Name;
         return generateTokenJWTSVResponse;
+    }
+
+    private void GenerateSalt()
+    {
+        /*
+            * Criar Salt
+        byte[] salt = new byte[128 / 8];
+        using (RNGCryptoServiceProvider rngCsp = new())
+        {
+            rngCsp.GetNonZeroBytes(salt);
+        }
+        */
     }
 }

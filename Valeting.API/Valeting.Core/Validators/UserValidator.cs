@@ -8,9 +8,6 @@ public class ValidateLoginValidator : AbstractValidator<ValidateLoginSVRequest>
 {
     public ValidateLoginValidator()
     {
-        RuleFor(x => x)
-            .NotNull();
-
         RuleFor(x => x.Username)
             .NotNull()
             .NotEmpty();
@@ -25,7 +22,8 @@ public class GenerateTokenJWTValidator : AbstractValidator<GenerateTokenJWTSVReq
 {
     public GenerateTokenJWTValidator()
     {
-        RuleFor(x => x)
-            .NotNull();
+        RuleFor(x => x.Username)
+            .NotNull()
+            .NotEmpty();
     }
 }
