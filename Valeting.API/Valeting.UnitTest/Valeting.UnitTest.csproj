@@ -25,7 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Valeting.Common\Valeting.Common.csproj" />
     <ProjectReference Include="..\Valeting\Valeting.csproj" />
   </ItemGroup>
 

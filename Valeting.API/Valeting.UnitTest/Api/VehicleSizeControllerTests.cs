@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 
 using Moq;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
@@ -13,7 +12,7 @@ using Valeting.Models.VehicleSize;
 using Valeting.Core.Models.VehicleSize;
 using Valeting.Core.Services.Interfaces;
 
-namespace Valeting.UnitTest.Api;
+namespace Valeting.UnitTest.API;
 
 public class VehicleSizeControllerTests
 {
@@ -35,7 +34,7 @@ public class VehicleSizeControllerTests
     [Fact]
     public async Task GetById_Status200_WithoutCache()
     {
-        //Arrange
+        // Arrange
         _httpRequest.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
         _httpRequest.Setup(x => x.Path).Returns(PathString.FromUriComponent("/vehicleSizes/{0}"));
 
@@ -46,7 +45,7 @@ public class VehicleSizeControllerTests
         };
 
         var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
-        var getVehicleSizeSVResponse = new GetVehicleSizeSVResponse()
+        var getVehicleSizeSVResponse = new GetVehicleSizeSVResponse
         {
             VehicleSize = new()
             {
@@ -68,7 +67,7 @@ public class VehicleSizeControllerTests
         var generateSelfUrlSVResponse = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id) };
         _urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(generateSelfUrlSVResponse);
 
-        //Act
+        // Act
         var vehicleSizeController = new VehicleSizeController(_vehicleSizeServiceMock.Object, _urlServiceMock.Object, _cacheHandlerMock.Object, _mapperMock.Object)
         {
             ControllerContext = controllerContext
@@ -96,7 +95,7 @@ public class VehicleSizeControllerTests
     [Fact]
     public async Task GetById_Status200_WithoutCache_WithError()
     {
-        //Arrange
+        // Arrange
         _httpRequest.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
         _httpRequest.Setup(x => x.Path).Returns(PathString.FromUriComponent("/vehicleSizes/{0}"));
 
@@ -109,11 +108,15 @@ public class VehicleSizeControllerTests
         var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
         var getVehicleSizeSVResponse = new GetVehicleSizeSVResponse()
         {
-            Error = new() { ErrorCode = 404, Message = "NotFound" }
+            Error = new() 
+            { 
+                ErrorCode = 404, 
+                Message = "NotFound" 
+            }
         };
         _vehicleSizeServiceMock.Setup(x => x.GetByIdAsync(It.IsAny<GetVehicleSizeSVRequest>())).ReturnsAsync(getVehicleSizeSVResponse);
 
-        //Act
+        // Act
         var vehicleSizeController = new VehicleSizeController(_vehicleSizeServiceMock.Object, _urlServiceMock.Object, _cacheHandlerMock.Object, _mapperMock.Object)
         {
             ControllerContext = controllerContext
@@ -121,7 +124,7 @@ public class VehicleSizeControllerTests
 
         var response = await vehicleSizeController.GetByIdAsync(id.ToString());
 
-        //Assert
+        // Assert
         Assert.NotNull(response);
 
         var okResult = response as ObjectResult;
@@ -136,7 +139,7 @@ public class VehicleSizeControllerTests
     [Fact]
     public async Task GetById_Status200_WithCache()
     {
-        //Arrange
+        // Arrange
         _httpRequest.Setup(x => x.Host).Returns(HostString.FromUriComponent("http://localhost:8080"));
         _httpRequest.Setup(x => x.Path).Returns(PathString.FromUriComponent("/vehicleSizes/{0}"));
 
@@ -169,7 +172,7 @@ public class VehicleSizeControllerTests
         var generateSelfUrlSVResponse = new GenerateSelfUrlSVResponse() { Self = string.Format("https://localhost:8080/Valeting/vehicleSizes/{0}", id) };
         _urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(generateSelfUrlSVResponse);
 
-        //Act
+        // Act
         var vehicleSizeController = new VehicleSizeController(_vehicleSizeServiceMock.Object, _urlServiceMock.Object, _cacheHandlerMock.Object, _mapperMock.Object)
         {
             ControllerContext = controllerContext
@@ -177,7 +180,7 @@ public class VehicleSizeControllerTests
 
         var response = await vehicleSizeController.GetByIdAsync(id.ToString());
 
-        //Assert
+        // Assert
         Assert.NotNull(response);
 
         var okResult = response as ObjectResult;
@@ -197,11 +200,11 @@ public class VehicleSizeControllerTests
     [Fact]
     public async Task GetById_Status500_WithException()
     {
-        //Act
+        // Act
         var vehicleSizeController = new VehicleSizeController(_vehicleSizeServiceMock.Object, _urlServiceMock.Object, _cacheHandlerMock.Object, _mapperMock.Object);
         var response = await vehicleSizeController.GetByIdAsync(null);
 
-        //Assert
+        // Assert
         Assert.NotNull(response);
 
         var okResult = response as ObjectResult;
@@ -296,7 +299,7 @@ public class VehicleSizeControllerTests
             _urlServiceMock.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlSVRequest>())).Returns(generateSelfUrlSVResponse);
         });
 
-        //Act
+        // Act
         var vehicleSizeController = new VehicleSizeController(_vehicleSizeServiceMock.Object, _urlServiceMock.Object, _cacheHandlerMock.Object, _mapperMock.Object)
         {
             ControllerContext = controllerContext
@@ -304,7 +307,7 @@ public class VehicleSizeControllerTests
 
         var response = await vehicleSizeController.GetAsync(vehicleSizeApiParameters);
 
-        //Assert
+        // Assert
         Assert.NotNull(response);
 
         var okResult = response as ObjectResult;

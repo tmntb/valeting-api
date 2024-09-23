@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 using Valeting.Cache;
 
-namespace Valeting.UnitTest.Api;
+namespace Valeting.UnitTest.API;
 
 public class MemoryCacheHandlerTests
 {
