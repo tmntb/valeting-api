@@ -1,14 +1,19 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Valeting.Common.Cache;
 using Valeting.Core.Services;
 using Valeting.Core.Interfaces;
 using Valeting.Core.Validators.Helper;
+using Valeting.Common.Cache.Interfaces;
 
 namespace Valeting.Core;
 
-public static class CoreRegistration
+public static class CoreModule
 {
-    public static void AddServicesLayer(this IServiceCollection services)
+    public static void AddValetingCore(this IServiceCollection services)
     {
+        services.AddMemoryCache();
+        services.AddScoped<ICacheHandler, MemoryCacheHandler>();
+
         services.AddScoped<ValidationHelpers>();
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<IFlexibilityService, FlexibilityService>();

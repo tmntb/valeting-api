@@ -2,10 +2,8 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Valeting.Core;
-using Valeting.Cache;
 using Valeting.Mappers;
 using Valeting.Repository;
-using Valeting.Cache.Interfaces;
 using Valeting.SwaggerDocumentation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,12 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-builder.Services.AddServicesLayer();
+builder.Services.AddValetingCore();
 
-builder.Services.AddInfrastructureDataLayer(builder.Configuration);
-
-builder.Services.AddMemoryCache();
-builder.Services.AddScoped<ICacheHandler, MemoryCacheHandler>();
+builder.Services.AddValetingRepository(builder.Configuration);
 
 builder.Services.AddAuthentication(options =>
 {
