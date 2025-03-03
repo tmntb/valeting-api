@@ -1,10 +1,9 @@
 using FluentValidation;
+using Valeting.Common.Models.VehicleSize;
 
-using Valeting.Core.Models.VehicleSize;
+namespace Valeting.Services.Validators;
 
-namespace Valeting.Core.Validators;
-
-public class GetVehicleSizeValidator : AbstractValidator<GetVehicleSizeSVRequest>
+public class GetVehicleSizeValidator : AbstractValidator<GetVehicleSizeDtoRequest>
 {
     public GetVehicleSizeValidator()
     {
@@ -17,7 +16,7 @@ public class GetVehicleSizeValidator : AbstractValidator<GetVehicleSizeSVRequest
     }
 }
 
-public class PaginatedVehicleSizeValidator : AbstractValidator<PaginatedVehicleSizeSVRequest>
+public class PaginatedVehicleSizeValidator : AbstractValidator<PaginatedVehicleSizeDtoRequest>
 {
     public PaginatedVehicleSizeValidator()
     {

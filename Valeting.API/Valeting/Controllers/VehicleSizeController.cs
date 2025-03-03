@@ -1,16 +1,13 @@
 ﻿using AutoMapper;
-
 using Microsoft.AspNetCore.Mvc;
-
 using System.Net;
 using System.ComponentModel.DataAnnotations;
-
 using Valeting.Models.Core;
+using Valeting.Core.Interfaces;
 using Valeting.Cache.Interfaces;
-using Valeting.Core.Models.Link;
+using Valeting.Common.Models.Link;
 using Valeting.Models.VehicleSize;
-using Valeting.Core.Models.VehicleSize;
-using Valeting.Core.Services.Interfaces;
+using Valeting.Common.Models.VehicleSize;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
@@ -21,31 +18,31 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
     {
         try
         {
-            var paginatedVehicleSizeSVRequest = mapper.Map<PaginatedVehicleSizeSVRequest>(vehicleSizeApiParameters);
+            var paginatedVehicleSizeDtoRequest = mapper.Map<PaginatedVehicleSizeDtoRequest>(vehicleSizeApiParameters);
 
             var recordKey = string.Format("ListVehicleSize_{0}_{1}_{2}", vehicleSizeApiParameters.PageNumber, vehicleSizeApiParameters.PageSize, vehicleSizeApiParameters.Active);
-            var paginatedVehicleSizeSVResponse = cacheHandler.GetRecord<PaginatedVehicleSizeSVResponse>(recordKey);
-            if (paginatedVehicleSizeSVResponse == null)
+            var paginatedVehicleSizeDtoResponse = cacheHandler.GetRecord<PaginatedVehicleSizeDtoResponse>(recordKey);
+            if (paginatedVehicleSizeDtoResponse == null)
             {
-                paginatedVehicleSizeSVResponse = await vehicleSizeService.GetAsync(paginatedVehicleSizeSVRequest);
-                if (paginatedVehicleSizeSVResponse.HasError)
+                paginatedVehicleSizeDtoResponse = await vehicleSizeService.GetAsync(paginatedVehicleSizeDtoRequest);
+                if (paginatedVehicleSizeDtoResponse.HasError)
                 {
                     var vehicleSizeApiError = new VehicleSizeApiError
                     {
-                        Detail = paginatedVehicleSizeSVResponse.Error.Message
+                        Detail = paginatedVehicleSizeDtoResponse.Error.Message
                     };
-                    return StatusCode(paginatedVehicleSizeSVResponse.Error.ErrorCode, vehicleSizeApiError);
+                    return StatusCode(paginatedVehicleSizeDtoResponse.Error.ErrorCode, vehicleSizeApiError);
                 }
 
-                cacheHandler.SetRecord(recordKey, paginatedVehicleSizeSVResponse, TimeSpan.FromMinutes(5));
+                cacheHandler.SetRecord(recordKey, paginatedVehicleSizeDtoResponse, TimeSpan.FromMinutes(5));
             }
 
             var vehicleSizeApiPaginatedResponse = new VehicleSizeApiPaginatedResponse
             {
                 VehicleSizes = [],
                 CurrentPage = vehicleSizeApiParameters.PageNumber,
-                TotalItems = paginatedVehicleSizeSVResponse.TotalItems,
-                TotalPages = paginatedVehicleSizeSVResponse.TotalPages,
+                TotalItems = paginatedVehicleSizeDtoResponse.TotalItems,
+                TotalPages = paginatedVehicleSizeDtoResponse.TotalPages,
                 Links = new()
                 {
                     Prev = new() { Href = string.Empty },
@@ -56,27 +53,27 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
 
             var paginatedLinks = urlService.GeneratePaginatedLinks
             (
-                new GeneratePaginatedLinksSVRequest
+                new GeneratePaginatedLinksDtoRequest
                 {
                     BaseUrl = Request.Host.Value,
                     Path = Request.Path.HasValue ? Request.Path.Value : string.Empty,
                     QueryString = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
                     PageNumber = vehicleSizeApiParameters.PageNumber,
-                    TotalPages = paginatedVehicleSizeSVResponse.TotalPages,
-                    Filter = paginatedVehicleSizeSVRequest.Filter
+                    TotalPages = paginatedVehicleSizeDtoResponse.TotalPages,
+                    Filter = paginatedVehicleSizeDtoRequest.Filter
                 }
             );
 
             var links = mapper.Map<PaginationLinksApi>(paginatedLinks);
             vehicleSizeApiPaginatedResponse.Links = links;
 
-            var vehicleSizeApis = mapper.Map<List<VehicleSizeApi>>(paginatedVehicleSizeSVResponse.VehicleSizes);
+            var vehicleSizeApis = mapper.Map<List<VehicleSizeApi>>(paginatedVehicleSizeDtoResponse.VehicleSizes);
             vehicleSizeApis.ForEach(v => 
                 v.Link = new() 
                 { 
                     Self = new() 
                     { 
-                        Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = v.Id }).Self 
+                        Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = v.Id }).Self 
                     } 
                 }
             );
@@ -98,34 +95,34 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
     {
         try
         {
-            var getVehicleSizeSVRequest = new GetVehicleSizeSVRequest
+            var getVehicleSizeDtoRequest = new GetVehicleSizeDtoRequest
             {
                 Id = Guid.Parse(id)
             };
 
             var recordKey = string.Format("VehicleSize_{0}", id);
-            var getVehicleSizeSVResponse = cacheHandler.GetRecord<GetVehicleSizeSVResponse>(recordKey);
-            if (getVehicleSizeSVResponse == null)
+            var getVehicleSizeDtoResponse = cacheHandler.GetRecord<GetVehicleSizeDtoResponse>(recordKey);
+            if (getVehicleSizeDtoResponse == null)
             {
-                getVehicleSizeSVResponse = await vehicleSizeService.GetByIdAsync(getVehicleSizeSVRequest);
-                if (getVehicleSizeSVResponse.HasError)
+                getVehicleSizeDtoResponse = await vehicleSizeService.GetByIdAsync(getVehicleSizeDtoRequest);
+                if (getVehicleSizeDtoResponse.HasError)
                 {
-                    var vehicleSizeApiError = new VehicleSizeApiError()
+                    var vehicleSizeApiError = new VehicleSizeApiError
                     {
-                        Detail = getVehicleSizeSVResponse.Error.Message
+                        Detail = getVehicleSizeDtoResponse.Error.Message
                     };
-                    return StatusCode(getVehicleSizeSVResponse.Error.ErrorCode, vehicleSizeApiError);
+                    return StatusCode(getVehicleSizeDtoResponse.Error.ErrorCode, vehicleSizeApiError);
                 }
 
-                cacheHandler.SetRecord(recordKey, getVehicleSizeSVResponse, TimeSpan.FromDays(1));
+                cacheHandler.SetRecord(recordKey, getVehicleSizeDtoResponse, TimeSpan.FromDays(1));
             }
 
-            var vehicleSizeApi = mapper.Map<VehicleSizeApi>(getVehicleSizeSVResponse.VehicleSize);
-            vehicleSizeApi.Link = new()
+            var vehicleSizeApi = mapper.Map<VehicleSizeApi>(getVehicleSizeDtoResponse.VehicleSize);
+            vehicleSizeApi.Link = new() 
             { 
                 Self = new() 
                 { 
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlSVRequest { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self 
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self 
                 } 
             };
 

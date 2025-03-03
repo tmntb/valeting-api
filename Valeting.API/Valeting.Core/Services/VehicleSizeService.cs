@@ -1,78 +1,75 @@
 ﻿using AutoMapper;
-
 using System.Net;
-
+using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
-using Valeting.Core.Validators;
-using Valeting.Core.Models.VehicleSize;
-using Valeting.Core.Services.Interfaces;
-using Valeting.Repository.Models.VehicleSize;
-using Valeting.Repository.Repositories.Interfaces;
+using Valeting.Services.Validators;
+using Valeting.Repository.Interfaces;
+using Valeting.Common.Models.VehicleSize;
 
 namespace Valeting.Core.Services;
 
 public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IMapper mapper) : IVehicleSizeService
 {
-    public async Task<PaginatedVehicleSizeSVResponse> GetAsync(PaginatedVehicleSizeSVRequest paginatedVehicleSizeSVRequest)
+    public async Task<PaginatedVehicleSizeDtoResponse> GetAsync(PaginatedVehicleSizeDtoRequest paginatedVehicleSizeDtoRequest)
     {
-        var paginatedVehicleSizeSVResponse = new PaginatedVehicleSizeSVResponse();
+        var paginatedVehicleSizeDtoResponse = new PaginatedVehicleSizeDtoResponse();
 
         var validator = new PaginatedVehicleSizeValidator();
-        var result = validator.Validate(paginatedVehicleSizeSVRequest);
+        var result = validator.Validate(paginatedVehicleSizeDtoRequest);
         if(!result.IsValid)
         {
-            paginatedVehicleSizeSVResponse.Error = new()
+            paginatedVehicleSizeDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.BadRequest,
                 Message = result.Errors.FirstOrDefault().ErrorMessage
             };
-            return paginatedVehicleSizeSVResponse;
+            return paginatedVehicleSizeDtoResponse;
         }
 
-        var vehicleSizeFilterDTO = mapper.Map<VehicleSizeFilterDTO>(paginatedVehicleSizeSVRequest.Filter);
+        var vehicleSizeFilterDto = mapper.Map<VehicleSizeFilterDto>(paginatedVehicleSizeDtoRequest.Filter);
 
-        var vehicleSizeListDTO = await vehicleSizeRepository.GetAsync(vehicleSizeFilterDTO);
-        if(vehicleSizeListDTO == null)
+        var vehicleSizeListDto = await vehicleSizeRepository.GetAsync(vehicleSizeFilterDto);
+        if(vehicleSizeListDto == null)
         {
-            paginatedVehicleSizeSVResponse.Error = new()
+            paginatedVehicleSizeDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.NotFound,
                 Message = Messages.VehicleSizeNotFound
             };
-            return paginatedVehicleSizeSVResponse;
+            return paginatedVehicleSizeDtoResponse;
         }
 
-        return mapper.Map<PaginatedVehicleSizeSVResponse>(vehicleSizeListDTO);
+        return mapper.Map<PaginatedVehicleSizeDtoResponse>(vehicleSizeListDto);
     }
 
-    public async Task<GetVehicleSizeSVResponse> GetByIdAsync(GetVehicleSizeSVRequest getVehicleSizeSVRequest)
+    public async Task<GetVehicleSizeDtoResponse> GetByIdAsync(GetVehicleSizeDtoRequest getVehicleSizeDtoRequest)
     {
-        var getVehicleSizeSVResponse = new GetVehicleSizeSVResponse();
+        var getVehicleSizeDtoResponse = new GetVehicleSizeDtoResponse();
 
         var validator = new GetVehicleSizeValidator();
-        var result = validator.Validate(getVehicleSizeSVRequest);
+        var result = validator.Validate(getVehicleSizeDtoRequest);
         if (!result.IsValid)
         {
-            getVehicleSizeSVResponse.Error = new()
+            getVehicleSizeDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.BadRequest,
                 Message = result.Errors.FirstOrDefault().ErrorMessage
             };
-            return getVehicleSizeSVResponse;
+            return getVehicleSizeDtoResponse;
         }
 
-        var vehicleSizeDTO = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeSVRequest.Id);
-        if (vehicleSizeDTO == null)
+        var vehicleSizeDto = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeDtoRequest.Id);
+        if (vehicleSizeDto == null)
         {
-            getVehicleSizeSVResponse.Error = new()
+            getVehicleSizeDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.NotFound,
                 Message = Messages.VehicleSizeNotFound
             };
-            return getVehicleSizeSVResponse;
+            return getVehicleSizeDtoResponse;
         }
 
-        getVehicleSizeSVResponse.VehicleSize = mapper.Map<VehicleSizeSV>(vehicleSizeDTO);
-        return getVehicleSizeSVResponse;
+        getVehicleSizeDtoResponse.VehicleSize = mapper.Map<VehicleSizeDto>(vehicleSizeDto);
+        return getVehicleSizeDtoResponse;
     }
 }

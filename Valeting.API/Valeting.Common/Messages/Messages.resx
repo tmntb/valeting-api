@@ -18,8 +18,8 @@
     <data name="BookingNotFound" xml:space="preserve">
 		<value>Booking was not found.</value>
 	</data>
-    <data name="BookingDTONotPopulated" xml:space="preserve">
-		<value>BookingDTO is not populated.</value>
+    <data name="BookingDtoNotPopulated" xml:space="preserve">
+		<value>BookingDto is not populated.</value>
 	</data>
 	<data name="DateInThePast" xml:space="preserve">
 		<value>The date cannot be in the past.</value>
@@ -69,8 +69,8 @@
     <data name="UserNotFound" xml:space="preserve">
 		<value>User was not found.</value>
 	</data>
-     <data name="UserDTONotPopulated" xml:space="preserve">
-		<value>UserDTO is not populated.</value>
+     <data name="UserDtoNotPopulated" xml:space="preserve">
+		<value>UserDto is not populated.</value>
 	</data>
      <data name="VehicleSizeNull" xml:space="preserve">
 		<value>Vehicle Size cannot be null.</value>

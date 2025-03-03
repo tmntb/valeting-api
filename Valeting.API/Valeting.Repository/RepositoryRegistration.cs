@@ -3,8 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Valeting.Repository.Entities;
+using Valeting.Repository.Interfaces;
 using Valeting.Repository.Repositories;
-using Valeting.Repository.Repositories.Interfaces;
 
 namespace Valeting.Repository;
 

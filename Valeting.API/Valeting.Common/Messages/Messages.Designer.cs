@@ -67,11 +67,11 @@ namespace Valeting.Common.Messages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to BookingDTO is not populated..
+        ///   Looks up a localized string similar to BookingDto is not populated..
         /// </summary>
-        public static string BookingDTONotPopulated {
+        public static string BookingDtoNotPopulated {
             get {
-                return ResourceManager.GetString("BookingDTONotPopulated", resourceCulture);
+                return ResourceManager.GetString("BookingDtoNotPopulated", resourceCulture);
             }
         }
         
@@ -220,11 +220,11 @@ namespace Valeting.Common.Messages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to UserDTO is not populated..
+        ///   Looks up a localized string similar to UserDto is not populated..
         /// </summary>
-        public static string UserDTONotPopulated {
+        public static string UserDtoNotPopulated {
             get {
-                return ResourceManager.GetString("UserDTONotPopulated", resourceCulture);
+                return ResourceManager.GetString("UserDtoNotPopulated", resourceCulture);
             }
         }
         

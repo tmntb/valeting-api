@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -10,42 +10,22 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Helpers\" />
-    <None Remove="ApiObjects\User\" />
-    <None Remove="ApiObjects\Flexibility\" />
-    <None Remove="ApiObjects\VehicleSize\" />
-    <None Remove="StackExchange.Redis" />
-    <None Remove="Microsoft.AspNetCore.Authentication.JwtBearer" />
-    <None Remove="Microsoft.Extensions.Caching.StackExchangeRedis" />
-    <None Remove="ApiObjects\Booking\" />
-    <None Remove="Helpers\Interfaces\" />
-  </ItemGroup>
+
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Valeting.Core\Valeting.Core.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Helpers\" />
-    <Folder Include="ApiObjects\User\" />
-    <Folder Include="ApiObjects\Flexibility\" />
-    <Folder Include="ApiObjects\VehicleSize\" />
-    <Folder Include="ApiObjects\Booking\" />
-    <Folder Include="Helpers\Interfaces\" />
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.13" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Valeting.Core\Valeting.Core.csproj" />
   </ItemGroup>
 </Project>

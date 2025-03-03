@@ -1,23 +1,21 @@
 using AutoMapper;
-
 using Valeting.Models.User;
-using Valeting.Core.Models.User;
+using Valeting.Common.Models.User;
 using Valeting.Repository.Entities;
-using Valeting.Repository.Models.User;
 
 namespace Valeting.Mappers;
 public class UserMapper : Profile
 {
     public UserMapper()
     {
-        //API -> Service
-        CreateMap<ValidateLoginApiRequest, ValidateLoginSVRequest>();
-        CreateMap<ValidateLoginApiRequest, GenerateTokenJWTSVRequest>();
+        // Api -> Dto
+        CreateMap<ValidateLoginApiRequest, ValidateLoginDtoRequest>();
+        CreateMap<ValidateLoginApiRequest, GenerateTokenJWTDtoRequest>();
 
-        //Entity -> DTO
-        CreateMap<ApplicationUser, UserDTO>();
+        // Entity -> Dto
+        CreateMap<ApplicationUser, UserDto>();
 
-        //Service -> API
-        CreateMap<GenerateTokenJWTSVResponse, ValidateLoginApiResponse>();
+        // Dto -> Api
+        CreateMap<GenerateTokenJWTDtoResponse, ValidateLoginApiResponse>();
     }
 }

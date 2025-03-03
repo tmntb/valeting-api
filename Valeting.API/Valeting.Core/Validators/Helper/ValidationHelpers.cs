@@ -1,4 +1,4 @@
-using Valeting.Repository.Repositories.Interfaces;
+using Valeting.Repository.Interfaces;
 
 namespace Valeting.Core.Validators.Helper;
 

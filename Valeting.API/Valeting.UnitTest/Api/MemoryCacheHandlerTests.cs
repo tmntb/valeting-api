@@ -2,19 +2,18 @@ using Moq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Extensions.Caching.Memory;
-
 using Newtonsoft.Json;
-
 using Valeting.Cache;
 
-namespace Valeting.UnitTest.API;
+namespace Valeting.Tests.Api;
 
 public class MemoryCacheHandlerTests
 {
-    private readonly FakeMemoryCache _memoryCache;
     private readonly Mock<ILogger<MemoryCacheHandler>> _mockLogger;
-    private readonly MemoryCacheHandler _cacheHandler;
+
     private readonly List<string> _cacheKeys;
+    private readonly FakeMemoryCache _memoryCache;
+    private readonly MemoryCacheHandler _cacheHandler;
 
     public MemoryCacheHandlerTests()
     {

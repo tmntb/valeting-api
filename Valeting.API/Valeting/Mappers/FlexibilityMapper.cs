@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
-
 using Valeting.Models.Flexibility;
 using Valeting.Repository.Entities;
-using Valeting.Core.Models.Flexibility;
-using Valeting.Repository.Models.Flexibility;
+using Valeting.Common.Models.Flexibility;
 
 namespace Valeting.Mappers;
 
@@ -11,26 +9,19 @@ public class FlexibilityMapper : Profile
 {
     public FlexibilityMapper()
     {
-        //API -> Service
-        CreateMap<FlexibilityApiParameters, PaginatedFlexibilitySVRequest>()
-            .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src));
+        // Api -> Dto
+        CreateMap<FlexibilityApiParameters, PaginatedFlexibilityDtoRequest>()
+            .ForMember(dest => dest.Filter, act => act.MapFrom(src => src));
 
-        CreateMap<FlexibilityApiParameters, FlexibilityFilterSV>()
+        CreateMap<FlexibilityApiParameters, FlexibilityFilterDto>()
             .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.PageNumber))
             .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.PageSize))
             .ForMember(dest => dest.Active, opt => opt.MapFrom(src => src.Active));
 
-        //Service -> DTO
-        CreateMap<FlexibilityFilterSV, FlexibilityFilterDTO>();
+        // Entity -> Dto
+        CreateMap<RdFlexibility, FlexibilityDto>();
 
-        //Entity -> DTO
-        CreateMap<RdFlexibility, FlexibilityDTO>();
-
-        //DTO -> Service
-        CreateMap<FlexibilityDTO, FlexibilitySV>();
-        CreateMap<FlexibilityListDTO, PaginatedFlexibilitySVResponse>();
-
-        //Service -> API
-        CreateMap<FlexibilitySV, FlexibilityApi>();
+        // Dto -> Api
+        CreateMap<FlexibilityDto, FlexibilityApi>();
     }
 }

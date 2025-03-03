@@ -1,8 +1,6 @@
+using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
-using System.Text;
-
 using Valeting.Core;
 using Valeting.Cache;
 using Valeting.Mappers;

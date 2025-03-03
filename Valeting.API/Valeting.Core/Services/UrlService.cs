@@ -1,52 +1,51 @@
 ﻿using System.Web;
-
-using Valeting.Core.Models.Link;
-using Valeting.Core.Services.Interfaces;
+using Valeting.Common.Models.Link;
+using Valeting.Core.Interfaces;
 
 namespace Valeting.Core.Services;
 
 public class UrlService : IUrlService
 {
-    public GenerateSelfUrlSVResponse GenerateSelf(GenerateSelfUrlSVRequest generateSelfUrlSVRequest)
+    public GenerateSelfUrlDtoResponse GenerateSelf(GenerateSelfUrlDtoRequest generateSelfUrlDtoRequest)
     {
         return new()
         {
-            Self = generateSelfUrlSVRequest.Id == default ? 
-                    string.Format("https://{0}/Valeting{1}", generateSelfUrlSVRequest.BaseUrl, generateSelfUrlSVRequest.Path) : 
-                    string.Format("https://{0}/Valeting{1}/{2}", generateSelfUrlSVRequest.BaseUrl, generateSelfUrlSVRequest.Path, generateSelfUrlSVRequest.Id)
+            Self = generateSelfUrlDtoRequest.Id == default ? 
+                    string.Format("https://{0}{1}", generateSelfUrlDtoRequest.BaseUrl, generateSelfUrlDtoRequest.Path) : 
+                    string.Format("https://{0}{1}/{2}", generateSelfUrlDtoRequest.BaseUrl, generateSelfUrlDtoRequest.Path, generateSelfUrlDtoRequest.Id)
         };
     }
 
-    public GeneratePaginatedLinksSVResponse GeneratePaginatedLinks(GeneratePaginatedLinksSVRequest generatePaginatedLinksSVRequest)
+    public GeneratePaginatedLinksDtoResponse GeneratePaginatedLinks(GeneratePaginatedLinksDtoRequest generatePaginatedLinksDtoRequest)
     {
-        var generatePaginatedLinksSVResponse = new GeneratePaginatedLinksSVResponse()
+        var generatePaginatedLinksDtoResponse = new GeneratePaginatedLinksDtoResponse()
         {
             Prev = string.Empty,
             Next = string.Empty,
             Self = string.Empty
         };
 
-        if (generatePaginatedLinksSVRequest.PageNumber > 1)
+        if (generatePaginatedLinksDtoRequest.PageNumber > 1)
         {
-            var pg = generatePaginatedLinksSVRequest.Filter.GetType().GetProperty("PageNumber");
-            pg.SetValue(generatePaginatedLinksSVRequest.Filter, generatePaginatedLinksSVRequest.PageNumber - 1);
-            var queryStringStr = BuildQueryString(generatePaginatedLinksSVRequest.Filter);
+            var pg = generatePaginatedLinksDtoRequest.Filter.GetType().GetProperty("PageNumber");
+            pg.SetValue(generatePaginatedLinksDtoRequest.Filter, generatePaginatedLinksDtoRequest.PageNumber - 1);
+            var queryStringStr = BuildQueryString(generatePaginatedLinksDtoRequest.Filter);
 
-            generatePaginatedLinksSVResponse.Prev = string.Format("https://{0}/Valeting{1}?{2}", generatePaginatedLinksSVRequest.BaseUrl, generatePaginatedLinksSVRequest.Path, queryStringStr);
+            generatePaginatedLinksDtoResponse.Prev = string.Format("https://{0}{1}?{2}", generatePaginatedLinksDtoRequest.BaseUrl, generatePaginatedLinksDtoRequest.Path, queryStringStr);
         }
 
-        if (generatePaginatedLinksSVRequest.PageNumber < generatePaginatedLinksSVRequest.TotalPages)
+        if (generatePaginatedLinksDtoRequest.PageNumber < generatePaginatedLinksDtoRequest.TotalPages)
         {
-            var pg = generatePaginatedLinksSVRequest.Filter.GetType().GetProperty("PageNumber");
-            pg.SetValue(generatePaginatedLinksSVRequest.Filter, generatePaginatedLinksSVRequest.PageNumber + 1);
-            var queryStringStr = BuildQueryString(generatePaginatedLinksSVRequest.Filter);
+            var pg = generatePaginatedLinksDtoRequest.Filter.GetType().GetProperty("PageNumber");
+            pg.SetValue(generatePaginatedLinksDtoRequest.Filter, generatePaginatedLinksDtoRequest.PageNumber + 1);
+            var queryStringStr = BuildQueryString(generatePaginatedLinksDtoRequest.Filter);
 
-            generatePaginatedLinksSVResponse.Next = string.Format("https://{0}/Valeting{1}?{2}", generatePaginatedLinksSVRequest.BaseUrl, generatePaginatedLinksSVRequest.Path, queryStringStr);
+            generatePaginatedLinksDtoResponse.Next = string.Format("https://{0}{1}?{2}", generatePaginatedLinksDtoRequest.BaseUrl, generatePaginatedLinksDtoRequest.Path, queryStringStr);
         }
 
-        generatePaginatedLinksSVResponse.Self = string.Format("https://{0}/Valeting{1}{2}", generatePaginatedLinksSVRequest.BaseUrl, generatePaginatedLinksSVRequest.Path, generatePaginatedLinksSVRequest.QueryString);
+        generatePaginatedLinksDtoResponse.Self = string.Format("https://{0}{1}{2}", generatePaginatedLinksDtoRequest.BaseUrl, generatePaginatedLinksDtoRequest.Path, generatePaginatedLinksDtoRequest.QueryString);
 
-        return generatePaginatedLinksSVResponse;
+        return generatePaginatedLinksDtoResponse;
     }
 
     private string BuildQueryString(object filter)
@@ -63,6 +62,6 @@ public class UrlService : IUrlService
 
     private string FormatPropertyValue(object value)
     {
-        return value is bool boolValue ? (boolValue ? "true" : "false") : value.ToString();
+        return value is bool boolValue ? boolValue ? "true" : "false" : value.ToString();
     }
 }

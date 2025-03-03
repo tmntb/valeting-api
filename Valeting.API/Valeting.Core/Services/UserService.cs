@@ -1,81 +1,88 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
-using Valeting.Core.Validators;
-using Valeting.Core.Models.User;
-using Valeting.Core.Services.Interfaces;
-using Valeting.Repository.Repositories.Interfaces;
+using Valeting.Common.Models.User;
+using Valeting.Services.Validators;
+using Valeting.Repository.Interfaces;
 
 namespace Valeting.Core.Services;
 
 public class UserService(IUserRepository userRepository, IConfiguration configuration) : IUserService
 {
-    public async Task<ValidateLoginSVResponse> ValidateLoginAsync(ValidateLoginSVRequest validateLoginSVRequest)
+    public async Task<ValidateLoginDtoResponse> ValidateLoginAsync(ValidateLoginDtoRequest validateLoginDtoRequest)
     {
-        var validateLoginSVResponse = new ValidateLoginSVResponse();
+        var validateLoginDtoResponse = new ValidateLoginDtoResponse() { Error = new() };
 
         var validator = new ValidateLoginValidator();
-        var result = validator.Validate(validateLoginSVRequest);
-        if (!result.IsValid)
+        var result = validator.Validate(validateLoginDtoRequest);
+        if(!result.IsValid)
         {
-            validateLoginSVResponse.Error = new()
+            validateLoginDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.BadRequest,
                 Message = result.Errors.FirstOrDefault().ErrorMessage
             };
-            return validateLoginSVResponse;
+            return validateLoginDtoResponse;
         }
 
-        var userDTO = await userRepository.FindUserByEmailAsync(validateLoginSVRequest.Username);
-        if (userDTO == null)
+        var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username);
+        if (userDto == null)
         {
-            validateLoginSVResponse.Error = new()
+            validateLoginDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.NotFound,
                 Message = Messages.UserNotFound
             };
-            return validateLoginSVResponse;
+            return validateLoginDtoResponse;
         }
 
-        byte[] salt = Encoding.ASCII.GetBytes(userDTO.Salt);
+        byte[] salt = Encoding.ASCII.GetBytes(userDto.Salt);
 
-        var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(validateLoginSVRequest.Password, salt, KeyDerivationPrf.HMACSHA256, 100000, 256 / 8));
-        validateLoginSVResponse.Valid = userDTO.Password.Equals(hashed);
-        return validateLoginSVResponse;
+        /*
+            * Criar Salt
+        byte[] salt = new byte[128 / 8];
+        using (RNGCryptoServiceProvider rngCsp = new())
+        {
+            rngCsp.GetNonZeroBytes(salt);
+        }
+        */
+
+        var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(validateLoginDtoRequest.Password, salt, KeyDerivationPrf.HMACSHA256, 100000, 256 / 8));
+        validateLoginDtoResponse.Valid = userDto.Password.Equals(hashed);
+        return validateLoginDtoResponse;
     }
 
-    public async Task<GenerateTokenJWTSVResponse> GenerateTokenJWTAsync(GenerateTokenJWTSVRequest generateTokenJWTSVRequest)
+    public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(GenerateTokenJWTDtoRequest generateTokenJWTDtoRequest)
     {
-        var generateTokenJWTSVResponse = new GenerateTokenJWTSVResponse();
+        var generateTokenJWTDtoResponse = new GenerateTokenJWTDtoResponse();
 
         var validator = new GenerateTokenJWTValidator();
-        var result = validator.Validate(generateTokenJWTSVRequest);
-        if (!result.IsValid)
+        var result = validator.Validate(generateTokenJWTDtoRequest);
+        if(!result.IsValid)
         {
-            generateTokenJWTSVResponse.Error = new()
+            generateTokenJWTDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.BadRequest,
                 Message = result.Errors.FirstOrDefault().ErrorMessage
             };
-            return generateTokenJWTSVResponse;
+            return generateTokenJWTDtoResponse;
         }
 
-        var userDTO = await userRepository.FindUserByEmailAsync(generateTokenJWTSVRequest.Username);
-        if (userDTO == null)
+        var userDto = await userRepository.GetUserByEmailAsync(generateTokenJWTDtoRequest.Username);
+        if (userDto == null)
         {
-            generateTokenJWTSVResponse.Error = new()
+            generateTokenJWTDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.NotFound,
                 Message = Messages.UserNotFound
             };
-            return generateTokenJWTSVResponse;
+            return generateTokenJWTDtoResponse;
         }
 
         var secret = configuration["Jwt:Key"];
@@ -89,8 +96,8 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         {
             Subject = new ClaimsIdentity(
             [
-                new Claim("UserId", userDTO.Id.ToString()),
-                new Claim("Username", userDTO.Username)
+                new Claim("UserId", userDto.Id.ToString()),
+                new Claim("Username", userDto.Username)
             ]),
             Expires = DateTime.Now.AddMinutes(60),
             Issuer = issuer,
@@ -100,22 +107,10 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        
-        generateTokenJWTSVResponse.Token = tokenHandler.WriteToken(token);
-        generateTokenJWTSVResponse.ExpiryDate = token.ValidTo.ToLocalTime();
-        generateTokenJWTSVResponse.TokenType = tokenHandler.TokenType.Name;
-        return generateTokenJWTSVResponse;
-    }
 
-    private void GenerateSalt()
-    {
-        /*
-            * Criar Salt
-        byte[] salt = new byte[128 / 8];
-        using (RNGCryptoServiceProvider rngCsp = new())
-        {
-            rngCsp.GetNonZeroBytes(salt);
-        }
-        */
+        generateTokenJWTDtoResponse.Token = tokenHandler.WriteToken(token);
+        generateTokenJWTDtoResponse.ExpiryDate = token.ValidTo.ToLocalTime();
+        generateTokenJWTDtoResponse.TokenType = tokenHandler.TokenType.Name;
+        return generateTokenJWTDtoResponse;
     }
 }

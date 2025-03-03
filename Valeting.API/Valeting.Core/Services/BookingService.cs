@@ -1,168 +1,205 @@
-﻿using AutoMapper;
-
-using System.Net;
-
+﻿using System.Net;
+using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
-using Valeting.Core.Validators;
-using Valeting.Core.Models.Booking;
-using Valeting.Core.Validators.Helper;
-using Valeting.Core.Services.Interfaces;
-using Valeting.Repository.Models.Booking;
-using Valeting.Repository.Repositories.Interfaces;
+using Valeting.Services.Validators;
+using Valeting.Common.Models.Booking;
+using Valeting.Repository.Interfaces;
 
 namespace Valeting.Core.Services;
 
-public class BookingService(IBookingRepository bookingRepository, ValidationHelpers validationHelpers, IMapper mapper) : IBookingService
+public class BookingService(IBookingRepository bookingRepository) : IBookingService
 {
-    public async Task<CreateBookingSVResponse> CreateAsync(CreateBookingSVRequest createBookingSVRequest)
+    public async Task<CreateBookingDtoResponse> CreateAsync(CreateBookingDtoRequest createBookingDtoRequest)
     {
-        var createBookingSVResponse = new CreateBookingSVResponse();
-        var validator = new CreateBookingValidator(validationHelpers);
-        var result = await validator.ValidateAsync(createBookingSVRequest);
+        var createBookingDtoResponse = new CreateBookingDtoResponse();
+        var validator = new CreateBookingValidator();
+        var result = validator.Validate(createBookingDtoRequest);
         if (!result.IsValid)
         {
-            createBookingSVResponse.Error = new()
+            createBookingDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.BadRequest,
                 Message = result.Errors.FirstOrDefault().ErrorMessage
             };
-            return createBookingSVResponse;
+            return createBookingDtoResponse;
         }
 
         var id = Guid.NewGuid();
-
-        var bookingDTO = mapper.Map<BookingDTO>(createBookingSVRequest);
-        bookingDTO.Id = id;
-
-        await bookingRepository.CreateAsync(bookingDTO);
+        var bookingDto = new BookingDto()
+        {
+            Id = id,
+            Name = createBookingDtoRequest.Name,
+            Email = createBookingDtoRequest.Email,
+            ContactNumber = createBookingDtoRequest.ContactNumber,
+            BookingDate = createBookingDtoRequest.BookingDate,
+            Flexibility = new() { Id = createBookingDtoRequest.Flexibility.Id },
+            VehicleSize = new() { Id = createBookingDtoRequest.VehicleSize.Id },
+            Approved = false
+        };
+        await bookingRepository.CreateAsync(bookingDto);
         
-        createBookingSVResponse.Id = id;
-        return createBookingSVResponse;
+        createBookingDtoResponse.Id = id;
+        return createBookingDtoResponse;
     }
 
-    public async Task<UpdateBookingSVResponse> UpdateAsync(UpdateBookingSVRequest updateBookingSVRequest)
+    public async Task<UpdateBookingDtoResponse> UpdateAsync(UpdateBookingDtoRequest updateBookingDtoRequest)
     {
-        var updateBookingSVResponse = new UpdateBookingSVResponse();
-        var validator = new UpdateBookinValidator(validationHelpers);
-        var result = await validator.ValidateAsync(updateBookingSVRequest);
+        var updateBookingDtoResponse = new UpdateBookingDtoResponse();
+        var validator = new UpdateBookinValidator();
+        var result = await validator.ValidateAsync(updateBookingDtoRequest);
         if(!result.IsValid)
         {
-            updateBookingSVResponse.Error = new()
+            updateBookingDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.BadRequest,
                 Message = result.Errors.FirstOrDefault().ErrorMessage
             };
-            return updateBookingSVResponse;
+            return updateBookingDtoResponse;
         }
 
-        var bookingDTO = await bookingRepository.GetByIdAsync(updateBookingSVRequest.Id);
-        if (bookingDTO == null)
+        var bookingDto = await bookingRepository.GetByIdAsync(updateBookingDtoRequest.Id);
+        if (bookingDto == null)
         {
-            updateBookingSVResponse.Error = new()
+            updateBookingDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.NotFound,
                 Message = Messages.BookingNotFound
             };
-            return updateBookingSVResponse;
+            return updateBookingDtoResponse;
         }
 
-        mapper.Map(updateBookingSVRequest, bookingDTO);
-        await bookingRepository.UpdateAsync(bookingDTO);
+        bookingDto.Id = updateBookingDtoRequest.Id;
+        bookingDto.Name = updateBookingDtoRequest.Name;
+        bookingDto.BookingDate = updateBookingDtoRequest.BookingDate;
+        bookingDto.Flexibility = updateBookingDtoRequest.Flexibility != null ? new() { Id = updateBookingDtoRequest.Flexibility.Id } : null;
+        bookingDto.VehicleSize = updateBookingDtoRequest.VehicleSize != null ? new() { Id = updateBookingDtoRequest.VehicleSize.Id } : null;
+        bookingDto.ContactNumber = updateBookingDtoRequest.ContactNumber;
+        bookingDto.Email = updateBookingDtoRequest.Email;
+        bookingDto.Approved = updateBookingDtoRequest.Approved;
+        await bookingRepository.UpdateAsync(bookingDto);
 
-        return updateBookingSVResponse;
+        return updateBookingDtoResponse;
     }
 
-    public async Task<DeleteBookingSVResponse> DeleteAsync(DeleteBookingSVRequest deleteBookingSVRequest)
+    public async Task<DeleteBookingDtoResponse> DeleteAsync(DeleteBookingDtoRequest deleteBookingDtoRequest)
     {
-        var deleteBookingSVResponse = new DeleteBookingSVResponse();
+        var deleteBookingDtoResponse = new DeleteBookingDtoResponse();
         var validator = new DeleteBookingValidator();
-        var result = validator.Validate(deleteBookingSVRequest);
+        var result = validator.Validate(deleteBookingDtoRequest);
         if(!result.IsValid)
         {
-            deleteBookingSVResponse.Error = new()
+            deleteBookingDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.BadRequest,
                 Message = result.Errors.FirstOrDefault().ErrorMessage
             };
-            return deleteBookingSVResponse;
+            return deleteBookingDtoResponse;
         }
 
-        var bookingDTO = await bookingRepository.GetByIdAsync(deleteBookingSVRequest.Id);
-        if (bookingDTO == null)
+        var bookingDto = await bookingRepository.GetByIdAsync(deleteBookingDtoRequest.Id);
+        if (bookingDto == null)
         {
-            deleteBookingSVResponse.Error = new()
+            deleteBookingDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.NotFound,
                 Message = Messages.BookingNotFound
             };
-            return deleteBookingSVResponse;
+            return deleteBookingDtoResponse;
         }
 
-        await bookingRepository.DeleteAsync(deleteBookingSVRequest.Id);
+        await bookingRepository.DeleteAsync(deleteBookingDtoRequest.Id);
 
-        return deleteBookingSVResponse;
+        return deleteBookingDtoResponse;
     }
 
-    public async Task<PaginatedBookingSVResponse> GetAsync(PaginatedBookingSVRequest paginatedBookingSVRequest)
+    public async Task<GetBookingDtoResponse> GetByIdAsync(GetBookingDtoRequest getBookingDtoRequest)
     {
-        var paginatedBookingSVResponse = new PaginatedBookingSVResponse();
-        
-        var validator = new PaginatedBookingValidator();
-        var result = validator.Validate(paginatedBookingSVRequest);
-        if(!result.IsValid)
-        {
-            paginatedBookingSVResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return paginatedBookingSVResponse;
-        }
-
-        var bookingFilterDTO = mapper.Map<BookingFilterDTO>(paginatedBookingSVRequest.Filter);
-
-        var bookingListDTO = await bookingRepository.GetAsync(bookingFilterDTO);
-        if(bookingListDTO == null)
-        {
-            paginatedBookingSVResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.BookingNotFound
-            };
-            return paginatedBookingSVResponse;
-        }
-
-        return mapper.Map<PaginatedBookingSVResponse>(bookingListDTO);
-    }
-
-    public async Task<GetBookingSVResponse> GetByIdAsync(GetBookingSVRequest getBookingSVRequest)
-    {
-        var getBookingSVResponse = new GetBookingSVResponse();
+        var getBookingDtoResponse = new GetBookingDtoResponse();
 
         var validator = new GetBookingValidator();
-        var result = validator.Validate(getBookingSVRequest);
+        var result = validator.Validate(getBookingDtoRequest);
         if(!result.IsValid)
         {
-            getBookingSVResponse.Error = new()
+            getBookingDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.BadRequest,
                 Message = result.Errors.FirstOrDefault().ErrorMessage
             };
-            return getBookingSVResponse;
+            return getBookingDtoResponse;
         }
 
-        var bookingDTO = await bookingRepository.GetByIdAsync(getBookingSVRequest.Id);
-        if (bookingDTO == null)
+        var bookingDto = await bookingRepository.GetByIdAsync(getBookingDtoRequest.Id);
+        if (bookingDto == null)
         {
-            getBookingSVResponse.Error = new()
+            getBookingDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.NotFound,
                 Message = Messages.BookingNotFound
             };
-            return getBookingSVResponse;
+            return getBookingDtoResponse;
         }
 
-        getBookingSVResponse.Booking = mapper.Map<BookingSV>(bookingDTO);
-        return getBookingSVResponse;
+        getBookingDtoResponse.Id = bookingDto.Id;
+        getBookingDtoResponse.Name = bookingDto.Name;
+        getBookingDtoResponse.BookingDate = bookingDto.BookingDate;
+        getBookingDtoResponse.ContactNumber = bookingDto.ContactNumber;
+        getBookingDtoResponse.Flexibility = new() { Id = bookingDto.Flexibility.Id, Description = bookingDto.Flexibility.Description, Active = bookingDto.Flexibility.Active };
+        getBookingDtoResponse.VehicleSize = new() { Id = bookingDto.VehicleSize.Id, Description = bookingDto.VehicleSize.Description, Active = bookingDto.VehicleSize.Active };
+        getBookingDtoResponse.Email = bookingDto.Email;
+        getBookingDtoResponse.Approved = bookingDto.Approved;
+        return getBookingDtoResponse;
+    }
+
+    public async Task<PaginatedBookingDtoResponse> GetAsync(PaginatedBookingDtoRequest paginatedBookingDtoRequest)
+    {
+        var paginatedBookingDtoResponse = new PaginatedBookingDtoResponse();
+        
+        var validator = new PaginatedBookingValidator();
+        var result = validator.Validate(paginatedBookingDtoRequest);
+        if(!result.IsValid)
+        {
+            paginatedBookingDtoResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.BadRequest,
+                Message = result.Errors.FirstOrDefault().ErrorMessage
+            };
+            return paginatedBookingDtoResponse;
+        }
+
+        var bookingFilterDto = new BookingFilterDto()
+        {
+            PageNumber = paginatedBookingDtoRequest.Filter.PageNumber,
+            PageSize = paginatedBookingDtoRequest.Filter.PageSize
+        };
+
+        var bookingListDto = await bookingRepository.GetAsync(bookingFilterDto);
+        if(bookingListDto == null)
+        {
+            paginatedBookingDtoResponse.Error = new()
+            {
+                ErrorCode = (int)HttpStatusCode.NotFound,
+                Message = Messages.BookingNotFound
+            };
+            return paginatedBookingDtoResponse;
+        }
+
+        paginatedBookingDtoResponse.TotalItems = bookingListDto.TotalItems;
+        paginatedBookingDtoResponse.TotalPages = bookingListDto.TotalPages;
+
+        paginatedBookingDtoResponse.Bookings = bookingListDto.Bookings.Select(x => 
+            new BookingDto()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                BookingDate = x.BookingDate,
+                ContactNumber = x.ContactNumber,
+                Flexibility = new() { Id = x.Flexibility.Id, Description = x.Flexibility.Description, Active = x.Flexibility.Active},
+                VehicleSize = new() { Id = x.VehicleSize.Id, Description = x.VehicleSize.Description, Active = x.VehicleSize.Active},
+                Email = x.Email,
+                Approved = x.Approved
+            }
+        ).ToList();
+
+        return paginatedBookingDtoResponse;
     }
 }

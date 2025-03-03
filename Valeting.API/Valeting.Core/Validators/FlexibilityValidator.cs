@@ -1,10 +1,9 @@
 using FluentValidation;
+using Valeting.Common.Models.Flexibility;
 
-using Valeting.Core.Models.Flexibility;
+namespace Valeting.Services.Validators;
 
-namespace Valeting.Core.Validators;
-
-public class GetFlexibilityValidator : AbstractValidator<GetFlexibilitySVRequest>
+public class GetFlexibilityValidator : AbstractValidator<GetFlexibilityDtoRequest>
 {
     public GetFlexibilityValidator()
     {
@@ -17,7 +16,7 @@ public class GetFlexibilityValidator : AbstractValidator<GetFlexibilitySVRequest
     }
 }
 
-public class PaginatedFlexibilityValidator : AbstractValidator<PaginatedFlexibilitySVRequest>
+public class PaginatedFlexibilityValidator : AbstractValidator<PaginatedFlexibilityDtoRequest>
 {
     public PaginatedFlexibilityValidator()
     {

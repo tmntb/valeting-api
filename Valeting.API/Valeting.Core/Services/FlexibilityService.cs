@@ -1,78 +1,75 @@
 ﻿using AutoMapper;
-
 using System.Net;
-
+using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
-using Valeting.Core.Validators;
-using Valeting.Core.Models.Flexibility;
-using Valeting.Core.Services.Interfaces;
-using Valeting.Repository.Models.Flexibility;
-using Valeting.Repository.Repositories.Interfaces;
+using Valeting.Services.Validators;
+using Valeting.Repository.Interfaces;
+using Valeting.Common.Models.Flexibility;
 
 namespace Valeting.Core.Services;
 
-public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IMapper mapper) :IFlexibilityService
+public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IMapper mapper) : IFlexibilityService
 {
-    public async Task<PaginatedFlexibilitySVResponse> GetAsync(PaginatedFlexibilitySVRequest paginatedFlexibilitySVRequest)
+    public async Task<PaginatedFlexibilityDtoResponse> GetAsync(PaginatedFlexibilityDtoRequest paginatedFlexibilityDtoRequest)
     {
-        var paginatedFlexibilitySVResponse = new PaginatedFlexibilitySVResponse();
+        var paginatedFlexibilityDtoResponse = new PaginatedFlexibilityDtoResponse();
 
         var validator = new PaginatedFlexibilityValidator();
-        var result = validator.Validate(paginatedFlexibilitySVRequest);
+        var result = validator.Validate(paginatedFlexibilityDtoRequest);
         if (!result.IsValid)
         {
-            paginatedFlexibilitySVResponse.Error = new()
+            paginatedFlexibilityDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.BadRequest,
                 Message = result.Errors.FirstOrDefault().ErrorMessage
             };
-            return paginatedFlexibilitySVResponse;
+            return paginatedFlexibilityDtoResponse;
         }
 
-        var flexibilityFilterDTO = mapper.Map<FlexibilityFilterDTO>(paginatedFlexibilitySVRequest.Filter);
+        var flexibilityFilterDto = mapper.Map<FlexibilityFilterDto>(paginatedFlexibilityDtoRequest.Filter);
 
-        var flexibilityListDTO = await flexibilityRepository.GetAsync(flexibilityFilterDTO);
-        if (flexibilityListDTO == null)
+        var flexibilityListDto = await flexibilityRepository.GetAsync(flexibilityFilterDto);
+        if (flexibilityListDto == null)
         {
-            paginatedFlexibilitySVResponse.Error = new()
+            paginatedFlexibilityDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.NotFound,
                 Message = Messages.FlexibilityNotFound
             };
-            return paginatedFlexibilitySVResponse;
+            return paginatedFlexibilityDtoResponse;
         }
 
-        return mapper.Map<PaginatedFlexibilitySVResponse>(flexibilityListDTO);
+        return mapper.Map<PaginatedFlexibilityDtoResponse>(flexibilityListDto);
     }
 
-    public async Task<GetFlexibilitySVResponse> GetByIdAsync(GetFlexibilitySVRequest getFlexibilitySVRequest)
+    public async Task<GetFlexibilityDtoResponse> GetByIdAsync(GetFlexibilityDtoRequest getFlexibilityDtoRequest)
     {
-        var getFlexibilitySVResponse = new GetFlexibilitySVResponse();
+        var getFlexibilityDtoResponse = new GetFlexibilityDtoResponse();
 
         var validator = new GetFlexibilityValidator();
-        var result = validator.Validate(getFlexibilitySVRequest);
-        if (!result.IsValid)
+        var result = validator.Validate(getFlexibilityDtoRequest);
+        if(!result.IsValid)
         {
-            getFlexibilitySVResponse.Error = new()
+            getFlexibilityDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.BadRequest,
                 Message = result.Errors.FirstOrDefault().ErrorMessage
             };
-            return getFlexibilitySVResponse;
+            return getFlexibilityDtoResponse;
         }
 
-        var flexibilityDTO = await flexibilityRepository.GetByIdAsync(getFlexibilitySVRequest.Id);
-        if (flexibilityDTO == null)
+        var flexibilityDto = await flexibilityRepository.GetByIdAsync(getFlexibilityDtoRequest.Id);
+        if (flexibilityDto == null)
         {
-            getFlexibilitySVResponse.Error = new()
+            getFlexibilityDtoResponse.Error = new()
             {
                 ErrorCode = (int)HttpStatusCode.NotFound,
                 Message = Messages.FlexibilityNotFound
             };
-            return getFlexibilitySVResponse;
+            return getFlexibilityDtoResponse;
         }
         
-        getFlexibilitySVResponse.Flexibility = mapper.Map<FlexibilitySV>(flexibilityDTO);
-        return getFlexibilitySVResponse;
+        getFlexibilityDtoResponse.Flexibility = mapper.Map<FlexibilityDto>(flexibilityDto);
+        return getFlexibilityDtoResponse;
     }
 }

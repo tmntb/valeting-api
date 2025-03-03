@@ -1,18 +1,12 @@
 ﻿using FluentValidation;
+using Valeting.Common.Models.Booking;
 
-using Valeting.Core.Models.Booking;
-using Valeting.Core.Validators.Helper;
+namespace Valeting.Services.Validators;
 
-namespace Valeting.Core.Validators;
-
-public class CreateBookingValidator : AbstractValidator<CreateBookingSVRequest>
+public class CreateBookingValidator : AbstractValidator<CreateBookingDtoRequest>
 {
-    private readonly ValidationHelpers _validationHelpers;
-
-    public CreateBookingValidator(ValidationHelpers validationHelpers)
+    public CreateBookingValidator()
     {
-        _validationHelpers = validationHelpers;
-
         RuleFor(x => x)
             .NotNull();
 
@@ -33,25 +27,17 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingSVRequest>
             .GreaterThan(DateTime.Now);
                 
         RuleFor(x => x.Flexibility.Id)
-            .NotEqual(Guid.Empty)
-            .MustAsync(_validationHelpers.FlexibilityIsValid)
-            .WithMessage("Invalid Flexibility Id.");
+            .NotEqual(Guid.Empty);
 
         RuleFor(x => x.VehicleSize.Id)
-            .NotEqual(Guid.Empty)
-            .MustAsync(_validationHelpers.VehicleSizeIsValid)
-            .WithMessage("Invalid Vehicle Size Id.");
+            .NotEqual(Guid.Empty);
     }
 }
 
-public class UpdateBookinValidator : AbstractValidator<UpdateBookingSVRequest>
+public class UpdateBookinValidator : AbstractValidator<UpdateBookingDtoRequest>
 {
-    private readonly ValidationHelpers _validationHelpers;
-
-    public UpdateBookinValidator(ValidationHelpers validationHelpers)
+    public UpdateBookinValidator()
     {
-        _validationHelpers = validationHelpers;
-        
         RuleFor(x => x)
             .NotNull();
 
@@ -75,18 +61,14 @@ public class UpdateBookinValidator : AbstractValidator<UpdateBookingSVRequest>
             .GreaterThan(DateTime.Now);
 
         RuleFor(x => x.Flexibility.Id)
-            .NotEqual(Guid.Empty)
-            .MustAsync(_validationHelpers.FlexibilityIsValid)
-            .WithMessage("Invalid Flexibility Id.");
+           .NotEqual(Guid.Empty);
 
         RuleFor(x => x.VehicleSize.Id)
-            .NotEqual(Guid.Empty)
-            .MustAsync(_validationHelpers.VehicleSizeIsValid)
-            .WithMessage("Invalid VehicleSize Id.");
+            .NotEqual(Guid.Empty);
     }
 }
 
-public class DeleteBookingValidator : AbstractValidator<DeleteBookingSVRequest>
+public class DeleteBookingValidator : AbstractValidator<DeleteBookingDtoRequest>
 {
     public DeleteBookingValidator()
     {
@@ -98,7 +80,7 @@ public class DeleteBookingValidator : AbstractValidator<DeleteBookingSVRequest>
     }
 }
 
-public class GetBookingValidator : AbstractValidator<GetBookingSVRequest>
+public class GetBookingValidator : AbstractValidator<GetBookingDtoRequest>
 {
     public GetBookingValidator()
     {
@@ -110,7 +92,7 @@ public class GetBookingValidator : AbstractValidator<GetBookingSVRequest>
     }
 }
 
-public class PaginatedBookingValidator : AbstractValidator<PaginatedBookingSVRequest>
+public class PaginatedBookingValidator : AbstractValidator<PaginatedBookingDtoRequest>
 {
     public PaginatedBookingValidator()
     {

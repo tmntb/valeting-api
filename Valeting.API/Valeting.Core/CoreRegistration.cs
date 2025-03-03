@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-
 using Valeting.Core.Services;
+using Valeting.Core.Interfaces;
 using Valeting.Core.Validators.Helper;
-using Valeting.Core.Services.Interfaces;
 
 namespace Valeting.Core;
 
