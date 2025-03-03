@@ -1,10 +1,9 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
+using System.Text.Json;
+using Valeting.Common.Cache.Interfaces;
 
-using Newtonsoft.Json;
-
-using Valeting.Cache.Interfaces;
-
-namespace Valeting.Cache;
+namespace Valeting.Common.Cache;
 
 public class MemoryCacheHandler(IMemoryCache memoryCache, ILogger<MemoryCacheHandler> logger) : ICacheHandler
 {
@@ -33,7 +32,7 @@ public class MemoryCacheHandler(IMemoryCache memoryCache, ILogger<MemoryCacheHan
                 return default;
             
             AddKeyToCache(recordKey);
-            return JsonConvert.DeserializeObject<T>(serializedValue);
+            return JsonSerializer.Deserialize<T>(serializedValue);
 
         } 
         catch (Exception ex)
@@ -74,7 +73,7 @@ public class MemoryCacheHandler(IMemoryCache memoryCache, ILogger<MemoryCacheHan
                 SlidingExpiration = slidingExpireTime
             };
 
-            var jsonData = JsonConvert.SerializeObject(data);
+            var jsonData = JsonSerializer.Serialize(data);
             memoryCache.Set(recordKey, jsonData, cacheEntryOptions);
 
             AddKeyToCache(recordKey);

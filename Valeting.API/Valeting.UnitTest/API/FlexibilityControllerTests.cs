@@ -9,6 +9,7 @@ using Valeting.Cache.Interfaces;
 using Valeting.Models.Flexibility;
 using Valeting.Common.Models.Link;
 using Valeting.Common.Models.Flexibility;
+using Valeting.Common.Cache.Interfaces;
 
 namespace Valeting.Tests.Api;
 

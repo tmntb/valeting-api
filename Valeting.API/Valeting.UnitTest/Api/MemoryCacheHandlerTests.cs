@@ -4,6 +4,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Valeting.Cache;
+using Valeting.Common.Cache;
 
 namespace Valeting.Tests.Api;
 

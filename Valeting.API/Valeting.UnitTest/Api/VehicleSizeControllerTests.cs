@@ -9,6 +9,7 @@ using Valeting.Cache.Interfaces;
 using Valeting.Models.VehicleSize;
 using Valeting.Common.Models.Link;
 using Valeting.Common.Models.VehicleSize;
+using Valeting.Common.Cache.Interfaces;
 
 namespace Valeting.Tests.Api;
 

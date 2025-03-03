@@ -4,11 +4,12 @@ using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
 using Valeting.Services.Validators;
 using Valeting.Repository.Interfaces;
+using Valeting.Common.Cache.Interfaces;
 using Valeting.Common.Models.Flexibility;
 
 namespace Valeting.Core.Services;
 
-public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IMapper mapper) : IFlexibilityService
+public class FlexibilityService(IFlexibilityRepository flexibilityRepository, ICacheHandler cacheHandler, IMapper mapper) : IFlexibilityService
 {
     public async Task<PaginatedFlexibilityDtoResponse> GetAsync(PaginatedFlexibilityDtoRequest paginatedFlexibilityDtoRequest)
     {
@@ -26,20 +27,29 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IM
             return paginatedFlexibilityDtoResponse;
         }
 
-        var flexibilityFilterDto = mapper.Map<FlexibilityFilterDto>(paginatedFlexibilityDtoRequest.Filter);
-
-        var flexibilityListDto = await flexibilityRepository.GetAsync(flexibilityFilterDto);
-        if (flexibilityListDto == null)
+        var recordKey = string.Format("ListFlexibility_{0}_{1}_{2}", paginatedFlexibilityDtoRequest.Filter.PageNumber, paginatedFlexibilityDtoRequest.Filter.PageSize, paginatedFlexibilityDtoRequest.Filter.Active);
+        paginatedFlexibilityDtoResponse = cacheHandler.GetRecord<PaginatedFlexibilityDtoResponse>(recordKey);
+        if (paginatedFlexibilityDtoResponse == null)
         {
-            paginatedFlexibilityDtoResponse.Error = new()
+            var flexibilityFilterDto = mapper.Map<FlexibilityFilterDto>(paginatedFlexibilityDtoRequest.Filter);
+
+            var flexibilityListDto = await flexibilityRepository.GetAsync(flexibilityFilterDto);
+            if (flexibilityListDto == null)
             {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.FlexibilityNotFound
-            };
-            return paginatedFlexibilityDtoResponse;
+                paginatedFlexibilityDtoResponse.Error = new()
+                {
+                    ErrorCode = (int)HttpStatusCode.NotFound,
+                    Message = Messages.FlexibilityNotFound
+                };
+                return paginatedFlexibilityDtoResponse;
+            }
+
+            paginatedFlexibilityDtoResponse = mapper.Map<PaginatedFlexibilityDtoResponse>(flexibilityListDto);
+
+            cacheHandler.SetRecord(recordKey, paginatedFlexibilityDtoResponse, TimeSpan.FromMinutes(5));
         }
 
-        return mapper.Map<PaginatedFlexibilityDtoResponse>(flexibilityListDto);
+        return paginatedFlexibilityDtoResponse;
     }
 
     public async Task<GetFlexibilityDtoResponse> GetByIdAsync(GetFlexibilityDtoRequest getFlexibilityDtoRequest)
@@ -48,7 +58,7 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IM
 
         var validator = new GetFlexibilityValidator();
         var result = validator.Validate(getFlexibilityDtoRequest);
-        if(!result.IsValid)
+        if (!result.IsValid)
         {
             getFlexibilityDtoResponse.Error = new()
             {
@@ -58,18 +68,27 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IM
             return getFlexibilityDtoResponse;
         }
 
-        var flexibilityDto = await flexibilityRepository.GetByIdAsync(getFlexibilityDtoRequest.Id);
-        if (flexibilityDto == null)
+        var recordKey = string.Format("Flexibility_{0}", getFlexibilityDtoRequest.Id);
+        getFlexibilityDtoResponse = cacheHandler.GetRecord<GetFlexibilityDtoResponse>(recordKey);
+        if (getFlexibilityDtoResponse == null)
         {
-            getFlexibilityDtoResponse.Error = new()
+
+            var flexibilityDto = await flexibilityRepository.GetByIdAsync(getFlexibilityDtoRequest.Id);
+            if (flexibilityDto == null)
             {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.FlexibilityNotFound
-            };
-            return getFlexibilityDtoResponse;
+                getFlexibilityDtoResponse.Error = new()
+                {
+                    ErrorCode = (int)HttpStatusCode.NotFound,
+                    Message = Messages.FlexibilityNotFound
+                };
+                return getFlexibilityDtoResponse;
+            }
+
+            getFlexibilityDtoResponse.Flexibility = mapper.Map<FlexibilityDto>(flexibilityDto);
+
+            cacheHandler.SetRecord(recordKey, getFlexibilityDtoResponse, TimeSpan.FromDays(1));
         }
-        
-        getFlexibilityDtoResponse.Flexibility = mapper.Map<FlexibilityDto>(flexibilityDto);
+
         return getFlexibilityDtoResponse;
     }
 }

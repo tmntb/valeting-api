@@ -5,14 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Valeting.Models.Core;
 using Valeting.Models.Booking;
 using Valeting.Core.Interfaces;
-using Valeting.Cache.Interfaces;
 using Valeting.Common.Models.Link;
 using Valeting.Common.Models.Booking;
 using Valeting.Controllers.BaseController;
 
 namespace Valeting.Controllers;
 
-public class BookingController(IBookingService bookingService, IUrlService urlService, ICacheHandler cacheHandler, IMapper mapper) : BookingBaseController
+public class BookingController(IBookingService bookingService, IUrlService urlService, IMapper mapper) : BookingBaseController
 {
     public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
     {
@@ -37,9 +36,6 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
                 };
                 return StatusCode(createBookingDtoResponse.Error.ErrorCode, bookingApiError);
             }
-
-            var recordKey = "ListBooking_";
-            cacheHandler.RemoveRecordsWithPrefix(recordKey);
 
             var createBookingApiResponse = mapper.Map<CreateBookingApiResponse>(createBookingDtoResponse);
             return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
@@ -80,11 +76,6 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
                 return StatusCode(updateBookingDtoResponse.Error.ErrorCode, bookingApiError);
             }
 
-            var recordKeyList = "ListBooking_";
-            cacheHandler.RemoveRecordsWithPrefix(recordKeyList);
-            var recordKeyId = string.Format("Booking_{0}", id);
-            cacheHandler.RemoveRecord(recordKeyId);
-
             return StatusCode((int)HttpStatusCode.NoContent);
         }
         catch (Exception ex)
@@ -116,11 +107,6 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
                 return StatusCode(deleteBookingDtoResponse.Error.ErrorCode, bookingApiError);
             }
 
-            var recordKeyList = "ListBooking_";
-            cacheHandler.RemoveRecordsWithPrefix(recordKeyList);
-            var recordKeyId = string.Format("Booking_{0}", id);
-            cacheHandler.RemoveRecord(recordKeyId);
-
             return StatusCode((int)HttpStatusCode.NoContent);
         }
         catch (Exception ex)
@@ -142,25 +128,17 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
                 Id = Guid.Parse(id)
             };
 
-            var recordKey = string.Format("Booking_{0}", id);
-            var getBookingDtoResponse = cacheHandler.GetRecord<GetBookingDtoResponse>(recordKey);
-            if (getBookingDtoResponse == null)
+            var getBookingDtoResponse = await bookingService.GetByIdAsync(getBookingDtoRequest);
+            if (getBookingDtoResponse.HasError)
             {
-                getBookingDtoResponse = await bookingService.GetByIdAsync(getBookingDtoRequest);
-                if (getBookingDtoResponse.HasError)
+                var bookingApiError = new BookingApiError()
                 {
-                    var bookingApiError = new BookingApiError()
-                    {
-                        Detail = getBookingDtoResponse.Error.Message
-                    };
-                    return StatusCode(getBookingDtoResponse.Error.ErrorCode, bookingApiError);
-                }
-
-                cacheHandler.SetRecord(recordKey, getBookingDtoResponse, TimeSpan.FromDays(1));
+                    Detail = getBookingDtoResponse.Error.Message
+                };
+                return StatusCode(getBookingDtoResponse.Error.ErrorCode, bookingApiError);
             }
 
             var bookingApi = mapper.Map<BookingApi>(getBookingDtoResponse);
-
             bookingApi.Flexibility.Link = new()
             {
                 Self = new()
@@ -198,21 +176,15 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
         {
             var paginatedBookingDtoRequest = mapper.Map<PaginatedBookingDtoRequest>(bookingApiParameters);
 
-            var recordKey = string.Format("ListBooking_{0}_{1}", bookingApiParameters.PageNumber, bookingApiParameters.PageSize);
-            var paginatedBookingDtoResponse = cacheHandler.GetRecord<PaginatedBookingDtoResponse>(recordKey);
-            if (paginatedBookingDtoResponse == null)
-            {
-                paginatedBookingDtoResponse = await bookingService.GetAsync(paginatedBookingDtoRequest);
-                if (paginatedBookingDtoResponse.HasError)
-                {
-                    var bookingApiError = new BookingApiError
-                    {
-                        Detail = paginatedBookingDtoResponse.Error.Message
-                    };
-                    return StatusCode(paginatedBookingDtoResponse.Error.ErrorCode, bookingApiError);
-                }
 
-                cacheHandler.SetRecord(recordKey, paginatedBookingDtoResponse, TimeSpan.FromMinutes(5));
+            var paginatedBookingDtoResponse = await bookingService.GetAsync(paginatedBookingDtoRequest);
+            if (paginatedBookingDtoResponse.HasError)
+            {
+                var bookingApiError = new BookingApiError
+                {
+                    Detail = paginatedBookingDtoResponse.Error.Message
+                };
+                return StatusCode(paginatedBookingDtoResponse.Error.ErrorCode, bookingApiError);
             }
 
             var bookingApiPaginatedResponse = new BookingApiPaginatedResponse

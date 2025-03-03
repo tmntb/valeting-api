@@ -1,4 +1,4 @@
-namespace Valeting.Cache.Interfaces;
+namespace Valeting.Common.Cache.Interfaces;
 
 public interface ICacheHandler
 {
