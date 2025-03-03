@@ -4,11 +4,6 @@ VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting", "Valeting\Valeting.csproj", "{F587E43D-4F1B-4AE7-AAF9-7E1CB13C17F5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E3A21F04-3985-4097-B388-2CC10EE0439A}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting.Common", "Valeting.Common\Valeting.Common.csproj", "{87BCEC56-ACA6-447C-899F-B65241C88B71}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valeting.Tests", "Valeting.UnitTest\Valeting.Tests.csproj", "{345E17FD-2247-48A6-8B21-B94052F9B51C}"
@@ -16,6 +11,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Valeting.Core", "Valeting.Core\Valeting.Core.csproj", "{6D17AD8B-23D1-AA28-8691-BF74B34A27A4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Valeting.Repository", "Valeting.Repository\Valeting.Repository.csproj", "{24EC0DA3-D8DD-4B90-7B52-CC2F3431127B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{933558E1-C927-415A-B636-B966D97E150F}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1D8BCDD1-682B-4ADD-8155-B9085CDFE2A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +51,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F587E43D-4F1B-4AE7-AAF9-7E1CB13C17F5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{87BCEC56-ACA6-447C-899F-B65241C88B71} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{345E17FD-2247-48A6-8B21-B94052F9B51C} = {1D8BCDD1-682B-4ADD-8155-B9085CDFE2A4}
+		{6D17AD8B-23D1-AA28-8691-BF74B34A27A4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{24EC0DA3-D8DD-4B90-7B52-CC2F3431127B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BFAB9A01-8DC9-46E0-AE64-2107E9C1DE6A}
