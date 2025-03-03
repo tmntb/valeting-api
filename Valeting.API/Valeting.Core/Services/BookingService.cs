@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Valeting.Common.Cache;
 using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
 using Valeting.Services.Validators;
@@ -38,12 +39,10 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
             Approved = false
         };
         await bookingRepository.CreateAsync(bookingDto);
-
-        // Keep the cache up to date
-        var recordKey = "ListBooking_";
-        cacheHandler.RemoveRecordsWithPrefix(recordKey);
-
         createBookingDtoResponse.Id = id;
+
+        cacheHandler.InvalidateCacheByListType(CacheListType.Booking);
+
         return createBookingDtoResponse;
     }
 
@@ -84,10 +83,8 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         await bookingRepository.UpdateAsync(bookingDto);
 
         // Keep the cache up to date
-        var recordKeyList = "ListBooking_";
-        cacheHandler.RemoveRecordsWithPrefix(recordKeyList);
-        var recordKeyId = string.Format("Booking_{0}", updateBookingDtoRequest.Id);
-        cacheHandler.RemoveRecord(recordKeyId);
+        cacheHandler.InvalidateCacheById(updateBookingDtoRequest.Id);
+        cacheHandler.InvalidateCacheByListType(CacheListType.Booking);
 
         return updateBookingDtoResponse;
     }
@@ -121,10 +118,8 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         await bookingRepository.DeleteAsync(deleteBookingDtoRequest.Id);
 
         // Keep cache up to date
-        var recordKeyList = "ListBooking_";
-        cacheHandler.RemoveRecordsWithPrefix(recordKeyList);
-        var recordKeyId = string.Format("Booking_{0}", deleteBookingDtoRequest.Id);
-        cacheHandler.RemoveRecord(recordKeyId);
+        cacheHandler.InvalidateCacheById(deleteBookingDtoRequest.Id);
+        cacheHandler.InvalidateCacheByListType(CacheListType.Booking);
 
         return deleteBookingDtoResponse;
     }
@@ -145,34 +140,38 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
             return getBookingDtoResponse;
         }
 
-        var recordKey = string.Format("Booking_{0}", getBookingDtoRequest.Id);
-        getBookingDtoResponse = cacheHandler.GetRecord<GetBookingDtoResponse>(recordKey);
-        if (getBookingDtoResponse == null)
-        {
-            var bookingDto = await bookingRepository.GetByIdAsync(getBookingDtoRequest.Id);
-            if (bookingDto == null)
+        return await cacheHandler.GetOrCreateRecordAsync(
+            getBookingDtoRequest,
+            async () =>
             {
-                getBookingDtoResponse.Error = new()
+                var bookingDto = await bookingRepository.GetByIdAsync(getBookingDtoRequest.Id);
+                if (bookingDto == null)
                 {
-                    ErrorCode = (int)HttpStatusCode.NotFound,
-                    Message = Messages.BookingNotFound
-                };
+                    getBookingDtoResponse.Error = new()
+                    {
+                        ErrorCode = (int)HttpStatusCode.NotFound,
+                        Message = Messages.BookingNotFound
+                    };
+                    return getBookingDtoResponse;
+                }
+
+                getBookingDtoResponse.Id = bookingDto.Id;
+                getBookingDtoResponse.Name = bookingDto.Name;
+                getBookingDtoResponse.BookingDate = bookingDto.BookingDate;
+                getBookingDtoResponse.ContactNumber = bookingDto.ContactNumber;
+                getBookingDtoResponse.Flexibility = new() { Id = bookingDto.Flexibility.Id, Description = bookingDto.Flexibility.Description, Active = bookingDto.Flexibility.Active };
+                getBookingDtoResponse.VehicleSize = new() { Id = bookingDto.VehicleSize.Id, Description = bookingDto.VehicleSize.Description, Active = bookingDto.VehicleSize.Active };
+                getBookingDtoResponse.Email = bookingDto.Email;
+                getBookingDtoResponse.Approved = bookingDto.Approved;
+
                 return getBookingDtoResponse;
+            },
+            new CacheOptions 
+            { 
+                Id = getBookingDtoRequest.Id,
+                AbsoluteExpireTime = TimeSpan.FromDays(1)
             }
-
-            getBookingDtoResponse.Id = bookingDto.Id;
-            getBookingDtoResponse.Name = bookingDto.Name;
-            getBookingDtoResponse.BookingDate = bookingDto.BookingDate;
-            getBookingDtoResponse.ContactNumber = bookingDto.ContactNumber;
-            getBookingDtoResponse.Flexibility = new() { Id = bookingDto.Flexibility.Id, Description = bookingDto.Flexibility.Description, Active = bookingDto.Flexibility.Active };
-            getBookingDtoResponse.VehicleSize = new() { Id = bookingDto.VehicleSize.Id, Description = bookingDto.VehicleSize.Description, Active = bookingDto.VehicleSize.Active };
-            getBookingDtoResponse.Email = bookingDto.Email;
-            getBookingDtoResponse.Approved = bookingDto.Approved;
-
-            cacheHandler.SetRecord(recordKey, getBookingDtoResponse, TimeSpan.FromDays(1));
-        }
-
-        return getBookingDtoResponse;
+        );
     }
 
     public async Task<PaginatedBookingDtoResponse> GetAsync(PaginatedBookingDtoRequest paginatedBookingDtoRequest)
@@ -191,48 +190,45 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
             return paginatedBookingDtoResponse;
         }
 
-        var recordKey = string.Format("ListBooking_{0}_{1}", paginatedBookingDtoRequest.Filter.PageNumber, paginatedBookingDtoRequest.Filter.PageSize);
-        paginatedBookingDtoResponse = cacheHandler.GetRecord<PaginatedBookingDtoResponse>(recordKey);
-        if (paginatedBookingDtoResponse == null)
-        {
-
-            var bookingFilterDto = new BookingFilterDto()
+        return await cacheHandler.GetOrCreateRecordAsync(
+            paginatedBookingDtoRequest,
+            async () =>
             {
-                PageNumber = paginatedBookingDtoRequest.Filter.PageNumber,
-                PageSize = paginatedBookingDtoRequest.Filter.PageSize
-            };
-
-            var bookingListDto = await bookingRepository.GetAsync(bookingFilterDto);
-            if (bookingListDto == null)
-            {
-                paginatedBookingDtoResponse.Error = new()
+                var bookingListDto = await bookingRepository.GetAsync(paginatedBookingDtoRequest.Filter);
+                if (bookingListDto == null)
                 {
-                    ErrorCode = (int)HttpStatusCode.NotFound,
-                    Message = Messages.BookingNotFound
-                };
-                return paginatedBookingDtoResponse;
-            }
-
-            paginatedBookingDtoResponse.TotalItems = bookingListDto.TotalItems;
-            paginatedBookingDtoResponse.TotalPages = bookingListDto.TotalPages;
-
-            paginatedBookingDtoResponse.Bookings = [.. bookingListDto.Bookings.Select(x =>
-                new BookingDto()
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    BookingDate = x.BookingDate,
-                    ContactNumber = x.ContactNumber,
-                    Flexibility = new() { Id = x.Flexibility.Id, Description = x.Flexibility.Description, Active = x.Flexibility.Active },
-                    VehicleSize = new() { Id = x.VehicleSize.Id, Description = x.VehicleSize.Description, Active = x.VehicleSize.Active },
-                    Email = x.Email,
-                    Approved = x.Approved
+                    paginatedBookingDtoResponse.Error = new()
+                    {
+                        ErrorCode = (int)HttpStatusCode.NotFound,
+                        Message = Messages.BookingNotFound
+                    };
+                    return paginatedBookingDtoResponse;
                 }
-            )];
 
-            cacheHandler.SetRecord(recordKey, paginatedBookingDtoResponse, TimeSpan.FromMinutes(5));
-        }
+                paginatedBookingDtoResponse.TotalItems = bookingListDto.TotalItems;
+                paginatedBookingDtoResponse.TotalPages = bookingListDto.TotalPages;
 
-        return paginatedBookingDtoResponse;
+                paginatedBookingDtoResponse.Bookings = [.. bookingListDto.Bookings.Select(x =>
+                    new BookingDto()
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        BookingDate = x.BookingDate,
+                        ContactNumber = x.ContactNumber,
+                        Flexibility = new() { Id = x.Flexibility.Id, Description = x.Flexibility.Description, Active = x.Flexibility.Active },
+                        VehicleSize = new() { Id = x.VehicleSize.Id, Description = x.VehicleSize.Description, Active = x.VehicleSize.Active },
+                        Email = x.Email,
+                        Approved = x.Approved
+                    }
+                )];
+
+                return paginatedBookingDtoResponse;
+            },
+            new CacheOptions
+            {
+                ListType = CacheListType.Booking,
+                AbsoluteExpireTime = TimeSpan.FromMinutes(5)
+            }
+        );
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using System.Net;
+using Valeting.Common.Cache;
 using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
 using Valeting.Services.Validators;
@@ -27,29 +28,31 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
             return paginatedVehicleSizeDtoResponse;
         }
 
-        var recordKey = string.Format("ListVehicleSize_{0}_{1}_{2}", paginatedVehicleSizeDtoRequest.Filter.PageNumber, paginatedVehicleSizeDtoRequest.Filter.PageSize, paginatedVehicleSizeDtoRequest.Filter.Active);
-        paginatedVehicleSizeDtoResponse = cacheHandler.GetRecord<PaginatedVehicleSizeDtoResponse>(recordKey);
-        if (paginatedVehicleSizeDtoResponse == null)
-        {
-            var vehicleSizeFilterDto = mapper.Map<VehicleSizeFilterDto>(paginatedVehicleSizeDtoRequest.Filter);
-
-            var vehicleSizeListDto = await vehicleSizeRepository.GetAsync(vehicleSizeFilterDto);
-            if (vehicleSizeListDto == null)
+        return await cacheHandler.GetOrCreateRecordAsync(
+            paginatedVehicleSizeDtoRequest,
+            async () =>
             {
-                paginatedVehicleSizeDtoResponse.Error = new()
+                var vehicleSizeFilterDto = mapper.Map<VehicleSizeFilterDto>(paginatedVehicleSizeDtoRequest.Filter);
+
+                var vehicleSizeListDto = await vehicleSizeRepository.GetAsync(vehicleSizeFilterDto);
+                if (vehicleSizeListDto == null)
                 {
-                    ErrorCode = (int)HttpStatusCode.NotFound,
-                    Message = Messages.VehicleSizeNotFound
-                };
-                return paginatedVehicleSizeDtoResponse;
+                    paginatedVehicleSizeDtoResponse.Error = new()
+                    {
+                        ErrorCode = (int)HttpStatusCode.NotFound,
+                        Message = Messages.VehicleSizeNotFound
+                    };
+                    return paginatedVehicleSizeDtoResponse;
+                }
+
+                return mapper.Map<PaginatedVehicleSizeDtoResponse>(vehicleSizeListDto);
+            },
+            new CacheOptions
+            {
+                ListType = CacheListType.VehicleSize,
+                AbsoluteExpireTime = TimeSpan.FromMinutes(5)
             }
-
-            paginatedVehicleSizeDtoResponse = mapper.Map<PaginatedVehicleSizeDtoResponse>(vehicleSizeListDto);
-
-            cacheHandler.SetRecord(recordKey, paginatedVehicleSizeDtoResponse, TimeSpan.FromMinutes(5));
-        }
-
-        return paginatedVehicleSizeDtoResponse;
+        );
     }
 
     public async Task<GetVehicleSizeDtoResponse> GetByIdAsync(GetVehicleSizeDtoRequest getVehicleSizeDtoRequest)
@@ -68,26 +71,29 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
             return getVehicleSizeDtoResponse;
         }
 
-        var recordKey = string.Format("VehicleSize_{0}", getVehicleSizeDtoRequest.Id);
-        getVehicleSizeDtoResponse = cacheHandler.GetRecord<GetVehicleSizeDtoResponse>(recordKey);
-        if (getVehicleSizeDtoResponse == null)
-        {
-            var vehicleSizeDto = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeDtoRequest.Id);
-            if (vehicleSizeDto == null)
+        return await cacheHandler.GetOrCreateRecordAsync(
+            getVehicleSizeDtoRequest,
+            async () =>
             {
-                getVehicleSizeDtoResponse.Error = new()
+                var vehicleSizeDto = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeDtoRequest.Id);
+                if (vehicleSizeDto == null)
                 {
-                    ErrorCode = (int)HttpStatusCode.NotFound,
-                    Message = Messages.VehicleSizeNotFound
-                };
+                    getVehicleSizeDtoResponse.Error = new()
+                    {
+                        ErrorCode = (int)HttpStatusCode.NotFound,
+                        Message = Messages.VehicleSizeNotFound
+                    };
+                    return getVehicleSizeDtoResponse;
+                }
+
+                getVehicleSizeDtoResponse.VehicleSize = mapper.Map<VehicleSizeDto>(vehicleSizeDto);
                 return getVehicleSizeDtoResponse;
+            },
+            new CacheOptions
+            {
+                Id = getVehicleSizeDtoRequest.Id,
+                AbsoluteExpireTime = TimeSpan.FromDays(1)
             }
-
-            getVehicleSizeDtoResponse.VehicleSize = mapper.Map<VehicleSizeDto>(vehicleSizeDto);
-
-            cacheHandler.SetRecord(recordKey, getVehicleSizeDtoResponse, TimeSpan.FromDays(1));
-        }
-
-        return getVehicleSizeDtoResponse;
+        );
     }
 }

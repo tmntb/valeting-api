@@ -1,86 +1,79 @@
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
+using System.Text;
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Collections.Concurrent;
 using Valeting.Common.Cache.Interfaces;
+using System.Collections.Generic;
 
 namespace Valeting.Common.Cache;
 
-public class MemoryCacheHandler(IMemoryCache memoryCache, ILogger<MemoryCacheHandler> logger) : ICacheHandler
+public class MemoryCacheHandler(IMemoryCache memoryCache) : ICacheHandler
 {
-    private const string CacheKeyListKey = "_cachedKeys";
-    private readonly List<string> _cachedKeys = memoryCache.GetOrCreate(CacheKeyListKey, entry => new List<string>());
+    private readonly ConcurrentDictionary<Guid, string> _cachedKeys = new();
+    private readonly ConcurrentDictionary<CacheListType, string> _cachedListKeys = new();
 
-    private void AddKeyToCache(string recordKey)
+    public async Task<TResponse> GetOrCreateRecordAsync<TRequest, TResponse>(TRequest request, Func<Task<TResponse>> onCacheMiss, CacheOptions cacheOptions)
     {
-        if (!_cachedKeys.Contains(recordKey))
-        {
-            _cachedKeys.Add(recordKey);
-            UpdateCachedKeysInCache();
-        }
+        var hashKey = GenerateHashKey(request);
+        return await memoryCache.GetOrCreateAsync(hashKey, async entry =>
+            {
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = cacheOptions.AbsoluteExpireTime ?? TimeSpan.FromMinutes(1),
+                    SlidingExpiration = cacheOptions.SlidingExpireTime
+                };
+
+                entry.SetOptions(cacheEntryOptions);
+
+                if (cacheOptions.Id.HasValue)
+                    _cachedKeys.TryAdd(cacheOptions.Id.Value, hashKey);
+
+                if (cacheOptions.ListType.HasValue)
+                    _cachedListKeys.TryAdd(cacheOptions.ListType.Value, hashKey);
+
+                return await onCacheMiss();
+            }
+        );
     }
 
-    private void UpdateCachedKeysInCache()
+    public void InvalidateAllCache()
     {
-        memoryCache.Set(CacheKeyListKey, _cachedKeys);
-    }
-
-    public T? GetRecord<T>(string recordKey)
-    {
-        try
-        {
-            if (!memoryCache.TryGetValue(recordKey, out string serializedValue))
-                return default;
-            
-            AddKeyToCache(recordKey);
-            return JsonSerializer.Deserialize<T>(serializedValue);
-
-        } 
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error retrieving record with key {RecordKey}", recordKey);
-        }
-
-        return default;
-    }
-
-    public void RemoveRecordsWithPrefix(string prefix)
-    {
-        var keysToRemove = _cachedKeys.Where(k => k.StartsWith(prefix)).ToList();
-
-        foreach (var key in keysToRemove)
+        foreach (var key in _cachedKeys.Keys)
         {
             memoryCache.Remove(key);
-            _cachedKeys.Remove(key);
         }
 
-        UpdateCachedKeysInCache();
+        foreach (var key in _cachedListKeys.Keys)
+        {
+            memoryCache.Remove(key);
+        }
+
+        _cachedKeys.Clear();
+        _cachedListKeys.Clear();
     }
 
-    public void RemoveRecord(string recordKey)
+    public void InvalidateCacheById(Guid id)
     {
-        memoryCache.Remove(recordKey);
-        _cachedKeys.Remove(recordKey);
-        UpdateCachedKeysInCache();
+        if (_cachedKeys.TryRemove(id, out var key))
+        {
+            memoryCache.Remove(key);
+        }
     }
 
-    public void SetRecord<T>(string recordKey, T data, TimeSpan? absoluteExpireTime = null, TimeSpan? slidingExpireTime = null)
+    public void InvalidateCacheByListType(CacheListType listType)
     {
-        try
+        if (_cachedListKeys.TryRemove(listType, out var key))
         {
-            var cacheEntryOptions = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = absoluteExpireTime ?? TimeSpan.FromMinutes(1),
-                SlidingExpiration = slidingExpireTime
-            };
-
-            var jsonData = JsonSerializer.Serialize(data);
-            memoryCache.Set(recordKey, jsonData, cacheEntryOptions);
-
-            AddKeyToCache(recordKey);
+            memoryCache.Remove(key);
         }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error setting record with key {RecordKey}", recordKey);
-        }
+    }
+
+    private static string GenerateHashKey<TRequest>(TRequest requestData)
+    {
+        var json = JsonSerializer.Serialize(requestData, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        using var sha256 = SHA256.Create();
+        var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(json));
+        return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
     }
 }
