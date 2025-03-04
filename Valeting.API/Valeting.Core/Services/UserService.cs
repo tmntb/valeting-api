@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿using FluentValidation;
 using System.Text;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
@@ -21,26 +21,12 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
         var validator = new ValidateLoginValidator();
         var result = validator.Validate(validateLoginDtoRequest);
-        if(!result.IsValid)
+        if (!result.IsValid)
         {
-            validateLoginDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return validateLoginDtoResponse;
+            throw new ValidationException(result.Errors);
         }
 
-        var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username);
-        if (userDto == null)
-        {
-            validateLoginDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.UserNotFound
-            };
-            return validateLoginDtoResponse;
-        }
+        var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.UserNotFound);
 
         byte[] salt = Encoding.ASCII.GetBytes(userDto.Salt);
 
@@ -64,26 +50,12 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
         var validator = new GenerateTokenJWTValidator();
         var result = validator.Validate(generateTokenJWTDtoRequest);
-        if(!result.IsValid)
+        if (!result.IsValid)
         {
-            generateTokenJWTDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return generateTokenJWTDtoResponse;
+            throw new ValidationException(result.Errors);
         }
 
-        var userDto = await userRepository.GetUserByEmailAsync(generateTokenJWTDtoRequest.Username);
-        if (userDto == null)
-        {
-            generateTokenJWTDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.UserNotFound
-            };
-            return generateTokenJWTDtoResponse;
-        }
+        var userDto = await userRepository.GetUserByEmailAsync(generateTokenJWTDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.UserNotFound);
 
         var secret = configuration["Jwt:Key"];
         var issuer = configuration["Jwt:Issuer"];

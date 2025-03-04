@@ -15,244 +15,139 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
 {
     public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
     {
-        try
-        {
-            if (createBookingApiRequest == null)
-            {
-                var bookingApiError = new BookingApiError
-                {
-                    Detail = "Invalid request body"
-                };
-                return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
-            }
-
-            var createBookingDtoRequest = mapper.Map<CreateBookingDtoRequest>(createBookingApiRequest);
-            var createBookingDtoResponse = await bookingService.CreateAsync(createBookingDtoRequest);
-            if (createBookingDtoResponse.HasError)
-            {
-                var bookingApiError = new BookingApiError
-                {
-                    Detail = createBookingDtoResponse.Error.Message
-                };
-                return StatusCode(createBookingDtoResponse.Error.ErrorCode, bookingApiError);
-            }
-
-            var createBookingApiResponse = mapper.Map<CreateBookingApiResponse>(createBookingDtoResponse);
-            return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
-        }
-        catch (Exception ex)
-        {
-            var bookingApiError = new BookingApiError
-            {
-                Detail = ex.Message
-            };
-            return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
-        }
+        ArgumentNullException.ThrowIfNull(createBookingApiRequest, "Invalid request body");
+        
+        var createBookingDtoRequest = mapper.Map<CreateBookingDtoRequest>(createBookingApiRequest);
+        var createBookingDtoResponse = await bookingService.CreateAsync(createBookingDtoRequest);
+        
+        var createBookingApiResponse = mapper.Map<CreateBookingApiResponse>(createBookingDtoResponse);
+        return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
     }
 
     public override async Task<IActionResult> UpdateAsync([FromRoute(Name = "id"), MinLength(1), Required] string id, [FromBody] UpdateBookingApiRequest updateBookingApiRequest)
     {
-        try
-        {
-            if (updateBookingApiRequest == null)
-            {
-                var bookingApiError = new BookingApiError
-                {
-                    Detail = "Invalid request body"
-                };
-                return StatusCode((int)HttpStatusCode.BadRequest, bookingApiError);
-            }
+        ArgumentNullException.ThrowIfNull(id, "Invalid request id");
+        ArgumentNullException.ThrowIfNull(updateBookingApiRequest, "Invalid request body");
 
-            var updateBookingDtoRequest = mapper.Map<UpdateBookingDtoRequest>(updateBookingApiRequest);
-            updateBookingDtoRequest.Id = Guid.Parse(id);
+        var updateBookingDtoRequest = mapper.Map<UpdateBookingDtoRequest>(updateBookingApiRequest);
+        updateBookingDtoRequest.Id = Guid.Parse(id);
 
-            var updateBookingDtoResponse = await bookingService.UpdateAsync(updateBookingDtoRequest);
-            if (updateBookingDtoResponse.HasError)
-            {
-                var bookingApiError = new BookingApiError
-                {
-                    Detail = updateBookingDtoResponse.Error.Message
-                };
-                return StatusCode(updateBookingDtoResponse.Error.ErrorCode, bookingApiError);
-            }
-
-            return StatusCode((int)HttpStatusCode.NoContent);
-        }
-        catch (Exception ex)
-        {
-            var bookingApiError = new BookingApiError
-            {
-                Detail = ex.Message
-            };
-            return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
-        }
+        await bookingService.UpdateAsync(updateBookingDtoRequest);
+        return StatusCode((int)HttpStatusCode.NoContent);
     }
 
     public override async Task<IActionResult> DeleteAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
-        try
-        {
-            var deleteBookingDtoRequest = new DeleteBookingDtoRequest
-            {
-                Id = Guid.Parse(id)
-            };
+        ArgumentNullException.ThrowIfNull(id, "Invalid request id");
 
-            var deleteBookingDtoResponse = await bookingService.DeleteAsync(deleteBookingDtoRequest);
-            if (deleteBookingDtoResponse.HasError)
-            {
-                var bookingApiError = new BookingApiError()
-                {
-                    Detail = deleteBookingDtoResponse.Error.Message
-                };
-                return StatusCode(deleteBookingDtoResponse.Error.ErrorCode, bookingApiError);
-            }
-
-            return StatusCode((int)HttpStatusCode.NoContent);
-        }
-        catch (Exception ex)
+        var deleteBookingDtoRequest = new DeleteBookingDtoRequest
         {
-            var bookingApiError = new BookingApiError
-            {
-                Detail = ex.Message
-            };
-            return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
-        }
+            Id = Guid.Parse(id)
+        };
+
+        await bookingService.DeleteAsync(deleteBookingDtoRequest);
+        return StatusCode((int)HttpStatusCode.NoContent);
     }
 
     public override async Task<IActionResult> GetByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
-        try
-        {
-            var getBookingDtoRequest = new GetBookingDtoRequest
-            {
-                Id = Guid.Parse(id)
-            };
+        ArgumentNullException.ThrowIfNull(id, "Invalid request id");
 
-            var getBookingDtoResponse = await bookingService.GetByIdAsync(getBookingDtoRequest);
-            if (getBookingDtoResponse.HasError)
+        var getBookingDtoRequest = new GetBookingDtoRequest
+        {
+            Id = Guid.Parse(id)
+        };
+
+        var getBookingDtoResponse = await bookingService.GetByIdAsync(getBookingDtoRequest);  
+
+        var bookingApi = mapper.Map<BookingApi>(getBookingDtoResponse);
+        bookingApi.Flexibility.Link = new()
+        {
+            Self = new()
             {
-                var bookingApiError = new BookingApiError()
-                {
-                    Detail = getBookingDtoResponse.Error.Message
-                };
-                return StatusCode(getBookingDtoResponse.Error.ErrorCode, bookingApiError);
+                Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest() { BaseUrl = Request.Host.Value, Path = "/flexibilities", Id = bookingApi.Flexibility.Id }).Self
             }
-
-            var bookingApi = mapper.Map<BookingApi>(getBookingDtoResponse);
-            bookingApi.Flexibility.Link = new()
-            {
-                Self = new()
-                {
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest() { BaseUrl = Request.Host.Value, Path = "/flexibilities", Id = bookingApi.Flexibility.Id }).Self
-                }
-            };
-            bookingApi.VehicleSize.Link = new()
-            {
-                Self = new()
-                {
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest() { BaseUrl = Request.Host.Value, Path = "/vehicleSizes", Id = bookingApi.VehicleSize.Id }).Self
-                }
-            };
-
-            var bookingApiResponse = new BookingApiResponse
-            {
-                Booking = bookingApi
-            };
-            return StatusCode((int)HttpStatusCode.OK, bookingApiResponse);
-        }
-        catch (Exception ex)
+        };
+        bookingApi.VehicleSize.Link = new()
         {
-            var bookingApiError = new BookingApiError
+            Self = new()
             {
-                Detail = ex.Message
-            };
-            return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
-        }
+                Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest() { BaseUrl = Request.Host.Value, Path = "/vehicleSizes", Id = bookingApi.VehicleSize.Id }).Self
+            }
+        };
+
+        var bookingApiResponse = new BookingApiResponse
+        {
+            Booking = bookingApi
+        };
+        return StatusCode((int)HttpStatusCode.OK, bookingApiResponse);
     }
 
     public override async Task<IActionResult> GetAsync([FromQuery] BookingApiParameters bookingApiParameters)
     {
-        try
+        ArgumentNullException.ThrowIfNull(bookingApiParameters, "Invalid request query parameters");
+
+        var paginatedBookingDtoRequest = mapper.Map<PaginatedBookingDtoRequest>(bookingApiParameters);
+
+        var paginatedBookingDtoResponse = await bookingService.GetAsync(paginatedBookingDtoRequest);
+
+        var bookingApiPaginatedResponse = new BookingApiPaginatedResponse
         {
-            var paginatedBookingDtoRequest = mapper.Map<PaginatedBookingDtoRequest>(bookingApiParameters);
-
-
-            var paginatedBookingDtoResponse = await bookingService.GetAsync(paginatedBookingDtoRequest);
-            if (paginatedBookingDtoResponse.HasError)
+            Bookings = [],
+            CurrentPage = bookingApiParameters.PageNumber,
+            TotalItems = paginatedBookingDtoResponse.TotalItems,
+            TotalPages = paginatedBookingDtoResponse.TotalPages,
+            Links = new()
             {
-                var bookingApiError = new BookingApiError
-                {
-                    Detail = paginatedBookingDtoResponse.Error.Message
-                };
-                return StatusCode(paginatedBookingDtoResponse.Error.ErrorCode, bookingApiError);
+                Prev = new() { Href = string.Empty },
+                Next = new() { Href = string.Empty },
+                Self = new() { Href = string.Empty }
             }
+        };
 
-            var bookingApiPaginatedResponse = new BookingApiPaginatedResponse
+        var paginatedLinks = urlService.GeneratePaginatedLinks
+        (
+            new GeneratePaginatedLinksDtoRequest
             {
-                Bookings = [],
-                CurrentPage = bookingApiParameters.PageNumber,
-                TotalItems = paginatedBookingDtoResponse.TotalItems,
+                BaseUrl = Request.Host.Value,
+                Path = Request.Path.HasValue ? Request.Path.Value : string.Empty,
+                QueryString = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                PageNumber = bookingApiParameters.PageNumber,
                 TotalPages = paginatedBookingDtoResponse.TotalPages,
-                Links = new()
-                {
-                    Prev = new() { Href = string.Empty },
-                    Next = new() { Href = string.Empty },
-                    Self = new() { Href = string.Empty }
-                }
-            };
+                Filter = paginatedBookingDtoRequest.Filter
+            }
+        );
 
-            var paginatedLinks = urlService.GeneratePaginatedLinks
-            (
-                new GeneratePaginatedLinksDtoRequest
-                {
-                    BaseUrl = Request.Host.Value,
-                    Path = Request.Path.HasValue ? Request.Path.Value : string.Empty,
-                    QueryString = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
-                    PageNumber = bookingApiParameters.PageNumber,
-                    TotalPages = paginatedBookingDtoResponse.TotalPages,
-                    Filter = paginatedBookingDtoRequest.Filter
-                }
-            );
+        var links = mapper.Map<PaginationLinksApi>(paginatedLinks);
+        bookingApiPaginatedResponse.Links = links;
 
-            var links = mapper.Map<PaginationLinksApi>(paginatedLinks);
-            bookingApiPaginatedResponse.Links = links;
-
-            var bookingApis = mapper.Map<List<BookingApi>>(paginatedBookingDtoResponse.Bookings);
-            bookingApis.ForEach(b =>
-            {
-                b.Flexibility.Link = new()
-                {
-                    Self = new()
-                    {
-                        Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = "/flexibilities", Id = b.Flexibility.Id }).Self
-                    }
-                };
-                b.VehicleSize.Link = new()
-                {
-                    Self = new()
-                    {
-                        Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = "/vehicleSizes", Id = b.VehicleSize.Id }).Self
-                    }
-                };
-                b.Link = new()
-                {
-                    Self = new()
-                    {
-                        Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = b.Id }).Self
-                    }
-                };
-            });
-            bookingApiPaginatedResponse.Bookings = bookingApis;
-
-            return StatusCode((int)HttpStatusCode.OK, bookingApiPaginatedResponse);
-        }
-        catch (Exception ex)
+        var bookingApis = mapper.Map<List<BookingApi>>(paginatedBookingDtoResponse.Bookings);
+        bookingApis.ForEach(b =>
         {
-            var bookingApiError = new BookingApiError
+            b.Flexibility.Link = new()
             {
-                Detail = ex.Message
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = "/flexibilities", Id = b.Flexibility.Id }).Self
+                }
             };
-            return StatusCode((int)HttpStatusCode.InternalServerError, bookingApiError);
-        }
+            b.VehicleSize.Link = new()
+            {
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = "/vehicleSizes", Id = b.VehicleSize.Id }).Self
+                }
+            };
+            b.Link = new()
+            {
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = b.Id }).Self
+                }
+            };
+        });
+
+        bookingApiPaginatedResponse.Bookings = bookingApis;
+        return StatusCode((int)HttpStatusCode.OK, bookingApiPaginatedResponse);
     }
 }

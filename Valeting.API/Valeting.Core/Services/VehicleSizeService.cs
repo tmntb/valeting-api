@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using System.Net;
+using FluentValidation;
 using Valeting.Common.Cache;
 using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
@@ -20,12 +20,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
         var result = validator.Validate(paginatedVehicleSizeDtoRequest);
         if (!result.IsValid)
         {
-            paginatedVehicleSizeDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return paginatedVehicleSizeDtoResponse;
+            throw new ValidationException(result.Errors);
         }
 
         return await cacheHandler.GetOrCreateRecordAsync(
@@ -33,18 +28,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
             async () =>
             {
                 var vehicleSizeFilterDto = mapper.Map<VehicleSizeFilterDto>(paginatedVehicleSizeDtoRequest.Filter);
-
-                var vehicleSizeListDto = await vehicleSizeRepository.GetAsync(vehicleSizeFilterDto);
-                if (vehicleSizeListDto == null)
-                {
-                    paginatedVehicleSizeDtoResponse.Error = new()
-                    {
-                        ErrorCode = (int)HttpStatusCode.NotFound,
-                        Message = Messages.VehicleSizeNotFound
-                    };
-                    return paginatedVehicleSizeDtoResponse;
-                }
-
+                var vehicleSizeListDto = await vehicleSizeRepository.GetAsync(vehicleSizeFilterDto) ?? throw new KeyNotFoundException(Messages.VehicleSizeNotFound);
                 return mapper.Map<PaginatedVehicleSizeDtoResponse>(vehicleSizeListDto);
             },
             new CacheOptions
@@ -63,29 +47,14 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
         var result = validator.Validate(getVehicleSizeDtoRequest);
         if (!result.IsValid)
         {
-            getVehicleSizeDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return getVehicleSizeDtoResponse;
+            throw new ValidationException(result.Errors);
         }
 
         return await cacheHandler.GetOrCreateRecordAsync(
             getVehicleSizeDtoRequest,
             async () =>
             {
-                var vehicleSizeDto = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeDtoRequest.Id);
-                if (vehicleSizeDto == null)
-                {
-                    getVehicleSizeDtoResponse.Error = new()
-                    {
-                        ErrorCode = (int)HttpStatusCode.NotFound,
-                        Message = Messages.VehicleSizeNotFound
-                    };
-                    return getVehicleSizeDtoResponse;
-                }
-
+                var vehicleSizeDto = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.VehicleSizeNotFound);
                 getVehicleSizeDtoResponse.VehicleSize = mapper.Map<VehicleSizeDto>(vehicleSizeDto);
                 return getVehicleSizeDtoResponse;
             },

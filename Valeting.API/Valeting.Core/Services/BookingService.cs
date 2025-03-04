@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿using FluentValidation;
 using Valeting.Common.Cache;
 using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
@@ -18,12 +18,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         var result = validator.Validate(createBookingDtoRequest);
         if (!result.IsValid)
         {
-            createBookingDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return createBookingDtoResponse;
+            throw new ValidationException(result.Errors);
         }
 
         var id = Guid.NewGuid();
@@ -53,25 +48,12 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         var result = await validator.ValidateAsync(updateBookingDtoRequest);
         if (!result.IsValid)
         {
-            updateBookingDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return updateBookingDtoResponse;
+            throw new ValidationException(result.Errors);
         }
 
-        var bookingDto = await bookingRepository.GetByIdAsync(updateBookingDtoRequest.Id);
-        if (bookingDto == null)
-        {
-            updateBookingDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.BookingNotFound
-            };
-            return updateBookingDtoResponse;
-        }
+        var bookingDto = await bookingRepository.GetByIdAsync(updateBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
 
+        //ver como fazer override dos valores de BookingDto com os de UpdateBookingDtoRequest
         bookingDto.Id = updateBookingDtoRequest.Id;
         bookingDto.Name = updateBookingDtoRequest.Name;
         bookingDto.BookingDate = updateBookingDtoRequest.BookingDate;
@@ -96,25 +78,10 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         var result = validator.Validate(deleteBookingDtoRequest);
         if (!result.IsValid)
         {
-            deleteBookingDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return deleteBookingDtoResponse;
+            throw new ValidationException(result.Errors);
         }
 
-        var bookingDto = await bookingRepository.GetByIdAsync(deleteBookingDtoRequest.Id);
-        if (bookingDto == null)
-        {
-            deleteBookingDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.NotFound,
-                Message = Messages.BookingNotFound
-            };
-            return deleteBookingDtoResponse;
-        }
-
+        _ = await bookingRepository.GetByIdAsync(deleteBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
         await bookingRepository.DeleteAsync(deleteBookingDtoRequest.Id);
 
         // Keep cache up to date
@@ -132,29 +99,16 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         var result = validator.Validate(getBookingDtoRequest);
         if (!result.IsValid)
         {
-            getBookingDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return getBookingDtoResponse;
+            throw new ValidationException(result.Errors);
         }
 
         return await cacheHandler.GetOrCreateRecordAsync(
             getBookingDtoRequest,
             async () =>
             {
-                var bookingDto = await bookingRepository.GetByIdAsync(getBookingDtoRequest.Id);
-                if (bookingDto == null)
-                {
-                    getBookingDtoResponse.Error = new()
-                    {
-                        ErrorCode = (int)HttpStatusCode.NotFound,
-                        Message = Messages.BookingNotFound
-                    };
-                    return getBookingDtoResponse;
-                }
+                var bookingDto = await bookingRepository.GetByIdAsync(getBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
 
+                //ver o mapper
                 getBookingDtoResponse.Id = bookingDto.Id;
                 getBookingDtoResponse.Name = bookingDto.Name;
                 getBookingDtoResponse.BookingDate = bookingDto.BookingDate;
@@ -182,32 +136,19 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         var result = validator.Validate(paginatedBookingDtoRequest);
         if (!result.IsValid)
         {
-            paginatedBookingDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return paginatedBookingDtoResponse;
+            throw new ValidationException(result.Errors);
         }
 
         return await cacheHandler.GetOrCreateRecordAsync(
             paginatedBookingDtoRequest,
             async () =>
             {
-                var bookingListDto = await bookingRepository.GetAsync(paginatedBookingDtoRequest.Filter);
-                if (bookingListDto == null)
-                {
-                    paginatedBookingDtoResponse.Error = new()
-                    {
-                        ErrorCode = (int)HttpStatusCode.NotFound,
-                        Message = Messages.BookingNotFound
-                    };
-                    return paginatedBookingDtoResponse;
-                }
+                var bookingListDto = await bookingRepository.GetAsync(paginatedBookingDtoRequest.Filter) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
 
                 paginatedBookingDtoResponse.TotalItems = bookingListDto.TotalItems;
                 paginatedBookingDtoResponse.TotalPages = bookingListDto.TotalPages;
 
+                //mapper
                 paginatedBookingDtoResponse.Bookings = [.. bookingListDto.Bookings.Select(x =>
                     new BookingDto()
                     {

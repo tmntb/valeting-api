@@ -15,115 +15,80 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
 {
     public override async Task<IActionResult> GetAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
     {
-        try
+        ArgumentNullException.ThrowIfNull(flexibilityApiParameters, "Invalid api parameters");
+
+        var paginatedFlexibilityDtoRequest = mapper.Map<PaginatedFlexibilityDtoRequest>(flexibilityApiParameters);
+        var paginatedFlexibilityDtoResponse = await flexibilityService.GetAsync(paginatedFlexibilityDtoRequest);
+
+        var flexibilityApiPaginatedResponse = new FlexibilityApiPaginatedResponse
         {
-            var paginatedFlexibilityDtoRequest = mapper.Map<PaginatedFlexibilityDtoRequest>(flexibilityApiParameters);
-
-            var paginatedFlexibilityDtoResponse = await flexibilityService.GetAsync(paginatedFlexibilityDtoRequest);
-            if (paginatedFlexibilityDtoResponse.HasError)
+            Flexibilities = [],
+            CurrentPage = flexibilityApiParameters.PageNumber,
+            TotalItems = paginatedFlexibilityDtoResponse.TotalItems,
+            TotalPages = paginatedFlexibilityDtoResponse.TotalPages,
+            Links = new()
             {
-                var flexibilityApiError = new FlexibilityApiError
-                {
-                    Detail = paginatedFlexibilityDtoResponse.Error.Message
-                };
-                return StatusCode(paginatedFlexibilityDtoResponse.Error.ErrorCode, flexibilityApiError);
-            }
+                Prev = new() { Href = string.Empty },
+                Next = new() { Href = string.Empty },
+                Self = new() { Href = string.Empty }
+            },
+        };
 
-            var flexibilityApiPaginatedResponse = new FlexibilityApiPaginatedResponse
+        var paginatedLinks = urlService.GeneratePaginatedLinks
+        (
+            new GeneratePaginatedLinksDtoRequest
             {
-                Flexibilities = [],
-                CurrentPage = flexibilityApiParameters.PageNumber,
-                TotalItems = paginatedFlexibilityDtoResponse.TotalItems,
+                BaseUrl = Request.Host.Value,
+                Path = Request.Path.HasValue ? Request.Path.Value : string.Empty,
+                QueryString = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                PageNumber = flexibilityApiParameters.PageNumber,
                 TotalPages = paginatedFlexibilityDtoResponse.TotalPages,
-                Links = new()
-                {
-                    Prev = new() { Href = string.Empty },
-                    Next = new() { Href = string.Empty },
-                    Self = new() { Href = string.Empty }
-                },
-            };
+                Filter = paginatedFlexibilityDtoRequest.Filter
+            }
+        );
 
-            var paginatedLinks = urlService.GeneratePaginatedLinks
-            (
-                new GeneratePaginatedLinksDtoRequest
-                {
-                    BaseUrl = Request.Host.Value,
-                    Path = Request.Path.HasValue ? Request.Path.Value : string.Empty,
-                    QueryString = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
-                    PageNumber = flexibilityApiParameters.PageNumber,
-                    TotalPages = paginatedFlexibilityDtoResponse.TotalPages,
-                    Filter = paginatedFlexibilityDtoRequest.Filter
-                }
-            );
+        var links = mapper.Map<PaginationLinksApi>(paginatedLinks);
+        flexibilityApiPaginatedResponse.Links = links;
 
-            var links = mapper.Map<PaginationLinksApi>(paginatedLinks);
-            flexibilityApiPaginatedResponse.Links = links;
-
-            var flexibilityApis = mapper.Map<List<FlexibilityApi>>(paginatedFlexibilityDtoResponse.Flexibilities);
-            flexibilityApis.ForEach(f =>
-                f.Link = new()
-                {
-                    Self = new()
-                    {
-                        Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = f.Id }).Self
-                    }
-                }
-            );
-            flexibilityApiPaginatedResponse.Flexibilities = flexibilityApis;
-
-            return StatusCode((int)HttpStatusCode.OK, flexibilityApiPaginatedResponse);
-        }
-        catch (Exception ex)
-        {
-            var flexibilityApiError = new FlexibilityApiError
+        var flexibilityApis = mapper.Map<List<FlexibilityApi>>(paginatedFlexibilityDtoResponse.Flexibilities);
+        flexibilityApis.ForEach(f =>
+            f.Link = new()
             {
-                Detail = ex.Message
-            };
-            return StatusCode((int)HttpStatusCode.InternalServerError, flexibilityApiError);
-        }
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = f.Id }).Self
+                }
+            }
+        );
+
+        flexibilityApiPaginatedResponse.Flexibilities = flexibilityApis;
+        return StatusCode((int)HttpStatusCode.OK, flexibilityApiPaginatedResponse);
     }
 
     public override async Task<IActionResult> GetByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
-        try
-        {
-            var getFlexibilityDtoRequest = new GetFlexibilityDtoRequest
-            {
-                Id = Guid.Parse(id)
-            };
+        ArgumentNullException.ThrowIfNull(id, "Invalid request id");
 
-            var getFlexibilityDtoResponse = await flexibilityService.GetByIdAsync(getFlexibilityDtoRequest);
-            if (getFlexibilityDtoResponse.HasError)
+        var getFlexibilityDtoRequest = new GetFlexibilityDtoRequest
+        {
+            Id = Guid.Parse(id)
+        };
+
+        var getFlexibilityDtoResponse = await flexibilityService.GetByIdAsync(getFlexibilityDtoRequest);
+
+        var flexibilityApi = mapper.Map<FlexibilityApi>(getFlexibilityDtoResponse.Flexibility);
+        flexibilityApi.Link = new()
+        {
+            Self = new()
             {
-                var flexibilityApiError = new FlexibilityApiError
-                {
-                    Detail = getFlexibilityDtoResponse.Error.Message
-                };
-                return StatusCode(getFlexibilityDtoResponse.Error.ErrorCode, flexibilityApiError);
+                Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
             }
+        };
 
-            var flexibilityApi = mapper.Map<FlexibilityApi>(getFlexibilityDtoResponse.Flexibility);
-            flexibilityApi.Link = new()
-            {
-                Self = new()
-                {
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
-                }
-            };
-
-            var flexibilityApiResponse = new FlexibilityApiResponse
-            {
-                Flexibility = flexibilityApi
-            };
-            return StatusCode((int)HttpStatusCode.OK, flexibilityApiResponse);
-        }
-        catch (Exception ex)
+        var flexibilityApiResponse = new FlexibilityApiResponse
         {
-            var flexibilityApiError = new FlexibilityApiError
-            {
-                Detail = ex.Message
-            };
-            return StatusCode((int)HttpStatusCode.InternalServerError, flexibilityApiError);
-        }
+            Flexibility = flexibilityApi
+        };
+        return StatusCode((int)HttpStatusCode.OK, flexibilityApiResponse);
     }
 }

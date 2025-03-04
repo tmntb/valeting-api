@@ -13,50 +13,19 @@ public class UserController(IUserService userService, IMapper mapper) : UserBase
 {
     public override async Task<IActionResult> ValidateLogin([FromBody] ValidateLoginApiRequest validateLoginApiRequest)
     {
-        try
+        ArgumentNullException.ThrowIfNull(validateLoginApiRequest, "Invalid request body");
+
+        var validateLoginDtoRequest = mapper.Map<ValidateLoginDtoRequest>(validateLoginApiRequest);
+        var validateLoginDtoResponse = await userService.ValidateLoginAsync(validateLoginDtoRequest);
+        if (!validateLoginDtoResponse.Valid)
         {
-            var validateLoginDtoRequest = mapper.Map<ValidateLoginDtoRequest>(validateLoginApiRequest);
-
-            var validateLoginDtoResponse = await userService.ValidateLoginAsync(validateLoginDtoRequest);
-            if(validateLoginDtoResponse.HasError)
-            {
-                var userApiError = new UserApiError
-                {
-                    Detail = validateLoginDtoResponse.Error.Message
-                };
-                return StatusCode(validateLoginDtoResponse.Error.ErrorCode, userApiError);
-            }
-
-            if (!validateLoginDtoResponse.Valid)
-            {
-                var userApiError = new UserApiError
-                {
-                    Detail = Messages.InvalidPassword
-                };
-                return StatusCode((int)HttpStatusCode.Unauthorized, userApiError);
-            }
-
-            var generateTokenJWTDtoRequest = mapper.Map<GenerateTokenJWTDtoRequest>(validateLoginApiRequest);
-            var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(generateTokenJWTDtoRequest);
-            if(generateTokenJWTDtoResponse.HasError)
-            {
-                var userApiError = new UserApiError
-                {
-                    Detail = generateTokenJWTDtoResponse.Error.Message
-                };
-                return StatusCode(generateTokenJWTDtoResponse.Error.ErrorCode, userApiError);
-            }
-
-            var validateLoginApiResponse = mapper.Map<ValidateLoginApiResponse>(generateTokenJWTDtoResponse);
-            return StatusCode((int)HttpStatusCode.OK, validateLoginApiResponse);
+            throw new UnauthorizedAccessException(Messages.InvalidPassword);
         }
-        catch (Exception ex)
-        {
-            var userApiError = new UserApiError
-            { 
-                Detail = ex.Message
-            };
-            return StatusCode((int)HttpStatusCode.InternalServerError, userApiError);
-        }
+
+        var generateTokenJWTDtoRequest = mapper.Map<GenerateTokenJWTDtoRequest>(validateLoginApiRequest);
+        var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(generateTokenJWTDtoRequest);
+
+        var validateLoginApiResponse = mapper.Map<ValidateLoginApiResponse>(generateTokenJWTDtoResponse);
+        return StatusCode((int)HttpStatusCode.OK, validateLoginApiResponse);
     }
 }

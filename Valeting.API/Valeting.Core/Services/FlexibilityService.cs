@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using System.Net;
+using FluentValidation;
 using Valeting.Common.Cache;
 using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
@@ -20,29 +20,14 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
         var result = validator.Validate(paginatedFlexibilityDtoRequest);
         if (!result.IsValid)
         {
-            paginatedFlexibilityDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return paginatedFlexibilityDtoResponse;
+            throw new ValidationException(result.Errors);
         }
 
         return await cacheHandler.GetOrCreateRecordAsync(
             paginatedFlexibilityDtoRequest.Filter,
             async () =>
             {
-                var flexibilityListDto = await flexibilityRepository.GetAsync(paginatedFlexibilityDtoRequest.Filter);
-                if (flexibilityListDto == null)
-                {
-                    paginatedFlexibilityDtoResponse.Error = new()
-                    {
-                        ErrorCode = (int)HttpStatusCode.NotFound,
-                        Message = Messages.FlexibilityNotFound
-                    };
-                    return paginatedFlexibilityDtoResponse;
-                }
-
+                var flexibilityListDto = await flexibilityRepository.GetAsync(paginatedFlexibilityDtoRequest.Filter) ?? throw new KeyNotFoundException(Messages.FlexibilityNotFound);
                 return mapper.Map<PaginatedFlexibilityDtoResponse>(flexibilityListDto);
             },
             new CacheOptions
@@ -61,29 +46,14 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
         var result = validator.Validate(getFlexibilityDtoRequest);
         if (!result.IsValid)
         {
-            getFlexibilityDtoResponse.Error = new()
-            {
-                ErrorCode = (int)HttpStatusCode.BadRequest,
-                Message = result.Errors.FirstOrDefault().ErrorMessage
-            };
-            return getFlexibilityDtoResponse;
+            throw new ValidationException(result.Errors);
         }
 
         return await cacheHandler.GetOrCreateRecordAsync(
             getFlexibilityDtoRequest,
             async () =>
             {
-                var flexibilityDto = await flexibilityRepository.GetByIdAsync(getFlexibilityDtoRequest.Id);
-                if (flexibilityDto == null)
-                {
-                    getFlexibilityDtoResponse.Error = new()
-                    {
-                        ErrorCode = (int)HttpStatusCode.NotFound,
-                        Message = Messages.FlexibilityNotFound
-                    };
-                    return getFlexibilityDtoResponse;
-                }
-
+                var flexibilityDto = await flexibilityRepository.GetByIdAsync(getFlexibilityDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.FlexibilityNotFound);
                 getFlexibilityDtoResponse.Flexibility = mapper.Map<FlexibilityDto>(flexibilityDto);
                 return getFlexibilityDtoResponse;
             },
