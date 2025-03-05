@@ -1,4 +1,6 @@
-﻿namespace Valeting.Repository.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Valeting.Repository.Entities;
 
 public partial class RdFlexibility
 {

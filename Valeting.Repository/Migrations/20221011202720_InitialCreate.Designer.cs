@@ -32,7 +32,7 @@ namespace Valeting.Repository.Migrations
 
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("ID");
+                        .HasColumnName("Id");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -52,7 +52,7 @@ namespace Valeting.Repository.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("ID");
+                        .HasColumnName("Id");
 
                     b.Property<bool?>("Approved")
                         .HasColumnType("bit");
@@ -69,7 +69,7 @@ namespace Valeting.Repository.Migrations
 
                     b.Property<Guid>("FlexibilityId")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Flexibility_ID");
+                        .HasColumnName("Flexibility_Id");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -77,7 +77,7 @@ namespace Valeting.Repository.Migrations
 
                     b.Property<Guid>("VehicleSizeId")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("VehicleSize_ID");
+                        .HasColumnName("VehicleSize_Id");
 
                     b.HasKey("Id");
 
@@ -92,7 +92,7 @@ namespace Valeting.Repository.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("ID");
+                        .HasColumnName("Id");
 
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
@@ -110,7 +110,7 @@ namespace Valeting.Repository.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("ID");
+                        .HasColumnName("Id");
 
                     b.Property<bool>("Active")
                         .HasColumnType("bit");

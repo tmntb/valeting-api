@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Valeting.Repository.Entities;
 
@@ -11,9 +12,11 @@ using Valeting.Repository.Entities;
 namespace Valeting.Repository.Migrations
 {
     [DbContext(typeof(ValetingContext))]
-    partial class ValetingContextModelSnapshot : ModelSnapshot
+    [Migration("20250305163544_ReferenceData")]
+    partial class ReferenceData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,7 +73,7 @@ namespace Valeting.Repository.Migrations
 
                     b.Property<Guid>("FlexibilityId")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Flexibility_Id");
+                        .HasColumnName("Flexibility_ID");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -78,7 +81,7 @@ namespace Valeting.Repository.Migrations
 
                     b.Property<Guid>("VehicleSizeId")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("VehicleSize_Id");
+                        .HasColumnName("VehicleSize_ID");
 
                     b.HasKey("Id");
 

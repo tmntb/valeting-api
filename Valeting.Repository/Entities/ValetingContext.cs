@@ -33,24 +33,26 @@ public partial class ValetingContext : DbContext
 
             entity.Property(e => e.Username).HasMaxLength(50);
 
-            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.Id).HasColumnName("Id");
 
             entity.Property(e => e.Salt).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Booking>(entity =>
         {
+            entity.HasKey(e => e.Id);
+
             entity.ToTable("Booking");
 
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
-                .HasColumnName("ID");
+                .HasColumnName("Id");
 
             entity.Property(e => e.BookingDate).HasColumnType("datetime");
 
-            entity.Property(e => e.FlexibilityId).HasColumnName("Flexibility_ID");
+            entity.Property(e => e.FlexibilityId).HasColumnName("Flexibility_Id");
 
-            entity.Property(e => e.VehicleSizeId).HasColumnName("VehicleSize_ID");
+            entity.Property(e => e.VehicleSizeId).HasColumnName("VehicleSize_Id");
 
             entity.HasOne(d => d.Flexibility)
                 .WithMany(p => p.Bookings)
@@ -67,20 +69,24 @@ public partial class ValetingContext : DbContext
 
         modelBuilder.Entity<RdFlexibility>(entity =>
         {
+            entity.HasKey(e => e.Id);
+
             entity.ToTable("RD_Flexibility");
 
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
-                .HasColumnName("ID");
+                .HasColumnName("Id");
         });
 
         modelBuilder.Entity<RdVehicleSize>(entity =>
         {
+            entity.HasKey(e => e.Id);
+            
             entity.ToTable("RD_VehicleSize");
 
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
-                .HasColumnName("ID");
+                .HasColumnName("Id");
         });
 
         OnModelCreatingPartial(modelBuilder);
