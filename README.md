@@ -124,7 +124,7 @@ dotnet run --project Valeting.API
 If using Docker:
 
 ```sh
-docker-compose up -d
+docker-compose up --build
 ```
 
 ## Contributing

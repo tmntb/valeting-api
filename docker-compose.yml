@@ -1,4 +1,4 @@
-name: valeting-api
+name: valeting
 
 services:
   sqlserver:    
@@ -12,6 +12,18 @@ services:
       SA_PASSWORD: ${SA_PASSWORD}
     volumes:
       - sqlserver_data:/var/opt/mssql
+
+  api:
+    build:
+        context: .
+        dockerfile: /Valeting.API/Dockerfile
+    ports:
+        - "8080:8080"
+    container_name: api
+    depends_on: 
+        - sqlserver
+    environment: 
+        - ConnectionStrings__ValetingConnection=Server=sqlserver,1433;Database=Valeting;User ID=sa;Password=${SA_PASSWORD};Integrated Security=False;Trusted_Connection=False;TrustServerCertificate=True;
 
 volumes:
   sqlserver_data:

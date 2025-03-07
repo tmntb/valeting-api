@@ -12,8 +12,8 @@ using Valeting.Repository.Entities;
 namespace Valeting.Repository.Migrations
 {
     [DbContext(typeof(ValetingContext))]
-    [Migration("20221011202720_InitalCreate")]
-    partial class InitalCreate
+    [Migration("20221011202720_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

@@ -1,33 +1,41 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+# Base image
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
+RUN adduser --shell /bin/false --disabled-password -H --uid 1001 default
+
+ENV ASPNETCORE_ENVIRONMENT=Production
+
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 
-
-# This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 WORKDIR /src
-COPY ["Valeting/Valeting.csproj", "Valeting/"]
-COPY ["Valeting.Core/Valeting.Core.csproj", "Valeting.Core/"]
-COPY ["Valeting.Repository/Valeting.Repository.csproj", "Valeting.Repository/"]
-COPY ["Valeting.Common/Valeting.Common.csproj", "Valeting.Common/"]
-RUN dotnet restore "./Valeting/Valeting.csproj"
-COPY . .
-WORKDIR "/src/Valeting"
-RUN dotnet build "./Valeting.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
-FROM build AS publish
+# Copy all the project files
+COPY Valeting.Common/Valeting.Common.csproj Valeting.Common/
+COPY Valeting.Repository/Valeting.Repository.csproj Valeting.Repository/
+COPY Valeting.Core/Valeting.Core.csproj Valeting.Core/
+COPY Valeting.API/Valeting.API.csproj Valeting.API/
+
+# Restore dependencies
+RUN dotnet restore "./Valeting.API/Valeting.API.csproj"
+
+# Copy all the project files
+COPY Valeting.Common/ Valeting.Common/
+COPY Valeting.Repository/ Valeting.Repository/
+COPY Valeting.Core/ Valeting.Core/
+COPY Valeting.API/ Valeting.API/
+
+# Publish stage
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Valeting.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+FROM build AS publish
+RUN dotnet publish "./Valeting.API/Valeting.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish --verbosity n --no-restore
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+# Final stage
 FROM base AS final
+USER default
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Valeting.dll"]
+
+ENTRYPOINT ["dotnet", "Valeting.API.dll"]
