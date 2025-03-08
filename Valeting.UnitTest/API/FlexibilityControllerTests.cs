@@ -2,14 +2,13 @@ using AutoMapper;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using Valeting.Controllers;
-using Valeting.Models.Core;
+using Valeting.API.Controllers;
 using Valeting.Core.Interfaces;
-using Valeting.Cache.Interfaces;
-using Valeting.Models.Flexibility;
 using Valeting.Common.Models.Link;
 using Valeting.Common.Models.Flexibility;
 using Valeting.Common.Cache.Interfaces;
+using Valeting.API.Models.Core;
+using Valeting.API.Models.Flexibility;
 
 namespace Valeting.Tests.Api;
 
@@ -18,7 +17,6 @@ public class FlexibilityControllerTests
     private readonly Mock<IMapper> _mockMapper;
     private readonly Mock<HttpRequest> _mockHttpRequest;
     private readonly Mock<IUrlService> _mockUrlService;
-    private readonly Mock<ICacheHandler> _mockCacheHandler;
     private readonly Mock<IFlexibilityService> _mockFlexibilityService;
 
     public FlexibilityControllerTests()
@@ -26,7 +24,6 @@ public class FlexibilityControllerTests
         _mockMapper = new Mock<IMapper>();
         _mockHttpRequest = new Mock<HttpRequest>();
         _mockUrlService = new Mock<IUrlService>();
-        _mockCacheHandler = new Mock<ICacheHandler>();
         _mockFlexibilityService = new Mock<IFlexibilityService>();
     }
 
@@ -66,7 +63,7 @@ public class FlexibilityControllerTests
         _mockUrlService.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>())).Returns(generateSelfUrlDtoResponse);
 
         // Act
-        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -114,7 +111,7 @@ public class FlexibilityControllerTests
         _mockFlexibilityService.Setup(x => x.GetByIdAsync(It.IsAny<GetFlexibilityDtoRequest>())).ReturnsAsync(getFlexibilityDtoResponse);
 
         // Act
-        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -155,7 +152,6 @@ public class FlexibilityControllerTests
                 Active = true
             }
         };
-        _mockCacheHandler.Setup(x => x.GetRecord<GetFlexibilityDtoResponse>(It.IsAny<string>())).Returns(getFlexibilityDtoResponse);
 
         var flexibilityApi = new FlexibilityApi
         {
@@ -169,7 +165,7 @@ public class FlexibilityControllerTests
         _mockUrlService.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>())).Returns(generateSelfUrlDtoResponse);
 
         // Act
-        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -197,7 +193,7 @@ public class FlexibilityControllerTests
     public async Task GetById_Status500_WithException()
     {
         // Act
-        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object);
+        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object);
         var response = await flexibilityController.GetByIdAsync(null);
 
         // Assert
@@ -296,7 +292,7 @@ public class FlexibilityControllerTests
         });
 
         // Act
-        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -366,7 +362,6 @@ public class FlexibilityControllerTests
             TotalItems = 3,
             TotalPages = 1
         };
-        _mockCacheHandler.Setup(x => x.GetRecord<PaginatedFlexibilityDtoResponse>(It.IsAny<string>())).Returns(paginatedFlexibilityDtoResponse);
 
         var paginatedLinks = new GeneratePaginatedLinksDtoResponse
         {
@@ -406,7 +401,7 @@ public class FlexibilityControllerTests
         });
 
         // Act
-        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -463,7 +458,7 @@ public class FlexibilityControllerTests
         _mockFlexibilityService.Setup(x => x.GetAsync(It.IsAny<PaginatedFlexibilityDtoRequest>())).ReturnsAsync(paginatedFlexibilityDtoResponse);
 
         // Act
-        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -486,7 +481,7 @@ public class FlexibilityControllerTests
     public async Task Get_Status500_WithException()
     {
         // Act
-        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object);
+        var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object);
         var response = await flexibilityController.GetAsync(null);
 
         // Assert

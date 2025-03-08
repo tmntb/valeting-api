@@ -2,9 +2,9 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Valeting.Core;
-using Valeting.Mappers;
 using Valeting.Repository;
-using Valeting.SwaggerDocumentation;
+using Valeting.API.Mappers;
+using Valeting.API.SwaggerDocumentation;
 
 var builder = WebApplication.CreateBuilder(args);
 

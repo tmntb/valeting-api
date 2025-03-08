@@ -1,8 +1,8 @@
 using AutoMapper;
-using Valeting.Models.Core;
+using Valeting.API.Models.Core;
 using Valeting.Common.Models.Link;
 
-namespace Valeting.Mappers;
+namespace Valeting.API.Mappers;
 
 public class LinkMapper : Profile
 {

@@ -1,4 +1,4 @@
-﻿namespace Valeting.SwaggerDocumentation.Parameter;
+﻿namespace Valeting.API.SwaggerDocumentation.Parameter;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 public class QueryParameterAttribute : Attribute

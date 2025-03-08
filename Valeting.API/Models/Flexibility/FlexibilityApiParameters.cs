@@ -1,6 +1,6 @@
-﻿using Valeting.Models.Core;
+﻿using Valeting.API.Models.Core;
 
-namespace Valeting.Models.Flexibility;
+namespace Valeting.API.Models.Flexibility;
 
 public class FlexibilityApiParameters : QueryStringParametersApi
 {

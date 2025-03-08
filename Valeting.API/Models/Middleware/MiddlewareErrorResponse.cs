@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Valeting.Models.Middleware;
+namespace Valeting.API.Models.Middleware;
 
 public class MiddlewareErrorResponse
 {

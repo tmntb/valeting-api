@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using Valeting.Models.User;
+using Valeting.API.Models.User;
 using Valeting.Common.Messages;
 using Valeting.Core.Interfaces;
 using Valeting.Common.Models.User;
-using Valeting.Controllers.BaseController;
+using Valeting.API.Controllers.BaseController;
 
-namespace Valeting.Controllers;
+namespace Valeting.API.Controllers;
 
 public class UserController(IUserService userService, IMapper mapper) : UserBaseController
 {

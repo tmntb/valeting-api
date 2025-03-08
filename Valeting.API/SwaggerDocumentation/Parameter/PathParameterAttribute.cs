@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Valeting.SwaggerDocumentation.Parameter;
+namespace Valeting.API.SwaggerDocumentation.Parameter;
 
 [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
 public class PathParameterAttribute : ValidationAttribute

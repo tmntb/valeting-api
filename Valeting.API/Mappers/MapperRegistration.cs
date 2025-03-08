@@ -1,4 +1,4 @@
-namespace Valeting.Mappers;
+namespace Valeting.API.Mappers;
 
 public static class MapperRegistration
 {

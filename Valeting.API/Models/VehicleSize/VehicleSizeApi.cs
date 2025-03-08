@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Valeting.Models.VehicleSize;
+namespace Valeting.API.Models.VehicleSize;
 
 public class VehicleSizeApi
 {

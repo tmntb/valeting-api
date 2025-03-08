@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using System.Net;
-using Valeting.Models.Middleware;
+using Valeting.API.Models.Middleware;
 
-namespace Valeting.Middleware;
+namespace Valeting.API.Middleware;
 
 public class ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> logger) : IMiddleware
 {

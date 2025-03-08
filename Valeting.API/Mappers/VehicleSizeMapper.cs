@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using Valeting.Models.VehicleSize;
 using Valeting.Repository.Entities;
+using Valeting.API.Models.VehicleSize;
 using Valeting.Common.Models.VehicleSize;
 
-namespace Valeting.Mappers;
+namespace Valeting.API.Mappers;
 
 public class VehicleSizeMapper : Profile
 {

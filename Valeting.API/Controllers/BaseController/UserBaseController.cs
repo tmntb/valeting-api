@@ -1,8 +1,7 @@
-﻿using Valeting.Models.User;
+﻿using Microsoft.AspNetCore.Mvc;
+using Valeting.API.Models.User;
 
-using Microsoft.AspNetCore.Mvc;
-
-namespace Valeting.Controllers.BaseController;
+namespace Valeting.API.Controllers.BaseController;
 
 [Produces("application/json")]
 public abstract class UserBaseController : ControllerBase

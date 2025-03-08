@@ -1,9 +1,8 @@
 using Microsoft.OpenApi.Models;
+using Valeting.API.SwaggerDocumentation.Document;
+using Valeting.API.SwaggerDocumentation.Parameter;
 
-using Valeting.SwaggerDocumentation.Document;
-using Valeting.SwaggerDocumentation.Parameter;
-
-namespace Valeting.SwaggerDocumentation;
+namespace Valeting.API.SwaggerDocumentation;
 
 public static class SwaggerDocumentationExtensions
 {

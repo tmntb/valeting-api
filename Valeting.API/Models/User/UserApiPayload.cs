@@ -1,6 +1,6 @@
-﻿using Valeting.Models.Core;
+﻿using Valeting.API.Models.Core;
 
-namespace Valeting.Models.User;
+namespace Valeting.API.Models.User;
 
 public class ValidateLoginApiRequest
 {

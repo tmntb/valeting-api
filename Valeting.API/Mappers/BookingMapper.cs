@@ -1,9 +1,9 @@
 using AutoMapper;
-using Valeting.Models.Booking;
+using Valeting.API.Models.Booking;
 using Valeting.Repository.Entities;
 using Valeting.Common.Models.Booking;
 
-namespace Valeting.Mappers;
+namespace Valeting.API.Mappers;
 
 public class BookingMapper : Profile
 {

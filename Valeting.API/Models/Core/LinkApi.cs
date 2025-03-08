@@ -1,4 +1,4 @@
-﻿namespace Valeting.Models.Core;
+﻿namespace Valeting.API.Models.Core;
 
 public class LinkApi
 {        

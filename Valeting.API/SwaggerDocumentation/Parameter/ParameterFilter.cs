@@ -1,9 +1,8 @@
 ﻿using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Valeting.SwaggerDocumentation.Parameter;
+namespace Valeting.API.SwaggerDocumentation.Parameter;
 
 public class ParameterFilter : IParameterFilter
 {

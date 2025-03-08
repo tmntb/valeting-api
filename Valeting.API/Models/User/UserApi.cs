@@ -1,4 +1,4 @@
-﻿namespace Valeting.Models.User;
+﻿namespace Valeting.API.Models.User;
 
 public class UserApi
 {

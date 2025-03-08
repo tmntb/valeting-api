@@ -1,8 +1,7 @@
 ﻿using Microsoft.OpenApi.Models;
-
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Valeting.SwaggerDocumentation.Document;
+namespace Valeting.API.SwaggerDocumentation.Document;
 
 public class UserDocumentFilter : IDocumentFilter
 {

@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
+using Valeting.API.Models.Flexibility;
 
-using Valeting.Models.Flexibility;
-
-namespace Valeting.Controllers.BaseController;
+namespace Valeting.API.Controllers.BaseController;
 
 [Produces("application/json")]
 public abstract class FlexibilityBaseController : ControllerBase

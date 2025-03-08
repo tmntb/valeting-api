@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
-using Valeting.Models.Core;
-using Valeting.Models.Booking;
+using Valeting.API.Models.Core;
 using Valeting.Core.Interfaces;
+using Valeting.API.Models.Booking;
 using Valeting.Common.Models.Link;
 using Valeting.Common.Models.Booking;
-using Valeting.Controllers.BaseController;
+using Valeting.API.Controllers.BaseController;
 
-namespace Valeting.Controllers;
+namespace Valeting.API.Controllers;
 
 public class BookingController(IBookingService bookingService, IUrlService urlService, IMapper mapper) : BookingBaseController
 {

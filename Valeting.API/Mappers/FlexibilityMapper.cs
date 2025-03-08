@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using Valeting.Models.Flexibility;
 using Valeting.Repository.Entities;
+using Valeting.API.Models.Flexibility;
 using Valeting.Common.Models.Flexibility;
 
-namespace Valeting.Mappers;
+namespace Valeting.API.Mappers;
 
 public class FlexibilityMapper : Profile
 {

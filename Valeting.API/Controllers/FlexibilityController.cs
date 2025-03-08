@@ -2,14 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.ComponentModel.DataAnnotations;
-using Valeting.Models.Core;
+using Valeting.API.Models.Core;
 using Valeting.Core.Interfaces;
 using Valeting.Common.Models.Link;
-using Valeting.Models.Flexibility;
+using Valeting.API.Models.Flexibility;
 using Valeting.Common.Models.Flexibility;
-using Valeting.Controllers.BaseController;
+using Valeting.API.Controllers.BaseController;
 
-namespace Valeting.Controllers;
+namespace Valeting.API.Controllers;
 
 public class FlexibilityController(IFlexibilityService flexibilityService, IUrlService urlService, IMapper mapper) : FlexibilityBaseController
 {

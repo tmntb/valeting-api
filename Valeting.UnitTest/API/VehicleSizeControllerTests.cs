@@ -2,14 +2,13 @@
 using Moq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using Valeting.Models.Core;
-using Valeting.Controllers;
+using Valeting.API.Controllers;
 using Valeting.Core.Interfaces;
-using Valeting.Cache.Interfaces;
-using Valeting.Models.VehicleSize;
 using Valeting.Common.Models.Link;
 using Valeting.Common.Models.VehicleSize;
 using Valeting.Common.Cache.Interfaces;
+using Valeting.API.Models.Core;
+using Valeting.API.Models.VehicleSize;
 
 namespace Valeting.Tests.Api;
 
@@ -18,7 +17,6 @@ public class VehicleSizeControllerTests
     private readonly Mock<IMapper> _mockMapper;
     private readonly Mock<HttpRequest> _mockHttpRequest;
     private readonly Mock<IUrlService> _mockUrlService;
-    private readonly Mock<ICacheHandler> _mockCacheHandler;
     private readonly Mock<IVehicleSizeService> _mockVehicleSizeService;
 
     public VehicleSizeControllerTests()
@@ -26,7 +24,6 @@ public class VehicleSizeControllerTests
         _mockMapper = new Mock<IMapper>();
         _mockHttpRequest = new Mock<HttpRequest>();
         _mockUrlService = new Mock<IUrlService>();
-        _mockCacheHandler = new Mock<ICacheHandler>();
         _mockVehicleSizeService = new Mock<IVehicleSizeService>();
     }
 
@@ -67,7 +64,7 @@ public class VehicleSizeControllerTests
         _mockUrlService.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>())).Returns(generateSelfUrlDtoResponse);
 
         // Act
-        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -116,7 +113,7 @@ public class VehicleSizeControllerTests
         _mockVehicleSizeService.Setup(x => x.GetByIdAsync(It.IsAny<GetVehicleSizeDtoRequest>())).ReturnsAsync(getVehicleSizeDtoResponse);
 
         // Act
-        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -158,7 +155,6 @@ public class VehicleSizeControllerTests
                 Active = true
             }
         };
-        _mockCacheHandler.Setup(x => x.GetRecord<GetVehicleSizeDtoResponse>(It.IsAny<string>())).Returns(getVehicleSizeDtoResponse);
 
         var vehicleSizeApi = new VehicleSizeApi
         {
@@ -172,7 +168,7 @@ public class VehicleSizeControllerTests
         _mockUrlService.Setup(x => x.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>())).Returns(generateSelfUrlDtoResponse);
 
         // Act
-        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -200,7 +196,7 @@ public class VehicleSizeControllerTests
     public async Task GetById_Status500_WithException()
     {
         // Act
-        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object);
+        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockMapper.Object);
         var response = await vehicleSizeController.GetByIdAsync(null);
 
         // Assert
@@ -299,7 +295,7 @@ public class VehicleSizeControllerTests
         });
 
         // Act
-        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -369,7 +365,6 @@ public class VehicleSizeControllerTests
             TotalItems = 3,
             TotalPages = 1
         };
-        _mockCacheHandler.Setup(x => x.GetRecord<PaginatedVehicleSizeDtoResponse>(It.IsAny<string>())).Returns(paginatedVehicleSizeDtoResponse);
 
         var paginatedLinks = new GeneratePaginatedLinksDtoResponse()
         {
@@ -409,7 +404,7 @@ public class VehicleSizeControllerTests
         });
 
         //Act
-        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -465,7 +460,7 @@ public class VehicleSizeControllerTests
         _mockVehicleSizeService.Setup(x => x.GetAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>())).Returns(paginatedVehicleSizeDtoResponse);
 
         //Act
-        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object)
+        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
             ControllerContext = controllerContext
         };
@@ -488,7 +483,7 @@ public class VehicleSizeControllerTests
     public async Task Get_Status500_WithException()
     {
         //Act
-        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockCacheHandler.Object, _mockMapper.Object);
+        var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockMapper.Object);
         var response = await vehicleSizeController.GetAsync(null);
 
         //Assert

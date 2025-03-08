@@ -1,9 +1,10 @@
 using AutoMapper;
-using Valeting.Models.User;
+using Valeting.API.Models.User;
 using Valeting.Common.Models.User;
 using Valeting.Repository.Entities;
 
-namespace Valeting.Mappers;
+namespace Valeting.API.Mappers;
+
 public class UserMapper : Profile
 {
     public UserMapper()
