@@ -11,5 +11,3 @@ public class FlexibilityApiResponse
 {
     public FlexibilityApi Flexibility { get; set; }
 }
-
-public class FlexibilityApiError : ErrorApi { }

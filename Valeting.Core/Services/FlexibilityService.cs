@@ -27,13 +27,25 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
             paginatedFlexibilityDtoRequest.Filter,
             async () =>
             {
-                var flexibilityListDto = await flexibilityRepository.GetAsync(paginatedFlexibilityDtoRequest.Filter) ?? throw new KeyNotFoundException(Messages.FlexibilityNotFound);
-                return mapper.Map<PaginatedFlexibilityDtoResponse>(flexibilityListDto);
+                var flexibilityDtoList = await flexibilityRepository.GetFilteredAsync(paginatedFlexibilityDtoRequest.Filter);
+                
+                if(flexibilityDtoList.Count == 0 )
+                    throw new KeyNotFoundException(Messages.FlexibilityNotFound);
+
+                paginatedFlexibilityDtoResponse.TotalItems = flexibilityDtoList.Count();
+                var nrPages = decimal.Divide(paginatedFlexibilityDtoResponse.TotalItems, paginatedFlexibilityDtoRequest.Filter.PageSize);
+                paginatedFlexibilityDtoResponse.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
+
+                flexibilityDtoList = flexibilityDtoList.OrderBy(x => x.Id).ToList();
+                flexibilityDtoList = flexibilityDtoList.Skip((paginatedFlexibilityDtoRequest.Filter.PageNumber - 1) * paginatedFlexibilityDtoRequest.Filter.PageSize).Take(paginatedFlexibilityDtoRequest.Filter.PageSize).ToList();
+
+                paginatedFlexibilityDtoResponse.Flexibilities = flexibilityDtoList;
+                return paginatedFlexibilityDtoResponse;
             },
             new CacheOptions
             {
                 ListType = CacheListType.Flexibility,
-                AbsoluteExpireTime = TimeSpan.FromMinutes(5)
+                AbsoluteExpireTime = TimeSpan.FromDays(5)
             }
         );
     }

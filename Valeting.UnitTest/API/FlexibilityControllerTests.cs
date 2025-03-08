@@ -125,7 +125,7 @@ public class FlexibilityControllerTests
         Assert.NotNull(notFoundResult);
         Assert.Equal(404, notFoundResult.StatusCode);
 
-        var flexibilityApiResponse = notFoundResult.Value as FlexibilityApiError;
+        var flexibilityApiResponse = notFoundResult.Value as ErrorApi;
         Assert.NotNull(flexibilityApiResponse);
         Assert.Equal("NotFound", flexibilityApiResponse.Detail);
     }
@@ -203,7 +203,7 @@ public class FlexibilityControllerTests
         Assert.NotNull(internalServerErrorResult);
         Assert.Equal(500, internalServerErrorResult.StatusCode);
 
-        var flexibilityApiResponse = internalServerErrorResult.Value as FlexibilityApiError;
+        var flexibilityApiResponse = internalServerErrorResult.Value as ErrorApi;
         Assert.NotNull(flexibilityApiResponse);
         Assert.False(string.IsNullOrEmpty(flexibilityApiResponse.Detail));
     }
@@ -472,7 +472,7 @@ public class FlexibilityControllerTests
         Assert.NotNull(notFoundResult);
         Assert.Equal(404, notFoundResult.StatusCode);
 
-        var flexibilityApiResponse = notFoundResult.Value as FlexibilityApiError;
+        var flexibilityApiResponse = notFoundResult.Value as ErrorApi;
         Assert.NotNull(flexibilityApiResponse);
         Assert.Equal("NotFound", flexibilityApiResponse.Detail);
     }
@@ -491,7 +491,7 @@ public class FlexibilityControllerTests
         Assert.NotNull(internalServerErrorResult);
         Assert.Equal(500, internalServerErrorResult.StatusCode);
 
-        var flexibilityApiResponse = internalServerErrorResult.Value as FlexibilityApiError;
+        var flexibilityApiResponse = internalServerErrorResult.Value as ErrorApi;
         Assert.NotNull(flexibilityApiResponse);
         Assert.False(string.IsNullOrEmpty(flexibilityApiResponse.Detail));
     }

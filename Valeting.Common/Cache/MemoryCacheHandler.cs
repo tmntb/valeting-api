@@ -4,14 +4,13 @@ using System.Text.Json;
 using System.Security.Cryptography;
 using System.Collections.Concurrent;
 using Valeting.Common.Cache.Interfaces;
-using System.Collections.Generic;
 
 namespace Valeting.Common.Cache;
 
 public class MemoryCacheHandler(IMemoryCache memoryCache) : ICacheHandler
 {
-    private readonly ConcurrentDictionary<Guid, string> _cachedKeys = new();
-    private readonly ConcurrentDictionary<CacheListType, string> _cachedListKeys = new();
+    private static readonly ConcurrentDictionary<Guid, string> _cachedKeys = new();
+    private static readonly ConcurrentDictionary<CacheListType, string> _cachedListKeys = new();
 
     public async Task<TResponse> GetOrCreateRecordAsync<TRequest, TResponse>(TRequest request, Func<Task<TResponse>> onCacheMiss, CacheOptions cacheOptions)
     {

@@ -5,14 +5,12 @@ using Valeting.Core;
 using Valeting.Repository;
 using Valeting.API.Mappers;
 using Valeting.API.SwaggerDocumentation;
+using Valeting.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
-
 builder.Services.AddValetingCore();
-
 builder.Services.AddValetingRepository(builder.Configuration);
 
 builder.Services.AddAuthentication(options =>
@@ -42,6 +40,10 @@ builder.Services.AddAuthorizationBuilder()
         policy.RequireAuthenticatedUser();
     });
 
+builder.Services.AddControllers();
+
+builder.Services.AddScoped<ExceptionHandlingMiddleware>();
+
 builder.Services.AddSwaggerDocumentation();
 
 // Register AutoMapper
@@ -64,6 +66,8 @@ app.UseDefaultFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 

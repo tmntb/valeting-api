@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using System.Net;
+using System.Threading.Tasks;
+using Valeting.API.Models.Core;
 using Valeting.API.Models.Middleware;
 
 namespace Valeting.API.Middleware;
@@ -23,40 +25,28 @@ public class ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> lo
     private async Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
     {
         httpContext.Response.ContentType = "application/json";
-        httpContext.Response.StatusCode = exception switch
-        {
-            ArgumentNullException => (int)HttpStatusCode.BadRequest,
-            ArgumentException => (int)HttpStatusCode.BadRequest,
-            InvalidOperationException => (int)HttpStatusCode.Conflict,
-            UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized,
-            ValidationException => (int)HttpStatusCode.BadRequest,
-            KeyNotFoundException => (int)HttpStatusCode.NotFound,
-            _ => (int)HttpStatusCode.InternalServerError
-        };
-
-        await BuildErrorResponse(httpContext, exception);
-    }
-
-    private async Task BuildErrorResponse(HttpContext httpContext, Exception exception)
-    {
-        var status = Enum.IsDefined(typeof(HttpStatusCode), httpContext.Response.StatusCode.ToString()) ?
-            httpContext.Response.StatusCode : (int)HttpStatusCode.InternalServerError;
-
-        httpContext.Response.StatusCode = status;
+        httpContext.Response.StatusCode = GetStatusCode(exception);
 
         var isDevelopment = httpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
 
-        var errorResponse = new MiddlewareErrorResponse
-        {
-            StatusCode = (HttpStatusCode)status,
-            ExceptionType = exception.GetType().FullName,
-            Message = exception.Message,
-            StackTrace = isDevelopment ? exception.StackTrace : null // Only in developement
-        };
-
-        _logger.LogError("Exception occurred - StatusCode: {StatusCode}, Type: {Type}, Message: {Message}",
-            errorResponse.StatusCode, errorResponse.ExceptionType, errorResponse.Message);
+        object errorResponse = httpContext.Response.StatusCode == (int)HttpStatusCode.InternalServerError
+           ? new MiddlewareErrorResponse
+           {
+               ExceptionType = exception.GetType().FullName,
+               Message = exception.Message,
+               StackTrace = isDevelopment ? exception.StackTrace : null // Only in developement
+           }
+           : new ErrorApi { Detail = exception.Message };
 
         await httpContext.Response.WriteAsJsonAsync(errorResponse);
     }
+
+    private static int GetStatusCode(Exception exception) => exception switch
+    {
+        ArgumentNullException or ArgumentException or ValidationException => (int)HttpStatusCode.BadRequest,
+        InvalidOperationException => (int)HttpStatusCode.Conflict,
+        UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized,
+        KeyNotFoundException => (int)HttpStatusCode.NotFound,
+        _ => (int)HttpStatusCode.InternalServerError
+    };
 }
