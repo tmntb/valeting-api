@@ -13,12 +13,12 @@ namespace Valeting.API.Controllers;
 
 public class FlexibilityController(IFlexibilityService flexibilityService, IUrlService urlService, IMapper mapper) : FlexibilityBaseController
 {
-    public override async Task<IActionResult> GetAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
+    public override async Task<IActionResult> GetFilteredAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
     {
         ArgumentNullException.ThrowIfNull(flexibilityApiParameters, "Invalid api parameters");
 
         var paginatedFlexibilityDtoRequest = mapper.Map<PaginatedFlexibilityDtoRequest>(flexibilityApiParameters);
-        var paginatedFlexibilityDtoResponse = await flexibilityService.GetAsync(paginatedFlexibilityDtoRequest);
+        var paginatedFlexibilityDtoResponse = await flexibilityService.GetFilteredAsync(paginatedFlexibilityDtoRequest);
 
         var flexibilityApiPaginatedResponse = new FlexibilityApiPaginatedResponse
         {

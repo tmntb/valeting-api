@@ -83,13 +83,13 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
         return StatusCode((int)HttpStatusCode.OK, bookingApiResponse);
     }
 
-    public override async Task<IActionResult> GetAsync([FromQuery] BookingApiParameters bookingApiParameters)
+    public override async Task<IActionResult> GetFilteredAsync([FromQuery] BookingApiParameters bookingApiParameters)
     {
         ArgumentNullException.ThrowIfNull(bookingApiParameters, "Invalid request query parameters");
 
         var paginatedBookingDtoRequest = mapper.Map<PaginatedBookingDtoRequest>(bookingApiParameters);
 
-        var paginatedBookingDtoResponse = await bookingService.GetAsync(paginatedBookingDtoRequest);
+        var paginatedBookingDtoResponse = await bookingService.GetFilteredAsync(paginatedBookingDtoRequest);
 
         var bookingApiPaginatedResponse = new BookingApiPaginatedResponse
         {

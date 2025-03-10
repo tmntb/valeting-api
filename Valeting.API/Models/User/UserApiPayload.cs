@@ -14,5 +14,3 @@ public class ValidateLoginApiResponse
     public DateTime ExpiryDate { get; set; }
     public string TokenType { get; set; }
 }
-
-public class UserApiError : ErrorApi { }

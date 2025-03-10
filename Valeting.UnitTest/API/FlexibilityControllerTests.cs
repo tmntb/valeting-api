@@ -252,7 +252,7 @@ public class FlexibilityControllerTests
             TotalItems = 3,
             TotalPages = 1
         };
-        _mockFlexibilityService.Setup(x => x.GetAsync(It.IsAny<PaginatedFlexibilityDtoRequest>())).ReturnsAsync(paginatedFlexibilityDtoResponse);
+        _mockFlexibilityService.Setup(x => x.GetFilteredAsync(It.IsAny<PaginatedFlexibilityDtoRequest>())).ReturnsAsync(paginatedFlexibilityDtoResponse);
 
         var paginatedLinks = new GeneratePaginatedLinksDtoResponse
         {
@@ -297,7 +297,7 @@ public class FlexibilityControllerTests
             ControllerContext = controllerContext
         };
 
-        var response = await flexibilityController.GetAsync(flexibilityApiParameters);
+        var response = await flexibilityController.GetFilteredAsync(flexibilityApiParameters);
 
         // Assert
         Assert.NotNull(response);
@@ -406,7 +406,7 @@ public class FlexibilityControllerTests
             ControllerContext = controllerContext
         };
 
-        var response = await flexibilityController.GetAsync(flexibilityApiParameters);
+        var response = await flexibilityController.GetFilteredAsync(flexibilityApiParameters);
 
         // Assert
         Assert.NotNull(response);
@@ -455,7 +455,7 @@ public class FlexibilityControllerTests
                 Message = "NotFound" 
             }
         };
-        _mockFlexibilityService.Setup(x => x.GetAsync(It.IsAny<PaginatedFlexibilityDtoRequest>())).ReturnsAsync(paginatedFlexibilityDtoResponse);
+        _mockFlexibilityService.Setup(x => x.GetFilteredAsync(It.IsAny<PaginatedFlexibilityDtoRequest>())).ReturnsAsync(paginatedFlexibilityDtoResponse);
 
         // Act
         var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object)
@@ -463,7 +463,7 @@ public class FlexibilityControllerTests
             ControllerContext = controllerContext
         };
 
-        var response = await flexibilityController.GetAsync(flexibilityApiParameters);
+        var response = await flexibilityController.GetFilteredAsync(flexibilityApiParameters);
 
         // Assert
         Assert.NotNull(response);
@@ -482,7 +482,7 @@ public class FlexibilityControllerTests
     {
         // Act
         var flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object);
-        var response = await flexibilityController.GetAsync(null);
+        var response = await flexibilityController.GetFilteredAsync(null);
 
         // Assert
         Assert.NotNull(response);

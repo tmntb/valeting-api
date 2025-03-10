@@ -120,15 +120,15 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
 
                 return getBookingDtoResponse;
             },
-            new CacheOptions 
-            { 
+            new CacheOptions
+            {
                 Id = getBookingDtoRequest.Id,
                 AbsoluteExpireTime = TimeSpan.FromDays(1)
             }
         );
     }
 
-    public async Task<PaginatedBookingDtoResponse> GetAsync(PaginatedBookingDtoRequest paginatedBookingDtoRequest)
+    public async Task<PaginatedBookingDtoResponse> GetFilteredAsync(PaginatedBookingDtoRequest paginatedBookingDtoRequest)
     {
         var paginatedBookingDtoResponse = new PaginatedBookingDtoResponse();
 
@@ -143,26 +143,17 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
             paginatedBookingDtoRequest,
             async () =>
             {
-                var bookingListDto = await bookingRepository.GetAsync(paginatedBookingDtoRequest.Filter) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
+                var bookingDtoList = await bookingRepository.GetFilteredAsync(paginatedBookingDtoRequest.Filter);
+                if (bookingDtoList.Count == 0)
+                    throw new KeyNotFoundException(Messages.BookingNotFound);
 
-                paginatedBookingDtoResponse.TotalItems = bookingListDto.TotalItems;
-                paginatedBookingDtoResponse.TotalPages = bookingListDto.TotalPages;
+                paginatedBookingDtoResponse.TotalItems = bookingDtoList.Count();
+                var nrPages = decimal.Divide(paginatedBookingDtoResponse.TotalItems, paginatedBookingDtoRequest.Filter.PageSize);
+                paginatedBookingDtoResponse.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
+                bookingDtoList = bookingDtoList.OrderBy(x => x.Id).ToList();
+                bookingDtoList = bookingDtoList.Skip((paginatedBookingDtoRequest.Filter.PageNumber - 1) * paginatedBookingDtoRequest.Filter.PageSize).Take(paginatedBookingDtoRequest.Filter.PageSize).ToList();
 
-                //mapper
-                paginatedBookingDtoResponse.Bookings = [.. bookingListDto.Bookings.Select(x =>
-                    new BookingDto()
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        BookingDate = x.BookingDate,
-                        ContactNumber = x.ContactNumber,
-                        Flexibility = new() { Id = x.Flexibility.Id, Description = x.Flexibility.Description, Active = x.Flexibility.Active },
-                        VehicleSize = new() { Id = x.VehicleSize.Id, Description = x.VehicleSize.Description, Active = x.VehicleSize.Active },
-                        Email = x.Email,
-                        Approved = x.Approved
-                    }
-                )];
-
+                paginatedBookingDtoResponse.Bookings = bookingDtoList;
                 return paginatedBookingDtoResponse;
             },
             new CacheOptions

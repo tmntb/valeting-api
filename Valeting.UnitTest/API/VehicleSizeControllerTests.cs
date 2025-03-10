@@ -127,7 +127,7 @@ public class VehicleSizeControllerTests
         Assert.NotNull(okResult);
         Assert.Equal(404, okResult.StatusCode);
 
-        var vehicleSizeApiResponse = okResult.Value as VehicleSizeApiError;
+        var vehicleSizeApiResponse = okResult.Value as ErrorApi;
         Assert.NotNull(vehicleSizeApiResponse);
         Assert.Equal("NotFound", vehicleSizeApiResponse.Detail);
     }
@@ -206,7 +206,7 @@ public class VehicleSizeControllerTests
         Assert.NotNull(okResult);
         Assert.Equal(500, okResult.StatusCode);
 
-        var vehicleSizeApiResponse = okResult.Value as VehicleSizeApiError;
+        var vehicleSizeApiResponse = okResult.Value as ErrorApi;
         Assert.NotNull(vehicleSizeApiResponse);
         Assert.False(string.IsNullOrEmpty(vehicleSizeApiResponse.Detail));
     }
@@ -255,7 +255,7 @@ public class VehicleSizeControllerTests
             TotalItems = 3,
             TotalPages = 1
         };
-        _mockVehicleSizeService.Setup(x => x.GetAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>())).ReturnsAsync(paginatedVehicleSizeDtoResponse);
+        _mockVehicleSizeService.Setup(x => x.GetFilteredAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>())).ReturnsAsync(paginatedVehicleSizeDtoResponse);
 
         var paginatedLinks = new GeneratePaginatedLinksDtoResponse
         {
@@ -300,7 +300,7 @@ public class VehicleSizeControllerTests
             ControllerContext = controllerContext
         };
 
-        var response = await vehicleSizeController.GetAsync(vehicleSizeApiParameters);
+        var response = await vehicleSizeController.GetFilteredAsync(vehicleSizeApiParameters);
 
         // Assert
         Assert.NotNull(response);
@@ -409,7 +409,7 @@ public class VehicleSizeControllerTests
             ControllerContext = controllerContext
         };
 
-        var response = await vehicleSizeController.GetAsync(vehicleSizeApiParameters);
+        var response = await vehicleSizeController.GetFilteredAsync(vehicleSizeApiParameters);
 
         //Assert
         Assert.NotNull(response);
@@ -457,7 +457,7 @@ public class VehicleSizeControllerTests
                 Error = new() { ErrorCode = 404, Message = "NotFound" }
             };
         });
-        _mockVehicleSizeService.Setup(x => x.GetAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>())).Returns(paginatedVehicleSizeDtoResponse);
+        _mockVehicleSizeService.Setup(x => x.GetFilteredAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>())).Returns(paginatedVehicleSizeDtoResponse);
 
         //Act
         var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockMapper.Object)
@@ -465,7 +465,7 @@ public class VehicleSizeControllerTests
             ControllerContext = controllerContext
         };
 
-        var response = await vehicleSizeController.GetAsync(vehicleSizeApiParameters);
+        var response = await vehicleSizeController.GetFilteredAsync(vehicleSizeApiParameters);
 
         //Assert
         Assert.NotNull(response);
@@ -474,7 +474,7 @@ public class VehicleSizeControllerTests
         Assert.NotNull(notFoundResult);
         Assert.Equal(404, notFoundResult.StatusCode);
 
-        var vehicleSizeApiResponse = notFoundResult.Value as VehicleSizeApiError;
+        var vehicleSizeApiResponse = notFoundResult.Value as ErrorApi;
         Assert.NotNull(vehicleSizeApiResponse);
         Assert.Equal("NotFound", vehicleSizeApiResponse.Detail);
     }
@@ -484,7 +484,7 @@ public class VehicleSizeControllerTests
     {
         //Act
         var vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockMapper.Object);
-        var response = await vehicleSizeController.GetAsync(null);
+        var response = await vehicleSizeController.GetFilteredAsync(null);
 
         //Assert
         Assert.NotNull(response);
@@ -493,7 +493,7 @@ public class VehicleSizeControllerTests
         Assert.NotNull(internalServerErrorResult);
         Assert.Equal(500, internalServerErrorResult.StatusCode);
 
-        var vehicleSizeApiResponse = internalServerErrorResult.Value as VehicleSizeApiError;
+        var vehicleSizeApiResponse = internalServerErrorResult.Value as ErrorApi;
         Assert.NotNull(vehicleSizeApiResponse);
         Assert.False(string.IsNullOrEmpty(vehicleSizeApiResponse.Detail));
     }

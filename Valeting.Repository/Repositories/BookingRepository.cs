@@ -35,26 +35,13 @@ public class BookingRepository(ValetingContext valetingContext, IMapper mapper) 
         await valetingContext.SaveChangesAsync();
     }
 
-    public async Task<BookingListDto> GetAsync(BookingFilterDto bookingFilterDto)
+    public async Task<List<BookingDto>> GetFilteredAsync(BookingFilterDto bookingFilterDto)
     {
-        var bookingListDto = new BookingListDto() { Bookings = [] };
-
         var initialList = await valetingContext.Bookings.ToListAsync();
         var listBookings = from booking in initialList
                             select booking;
 
-        if (listBookings == null)
-            return bookingListDto;
-
-        bookingListDto.TotalItems = listBookings.Count();
-        var nrPages = decimal.Divide(bookingListDto.TotalItems, bookingFilterDto.PageSize);
-        var nrPagesTruncate = Math.Truncate(nrPages);
-        bookingListDto.TotalPages = (int)(nrPages - nrPagesTruncate > 0 ? nrPagesTruncate + 1 : nrPagesTruncate);
-
-        listBookings = listBookings.OrderBy(x => x.Id);
-        listBookings = listBookings.Skip((bookingFilterDto.PageNumber - 1) * bookingFilterDto.PageSize).Take(bookingFilterDto.PageSize);
-        bookingListDto.Bookings = mapper.Map<List<BookingDto>>(listBookings);
-        return bookingListDto;
+        return mapper.Map<List<BookingDto>>(listBookings);
     }
 
     public async Task<BookingDto> GetByIdAsync(Guid id)

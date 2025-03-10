@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using Valeting.Common.Cache;
 using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
@@ -10,9 +9,9 @@ using Valeting.Common.Models.VehicleSize;
 
 namespace Valeting.Core.Services;
 
-public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, ICacheHandler cacheHandler, IMapper mapper) : IVehicleSizeService
+public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, ICacheHandler cacheHandler) : IVehicleSizeService
 {
-    public async Task<PaginatedVehicleSizeDtoResponse> GetAsync(PaginatedVehicleSizeDtoRequest paginatedVehicleSizeDtoRequest)
+    public async Task<PaginatedVehicleSizeDtoResponse> GetFilteredAsync(PaginatedVehicleSizeDtoRequest paginatedVehicleSizeDtoRequest)
     {
         var paginatedVehicleSizeDtoResponse = new PaginatedVehicleSizeDtoResponse();
 
@@ -27,9 +26,19 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
             paginatedVehicleSizeDtoRequest,
             async () =>
             {
-                var vehicleSizeFilterDto = mapper.Map<VehicleSizeFilterDto>(paginatedVehicleSizeDtoRequest.Filter);
-                var vehicleSizeListDto = await vehicleSizeRepository.GetAsync(vehicleSizeFilterDto) ?? throw new KeyNotFoundException(Messages.VehicleSizeNotFound);
-                return mapper.Map<PaginatedVehicleSizeDtoResponse>(vehicleSizeListDto);
+                var vehicleSizeDtoList = await vehicleSizeRepository.GetFilteredAsync(paginatedVehicleSizeDtoRequest.Filter);
+                if (vehicleSizeDtoList.Count == 0)
+                    throw new KeyNotFoundException(Messages.VehicleSizeNotFound);
+
+                paginatedVehicleSizeDtoResponse.TotalItems = vehicleSizeDtoList.Count();
+                var nrPages = decimal.Divide(paginatedVehicleSizeDtoResponse.TotalItems, paginatedVehicleSizeDtoRequest.Filter.PageSize);
+                paginatedVehicleSizeDtoResponse.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
+
+                vehicleSizeDtoList = vehicleSizeDtoList.OrderBy(x => x.Id).ToList();
+                vehicleSizeDtoList = vehicleSizeDtoList.Skip((paginatedVehicleSizeDtoRequest.Filter.PageNumber - 1) * paginatedVehicleSizeDtoRequest.Filter.PageSize).Take(paginatedVehicleSizeDtoRequest.Filter.PageSize).ToList();
+
+                paginatedVehicleSizeDtoResponse.VehicleSizes = vehicleSizeDtoList;
+                return paginatedVehicleSizeDtoResponse;
             },
             new CacheOptions
             {
@@ -54,8 +63,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
             getVehicleSizeDtoRequest,
             async () =>
             {
-                var vehicleSizeDto = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.VehicleSizeNotFound);
-                getVehicleSizeDtoResponse.VehicleSize = mapper.Map<VehicleSizeDto>(vehicleSizeDto);
+                getVehicleSizeDtoResponse.VehicleSize = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.VehicleSizeNotFound);
                 return getVehicleSizeDtoResponse;
             },
             new CacheOptions

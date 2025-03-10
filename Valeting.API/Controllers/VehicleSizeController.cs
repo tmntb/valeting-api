@@ -13,13 +13,13 @@ namespace Valeting.API.Controllers;
 
 public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlService urlService, IMapper mapper) : VehicleSizeBaseController
 {
-    public override async Task<IActionResult> GetAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
+    public override async Task<IActionResult> GetFilteredAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
     {
-        ArgumentNullException.ThrowIfNull(vehicleSizeApiParameters, "Invalid api parameters");
+        ArgumentNullException.ThrowIfNull(vehicleSizeApiParameters, "Invalid request query parameters");
 
         var paginatedVehicleSizeDtoRequest = mapper.Map<PaginatedVehicleSizeDtoRequest>(vehicleSizeApiParameters);
 
-        var paginatedVehicleSizeDtoResponse = await vehicleSizeService.GetAsync(paginatedVehicleSizeDtoRequest);
+        var paginatedVehicleSizeDtoResponse = await vehicleSizeService.GetFilteredAsync(paginatedVehicleSizeDtoRequest);
         var vehicleSizeApiPaginatedResponse = new VehicleSizeApiPaginatedResponse
         {
             VehicleSizes = [],

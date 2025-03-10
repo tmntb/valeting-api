@@ -39,5 +39,3 @@ public class BookingApiResponse
 {
     public BookingApi Booking { get; set; }
 }
-
-public class BookingApiError : ErrorApi { }

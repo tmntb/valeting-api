@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using Valeting.Common.Cache;
 using Valeting.Core.Interfaces;
 using Valeting.Common.Messages;
@@ -10,9 +9,9 @@ using Valeting.Common.Models.Flexibility;
 
 namespace Valeting.Core.Services;
 
-public class FlexibilityService(IFlexibilityRepository flexibilityRepository, ICacheHandler cacheHandler, IMapper mapper) : IFlexibilityService
+public class FlexibilityService(IFlexibilityRepository flexibilityRepository, ICacheHandler cacheHandler) : IFlexibilityService
 {
-    public async Task<PaginatedFlexibilityDtoResponse> GetAsync(PaginatedFlexibilityDtoRequest paginatedFlexibilityDtoRequest)
+    public async Task<PaginatedFlexibilityDtoResponse> GetFilteredAsync(PaginatedFlexibilityDtoRequest paginatedFlexibilityDtoRequest)
     {
         var paginatedFlexibilityDtoResponse = new PaginatedFlexibilityDtoResponse();
 
@@ -28,7 +27,6 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
             async () =>
             {
                 var flexibilityDtoList = await flexibilityRepository.GetFilteredAsync(paginatedFlexibilityDtoRequest.Filter);
-                
                 if(flexibilityDtoList.Count == 0 )
                     throw new KeyNotFoundException(Messages.FlexibilityNotFound);
 
@@ -65,8 +63,7 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
             getFlexibilityDtoRequest,
             async () =>
             {
-                var flexibilityDto = await flexibilityRepository.GetByIdAsync(getFlexibilityDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.FlexibilityNotFound);
-                getFlexibilityDtoResponse.Flexibility = mapper.Map<FlexibilityDto>(flexibilityDto);
+                getFlexibilityDtoResponse.Flexibility = await flexibilityRepository.GetByIdAsync(getFlexibilityDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.FlexibilityNotFound);
                 return getFlexibilityDtoResponse;
             },
              new CacheOptions

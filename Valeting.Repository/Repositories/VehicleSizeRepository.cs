@@ -8,26 +8,14 @@ namespace Valeting.Repository.Repositories;
 
 public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapper) : IVehicleSizeRepository
 {
-    public async Task<VehicleSizeListDto> GetAsync(VehicleSizeFilterDto vehicleSizeFilterDto)
+    public async Task<List<VehicleSizeDto>> GetFilteredAsync(VehicleSizeFilterDto vehicleSizeFilterDto)
     {
-        var vehicleSizeListDto = new VehicleSizeListDto() { VehicleSizes = [] };
-
         var initialList = await valetingContext.RdVehicleSizes.ToListAsync();
         var listVehicleSize = from rdVehicleSize in initialList
                                 where !vehicleSizeFilterDto.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDto.Active
                                 select rdVehicleSize;
 
-        if (listVehicleSize == null)
-            return vehicleSizeListDto;
-
-        vehicleSizeListDto.TotalItems = listVehicleSize.Count();
-        var nrPages = decimal.Divide(vehicleSizeListDto.TotalItems, vehicleSizeFilterDto.PageSize);
-        vehicleSizeListDto.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
-
-        listVehicleSize = listVehicleSize.OrderBy(x => x.Id);
-        listVehicleSize = listVehicleSize.Skip((vehicleSizeFilterDto.PageNumber - 1) * vehicleSizeFilterDto.PageSize).Take(vehicleSizeFilterDto.PageSize);
-        vehicleSizeListDto.VehicleSizes = mapper.Map<List<VehicleSizeDto>>(listVehicleSize);
-        return vehicleSizeListDto;
+        return mapper.Map<List<VehicleSizeDto>>(listVehicleSize);
     }
 
     public async Task<VehicleSizeDto> GetByIdAsync(Guid id)

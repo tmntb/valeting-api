@@ -15,7 +15,7 @@ public abstract class FlexibilityBaseController : ControllerBase
     [ProducesResponseType(statusCode: 200, type: typeof(IEnumerable<FlexibilityApiPaginatedResponse>))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> GetAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters);
+    public abstract Task<IActionResult> GetFilteredAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters);
 
     [HttpGet]
     [Authorize]
