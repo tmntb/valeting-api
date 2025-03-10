@@ -106,18 +106,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
             getBookingDtoRequest,
             async () =>
             {
-                var bookingDto = await bookingRepository.GetByIdAsync(getBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
-
-                //ver o mapper
-                getBookingDtoResponse.Id = bookingDto.Id;
-                getBookingDtoResponse.Name = bookingDto.Name;
-                getBookingDtoResponse.BookingDate = bookingDto.BookingDate;
-                getBookingDtoResponse.ContactNumber = bookingDto.ContactNumber;
-                getBookingDtoResponse.Flexibility = new() { Id = bookingDto.Flexibility.Id, Description = bookingDto.Flexibility.Description, Active = bookingDto.Flexibility.Active };
-                getBookingDtoResponse.VehicleSize = new() { Id = bookingDto.VehicleSize.Id, Description = bookingDto.VehicleSize.Description, Active = bookingDto.VehicleSize.Active };
-                getBookingDtoResponse.Email = bookingDto.Email;
-                getBookingDtoResponse.Approved = bookingDto.Approved;
-
+                getBookingDtoResponse.Booking = await bookingRepository.GetByIdAsync(getBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
                 return getBookingDtoResponse;
             },
             new CacheOptions

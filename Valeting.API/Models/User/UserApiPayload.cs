@@ -2,13 +2,13 @@
 
 namespace Valeting.API.Models.User;
 
-public class ValidateLoginApiRequest
+public class LoginApiRequest
 {
     public string Username { get; set; }
     public string Password { get; set; }
 }
 
-public class ValidateLoginApiResponse
+public class LoginApiResponse
 {
     public string Token { get; set; }
     public DateTime ExpiryDate { get; set; }

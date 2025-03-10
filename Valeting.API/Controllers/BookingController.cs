@@ -60,7 +60,7 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
 
         var getBookingDtoResponse = await bookingService.GetByIdAsync(getBookingDtoRequest);  
 
-        var bookingApi = mapper.Map<BookingApi>(getBookingDtoResponse);
+        var bookingApi = mapper.Map<BookingApi>(getBookingDtoResponse.Booking);
         bookingApi.Flexibility.Link = new()
         {
             Self = new()
@@ -73,6 +73,13 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
             Self = new()
             {
                 Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest() { BaseUrl = Request.Host.Value, Path = "/vehicleSizes", Id = bookingApi.VehicleSize.Id }).Self
+            }
+        };
+        bookingApi.Link = new()
+        {
+            Self = new()
+            {
+                Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest() { BaseUrl = Request.Host.Value, Path = "/bookings", Id = bookingApi.Id }).Self
             }
         };
 

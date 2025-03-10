@@ -11,21 +11,21 @@ namespace Valeting.API.Controllers;
 
 public class UserController(IUserService userService, IMapper mapper) : UserBaseController
 {
-    public override async Task<IActionResult> ValidateLogin([FromBody] ValidateLoginApiRequest validateLoginApiRequest)
+    public override async Task<IActionResult> Login([FromBody] LoginApiRequest loginApiRequest)
     {
-        ArgumentNullException.ThrowIfNull(validateLoginApiRequest, "Invalid request body");
+        ArgumentNullException.ThrowIfNull(loginApiRequest, "Invalid request body");
 
-        var validateLoginDtoRequest = mapper.Map<ValidateLoginDtoRequest>(validateLoginApiRequest);
+        var validateLoginDtoRequest = mapper.Map<ValidateLoginDtoRequest>(loginApiRequest);
         var validateLoginDtoResponse = await userService.ValidateLoginAsync(validateLoginDtoRequest);
         if (!validateLoginDtoResponse.Valid)
         {
             throw new UnauthorizedAccessException(Messages.InvalidPassword);
         }
 
-        var generateTokenJWTDtoRequest = mapper.Map<GenerateTokenJWTDtoRequest>(validateLoginApiRequest);
+        var generateTokenJWTDtoRequest = mapper.Map<GenerateTokenJWTDtoRequest>(loginApiRequest);
         var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(generateTokenJWTDtoRequest);
 
-        var validateLoginApiResponse = mapper.Map<ValidateLoginApiResponse>(generateTokenJWTDtoResponse);
+        var validateLoginApiResponse = mapper.Map<LoginApiResponse>(generateTokenJWTDtoResponse);
         return StatusCode((int)HttpStatusCode.OK, validateLoginApiResponse);
     }
 }

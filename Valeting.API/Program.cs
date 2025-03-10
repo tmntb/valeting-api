@@ -54,7 +54,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 
-app.UsePathBase("/Valeting");
+app.UsePathBase("/valeting");
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();

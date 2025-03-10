@@ -11,8 +11,7 @@ public class VehicleSizeMapper : Profile
     {
         // Api -> Dto
         CreateMap<VehicleSizeApiParameters, PaginatedVehicleSizeDtoRequest>()
-            .ForMember(dest => dest.Filter, act => act.MapFrom(src => src));
-
+            .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src));
         CreateMap<VehicleSizeApiParameters, VehicleSizeFilterDto>()
             .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.PageNumber))
             .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.PageSize))
