@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using Valeting.Common.Cache;
 using Valeting.Common.Cache.Interfaces;
 using Valeting.Common.Messages;
@@ -10,7 +11,7 @@ using Valeting.Repository.Interfaces;
 
 namespace Valeting.Core.Services;
 
-public class BookingService(IBookingRepository bookingRepository, ICacheHandler cacheHandler) : IBookingService
+public class BookingService(IBookingRepository bookingRepository, ICacheHandler cacheHandler, IMapper mapper) : IBookingService
 {
     public async Task<CreateBookingDtoResponse> CreateAsync(CreateBookingDtoRequest createBookingDtoRequest)
     {
@@ -19,17 +20,9 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         createBookingDtoRequest.ValidateRequest(new CreateBookingValidator());
 
         var id = Guid.NewGuid();
-        var bookingDto = new BookingDto()
-        {
-            Id = id,
-            Name = createBookingDtoRequest.Name,
-            Email = createBookingDtoRequest.Email,
-            ContactNumber = createBookingDtoRequest.ContactNumber,
-            BookingDate = createBookingDtoRequest.BookingDate,
-            Flexibility = new() { Id = createBookingDtoRequest.Flexibility.Id },
-            VehicleSize = new() { Id = createBookingDtoRequest.VehicleSize.Id },
-            Approved = false
-        };
+        var bookingDto = mapper.Map<BookingDto>(createBookingDtoRequest);
+        bookingDto.Id = id;
+
         await bookingRepository.CreateAsync(bookingDto);
         createBookingDtoResponse.Id = id;
 
@@ -46,15 +39,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
 
         var bookingDto = await bookingRepository.GetByIdAsync(updateBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
 
-        //ver como fazer override dos valores de BookingDto com os de UpdateBookingDtoRequest
-        bookingDto.Id = updateBookingDtoRequest.Id;
-        bookingDto.Name = updateBookingDtoRequest.Name;
-        bookingDto.BookingDate = updateBookingDtoRequest.BookingDate;
-        bookingDto.Flexibility = updateBookingDtoRequest.Flexibility != null ? new() { Id = updateBookingDtoRequest.Flexibility.Id } : null;
-        bookingDto.VehicleSize = updateBookingDtoRequest.VehicleSize != null ? new() { Id = updateBookingDtoRequest.VehicleSize.Id } : null;
-        bookingDto.ContactNumber = updateBookingDtoRequest.ContactNumber;
-        bookingDto.Email = updateBookingDtoRequest.Email;
-        bookingDto.Approved = updateBookingDtoRequest.Approved;
+        mapper.Map(updateBookingDtoRequest, bookingDto);
         await bookingRepository.UpdateAsync(bookingDto);
 
         // Keep the cache up to date

@@ -24,6 +24,16 @@ public class BookingMapper : Profile
             .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.PageNumber))
             .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.PageSize));
 
+        // Dto -> Dto
+        CreateMap<CreateBookingDtoRequest, BookingDto>()
+            .ForMember(dest => dest.Flexibility, opt => opt.MapFrom(src => src.Flexibility != null ? new FlexibilityDto { Id = src.Flexibility.Id } : null))
+            .ForMember(dest => dest.VehicleSize, opt => opt.MapFrom(src => src.VehicleSize != null ? new VehicleSizeDto { Id = src.VehicleSize.Id } : null))
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Approved, opt => opt.MapFrom(_ => false));
+        CreateMap<UpdateBookingDtoRequest, BookingDto>()
+            .ForMember(dest => dest.Flexibility, opt => opt.MapFrom(src => src.Flexibility != null ? new FlexibilityDto { Id = src.Flexibility.Id } : null))
+            .ForMember(dest => dest.VehicleSize, opt => opt.MapFrom(src => src.VehicleSize != null ? new VehicleSizeDto { Id = src.VehicleSize.Id } : null));
+
         // Dto -> Entity
         CreateMap<FlexibilityDto, RdFlexibility>();
         CreateMap<VehicleSizeDto, RdVehicleSize>();
