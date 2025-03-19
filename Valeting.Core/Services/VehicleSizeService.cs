@@ -23,7 +23,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
             {
                 var vehicleSizeDtoList = await vehicleSizeRepository.GetFilteredAsync(paginatedVehicleSizeDtoRequest.Filter);
                 if (vehicleSizeDtoList.Count == 0)
-                    throw new KeyNotFoundException(Messages.VehicleSizeNotFound);
+                    throw new KeyNotFoundException(Messages.NotFound);
 
                 paginatedVehicleSizeDtoResponse.TotalItems = vehicleSizeDtoList.Count();
                 var nrPages = decimal.Divide(paginatedVehicleSizeDtoResponse.TotalItems, paginatedVehicleSizeDtoRequest.Filter.PageSize);
@@ -53,7 +53,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
             getVehicleSizeDtoRequest,
             async () =>
             {
-                getVehicleSizeDtoResponse.VehicleSize = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.VehicleSizeNotFound);
+                getVehicleSizeDtoResponse.VehicleSize = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
                 return getVehicleSizeDtoResponse;
             },
             new()

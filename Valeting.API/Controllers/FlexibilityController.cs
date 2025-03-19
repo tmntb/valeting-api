@@ -5,6 +5,7 @@ using System.Net;
 using Valeting.API.Controllers.BaseController;
 using Valeting.API.Models.Core;
 using Valeting.API.Models.Flexibility;
+using Valeting.Common.Messages;
 using Valeting.Common.Models.Flexibility;
 using Valeting.Core.Interfaces;
 
@@ -14,7 +15,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
 {
     public override async Task<IActionResult> GetFilteredAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
     {
-        ArgumentNullException.ThrowIfNull(flexibilityApiParameters, "Invalid api parameters");
+        ArgumentNullException.ThrowIfNull(flexibilityApiParameters, Messages.InvalidRequestQueryParameters);
 
         var paginatedFlexibilityDtoRequest = mapper.Map<PaginatedFlexibilityDtoRequest>(flexibilityApiParameters);
         var paginatedFlexibilityDtoResponse = await flexibilityService.GetFilteredAsync(paginatedFlexibilityDtoRequest);
@@ -64,7 +65,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
 
     public override async Task<IActionResult> GetByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
-        ArgumentNullException.ThrowIfNull(id, "Invalid request id");
+        ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
 
         var getFlexibilityDtoRequest = new GetFlexibilityDtoRequest
         {

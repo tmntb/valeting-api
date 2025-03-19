@@ -24,6 +24,8 @@
   <ItemGroup>
     <Compile Update="Messages\Messages.Designer.cs">
       <DependentUpon>Messages.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
   </ItemGroup>
 </Project>

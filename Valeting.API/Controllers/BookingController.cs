@@ -5,6 +5,7 @@ using System.Net;
 using Valeting.API.Controllers.BaseController;
 using Valeting.API.Models.Booking;
 using Valeting.API.Models.Core;
+using Valeting.Common.Messages;
 using Valeting.Common.Models.Booking;
 using Valeting.Core.Interfaces;
 
@@ -14,7 +15,7 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
 {
     public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
     {
-        ArgumentNullException.ThrowIfNull(createBookingApiRequest, "Invalid request body");
+        ArgumentNullException.ThrowIfNull(createBookingApiRequest, Messages.InvalidRequestBody);
         
         var createBookingDtoRequest = mapper.Map<CreateBookingDtoRequest>(createBookingApiRequest);
         var createBookingDtoResponse = await bookingService.CreateAsync(createBookingDtoRequest);
@@ -25,8 +26,8 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
 
     public override async Task<IActionResult> UpdateAsync([FromRoute(Name = "id"), MinLength(1), Required] string id, [FromBody] UpdateBookingApiRequest updateBookingApiRequest)
     {
-        ArgumentNullException.ThrowIfNull(id, "Invalid request id");
-        ArgumentNullException.ThrowIfNull(updateBookingApiRequest, "Invalid request body");
+        ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
+        ArgumentNullException.ThrowIfNull(updateBookingApiRequest, Messages.InvalidRequestBody);
 
         var updateBookingDtoRequest = mapper.Map<UpdateBookingDtoRequest>(updateBookingApiRequest);
         updateBookingDtoRequest.Id = Guid.Parse(id);
@@ -37,7 +38,7 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
 
     public override async Task<IActionResult> DeleteAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
-        ArgumentNullException.ThrowIfNull(id, "Invalid request id");
+        ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
 
         var deleteBookingDtoRequest = new DeleteBookingDtoRequest
         {
@@ -50,7 +51,7 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
 
     public override async Task<IActionResult> GetByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
-        ArgumentNullException.ThrowIfNull(id, "Invalid request id");
+        ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
 
         var getBookingDtoRequest = new GetBookingDtoRequest
         {
@@ -91,7 +92,7 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
 
     public override async Task<IActionResult> GetFilteredAsync([FromQuery] BookingApiParameters bookingApiParameters)
     {
-        ArgumentNullException.ThrowIfNull(bookingApiParameters, "Invalid request query parameters");
+        ArgumentNullException.ThrowIfNull(bookingApiParameters, Messages.InvalidRequestQueryParameters);
 
         var paginatedBookingDtoRequest = mapper.Map<PaginatedBookingDtoRequest>(bookingApiParameters);
 

@@ -37,7 +37,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
 
         updateBookingDtoRequest.ValidateRequest(new UpdateBookinValidator());
 
-        var bookingDto = await bookingRepository.GetByIdAsync(updateBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
+        var bookingDto = await bookingRepository.GetByIdAsync(updateBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         mapper.Map(updateBookingDtoRequest, bookingDto);
         await bookingRepository.UpdateAsync(bookingDto);
@@ -59,7 +59,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
             throw new ValidationException(result.Errors);
         }
 
-        _ = await bookingRepository.GetByIdAsync(deleteBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
+        _ = await bookingRepository.GetByIdAsync(deleteBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
         await bookingRepository.DeleteAsync(deleteBookingDtoRequest.Id);
 
         // Keep cache up to date
@@ -79,7 +79,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
             getBookingDtoRequest,
             async () =>
             {
-                getBookingDtoResponse.Booking = await bookingRepository.GetByIdAsync(getBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
+                getBookingDtoResponse.Booking = await bookingRepository.GetByIdAsync(getBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
                 return getBookingDtoResponse;
             },
             new()
@@ -102,7 +102,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
             {
                 var bookingDtoList = await bookingRepository.GetFilteredAsync(paginatedBookingDtoRequest.Filter);
                 if (bookingDtoList.Count == 0)
-                    throw new KeyNotFoundException(Messages.BookingNotFound);
+                    throw new KeyNotFoundException(Messages.NotFound);
 
                 paginatedBookingDtoResponse.TotalItems = bookingDtoList.Count();
                 var nrPages = decimal.Divide(paginatedBookingDtoResponse.TotalItems, paginatedBookingDtoRequest.Filter.PageSize);

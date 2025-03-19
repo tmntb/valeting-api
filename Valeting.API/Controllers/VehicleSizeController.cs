@@ -5,6 +5,7 @@ using System.Net;
 using Valeting.API.Controllers.BaseController;
 using Valeting.API.Models.Core;
 using Valeting.API.Models.VehicleSize;
+using Valeting.Common.Messages;
 using Valeting.Common.Models.VehicleSize;
 using Valeting.Core.Interfaces;
 
@@ -14,7 +15,7 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
 {
     public override async Task<IActionResult> GetFilteredAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
     {
-        ArgumentNullException.ThrowIfNull(vehicleSizeApiParameters, "Invalid request query parameters");
+        ArgumentNullException.ThrowIfNull(vehicleSizeApiParameters, Messages.InvalidRequestQueryParameters);
 
         var paginatedVehicleSizeDtoRequest = mapper.Map<PaginatedVehicleSizeDtoRequest>(vehicleSizeApiParameters);
 
@@ -64,7 +65,7 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
 
     public override async Task<IActionResult> GetByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
-        ArgumentNullException.ThrowIfNull(id, "Invalid request id");
+        ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
 
         var getVehicleSizeDtoRequest = new GetVehicleSizeDtoRequest
         {

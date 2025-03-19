@@ -23,7 +23,7 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
             {
                 var flexibilityDtoList = await flexibilityRepository.GetFilteredAsync(paginatedFlexibilityDtoRequest.Filter);
                 if (flexibilityDtoList.Count == 0)
-                    throw new KeyNotFoundException(Messages.FlexibilityNotFound);
+                    throw new KeyNotFoundException(Messages.NotFound);
 
                 paginatedFlexibilityDtoResponse.TotalItems = flexibilityDtoList.Count();
                 var nrPages = decimal.Divide(paginatedFlexibilityDtoResponse.TotalItems, paginatedFlexibilityDtoRequest.Filter.PageSize);
@@ -53,7 +53,7 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
             getFlexibilityDtoRequest,
             async () =>
             {
-                getFlexibilityDtoResponse.Flexibility = await flexibilityRepository.GetByIdAsync(getFlexibilityDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.FlexibilityNotFound);
+                getFlexibilityDtoResponse.Flexibility = await flexibilityRepository.GetByIdAsync(getFlexibilityDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
                 return getFlexibilityDtoResponse;
             },
             new()

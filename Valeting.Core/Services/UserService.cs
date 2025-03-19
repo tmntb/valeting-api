@@ -21,7 +21,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
         validateLoginDtoRequest.ValidateRequest(new ValidateLoginValidator());
 
-        var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.UserNotFound);
+        var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         byte[] salt = Encoding.ASCII.GetBytes(userDto.Salt);
 
@@ -45,7 +45,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
         generateTokenJWTDtoRequest.ValidateRequest(new GenerateTokenJWTValidator());
 
-        var userDto = await userRepository.GetUserByEmailAsync(generateTokenJWTDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.UserNotFound);
+        var userDto = await userRepository.GetUserByEmailAsync(generateTokenJWTDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         var secret = configuration["Jwt:Key"];
         var issuer = configuration["Jwt:Issuer"];

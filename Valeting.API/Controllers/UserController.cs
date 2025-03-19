@@ -13,7 +13,7 @@ public class UserController(IUserService userService, IMapper mapper) : UserBase
 {
     public override async Task<IActionResult> Login([FromBody] LoginApiRequest loginApiRequest)
     {
-        ArgumentNullException.ThrowIfNull(loginApiRequest, "Invalid request body");
+        ArgumentNullException.ThrowIfNull(loginApiRequest, Messages.InvalidRequestBody);
 
         var validateLoginDtoRequest = mapper.Map<ValidateLoginDtoRequest>(loginApiRequest);
         var validateLoginDtoResponse = await userService.ValidateLoginAsync(validateLoginDtoRequest);

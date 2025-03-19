@@ -52,7 +52,7 @@ public class UserServiceTests
         Assert.False(response.Valid);
         Assert.NotNull(response.Error);
         Assert.Equal((int)HttpStatusCode.NotFound, response.Error.ErrorCode);
-        Assert.Equal(Messages.UserNotFound, response.Error.Message);
+        Assert.Equal(Messages.NotFound, response.Error.Message);
     }
 
     [Fact]
