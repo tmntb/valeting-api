@@ -2,8 +2,8 @@
 using Valeting.Common.Cache;
 using Valeting.Core.Services;
 using Valeting.Core.Interfaces;
-using Valeting.Core.Validators.Helper;
 using Valeting.Common.Cache.Interfaces;
+using Valeting.Core.Validators.Utils;
 
 namespace Valeting.Core;
 

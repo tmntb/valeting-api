@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
+using Valeting.API.Controllers.BaseController;
 using Valeting.API.Models.Core;
-using Valeting.Core.Interfaces;
-using Valeting.Common.Models.Link;
 using Valeting.API.Models.Flexibility;
 using Valeting.Common.Models.Flexibility;
-using Valeting.API.Controllers.BaseController;
+using Valeting.Core.Interfaces;
 
 namespace Valeting.API.Controllers;
 
@@ -36,11 +35,9 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
 
         var paginatedLinks = urlService.GeneratePaginatedLinks
         (
-            new GeneratePaginatedLinksDtoRequest
+            new()
             {
-                BaseUrl = Request.Host.Value,
-                Path = Request.Path.HasValue ? Request.Path.Value : string.Empty,
-                QueryString = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                Request = Request,
                 PageNumber = flexibilityApiParameters.PageNumber,
                 TotalPages = paginatedFlexibilityDtoResponse.TotalPages,
                 Filter = paginatedFlexibilityDtoRequest.Filter
@@ -56,7 +53,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = f.Id }).Self
+                    Href = urlService.GenerateSelf(new() { Request = Request, Id = f.Id }).Self
                 }
             }
         );
@@ -81,7 +78,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
         {
             Self = new()
             {
-                Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = Request.Path.HasValue ? Request.Path.Value : string.Empty }).Self
+                Href = urlService.GenerateSelf(new() { Request = Request }).Self
             }
         };
 

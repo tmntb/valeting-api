@@ -1,11 +1,11 @@
-﻿using FluentValidation;
-using Valeting.Common.Cache;
-using Valeting.Core.Interfaces;
-using Valeting.Common.Messages;
-using Valeting.Services.Validators;
-using Valeting.Repository.Interfaces;
+﻿using Valeting.Common.Cache;
 using Valeting.Common.Cache.Interfaces;
+using Valeting.Common.Messages;
 using Valeting.Common.Models.Flexibility;
+using Valeting.Core.Interfaces;
+using Valeting.Core.Validators;
+using Valeting.Core.Validators.Utils;
+using Valeting.Repository.Interfaces;
 
 namespace Valeting.Core.Services;
 
@@ -15,19 +15,14 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
     {
         var paginatedFlexibilityDtoResponse = new PaginatedFlexibilityDtoResponse();
 
-        var validator = new PaginatedFlexibilityValidator();
-        var result = validator.Validate(paginatedFlexibilityDtoRequest);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
+        paginatedFlexibilityDtoRequest.ValidateRequest(new PaginatedFlexibilityValidator());
 
         return await cacheHandler.GetOrCreateRecordAsync(
             paginatedFlexibilityDtoRequest.Filter,
             async () =>
             {
                 var flexibilityDtoList = await flexibilityRepository.GetFilteredAsync(paginatedFlexibilityDtoRequest.Filter);
-                if(flexibilityDtoList.Count == 0 )
+                if (flexibilityDtoList.Count == 0)
                     throw new KeyNotFoundException(Messages.FlexibilityNotFound);
 
                 paginatedFlexibilityDtoResponse.TotalItems = flexibilityDtoList.Count();
@@ -40,7 +35,7 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
                 paginatedFlexibilityDtoResponse.Flexibilities = flexibilityDtoList;
                 return paginatedFlexibilityDtoResponse;
             },
-            new CacheOptions
+            new()
             {
                 ListType = CacheListType.Flexibility,
                 AbsoluteExpireTime = TimeSpan.FromDays(5)
@@ -52,12 +47,7 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
     {
         var getFlexibilityDtoResponse = new GetFlexibilityDtoResponse();
 
-        var validator = new GetFlexibilityValidator();
-        var result = validator.Validate(getFlexibilityDtoRequest);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
+        getFlexibilityDtoRequest.ValidateRequest(new GetFlexibilityValidator());
 
         return await cacheHandler.GetOrCreateRecordAsync(
             getFlexibilityDtoRequest,
@@ -66,11 +56,11 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
                 getFlexibilityDtoResponse.Flexibility = await flexibilityRepository.GetByIdAsync(getFlexibilityDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.FlexibilityNotFound);
                 return getFlexibilityDtoResponse;
             },
-             new CacheOptions
-             {
-                 Id = getFlexibilityDtoRequest.Id,
-                 AbsoluteExpireTime = TimeSpan.FromDays(1)
-             }
+            new()
+            {
+                Id = getFlexibilityDtoRequest.Id,
+                AbsoluteExpireTime = TimeSpan.FromDays(1)
+            }
         );
     }
 }

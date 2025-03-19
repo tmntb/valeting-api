@@ -1,14 +1,14 @@
-﻿using FluentValidation;
-using System.Text;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Valeting.Core.Interfaces;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Valeting.Common.Messages;
 using Valeting.Common.Models.User;
-using Valeting.Services.Validators;
+using Valeting.Core.Interfaces;
+using Valeting.Core.Validators;
+using Valeting.Core.Validators.Utils;
 using Valeting.Repository.Interfaces;
 
 namespace Valeting.Core.Services;
@@ -19,12 +19,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
     {
         var validateLoginDtoResponse = new ValidateLoginDtoResponse() { Error = new() };
 
-        var validator = new ValidateLoginValidator();
-        var result = validator.Validate(validateLoginDtoRequest);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
+        validateLoginDtoRequest.ValidateRequest(new ValidateLoginValidator());
 
         var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.UserNotFound);
 
@@ -48,12 +43,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
     {
         var generateTokenJWTDtoResponse = new GenerateTokenJWTDtoResponse();
 
-        var validator = new GenerateTokenJWTValidator();
-        var result = validator.Validate(generateTokenJWTDtoRequest);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
+        generateTokenJWTDtoRequest.ValidateRequest(new GenerateTokenJWTValidator());
 
         var userDto = await userRepository.GetUserByEmailAsync(generateTokenJWTDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.UserNotFound);
 

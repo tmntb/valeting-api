@@ -1,7 +1,7 @@
 using FluentValidation;
 using Valeting.Common.Models.User;
 
-namespace Valeting.Services.Validators;
+namespace Valeting.Core.Validators;
 
 public class ValidateLoginValidator : AbstractValidator<ValidateLoginDtoRequest>
 {

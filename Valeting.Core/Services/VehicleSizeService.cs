@@ -1,11 +1,11 @@
-﻿using FluentValidation;
-using Valeting.Common.Cache;
-using Valeting.Core.Interfaces;
-using Valeting.Common.Messages;
-using Valeting.Services.Validators;
-using Valeting.Repository.Interfaces;
+﻿using Valeting.Common.Cache;
 using Valeting.Common.Cache.Interfaces;
+using Valeting.Common.Messages;
 using Valeting.Common.Models.VehicleSize;
+using Valeting.Core.Interfaces;
+using Valeting.Core.Validators;
+using Valeting.Core.Validators.Utils;
+using Valeting.Repository.Interfaces;
 
 namespace Valeting.Core.Services;
 
@@ -15,12 +15,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
     {
         var paginatedVehicleSizeDtoResponse = new PaginatedVehicleSizeDtoResponse();
 
-        var validator = new PaginatedVehicleSizeValidator();
-        var result = validator.Validate(paginatedVehicleSizeDtoRequest);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
+        paginatedVehicleSizeDtoRequest.ValidateRequest(new PaginatedVehicleSizeValidator());
 
         return await cacheHandler.GetOrCreateRecordAsync(
             paginatedVehicleSizeDtoRequest,
@@ -40,7 +35,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
                 paginatedVehicleSizeDtoResponse.VehicleSizes = vehicleSizeDtoList;
                 return paginatedVehicleSizeDtoResponse;
             },
-            new CacheOptions
+            new()
             {
                 ListType = CacheListType.VehicleSize,
                 AbsoluteExpireTime = TimeSpan.FromMinutes(5)
@@ -52,12 +47,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
     {
         var getVehicleSizeDtoResponse = new GetVehicleSizeDtoResponse();
 
-        var validator = new GetVehicleSizeValidator();
-        var result = validator.Validate(getVehicleSizeDtoRequest);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
+        getVehicleSizeDtoRequest.ValidateRequest(new GetVehicleSizeValidator());
 
         return await cacheHandler.GetOrCreateRecordAsync(
             getVehicleSizeDtoRequest,
@@ -66,7 +56,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
                 getVehicleSizeDtoResponse.VehicleSize = await vehicleSizeRepository.GetByIdAsync(getVehicleSizeDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.VehicleSizeNotFound);
                 return getVehicleSizeDtoResponse;
             },
-            new CacheOptions
+            new()
             {
                 Id = getVehicleSizeDtoRequest.Id,
                 AbsoluteExpireTime = TimeSpan.FromDays(1)

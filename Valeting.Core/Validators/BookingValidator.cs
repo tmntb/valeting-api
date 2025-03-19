@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Valeting.Common.Models.Booking;
 
-namespace Valeting.Services.Validators;
+namespace Valeting.Core.Validators;
 
 public class CreateBookingValidator : AbstractValidator<CreateBookingDtoRequest>
 {

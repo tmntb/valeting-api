@@ -1,7 +1,7 @@
 using FluentValidation;
 using Valeting.Common.Models.Flexibility;
 
-namespace Valeting.Services.Validators;
+namespace Valeting.Core.Validators;
 
 public class GetFlexibilityValidator : AbstractValidator<GetFlexibilityDtoRequest>
 {

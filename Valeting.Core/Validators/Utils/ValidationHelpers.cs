@@ -1,6 +1,6 @@
 using Valeting.Repository.Interfaces;
 
-namespace Valeting.Core.Validators.Helper;
+namespace Valeting.Core.Validators.Utils;
 
 public class ValidationHelpers(IFlexibilityRepository flexibilityRepository, IVehicleSizeRepository vehicleSizeRepository)
 {

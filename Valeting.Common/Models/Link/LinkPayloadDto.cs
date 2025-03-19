@@ -1,10 +1,11 @@
-﻿using Valeting.Common.Models.Core;
+﻿using Microsoft.AspNetCore.Http;
+using Valeting.Common.Models.Core;
 
 namespace Valeting.Common.Models.Link;
 
 public class GenerateSelfUrlDtoRequest
 {
-    public string BaseUrl { get; set; }
+    public HttpRequest Request { get; set; }
     public string Path { get; set; }
     public Guid Id { get; set; } = default;
 }
@@ -16,9 +17,7 @@ public class GenerateSelfUrlDtoResponse : ValetingOutputDto
 
 public class GeneratePaginatedLinksDtoRequest
 {
-    public string BaseUrl { get; set; }
-    public string Path { get; set; }
-    public string QueryString { get; set; }
+    public HttpRequest Request { get; set; }
     public int PageNumber { get; set; }
     public int TotalPages { get; set; }
     public object Filter { get; set; }

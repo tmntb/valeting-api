@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using System.ComponentModel.DataAnnotations;
-using Valeting.API.Models.Core;
-using Valeting.Core.Interfaces;
-using Valeting.API.Models.Booking;
-using Valeting.Common.Models.Link;
-using Valeting.Common.Models.Booking;
+using System.Net;
 using Valeting.API.Controllers.BaseController;
+using Valeting.API.Models.Booking;
+using Valeting.API.Models.Core;
+using Valeting.Common.Models.Booking;
+using Valeting.Core.Interfaces;
 
 namespace Valeting.API.Controllers;
 
@@ -65,21 +64,21 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
         {
             Self = new()
             {
-                Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest() { BaseUrl = Request.Host.Value, Path = "/flexibilities", Id = bookingApi.Flexibility.Id }).Self
+                Href = urlService.GenerateSelf(new() { Request = Request, Path = "flexibilities", Id = bookingApi.Flexibility.Id }).Self
             }
         };
         bookingApi.VehicleSize.Link = new()
         {
             Self = new()
             {
-                Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest() { BaseUrl = Request.Host.Value, Path = "/vehicleSizes", Id = bookingApi.VehicleSize.Id }).Self
+                Href = urlService.GenerateSelf(new() { Request = Request, Path = "vehicleSizes", Id = bookingApi.VehicleSize.Id }).Self
             }
         };
         bookingApi.Link = new()
         {
             Self = new()
             {
-                Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest() { BaseUrl = Request.Host.Value, Path = "/bookings", Id = bookingApi.Id }).Self
+                Href = urlService.GenerateSelf(new() { Request = Request, Path = "bookings", Id = bookingApi.Id }).Self
             }
         };
 
@@ -114,11 +113,9 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
 
         var paginatedLinks = urlService.GeneratePaginatedLinks
         (
-            new GeneratePaginatedLinksDtoRequest
+            new()
             {
-                BaseUrl = Request.Host.Value,
-                Path = Request.Path.HasValue ? Request.Path.Value : string.Empty,
-                QueryString = Request.QueryString.HasValue ? Request.QueryString.Value : string.Empty,
+                Request = Request,
                 PageNumber = bookingApiParameters.PageNumber,
                 TotalPages = paginatedBookingDtoResponse.TotalPages,
                 Filter = paginatedBookingDtoRequest.Filter
@@ -135,21 +132,21 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = "/flexibilities", Id = b.Flexibility.Id }).Self
+                    Href = urlService.GenerateSelf(new() { Request = Request, Path = "flexibilities", Id = b.Flexibility.Id }).Self
                 }
             };
             b.VehicleSize.Link = new()
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = "/vehicleSizes", Id = b.VehicleSize.Id }).Self
+                    Href = urlService.GenerateSelf(new() { Request = Request, Path = "vehicleSizes", Id = b.VehicleSize.Id }).Self
                 }
             };
             b.Link = new()
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new GenerateSelfUrlDtoRequest { BaseUrl = Request.Host.Value, Path = Request.Path.Value, Id = b.Id }).Self
+                    Href = urlService.GenerateSelf(new() { Request = Request, Id = b.Id }).Self
                 }
             };
         });

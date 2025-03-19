@@ -1,11 +1,12 @@
 ﻿using FluentValidation;
 using Valeting.Common.Cache;
-using Valeting.Core.Interfaces;
-using Valeting.Common.Messages;
-using Valeting.Services.Validators;
-using Valeting.Common.Models.Booking;
-using Valeting.Repository.Interfaces;
 using Valeting.Common.Cache.Interfaces;
+using Valeting.Common.Messages;
+using Valeting.Common.Models.Booking;
+using Valeting.Core.Interfaces;
+using Valeting.Core.Validators;
+using Valeting.Core.Validators.Utils;
+using Valeting.Repository.Interfaces;
 
 namespace Valeting.Core.Services;
 
@@ -14,12 +15,8 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
     public async Task<CreateBookingDtoResponse> CreateAsync(CreateBookingDtoRequest createBookingDtoRequest)
     {
         var createBookingDtoResponse = new CreateBookingDtoResponse();
-        var validator = new CreateBookingValidator();
-        var result = validator.Validate(createBookingDtoRequest);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
+
+        createBookingDtoRequest.ValidateRequest(new CreateBookingValidator());
 
         var id = Guid.NewGuid();
         var bookingDto = new BookingDto()
@@ -44,12 +41,8 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
     public async Task<UpdateBookingDtoResponse> UpdateAsync(UpdateBookingDtoRequest updateBookingDtoRequest)
     {
         var updateBookingDtoResponse = new UpdateBookingDtoResponse();
-        var validator = new UpdateBookinValidator();
-        var result = await validator.ValidateAsync(updateBookingDtoRequest);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
+
+        updateBookingDtoRequest.ValidateRequest(new UpdateBookinValidator());
 
         var bookingDto = await bookingRepository.GetByIdAsync(updateBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
 
@@ -95,12 +88,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
     {
         var getBookingDtoResponse = new GetBookingDtoResponse();
 
-        var validator = new GetBookingValidator();
-        var result = validator.Validate(getBookingDtoRequest);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
+        getBookingDtoRequest.ValidateRequest(new GetBookingValidator());
 
         return await cacheHandler.GetOrCreateRecordAsync(
             getBookingDtoRequest,
@@ -109,7 +97,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
                 getBookingDtoResponse.Booking = await bookingRepository.GetByIdAsync(getBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.BookingNotFound);
                 return getBookingDtoResponse;
             },
-            new CacheOptions
+            new()
             {
                 Id = getBookingDtoRequest.Id,
                 AbsoluteExpireTime = TimeSpan.FromDays(1)
@@ -121,12 +109,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
     {
         var paginatedBookingDtoResponse = new PaginatedBookingDtoResponse();
 
-        var validator = new PaginatedBookingValidator();
-        var result = validator.Validate(paginatedBookingDtoRequest);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
+        paginatedBookingDtoRequest.ValidateRequest(new PaginatedBookingValidator());
 
         return await cacheHandler.GetOrCreateRecordAsync(
             paginatedBookingDtoRequest,
@@ -145,7 +128,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
                 paginatedBookingDtoResponse.Bookings = bookingDtoList;
                 return paginatedBookingDtoResponse;
             },
-            new CacheOptions
+            new()
             {
                 ListType = CacheListType.Booking,
                 AbsoluteExpireTime = TimeSpan.FromMinutes(5)
