@@ -29,4 +29,16 @@
   <ItemGroup>
     <ProjectReference Include="..\Valeting.Core\Valeting.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="..\.dockerignore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="..\.dockerignore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="..\.dockerignore" />
+  </ItemGroup>
 </Project>

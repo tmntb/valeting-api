@@ -1,8 +1,13 @@
 # Base image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 
+# Create safe user to run the app
 RUN adduser --shell /bin/false --disabled-password -H --uid 1001 default
 
+# Intall globaliztion support
+RUN apk add --no-cache icu-libs
+
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 WORKDIR /app

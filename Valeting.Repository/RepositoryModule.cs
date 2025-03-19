@@ -14,7 +14,11 @@ public static class RepositoryModule
         services.AddDbContext<ValetingContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("ValetingConnection"),
-                b => b.MigrationsAssembly(typeof(ValetingContext).Assembly.FullName)
+                b =>
+                {
+                    b.MigrationsAssembly(typeof(ValetingContext).Assembly.FullName);
+                    b.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null);
+                }
             )
         );
 
