@@ -31,7 +31,7 @@ public class FlexibilityControllerTests
 
         _flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object)
         {
-            ControllerContext = new ControllerContext {  HttpContext = new DefaultHttpContext() }
+            ControllerContext = new() {  HttpContext = new DefaultHttpContext() }
         };
     }
 
