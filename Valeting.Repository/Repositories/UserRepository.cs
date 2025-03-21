@@ -16,4 +16,11 @@ public class UserRepository(ValetingContext valetingContext, IMapper mapper) : I
 
         return mapper.Map<UserDto>(applicationUser);
     }
+
+    public async Task RegisterAsync(UserDto userDto)
+    {
+        var applicationUser = mapper.Map<ApplicationUser>(userDto);
+        await valetingContext.ApplicationUsers.AddAsync(applicationUser);
+        await valetingContext.SaveChangesAsync();
+    }
 }

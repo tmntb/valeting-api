@@ -70,7 +70,7 @@ namespace Valeting.Common.Messages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Must have a valid password..
+        ///   Looks up a localized string similar to Invalid password..
         /// </summary>
         public static string InvalidPassword {
             get {
@@ -111,6 +111,15 @@ namespace Valeting.Common.Messages {
         public static string NotFound {
             get {
                 return ResourceManager.GetString("NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username is already taken..
+        /// </summary>
+        public static string UsernameInUse {
+            get {
+                return ResourceManager.GetString("UsernameInUse", resourceCulture);
             }
         }
     }

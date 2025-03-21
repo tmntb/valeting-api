@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -23,19 +22,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
         var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        byte[] salt = Encoding.ASCII.GetBytes(userDto.Salt);
-
-        /*
-            * Criar Salt
-        byte[] salt = new byte[128 / 8];
-        using (RNGCryptoServiceProvider rngCsp = new())
-        {
-            rngCsp.GetNonZeroBytes(salt);
-        }
-        */
-
-        var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(validateLoginDtoRequest.Password, salt, KeyDerivationPrf.HMACSHA256, 100000, 256 / 8));
-        validateLoginDtoResponse.Valid = userDto.Password.Equals(hashed);
+        validateLoginDtoResponse.Valid = BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.Password);
         return validateLoginDtoResponse;
     }
 
@@ -74,5 +61,26 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         generateTokenJWTDtoResponse.ExpiryDate = token.ValidTo.ToLocalTime();
         generateTokenJWTDtoResponse.TokenType = tokenHandler.TokenType.Name;
         return generateTokenJWTDtoResponse;
+    }
+
+    public async Task RegisterAsync(RegisterDtoRequest registerDtoRequest)
+    {
+        registerDtoRequest.ValidateRequest(new RegisterValidator());
+
+        var userDto = await userRepository.GetUserByEmailAsync(registerDtoRequest.Username);
+        if (userDto != null)
+        {
+            throw new InvalidOperationException(Messages.UsernameInUse);
+        }
+
+        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDtoRequest.Password, workFactor: 12);
+
+        var registerUserDto = new UserDto
+        {
+            Id = Guid.NewGuid(),
+            Username = registerDtoRequest.Username,
+            Password = hashedPassword
+        };
+        await userRepository.RegisterAsync(registerUserDto);
     }
 }

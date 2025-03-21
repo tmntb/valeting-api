@@ -1,6 +1,4 @@
-﻿using Valeting.API.Models.Core;
-
-namespace Valeting.API.Models.User;
+﻿namespace Valeting.API.Models.User;
 
 public class LoginApiRequest
 {
@@ -13,4 +11,10 @@ public class LoginApiResponse
     public string Token { get; set; }
     public DateTime ExpiryDate { get; set; }
     public string TokenType { get; set; }
+}
+
+public class RegisterApiRequest
+{
+    public string Username { get; set; }
+    public string Password { get; set; }
 }

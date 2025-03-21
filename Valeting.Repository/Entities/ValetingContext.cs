@@ -34,8 +34,6 @@ public partial class ValetingContext : DbContext
             entity.Property(e => e.Username).HasMaxLength(50);
 
             entity.Property(e => e.Id).HasColumnName("Id");
-
-            entity.Property(e => e.Salt).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Booking>(entity =>

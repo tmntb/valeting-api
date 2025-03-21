@@ -12,9 +12,13 @@ public class UserMapper : Profile
         // Api -> Dto
         CreateMap<LoginApiRequest, ValidateLoginDtoRequest>();
         CreateMap<LoginApiRequest, GenerateTokenJWTDtoRequest>();
+        CreateMap<RegisterApiRequest, RegisterDtoRequest>();
 
         // Entity -> Dto
         CreateMap<ApplicationUser, UserDto>();
+
+        // Dto -> Entity
+        CreateMap<UserDto, ApplicationUser>();
 
         // Dto -> Api
         CreateMap<GenerateTokenJWTDtoResponse, LoginApiResponse>();

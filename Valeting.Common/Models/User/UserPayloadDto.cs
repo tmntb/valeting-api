@@ -24,3 +24,9 @@ public class GenerateTokenJWTDtoResponse : ValetingOutputDto
     public DateTime ExpiryDate { get; set; }
     public string TokenType { get; set; }
 }
+
+public class RegisterDtoRequest
+{
+    public string Username { get; set; }
+    public string Password { get; set; }
+}

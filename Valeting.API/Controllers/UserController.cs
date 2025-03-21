@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using Valeting.API.Controllers.BaseController;
 using Valeting.API.Models.User;
 using Valeting.Common.Messages;
-using Valeting.Core.Interfaces;
 using Valeting.Common.Models.User;
-using Valeting.API.Controllers.BaseController;
+using Valeting.Core.Interfaces;
 
 namespace Valeting.API.Controllers;
 
@@ -27,5 +27,15 @@ public class UserController(IUserService userService, IMapper mapper) : UserBase
 
         var validateLoginApiResponse = mapper.Map<LoginApiResponse>(generateTokenJWTDtoResponse);
         return StatusCode((int)HttpStatusCode.OK, validateLoginApiResponse);
+    }
+
+    public override async Task<IActionResult> Register([FromBody] RegisterApiRequest registerApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(registerApiRequest, Messages.InvalidRequestBody);
+
+        var registerDtoRequest = mapper.Map<RegisterDtoRequest>(registerApiRequest);
+        await userService.RegisterAsync(registerDtoRequest);
+
+        return StatusCode((int)HttpStatusCode.OK);
     }
 }

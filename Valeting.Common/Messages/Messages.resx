@@ -121,7 +121,7 @@
     <value>The date cannot be in the past.</value>
   </data>
   <data name="InvalidPassword" xml:space="preserve">
-    <value>Must have a valid password.</value>
+    <value>Invalid password.</value>
   </data>
   <data name="InvalidRequestBody" xml:space="preserve">
     <value>Invalid request body.</value>
@@ -134,5 +134,8 @@
   </data>
   <data name="NotFound" xml:space="preserve">
     <value>Record not found.</value>
+  </data>
+  <data name="UsernameInUse" xml:space="preserve">
+    <value>Username is already taken.</value>
   </data>
 </root>

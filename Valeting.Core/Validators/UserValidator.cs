@@ -28,3 +28,20 @@ public class GenerateTokenJWTValidator : AbstractValidator<GenerateTokenJWTDtoRe
             .NotNull();
     }
 }
+
+public class RegisterValidator : AbstractValidator<RegisterDtoRequest>
+{
+    public RegisterValidator()
+    {
+        RuleFor(x => x)
+           .NotNull();
+
+        RuleFor(x => x.Username)
+            .NotNull()
+            .NotEmpty();
+
+        RuleFor(x => x.Password)
+            .NotNull()
+            .NotEmpty();
+    }
+}

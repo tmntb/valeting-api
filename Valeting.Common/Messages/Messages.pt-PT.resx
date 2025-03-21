@@ -121,7 +121,7 @@
     <value>A data não pode estar no passado.</value>
   </data>
   <data name="InvalidPassword" xml:space="preserve">
-    <value>Deve ter uma palavra-passe válida.</value>
+    <value>Palavra-passe inválida.</value>
   </data>
   <data name="InvalidRequestBody" xml:space="preserve">
     <value>Corpo do pedido inválido.</value>
@@ -134,5 +134,8 @@
   </data>
   <data name="NotFound" xml:space="preserve">
     <value>Registo não encontrado.</value>
+  </data>
+  <data name="UsernameInUse" xml:space="preserve">
+    <value>O nome de utilizador já está atribuído.</value>
   </data>
 </root>
