@@ -10,27 +10,16 @@
 			"name": "Booking",
 			"item": [
 				{
-					"name": "Valeting/bookings",
+					"name": "Get filtered/paginated",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{auth-token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/Valeting/bookings?pageNumber=1&pageSize=5",
+							"raw": "{{valetingUrl}}/bookings?pageNumber=1&pageSize=10",
 							"host": [
-								"{{url}}"
+								"{{valetingUrl}}"
 							],
 							"path": [
-								"Valeting",
 								"bookings"
 							],
 							"query": [
@@ -40,7 +29,7 @@
 								},
 								{
 									"key": "pageSize",
-									"value": "5"
+									"value": "10"
 								}
 							]
 						}
@@ -48,23 +37,31 @@
 					"response": []
 				},
 				{
-					"name": "Valeting/bookings",
+					"name": "Create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Has sucess code\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(201);",
+									"});",
+									"",
+									"var response = pm.response.json();",
+									"var bookingId = response.id;",
+									"pm.collectionVariables.set(\"bookingId\", bookingId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{auth-token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Maria\",\n    \"bookingDate\": \"2022-11-19T12:00:00\",\n    \"flexibility\":{\n        \"id\": \"f1321664-76eb-4ca9-bfbb-26b9601bf104\"\n    },\n    \"vehicleSize\": {\n        \"id\": \"d7b6acc4-81aa-4aee-961f-1e65af8d80cd\"\n    },\n    \"contactNumber\": \"967882155\",\n    \"email\": \"test@gmail.com\"\n}",
+							"raw": "{\n    \"name\": \"Skade\",\n    \"bookingDate\": \"2025-11-19T12:00:00\",\n    \"flexibility\":{\n        \"id\": \"{{flexibilityId}}\"\n    },\n    \"vehicleSize\": {\n        \"id\": \"{{vehicleSizeId}}\"\n    },\n    \"contactNumber\": \"967882155\",\n    \"email\": \"test@gmail.com\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -72,12 +69,11 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/Valeting/bookings",
+							"raw": "{{valetingUrl}}/bookings",
 							"host": [
-								"{{url}}"
+								"{{valetingUrl}}"
 							],
 							"path": [
-								"Valeting",
 								"bookings"
 							]
 						}
@@ -85,23 +81,13 @@
 					"response": []
 				},
 				{
-					"name": "Valeting/bookings/{id}",
+					"name": "Update",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{auth-token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Baeta\",\n    \"bookingDate\": \"2024-10-20T12:00:00\",\n    \"flexibility\": {\n        \"id\": \"05d78c88-46c0-48d9-a700-a8cf1ef12f91\"\n    },\n    \"vehicleSize\": {\n        \"id\": \"0f6a5627-7b11-444f-8df6-57d004774178\"\n    },\n    \"contactNumber\": \"1234\",\n    \"email\": \"t@t.com\",\n    \"approved\": false\n}",
+							"raw": "{\n    \"name\": \"Tiago\",\n    \"bookingDate\": \"2025-10-30T12:00:00\",\n    \"flexibility\": {\n        \"id\": \"{{flexibilityId}}\"\n    },\n    \"vehicleSize\": {\n        \"id\": \"{{vehicleSizeId}}\"\n    },\n    \"contactNumber\": \"967882154\",\n    \"email\": \"test@gmail.com\",\n    \"approved\": false\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -109,72 +95,67 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/Valeting/bookings/ab541f50-c899-4f06-be93-23e625d95b75",
+							"raw": "{{valetingUrl}}/bookings/:id",
 							"host": [
-								"{{url}}"
+								"{{valetingUrl}}"
 							],
 							"path": [
-								"Valeting",
 								"bookings",
-								"ab541f50-c899-4f06-be93-23e625d95b75"
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{bookingId}}"
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Valeting/bookings/{id}",
+					"name": "Get by id",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{auth-token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/Valeting/bookings/ce445fe1-1298-48cf-a276-50e97311a592",
+							"raw": "{{valetingUrl}}/bookings/:id",
 							"host": [
-								"{{url}}"
+								"{{valetingUrl}}"
 							],
 							"path": [
-								"Valeting",
 								"bookings",
-								"ce445fe1-1298-48cf-a276-50e97311a592"
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{bookingId}}"
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Valeting/bookings/{id}",
+					"name": "Delete",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{auth-token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/Valeting/bookings/87900c69-715e-4b78-80ff-1c29d4d45a26",
+							"raw": "{{valetingUrl}}/bookings/:id",
 							"host": [
-								"{{url}}"
+								"{{valetingUrl}}"
 							],
 							"path": [
-								"Valeting",
 								"bookings",
-								"87900c69-715e-4b78-80ff-1c29d4d45a26"
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{bookingId}}"
+								}
 							]
 						}
 					},
@@ -186,27 +167,38 @@
 			"name": "Flexibility",
 			"item": [
 				{
-					"name": "Valeting/flexibilities",
+					"name": "Get filtered/paginated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Has sucess code\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(200);",
+									"});",
+									"",
+									"var response = pm.response.json();",
+									"",
+									"const randomNumber = Math.floor(Math.random() * 3);",
+									"console.log(randomNumber);",
+									"",
+									"var flexId = response.flexibilities[randomNumber].id;",
+									"pm.collectionVariables.set(\"flexibilityId\", flexId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{auth-token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/Valeting/flexibilities?pageNumber=1&pageSize=1",
+							"raw": "{{valetingUrl}}/flexibilities?pageNumber=1&pageSize=1",
 							"host": [
-								"{{url}}"
+								"{{valetingUrl}}"
 							],
 							"path": [
-								"Valeting",
 								"flexibilities"
 							],
 							"query": [
@@ -229,29 +221,24 @@
 					"response": []
 				},
 				{
-					"name": "Valeting/flexibilities/{id}",
+					"name": "Get by id",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{auth-token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/Valeting/flexibilities/05d78c88-46c0-48d9-a700-a8cf1ef12f91",
+							"raw": "{{valetingUrl}}/flexibilities/:id",
 							"host": [
-								"{{url}}"
+								"{{valetingUrl}}"
 							],
 							"path": [
-								"Valeting",
 								"flexibilities",
-								"05d78c88-46c0-48d9-a700-a8cf1ef12f91"
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{flexibilityId}}"
+								}
 							]
 						}
 					},
@@ -263,27 +250,38 @@
 			"name": "Vehicle Size",
 			"item": [
 				{
-					"name": "Valeting/vehicleSizes",
+					"name": "Get filtered/paginated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Has sucess code\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(200);",
+									"});",
+									"",
+									"var response = pm.response.json();",
+									"",
+									"const randomNumber = Math.floor(Math.random() * 4);",
+									"console.log(randomNumber);",
+									"",
+									"var vhSizeId = response.vehicleSizes[randomNumber].id;",
+									"pm.collectionVariables.set(\"vehicleSizeId\", vhSizeId);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{auth-token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/Valeting/vehicleSizes?pageNumber=1&pageSize=1",
+							"raw": "{{valetingUrl}}/vehicleSizes?pageNumber=1&pageSize=10",
 							"host": [
-								"{{url}}"
+								"{{valetingUrl}}"
 							],
 							"path": [
-								"Valeting",
 								"vehicleSizes"
 							],
 							"query": [
@@ -293,7 +291,7 @@
 								},
 								{
 									"key": "pageSize",
-									"value": "1"
+									"value": "10"
 								},
 								{
 									"key": "active",
@@ -306,29 +304,24 @@
 					"response": []
 				},
 				{
-					"name": "Valeting/vehicleSizes/{id}",
+					"name": "Get by id",
 					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{auth-token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/Valeting/vehicleSizes/d7b6acc4-81aa-4aee-961f-1e65af8d80cd",
+							"raw": "{{valetingUrl}}/vehicleSizes/:id",
 							"host": [
-								"{{url}}"
+								"{{valetingUrl}}"
 							],
 							"path": [
-								"Valeting",
 								"vehicleSizes",
-								"d7b6acc4-81aa-4aee-961f-1e65af8d80cd"
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{vehicleSizeId}}"
+								}
 							]
 						}
 					},
@@ -360,7 +353,7 @@
 			"name": "User",
 			"item": [
 				{
-					"name": "Valeting/user/verify/",
+					"name": "Login",
 					"event": [
 						{
 							"listen": "test",
@@ -371,13 +364,27 @@
 									"});",
 									"",
 									"var response = pm.response.json();",
-									"pm.environment.set(\"auth-token\", response.token);"
+									"pm.collectionVariables.set(\"auth-token\", response.token);"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
@@ -390,20 +397,99 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/Valeting/user/verify",
+							"raw": "{{valetingUrl}}/user/login",
 							"host": [
-								"{{url}}"
+								"{{valetingUrl}}"
 							],
 							"path": [
-								"Valeting",
 								"user",
-								"verify"
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"admin@gmail.com\",\r\n    \"password\": \"admin37\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{valetingUrl}}/user/register",
+							"host": [
+								"{{valetingUrl}}"
+							],
+							"path": [
+								"user",
+								"register"
 							]
 						}
 					},
 					"response": []
 				}
 			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{auth-token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "auth-token",
+			"value": ""
+		},
+		{
+			"key": "flexibilityId",
+			"value": ""
+		},
+		{
+			"key": "vehicleSizeId",
+			"value": ""
+		},
+		{
+			"key": "bookingId",
+			"value": ""
 		}
 	]
 }
