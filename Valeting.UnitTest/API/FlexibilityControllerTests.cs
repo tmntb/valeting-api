@@ -11,7 +11,7 @@ using Valeting.Common.Models.Flexibility;
 using Valeting.Common.Models.Link;
 using Valeting.Core.Interfaces;
 
-namespace Valeting.Tests.Api;
+namespace Valeting.Tests.API;
 
 public class FlexibilityControllerTests
 {
