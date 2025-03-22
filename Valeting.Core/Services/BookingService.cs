@@ -31,10 +31,8 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         return createBookingDtoResponse;
     }
 
-    public async Task<UpdateBookingDtoResponse> UpdateAsync(UpdateBookingDtoRequest updateBookingDtoRequest)
+    public async Task UpdateAsync(UpdateBookingDtoRequest updateBookingDtoRequest)
     {
-        var updateBookingDtoResponse = new UpdateBookingDtoResponse();
-
         updateBookingDtoRequest.ValidateRequest(new UpdateBookinValidator());
 
         var bookingDto = await bookingRepository.GetByIdAsync(updateBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
@@ -45,13 +43,10 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         // Keep the cache up to date
         cacheHandler.InvalidateCacheById(updateBookingDtoRequest.Id);
         cacheHandler.InvalidateCacheByListType(CacheListType.Booking);
-
-        return updateBookingDtoResponse;
     }
 
-    public async Task<DeleteBookingDtoResponse> DeleteAsync(DeleteBookingDtoRequest deleteBookingDtoRequest)
+    public async Task DeleteAsync(DeleteBookingDtoRequest deleteBookingDtoRequest)
     {
-        var deleteBookingDtoResponse = new DeleteBookingDtoResponse();
         var validator = new DeleteBookingValidator();
         var result = validator.Validate(deleteBookingDtoRequest);
         if (!result.IsValid)
@@ -65,8 +60,6 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         // Keep cache up to date
         cacheHandler.InvalidateCacheById(deleteBookingDtoRequest.Id);
         cacheHandler.InvalidateCacheByListType(CacheListType.Booking);
-
-        return deleteBookingDtoResponse;
     }
 
     public async Task<GetBookingDtoResponse> GetByIdAsync(GetBookingDtoRequest getBookingDtoRequest)

@@ -5,8 +5,8 @@ namespace Valeting.Core.Interfaces;
 public interface IBookingService
 {
     Task<CreateBookingDtoResponse> CreateAsync(CreateBookingDtoRequest createBookingDtoRequest);
-    Task<UpdateBookingDtoResponse> UpdateAsync(UpdateBookingDtoRequest updateBookingDtoRequest);
-    Task<DeleteBookingDtoResponse> DeleteAsync(DeleteBookingDtoRequest deleteBookingDtoRequest);
+    Task UpdateAsync(UpdateBookingDtoRequest updateBookingDtoRequest);
+    Task DeleteAsync(DeleteBookingDtoRequest deleteBookingDtoRequest);
     Task<GetBookingDtoResponse> GetByIdAsync(GetBookingDtoRequest getBookingDtoRequest);
     Task<PaginatedBookingDtoResponse> GetFilteredAsync(PaginatedBookingDtoRequest paginatedBookingDtoRequest);
 }

@@ -36,52 +36,6 @@ public class FlexibilityControllerTests
     }
 
     [Fact]
-    public async Task GetFilteredAsync_ShouldReturnOk_WhenValidRequest()
-    {
-        // Arrange
-        var dtoRequest = new PaginatedFlexibilityDtoRequest();
-        _mockMapper.Setup(m => m.Map<PaginatedFlexibilityDtoRequest>(It.IsAny<FlexibilityApiParameters>())).Returns(dtoRequest);
-
-        var dtoResponse = new PaginatedFlexibilityDtoResponse
-        {
-            TotalItems = 10,
-            TotalPages = 2,
-            Flexibilities = []
-        };
-        _mockFlexibilityService.Setup(s => s.GetFilteredAsync(It.IsAny<PaginatedFlexibilityDtoRequest>())).ReturnsAsync(dtoResponse);
-
-        _mockUrlService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>())).Returns(new GeneratePaginatedLinksDtoResponse());
-        
-        var mappedLinks = new PaginationLinksApi();
-        _mockMapper.Setup(m => m.Map<PaginationLinksApi>(It.IsAny<GeneratePaginatedLinksDtoResponse>())).Returns(mappedLinks);
-
-        var mappedFlexibilities = new List<FlexibilityApi>()
-        {
-            new()
-            {
-                Id = Guid.Parse(_mockFlexibilityId),
-                Description = It.IsAny<string>(),
-                Active = It.IsAny<bool>()
-            }
-        };
-        _mockMapper.Setup(m => m.Map<List<FlexibilityApi>>(dtoResponse.Flexibilities)).Returns(mappedFlexibilities);
-
-        _mockUrlService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>())).Returns(new GenerateSelfUrlDtoResponse());
-
-        // Act
-        var result = await _flexibilityController.GetFilteredAsync(new FlexibilityApiParameters { Active = false }) as ObjectResult;
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
-        var response = result.Value as FlexibilityApiPaginatedResponse;
-        Assert.NotNull(response);
-        Assert.Equal(1, response.CurrentPage);
-        Assert.Equal(10, response.TotalItems);
-        Assert.Equal(2, response.TotalPages);
-    }
-
-    [Fact]
     public async Task GetFilteredAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
     {
         // Act & Assert
@@ -90,35 +44,59 @@ public class FlexibilityControllerTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_ShouldReturnOk_WhenValidId()
+    public async Task GetFilteredAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        var dtoResponse = new GetFlexibilityDtoResponse
+        _mockMapper.Setup(m => m.Map<PaginatedFlexibilityDtoRequest>(It.IsAny<FlexibilityApiParameters>())).Returns(new PaginatedFlexibilityDtoRequest());
+        _mockFlexibilityService.Setup(s => s.GetFilteredAsync(It.IsAny<PaginatedFlexibilityDtoRequest>())).ReturnsAsync(new PaginatedFlexibilityDtoResponse
         {
-            Flexibility = new()
-        };
-        _mockFlexibilityService.Setup(s => s.GetByIdAsync(It.IsAny<GetFlexibilityDtoRequest>())).ReturnsAsync(dtoResponse);
-
-        var mappedFlexibility = new FlexibilityApi();
-        _mockMapper.Setup(m => m.Map<FlexibilityApi>(It.IsAny<FlexibilityDto>())).Returns(mappedFlexibility);
-
-        var generateSelfResponse = new GenerateSelfUrlDtoResponse
+            TotalItems = 1,
+            TotalPages = 1,
+            Flexibilities =
+            [
+                new()
+                {
+                    Id = It.IsAny<Guid>(),
+                    Description = It.IsAny<string>(),
+                    Active = It.IsAny<bool>()
+                }
+            ]
+        });
+        _mockUrlService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>())).Returns(new GeneratePaginatedLinksDtoResponse());
+        _mockMapper.Setup(m => m.Map<PaginationLinksApi>(It.IsAny<GeneratePaginatedLinksDtoResponse>())).Returns(new PaginationLinksApi());
+        _mockMapper.Setup(m => m.Map<List<FlexibilityApi>>(It.IsAny<List<FlexibilityDto>>())).Returns(new List<FlexibilityApi>
         {
-            Self = $"http://example.com/flexibility/{_mockFlexibilityId}"
-        };
-        _mockUrlService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>())).Returns(generateSelfResponse);
+            new()
+            {
+                Id = It.IsAny<Guid>(),
+                Description = It.IsAny<string>(),
+                Active = It.IsAny<bool>()
+            }
+        });
+        _mockUrlService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>())).Returns(new GenerateSelfUrlDtoResponse
+        {
+            Self = $"https://api.test.com/flexibilities/{_mockFlexibilityId}"
+        });
 
         // Act
-        var result = await _flexibilityController.GetByIdAsync(_mockFlexibilityId) as ObjectResult;
+        var result = await _flexibilityController.GetFilteredAsync
+        (
+            new() 
+            { 
+                Active = false 
+            }
+        ) as ObjectResult;
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
-        var response = result.Value as FlexibilityApiResponse;
-        Assert.NotNull(response);
-        Assert.NotNull(response.Flexibility);
-        Assert.Equal(Guid.Parse(_mockFlexibilityId), response.Flexibility.Id);
-        Assert.Equal($"http://example.com/flexibility/{_mockFlexibilityId}", response.Flexibility.Link.Self.Href);
+
+        var responseApi = result.Value as FlexibilityApiPaginatedResponse;
+        Assert.NotNull(responseApi);
+        Assert.Equal(1, responseApi.CurrentPage);
+        Assert.Equal(1, responseApi.TotalItems);
+        Assert.Equal(1, responseApi.TotalPages);
+        Assert.Equal($"https://api.test.com/flexibilities/{_mockFlexibilityId}", responseApi.Flexibilities[0].Link.Self.Href);
     }
 
     [Fact]
@@ -127,5 +105,30 @@ public class FlexibilityControllerTests
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _flexibilityController.GetByIdAsync(null));
         Assert.Contains(Messages.InvalidRequestId, exception.Message);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_ShouldReturnOk_WhenValidId()
+    {
+        // Arrange
+        _mockFlexibilityService.Setup(s => s.GetByIdAsync(It.IsAny<GetFlexibilityDtoRequest>())).ReturnsAsync(new GetFlexibilityDtoResponse());
+        _mockMapper.Setup(m => m.Map<FlexibilityApi>(It.IsAny<FlexibilityDto>())).Returns(new FlexibilityApi());
+        _mockUrlService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>())).Returns(new GenerateSelfUrlDtoResponse
+        {
+            Self = $"http://example.com/flexibility/{_mockFlexibilityId}"
+        });
+
+        // Act
+        var result = await _flexibilityController.GetByIdAsync(_mockFlexibilityId) as ObjectResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
+
+        var responseApi = result.Value as FlexibilityApiResponse;
+        Assert.NotNull(responseApi);
+        Assert.NotNull(responseApi.Flexibility);
+        Assert.Equal(Guid.Parse(_mockFlexibilityId), responseApi.Flexibility.Id);
+        Assert.Equal($"http://example.com/flexibility/{_mockFlexibilityId}", responseApi.Flexibility.Link.Self.Href);
     }
 }

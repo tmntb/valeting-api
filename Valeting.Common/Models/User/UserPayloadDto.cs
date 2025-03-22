@@ -1,5 +1,3 @@
-using Valeting.Common.Models.Core;
-
 namespace Valeting.Common.Models.User;
 
 public class ValidateLoginDtoRequest
@@ -8,7 +6,7 @@ public class ValidateLoginDtoRequest
     public string Password { get; set; }
 }
 
-public class ValidateLoginDtoResponse : ValetingOutputDto 
+public class ValidateLoginDtoResponse 
 {
     public bool Valid { get; set; }
 }
@@ -18,7 +16,7 @@ public class GenerateTokenJWTDtoRequest
     public string Username { get; set; }
 }
 
-public class GenerateTokenJWTDtoResponse : ValetingOutputDto
+public class GenerateTokenJWTDtoResponse
 {
     public string Token { get; set; }
     public DateTime ExpiryDate { get; set; }

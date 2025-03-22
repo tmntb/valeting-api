@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Valeting.Common.Models.Core;
 
 namespace Valeting.Common.Models.Link;
 
@@ -10,7 +9,7 @@ public class GenerateSelfUrlDtoRequest
     public Guid Id { get; set; } = default;
 }
 
-public class GenerateSelfUrlDtoResponse : ValetingOutputDto
+public class GenerateSelfUrlDtoResponse
 {
     public string Self { get; set; }
 }
@@ -23,7 +22,7 @@ public class GeneratePaginatedLinksDtoRequest
     public object Filter { get; set; }
 }
 
-public class GeneratePaginatedLinksDtoResponse : ValetingOutputDto
+public class GeneratePaginatedLinksDtoResponse
 {
     public string Self { get; set; }
     public string Prev { get; set; }

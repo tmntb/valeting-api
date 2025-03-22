@@ -1,5 +1,3 @@
-using Valeting.Common.Models.Core;
-
 namespace Valeting.Common.Models.Flexibility;
 
 public class GetFlexibilityDtoRequest
@@ -7,7 +5,7 @@ public class GetFlexibilityDtoRequest
     public Guid Id { get; set; }
 }
 
-public class GetFlexibilityDtoResponse : ValetingOutputDto
+public class GetFlexibilityDtoResponse
 {
     public FlexibilityDto Flexibility { get; set; }
 }
@@ -17,7 +15,7 @@ public class PaginatedFlexibilityDtoRequest
     public FlexibilityFilterDto Filter { get; set; }
 }
 
-public class PaginatedFlexibilityDtoResponse : ValetingOutputDto
+public class PaginatedFlexibilityDtoResponse
 {
     public int TotalItems { get; set; }
     public int TotalPages { get; set; }

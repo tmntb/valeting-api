@@ -16,20 +16,18 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 {
     public async Task<ValidateLoginDtoResponse> ValidateLoginAsync(ValidateLoginDtoRequest validateLoginDtoRequest)
     {
-        var validateLoginDtoResponse = new ValidateLoginDtoResponse() { Error = new() };
-
         validateLoginDtoRequest.ValidateRequest(new ValidateLoginValidator());
 
         var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        validateLoginDtoResponse.Valid = BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.Password);
-        return validateLoginDtoResponse;
+        return new()
+        {
+            Valid = BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.Password)
+        };
     }
 
     public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(GenerateTokenJWTDtoRequest generateTokenJWTDtoRequest)
     {
-        var generateTokenJWTDtoResponse = new GenerateTokenJWTDtoResponse();
-
         generateTokenJWTDtoRequest.ValidateRequest(new GenerateTokenJWTValidator());
 
         var userDto = await userRepository.GetUserByEmailAsync(generateTokenJWTDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
@@ -57,10 +55,12 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        generateTokenJWTDtoResponse.Token = tokenHandler.WriteToken(token);
-        generateTokenJWTDtoResponse.ExpiryDate = token.ValidTo.ToLocalTime();
-        generateTokenJWTDtoResponse.TokenType = tokenHandler.TokenType.Name;
-        return generateTokenJWTDtoResponse;
+        return new()
+        {
+            Token = tokenHandler.WriteToken(token),
+            ExpiryDate = token.ValidTo.ToLocalTime(),
+            TokenType = tokenHandler.TokenType.Name
+        };
     }
 
     public async Task RegisterAsync(RegisterDtoRequest registerDtoRequest)
