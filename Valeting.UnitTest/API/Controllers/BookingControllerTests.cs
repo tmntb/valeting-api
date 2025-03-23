@@ -12,7 +12,7 @@ using Valeting.Common.Models.Booking;
 using Valeting.Common.Models.Link;
 using Valeting.Core.Interfaces;
 
-namespace Valeting.Tests.API;
+namespace Valeting.Tests.API.Controllers;
 
 public class BookingControllerTests
 {
@@ -67,8 +67,8 @@ public class BookingControllerTests
         Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.Created, result.StatusCode);
 
-        var resultApi = (CreateBookingApiResponse)result.Value;
-        Assert.Equal(Guid.Parse(_mockBookingId), resultApi.Id);
+        var responseApi = (CreateBookingApiResponse)result.Value;
+        Assert.Equal(Guid.Parse(_mockBookingId), responseApi.Id);
     }
 
     [Fact]
@@ -185,11 +185,11 @@ public class BookingControllerTests
         Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
 
-        var resultApi = (BookingApiResponse)result.Value;
-        Assert.Equal(Guid.Parse(_mockBookingId), resultApi.Booking.Id);
-        Assert.Equal($"https://api.test.com/bookings/{_mockBookingId}", resultApi.Booking.Link.Self.Href);
-        Assert.Equal($"https://api.test.com/flexibilities/{_mockFlexibilityId}", resultApi.Booking.Flexibility.Link.Self.Href);
-        Assert.Equal($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}", resultApi.Booking.VehicleSize.Link.Self.Href);
+        var responseApi = (BookingApiResponse)result.Value;
+        Assert.Equal(Guid.Parse(_mockBookingId), responseApi.Booking.Id);
+        Assert.Equal($"https://api.test.com/bookings/{_mockBookingId}", responseApi.Booking.Link.Self.Href);
+        Assert.Equal($"https://api.test.com/flexibilities/{_mockFlexibilityId}", responseApi.Booking.Flexibility.Link.Self.Href);
+        Assert.Equal($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}", responseApi.Booking.VehicleSize.Link.Self.Href);
     }
 
     [Fact]
@@ -252,12 +252,12 @@ public class BookingControllerTests
         Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
 
-        var resultApi = (BookingApiPaginatedResponse)result.Value;
-        Assert.Equal(1, resultApi.TotalItems);
-        Assert.Equal(1, resultApi.TotalPages);
-        Assert.Single(resultApi.Bookings);
-        Assert.Equal($"https://api.test.com/bookings/{_mockBookingId}", resultApi.Bookings[0].Link.Self.Href);
-        Assert.Equal($"https://api.test.com/flexibilities/{_mockFlexibilityId}", resultApi.Bookings[0].Flexibility.Link.Self.Href);
-        Assert.Equal($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}", resultApi.Bookings[0].VehicleSize.Link.Self.Href);
+        var responseApi = (BookingApiPaginatedResponse)result.Value;
+        Assert.Equal(1, responseApi.TotalItems);
+        Assert.Equal(1, responseApi.TotalPages);
+        Assert.Single(responseApi.Bookings);
+        Assert.Equal($"https://api.test.com/bookings/{_mockBookingId}", responseApi.Bookings[0].Link.Self.Href);
+        Assert.Equal($"https://api.test.com/flexibilities/{_mockFlexibilityId}", responseApi.Bookings[0].Flexibility.Link.Self.Href);
+        Assert.Equal($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}", responseApi.Bookings[0].VehicleSize.Link.Self.Href);
     }
 }

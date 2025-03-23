@@ -8,7 +8,7 @@ using Valeting.Common.Messages;
 using Valeting.Common.Models.User;
 using Valeting.Core.Interfaces;
 
-namespace Valeting.Tests.API;
+namespace Valeting.Tests.API.Controllers;
 
 public class UserControllerTests
 {
@@ -53,7 +53,7 @@ public class UserControllerTests
         _mockMapper.Setup(m => m.Map<ValidateLoginDtoRequest>(It.IsAny<LoginApiRequest>())).Returns(new ValidateLoginDtoRequest());
         _mockUserService.Setup(s => s.ValidateLoginAsync(It.IsAny<ValidateLoginDtoRequest>())).ReturnsAsync(new ValidateLoginDtoResponse 
         { 
-            Valid = It.IsAny<bool>()
+            Valid = true
         });
         _mockMapper.Setup(m => m.Map<GenerateTokenJWTDtoRequest>(It.IsAny<LoginApiRequest>())).Returns(new GenerateTokenJWTDtoRequest());
         _mockUserService.Setup(s => s.GenerateTokenJWTAsync(It.IsAny<GenerateTokenJWTDtoRequest>())).ReturnsAsync(new GenerateTokenJWTDtoResponse 
@@ -101,11 +101,7 @@ public class UserControllerTests
     public async Task Register_ShouldReturnOk_WhenSuccessful()
     {
         // Arrange
-        var registerRequest = ;
-        
-        var registerDtoRequest = new RegisterDtoRequest();
-        _mockMapper.Setup(m => m.Map<RegisterDtoRequest>(It.IsAny<RegisterApiRequest>())).Returns(registerDtoRequest);
-
+        _mockMapper.Setup(m => m.Map<RegisterDtoRequest>(It.IsAny<RegisterApiRequest>())).Returns(new RegisterDtoRequest());
         _mockUserService.Setup(s => s.RegisterAsync(It.IsAny<RegisterDtoRequest>())).Returns(Task.CompletedTask);
 
         // Act
