@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using System.Net;
-using System.Threading.Tasks;
 using Valeting.API.Models.Core;
 using Valeting.API.Models.Middleware;
 
