@@ -1,181 +1,154 @@
-using Moq;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
+using Moq;
+using System.Text.Json;
 using Valeting.Common.Cache;
+using Valeting.Common.Models.Booking;
 
 namespace Valeting.Tests.Common;
 
 public class MemoryCacheHandlerTests
 {
-    //private readonly List<string> _cacheKeys;
-    //private readonly FakeMemoryCache _memoryCache;
-    //private readonly MemoryCacheHandler _cacheHandler;
+    private readonly Mock<IMemoryCache> _mockMemoryCache;
 
-    //public MemoryCacheHandlerTests()
-    //{
-    //    _memoryCache = new FakeMemoryCache();
-    //    _cacheKeys = [];
-    //    _memoryCache.Set("_cachedKeys", _cacheKeys);
-    //    _cacheHandler = new MemoryCacheHandler(_memoryCache);
-    //}
+    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000000");
+    private readonly MemoryCacheHandler _cacheHandler;
 
-    //[Fact]
-    //public void SetRecord_ShouldAddKeyToCache()
-    //{
-    //    // Arrange
-    //    string recordKey = "testKey";
-    //    var data = new { Name = "Test" };
-
-    //    // Act
-    //    //_cacheHandler.SetRecord(recordKey, data);
-
-    //    // Assert
-    //    Assert.Contains(recordKey, _memoryCache.Get<List<string>>("_cachedKeys"));
-    //}
-
-    //[Fact]
-    //public void SetRecord_ShouldThrowException()
-    //{
-    //    // Arrange
-    //    var recordKey = "testKey";
-    //    var data = new Node { Name = "Root" };
-    //    data.Child = data; 
-
-    //    // Act
-    //    //_cacheHandler.SetRecord(recordKey, data);
-
-    //    // Assert
-    //    Assert.Throws<JsonSerializationException>(() =>
-    //    {
-    //        JsonConvert.SerializeObject(data);
-    //    });
-    //}
-
-    //[Fact]
-    //public void GetRecord_ShouldReturnDataIfExistsInCache()
-    //{
-    //    // Arrange
-    //    string recordKey = "testKey";
-    //    var data = new { Name = "Test" };
-    //    var serializedData = JsonConvert.SerializeObject(data);
-
-    //    _memoryCache.Set(recordKey, serializedData);
-
-    //    // Act
-    //    //var result = _cacheHandler.GetRecord<dynamic>(recordKey);
-
-    //    // Assert
-    //    //Assert.NotNull(result);
-    //    Assert.Contains(recordKey, _memoryCache.Get<List<string>>("_cachedKeys"));
-    //}
-
-    //[Fact]
-    //public void GetRecord_ShouldReturnNullIfNotInCache()
-    //{
-    //    // Arrange
-    //    var recordKey = "testKey";
-
-    //    // Act
-    //    //var result = _cacheHandler.GetRecord<dynamic>(recordKey);
-
-    //    // Assert
-    //    //Assert.Null(result);
-    //}
-
-    //[Fact]
-    //public void GetRecord_ShouldThrowException()
-    //{
-    //    // Arrange
-    //    var recordKey = "testKey";
-    //    _memoryCache.Set(recordKey, "invalid_json");
-
-    //    // Act
-    //    //_cacheHandler.GetRecord<dynamic>(recordKey);
-    //}
-
-    //[Fact]
-    //public void RemoveRecord_ShouldRemoveKeyFromCache()
-    //{
-    //    // Arrange
-    //    string recordKey = "testKey";
-    //    _cacheKeys.Add(recordKey);
-    //    _memoryCache.Set("_cachedKeys", _cacheKeys);
-
-    //    // Act
-    //    //_cacheHandler.RemoveRecord(recordKey);
-
-    //    // Assert
-    //    Assert.DoesNotContain(recordKey, _memoryCache.Get<List<string>>("_cachedKeys"));
-    //}
-
-    //[Fact]
-    //public void RemoveRecordsWithPrefix_ShouldRemoveMatchingKeysFromCache()
-    //{
-    //    // Arrange
-    //    var prefix = "test";
-    //    _cacheKeys.AddRange(["test1", "test2", "otherKey"]);
-    //    _memoryCache.Set("_cachedKeys", _cacheKeys);
-
-    //    // Act
-    //    //_cacheHandler.RemoveRecordsWithPrefix(prefix);
-
-    //    // Assert
-    //    Assert.DoesNotContain("test1", _memoryCache.Get<List<string>>("_cachedKeys"));
-    //    Assert.DoesNotContain("test2", _memoryCache.Get<List<string>>("_cachedKeys"));
-    //}
-}
-
-public class FakeMemoryCache : IMemoryCache
-{
-    private readonly Dictionary<object, object> _cache = new Dictionary<object, object>();
-
-    public ICacheEntry CreateEntry(object key)
+    public MemoryCacheHandlerTests()
     {
-        return new FakeCacheEntry(key);
+        _mockMemoryCache = new Mock<IMemoryCache>();
+
+        _cacheHandler = new MemoryCacheHandler(_mockMemoryCache.Object);
     }
 
-    public void Dispose() { }
-
-    public void Remove(object key)
+    [Fact]
+    public async Task GetOrCreateRecordAsync_CacheMiss_CallsOnCacheMiss()
     {
-        _cache.Remove(key);
+        // Arrange
+        var request = new { Id = _mockId, Value = "Test" };
+        var cacheOptions = new CacheOptions { AbsoluteExpireTime = TimeSpan.FromMinutes(5), Id = request.Id };
+        var expectedResponse = JsonSerializer.Serialize(request);
+
+        SetupCacheMiss(expectedResponse);
+
+        // Act
+        var result = await _cacheHandler.GetOrCreateRecordAsync(request, () => SimulateCacheMiss(expectedResponse), cacheOptions);
+
+        // Assert
+        Assert.Equal(expectedResponse, result);
     }
 
-    public bool TryGetValue(object key, out object value)
+    [Fact]
+    public async Task GetOrCreateRecordAsync_CacheMissList_CallsOnCacheMiss()
     {
-        return _cache.TryGetValue(key, out value);
+        // Arrange
+        var request = new List<BookingDto> { new() };
+        var cacheOptions = new CacheOptions { AbsoluteExpireTime = TimeSpan.FromMinutes(5), ListType = CacheListType.Booking };
+        var expectedResponse = JsonSerializer.Serialize(request);
+
+        SetupCacheMiss(expectedResponse);
+
+        // Act
+        var result = await _cacheHandler.GetOrCreateRecordAsync(request, () => SimulateCacheMiss(expectedResponse), cacheOptions);
+
+        // Assert
+        Assert.Equal(expectedResponse, result);
     }
 
-    public void Set<T>(object key, T value)
+    [Fact]
+    public async Task GetOrCreateRecordAsync_CacheHit_ReturnsCachedValue()
     {
-        _cache[key] = value;
+        // Arrange
+        var request = new { Id = _mockId, Name = "Test" };
+        var cacheOptions = new CacheOptions { AbsoluteExpireTime = TimeSpan.FromMinutes(5), Id = request.Id };
+        var expectedResponse = JsonSerializer.Serialize(request);
+
+        object cachedValue = expectedResponse;
+        _mockMemoryCache.Setup(m => m.TryGetValue(It.IsAny<object>(), out cachedValue)).Returns(true);
+
+        // Act
+        var result = await _cacheHandler.GetOrCreateRecordAsync(request, () => SimulateCacheMiss(expectedResponse), cacheOptions);
+
+        // Assert
+        Assert.Equal(expectedResponse, result);
     }
 
-    public T Get<T>(object key)
+    [Fact]
+    public void InvalidateCacheById_RemovesItemFromCache()
     {
-        _cache.TryGetValue(key, out var value);
-        return (T)value;
+        // Arrange
+        _mockMemoryCache.Setup(m => m.Remove(It.IsAny<object>()));
+
+        // Act
+        _cacheHandler.InvalidateCacheById(_mockId);
+
+        // Assert
+        _mockMemoryCache.Verify(m => m.Remove(It.IsAny<string>()), Times.Once);
     }
-}
 
-public class FakeCacheEntry(object key) : ICacheEntry
-{
-    public object Key { get; } = key;
-    public object Value { get; set; }
-    public DateTimeOffset? AbsoluteExpiration { get; set; }
-    public TimeSpan? AbsoluteExpirationRelativeToNow { get; set; }
-    public TimeSpan? SlidingExpiration { get; set; }
-    public IList<IChangeToken> ExpirationTokens { get; } = [];
-    public IList<PostEvictionCallbackRegistration> PostEvictionCallbacks { get; } = [];
-    public CacheItemPriority Priority { get; set; }
-    public long? Size { get; set; }
-    public void Dispose() { }
-}
+    [Fact]
+    public async Task InvalidateCacheByListType_RemovesItemFromCache()
+    {
+        // Arrange
+        var listType = CacheListType.Booking;
+        var request = new List<BookingDto> { new() };
+        var cacheOptions = new CacheOptions { AbsoluteExpireTime = TimeSpan.FromMinutes(5), ListType = CacheListType.Booking };
+        var expectedResponse = JsonSerializer.Serialize(request);
 
-public class Node
-{
-    public string Name { get; set; }
-    public Node Child { get; set; }
+        SetupCacheMiss(expectedResponse);
+        await _cacheHandler.GetOrCreateRecordAsync(request, () => SimulateCacheMiss(expectedResponse), cacheOptions);
+
+        _mockMemoryCache.Setup(m => m.Remove(It.IsAny<object>()));
+
+        // Act
+        _cacheHandler.InvalidateCacheByListType(listType);
+
+        // Assert
+        _mockMemoryCache.Verify(m => m.Remove(It.IsAny<string>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task InvalidateAllCache_RemovesAllItemsFromCache()
+    {
+        // Arrange
+        var request = new { Id = _mockId, Value = "Test" };
+        var cacheOptions = new CacheOptions { AbsoluteExpireTime = TimeSpan.FromMinutes(5), Id= request.Id };
+        var expectedResponse = JsonSerializer.Serialize(request);
+
+        SetupCacheMiss(expectedResponse);
+        await _cacheHandler.GetOrCreateRecordAsync(request, () => SimulateCacheMiss(expectedResponse), cacheOptions);
+
+        var requestList = new List<BookingDto> { new() };
+        var cacheOptionsList = new CacheOptions { AbsoluteExpireTime = TimeSpan.FromMinutes(5), ListType = CacheListType.Booking };
+        var expectedResponseList = JsonSerializer.Serialize(request);
+
+        SetupCacheMiss(expectedResponseList);
+        await _cacheHandler.GetOrCreateRecordAsync(requestList, () => SimulateCacheMiss(expectedResponseList), cacheOptionsList);
+
+        _mockMemoryCache.Setup(m => m.Remove(It.IsAny<object>()));
+
+        // Act
+        _cacheHandler.InvalidateAllCache();
+
+        // Assert
+        _mockMemoryCache.Verify(m => m.Remove(It.IsAny<object>()), Times.AtLeastOnce);
+    }
+
+    private async Task<string> SimulateCacheMiss(string response)
+    {
+        return await Task.FromResult(response);
+    }
+
+    private void SetupCacheMiss(string expectedResponse)
+    {
+        object cachedValue = null;
+        _mockMemoryCache.Setup(m => m.TryGetValue(It.IsAny<object>(), out cachedValue)).Returns(false);
+        _mockMemoryCache.Setup(m => m.CreateEntry(It.IsAny<object>()))
+            .Returns((object key) =>
+            {
+                var cacheEntry = new Mock<ICacheEntry>();
+                cacheEntry.SetupAllProperties();
+                cacheEntry.Object.Value = expectedResponse;
+                return cacheEntry.Object;
+            });
+    }
 }
