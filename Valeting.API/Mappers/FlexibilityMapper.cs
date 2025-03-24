@@ -9,7 +9,7 @@ public class FlexibilityMapper : Profile
 {
     public FlexibilityMapper()
     {
-        // Api -> Dto
+        #region Api -> Dto
         CreateMap<FlexibilityApiParameters, PaginatedFlexibilityDtoRequest>()
             .ForMember(dest => dest.Filter, act => act.MapFrom(src => src));
 
@@ -17,11 +17,14 @@ public class FlexibilityMapper : Profile
             .ForMember(dest => dest.PageNumber, opt => opt.MapFrom(src => src.PageNumber))
             .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.PageSize))
             .ForMember(dest => dest.Active, opt => opt.MapFrom(src => src.Active));
+        #endregion
 
-        // Entity -> Dto
+        #region Entity -> Dto
         CreateMap<RdFlexibility, FlexibilityDto>();
+        #endregion
 
-        // Dto -> Api
+        #region Dto -> Api
         CreateMap<FlexibilityDto, FlexibilityApi>();
+        #endregion
     }
 }
