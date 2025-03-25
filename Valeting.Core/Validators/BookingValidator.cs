@@ -7,9 +7,6 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingDtoRequest>
 {
     public CreateBookingValidator()
     {
-        RuleFor(x => x)
-            .NotNull();
-
         RuleFor(x => x.Name)
             .NotNull()
             .NotEmpty();
@@ -19,18 +16,19 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingDtoRequest>
             .NotEmpty();
 
         RuleFor(x => x.ContactNumber)
-            .NotNull()
-            .NotEmpty();
+            .NotNull();
 
         RuleFor(x => x.BookingDate)
             .NotEqual(DateTime.MinValue)
             .GreaterThan(DateTime.Now);
                 
         RuleFor(x => x.Flexibility.Id)
-            .NotEqual(Guid.Empty);
+            .NotEqual(Guid.Empty)
+            .When(x => x.Flexibility != null);
 
         RuleFor(x => x.VehicleSize.Id)
-            .NotEqual(Guid.Empty);
+            .NotEqual(Guid.Empty)
+            .When(x => x.VehicleSize != null);
     }
 }
 
@@ -38,9 +36,6 @@ public class UpdateBookinValidator : AbstractValidator<UpdateBookingDtoRequest>
 {
     public UpdateBookinValidator()
     {
-        RuleFor(x => x)
-            .NotNull();
-
         RuleFor(x => x.Id)
             .NotEqual(Guid.Empty);
 
@@ -61,10 +56,12 @@ public class UpdateBookinValidator : AbstractValidator<UpdateBookingDtoRequest>
             .GreaterThan(DateTime.Now);
 
         RuleFor(x => x.Flexibility.Id)
-           .NotEqual(Guid.Empty);
+           .NotEqual(Guid.Empty)
+           .When(x => x.Flexibility != null);
 
         RuleFor(x => x.VehicleSize.Id)
-            .NotEqual(Guid.Empty);
+            .NotEqual(Guid.Empty)
+            .When(x => x.VehicleSize != null);
     }
 }
 
@@ -72,9 +69,6 @@ public class DeleteBookingValidator : AbstractValidator<DeleteBookingDtoRequest>
 {
     public DeleteBookingValidator()
     {
-        RuleFor(x => x)
-            .NotNull();
-
         RuleFor(x => x.Id)
             .NotEqual(Guid.Empty);
     }
@@ -84,9 +78,6 @@ public class GetBookingValidator : AbstractValidator<GetBookingDtoRequest>
 {
     public GetBookingValidator()
     {
-        RuleFor(x => x)
-            .NotNull();
-
         RuleFor(x => x.Id)
             .NotEqual(Guid.Empty);
     }
@@ -96,13 +87,11 @@ public class PaginatedBookingValidator : AbstractValidator<PaginatedBookingDtoRe
 {
     public PaginatedBookingValidator()
     {
-        RuleFor(x => x)
-            .NotNull();
-
         RuleFor(x => x.Filter)
             .NotNull();
 
         RuleFor(x => x.Filter.PageNumber)
-            .GreaterThanOrEqualTo(0);
+            .GreaterThan(0)
+            .When(x => x.Filter != null);
     }
 }
