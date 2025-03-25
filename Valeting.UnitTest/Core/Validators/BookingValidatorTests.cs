@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using Valeting.Common.Models.Booking;
+﻿using Valeting.Common.Models.Booking;
 using Valeting.Core.Validators;
 
 namespace Valeting.Tests.Core.Validators;

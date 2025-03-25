@@ -7,9 +7,6 @@ public class GetFlexibilityValidator : AbstractValidator<GetFlexibilityDtoReques
 {
     public GetFlexibilityValidator()
     {
-        RuleFor(x => x)
-            .NotNull();
-
         RuleFor(x => x.Id)
             .NotNull()
             .NotEqual(Guid.Empty);
@@ -20,13 +17,11 @@ public class PaginatedFlexibilityValidator : AbstractValidator<PaginatedFlexibil
 {
     public PaginatedFlexibilityValidator()
     {
-        RuleFor(x => x)
-            .NotNull();
-
         RuleFor(x => x.Filter)
             .NotNull();
 
         RuleFor(x => x.Filter.PageNumber)
-            .GreaterThanOrEqualTo(0);
+            .GreaterThan(0)
+            .When(x => x.Filter != null);
     }
 }
