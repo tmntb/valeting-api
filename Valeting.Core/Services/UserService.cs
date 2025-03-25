@@ -28,8 +28,6 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
     public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(GenerateTokenJWTDtoRequest generateTokenJWTDtoRequest)
     {
-        generateTokenJWTDtoRequest.ValidateRequest(new GenerateTokenJWTValidator());
-
         var userDto = await userRepository.GetUserByEmailAsync(generateTokenJWTDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         var secret = configuration["Jwt:Key"];

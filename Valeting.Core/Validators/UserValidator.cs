@@ -7,9 +7,6 @@ public class ValidateLoginValidator : AbstractValidator<ValidateLoginDtoRequest>
 {
     public ValidateLoginValidator()
     {
-        RuleFor(x => x)
-            .NotNull();
-
         RuleFor(x => x.Username)
             .NotNull()
             .NotEmpty();
@@ -20,22 +17,10 @@ public class ValidateLoginValidator : AbstractValidator<ValidateLoginDtoRequest>
     }
 }
 
-public class GenerateTokenJWTValidator : AbstractValidator<GenerateTokenJWTDtoRequest>
-{
-    public GenerateTokenJWTValidator()
-    {
-        RuleFor(x => x)
-            .NotNull();
-    }
-}
-
 public class RegisterValidator : AbstractValidator<RegisterDtoRequest>
 {
     public RegisterValidator()
     {
-        RuleFor(x => x)
-           .NotNull();
-
         RuleFor(x => x.Username)
             .NotNull()
             .NotEmpty();
