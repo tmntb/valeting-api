@@ -18,7 +18,7 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
         paginatedFlexibilityDtoRequest.ValidateRequest(new PaginatedFlexibilityValidator());
 
         return await cacheHandler.GetOrCreateRecordAsync(
-            paginatedFlexibilityDtoRequest.Filter,
+            paginatedFlexibilityDtoRequest,
             async () =>
             {
                 var flexibilityDtoList = await flexibilityRepository.GetFilteredAsync(paginatedFlexibilityDtoRequest.Filter);
@@ -26,11 +26,13 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
                     throw new KeyNotFoundException(Messages.NotFound);
 
                 paginatedFlexibilityDtoResponse.TotalItems = flexibilityDtoList.Count();
-                var nrPages = decimal.Divide(paginatedFlexibilityDtoResponse.TotalItems, paginatedFlexibilityDtoRequest.Filter.PageSize);
-                paginatedFlexibilityDtoResponse.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
+                paginatedFlexibilityDtoResponse.TotalPages = (int)Math.Ceiling((double)paginatedFlexibilityDtoResponse.TotalItems / paginatedFlexibilityDtoRequest.Filter.PageSize);
 
-                flexibilityDtoList = flexibilityDtoList.OrderBy(x => x.Id).ToList();
-                flexibilityDtoList = flexibilityDtoList.Skip((paginatedFlexibilityDtoRequest.Filter.PageNumber - 1) * paginatedFlexibilityDtoRequest.Filter.PageSize).Take(paginatedFlexibilityDtoRequest.Filter.PageSize).ToList();
+                flexibilityDtoList = flexibilityDtoList
+                    .OrderBy(x => x.Id)
+                    .Skip((paginatedFlexibilityDtoRequest.Filter.PageNumber - 1) * paginatedFlexibilityDtoRequest.Filter.PageSize)
+                    .Take(paginatedFlexibilityDtoRequest.Filter.PageSize)
+                    .ToList();
 
                 paginatedFlexibilityDtoResponse.Flexibilities = flexibilityDtoList;
                 return paginatedFlexibilityDtoResponse;

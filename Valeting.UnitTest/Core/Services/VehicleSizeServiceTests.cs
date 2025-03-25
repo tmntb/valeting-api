@@ -3,7 +3,6 @@ using Valeting.Common.Cache;
 using Valeting.Common.Cache.Interfaces;
 using Valeting.Common.Messages;
 using Valeting.Common.Models.VehicleSize;
-using Valeting.Core.Interfaces;
 using Valeting.Core.Services;
 using Valeting.Repository.Interfaces;
 
@@ -109,7 +108,7 @@ public class VehicleSizeServiceTests
         _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>(), It.IsAny<Func<Task<PaginatedVehicleSizeDtoResponse>>>(), It.IsAny<CacheOptions>()))
              .Returns((PaginatedVehicleSizeDtoRequest _, Func<Task<PaginatedVehicleSizeDtoResponse>> factory, CacheOptions __) => factory());
 
-        _mockRepository.Setup(x => x.GetFilteredAsync(request.Filter))
+        _mockRepository.Setup(x => x.GetFilteredAsync(It.IsAny<VehicleSizeFilterDto>()))
             .ReturnsAsync(vehicleSizes);
 
         // Act
