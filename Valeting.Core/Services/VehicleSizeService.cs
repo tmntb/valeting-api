@@ -26,11 +26,13 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
                     throw new KeyNotFoundException(Messages.NotFound);
 
                 paginatedVehicleSizeDtoResponse.TotalItems = vehicleSizeDtoList.Count();
-                var nrPages = decimal.Divide(paginatedVehicleSizeDtoResponse.TotalItems, paginatedVehicleSizeDtoRequest.Filter.PageSize);
-                paginatedVehicleSizeDtoResponse.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
+                paginatedVehicleSizeDtoResponse.TotalPages = (int)Math.Ceiling((double)paginatedVehicleSizeDtoResponse.TotalItems / paginatedVehicleSizeDtoRequest.Filter.PageSize);
 
-                vehicleSizeDtoList = vehicleSizeDtoList.OrderBy(x => x.Id).ToList();
-                vehicleSizeDtoList = vehicleSizeDtoList.Skip((paginatedVehicleSizeDtoRequest.Filter.PageNumber - 1) * paginatedVehicleSizeDtoRequest.Filter.PageSize).Take(paginatedVehicleSizeDtoRequest.Filter.PageSize).ToList();
+                vehicleSizeDtoList = vehicleSizeDtoList
+                    .OrderBy(x => x.Id)
+                    .Skip((paginatedVehicleSizeDtoRequest.Filter.PageNumber - 1) * paginatedVehicleSizeDtoRequest.Filter.PageSize)
+                    .Take(paginatedVehicleSizeDtoRequest.Filter.PageSize)
+                    .ToList();
 
                 paginatedVehicleSizeDtoResponse.VehicleSizes = vehicleSizeDtoList;
                 return paginatedVehicleSizeDtoResponse;

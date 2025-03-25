@@ -112,7 +112,7 @@ public class UserServiceTests
         _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(new UserDto
             {
-                Id = Guid.NewGuid(),
+                Id = _mockId,
                 Username = "user@example.com"
             });
 
@@ -143,7 +143,7 @@ public class UserServiceTests
         _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(new UserDto
             {
-                Id = Guid.NewGuid(),
+                Id = _mockId,
                 Username = "user@example.com"
             });
 
