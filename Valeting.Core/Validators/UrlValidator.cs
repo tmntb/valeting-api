@@ -7,9 +7,6 @@ public class GenerateSelfUrlValidator : AbstractValidator<GenerateSelfUrlDtoRequ
 {
     public GenerateSelfUrlValidator()
     {
-        RuleFor(x => x)
-           .NotNull();
-
         RuleFor(x => x.Request)
            .NotNull();
     }
@@ -19,9 +16,6 @@ public class GeneratePaginatedLinksValidator : AbstractValidator<GeneratePaginat
 {
     public GeneratePaginatedLinksValidator()
     {
-        RuleFor(x => x)
-           .NotNull();
-
         RuleFor(x => x.Request)
            .NotNull();
     }
