@@ -2,4 +2,4 @@
 
 namespace Valeting.Common.Models.Booking;
 
-public class BookingFilterDto : PageDto { }
+public class BookingFilterDto : FilterDto { }

@@ -39,7 +39,6 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
             new()
             {
                 Request = Request,
-                PageNumber = flexibilityApiParameters.PageNumber,
                 TotalPages = paginatedFlexibilityDtoResponse.TotalPages,
                 Filter = paginatedFlexibilityDtoRequest.Filter
             }

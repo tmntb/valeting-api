@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Valeting.Common.Models.Core;
 
 namespace Valeting.Common.Models.Link;
 
@@ -17,9 +18,8 @@ public class GenerateSelfUrlDtoResponse
 public class GeneratePaginatedLinksDtoRequest
 {
     public HttpRequest Request { get; set; }
-    public int PageNumber { get; set; }
     public int TotalPages { get; set; }
-    public object Filter { get; set; }
+    public FilterDto Filter { get; set; }
 }
 
 public class GeneratePaginatedLinksDtoResponse

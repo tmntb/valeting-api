@@ -2,7 +2,7 @@
 
 namespace Valeting.Common.Models.Core;
 
-public class PageDto
+public class FilterDto
 {
     [Display(Name = "pageNumber", Order = 1)]
     public int PageNumber { get; set; }

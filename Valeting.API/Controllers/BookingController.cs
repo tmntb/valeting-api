@@ -117,7 +117,6 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
             new()
             {
                 Request = Request,
-                PageNumber = bookingApiParameters.PageNumber,
                 TotalPages = paginatedBookingDtoResponse.TotalPages,
                 Filter = paginatedBookingDtoRequest.Filter
             }

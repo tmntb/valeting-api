@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using System.Web;
+using Valeting.Common.Models.Core;
 using Valeting.Common.Models.Link;
 using Valeting.Core.Interfaces;
 using Valeting.Core.Validators;
@@ -14,53 +15,58 @@ public class UrlService : IUrlService
     {
         generateSelfUrlDtoRequest.ValidateRequest(new GenerateSelfUrlValidator());
 
-        var request = generateSelfUrlDtoRequest.Request;
-        var fullBaseUrl = GetFullBaseUrl(request);
-        var path = !string.IsNullOrEmpty(generateSelfUrlDtoRequest.Path) ? generateSelfUrlDtoRequest.Path : request.Path.ToString().TrimStart('/');
+        var baseUrl = BuildBaseUrl(generateSelfUrlDtoRequest.Request, generateSelfUrlDtoRequest.Path);
+        var selfUrl = generateSelfUrlDtoRequest.Id == default ? baseUrl : $"{baseUrl}/{generateSelfUrlDtoRequest.Id}";
 
-        return new()
-        {
-            Self = generateSelfUrlDtoRequest.Id == default ? $"{fullBaseUrl}/{path}" : $"{fullBaseUrl}/{path}/{generateSelfUrlDtoRequest.Id}"
-        };
+        return new() { Self = selfUrl };
     }
 
     public GeneratePaginatedLinksDtoResponse GeneratePaginatedLinks(GeneratePaginatedLinksDtoRequest generatePaginatedLinksDtoRequest)
     {
         generatePaginatedLinksDtoRequest.ValidateRequest(new GeneratePaginatedLinksValidator());
 
-        var request = generatePaginatedLinksDtoRequest.Request;
-        var fullBaseUrl = GetFullBaseUrl(request);
-        var path = request.Path.ToString().TrimStart('/');
-        var queryString = request.QueryString.HasValue ? request.QueryString.Value : string.Empty;
+        var baseUrl = BuildBaseUrl(generatePaginatedLinksDtoRequest.Request);
+        var filter = generatePaginatedLinksDtoRequest.Filter;
 
         return new()
         {
-            Self = $"{fullBaseUrl}/{path}{queryString}",
-            Prev = generatePaginatedLinksDtoRequest.PageNumber > 1 ?
-                $"{fullBaseUrl}/{path}?{GenerateQueryString(generatePaginatedLinksDtoRequest.Filter, generatePaginatedLinksDtoRequest.PageNumber - 1)}" : string.Empty,
-            Next = generatePaginatedLinksDtoRequest.PageNumber < generatePaginatedLinksDtoRequest.TotalPages ?
-                $"{fullBaseUrl}/{path}?{GenerateQueryString(generatePaginatedLinksDtoRequest.Filter, generatePaginatedLinksDtoRequest.PageNumber + 1)}" : string.Empty
+            Self = $"{baseUrl}{generatePaginatedLinksDtoRequest.Request.QueryString}",
+            Prev = filter.PageNumber > 1 ? $"{baseUrl}?{GenerateQueryString(filter, filter.PageNumber - 1)}" : string.Empty,
+            Next = filter.PageNumber < generatePaginatedLinksDtoRequest.TotalPages ? $"{baseUrl}?{GenerateQueryString(filter, filter.PageNumber + 1)}" : string.Empty
         };
     }
 
-    private static string GetFullBaseUrl(HttpRequest request)
+    private static string BuildBaseUrl(HttpRequest request, string? customPath = null)
     {
         var protocol = request.Scheme;
-        var baseUrl = request.Host.HasValue ? request.Host.Value : "localhost";
+        var host = request.Host.HasValue ? request.Host.Value : "localhost";
         var pathBase = request.PathBase.ToString().Trim('/');
+        var path = string.IsNullOrEmpty(customPath) ? request.Path.ToString().TrimStart('/') : customPath;
 
-        return $"{protocol}://{baseUrl}{(string.IsNullOrEmpty(pathBase) ? string.Empty : "/" + pathBase)}";
+        return $"{protocol}://{host}{(string.IsNullOrEmpty(pathBase) ? string.Empty : "/" + pathBase)}/{path}";
     }
 
-    private string GenerateQueryString(object filter, int newPageNumber)
+    private string GenerateQueryString(FilterDto filterDto, int newPageNumber)
     {
-        filter.GetType().GetProperty("PageNumber")?.SetValue(filter, newPageNumber);
+        var clonedFilter = CloneWithUpdatedPageNumber(filterDto, newPageNumber);
 
-        var properties = from p in filter.GetType().GetProperties().OrderBy(y => y.CustomAttributes.FirstOrDefault()?.NamedArguments.FirstOrDefault(i => i.MemberName.Equals("Order")).TypedValue.Value)
-                         where p.GetValue(filter, null) != null
-                         select p.CustomAttributes.FirstOrDefault()?.NamedArguments.FirstOrDefault().TypedValue.Value + "=" + HttpUtility.UrlEncode(FormatPropertyValue(p.GetValue(filter, null)));
+        return string.Join("&", clonedFilter.GetType().GetProperties()
+                .Where(p => p.GetValue(clonedFilter, null) != null)
+                .OrderBy(p => p.CustomAttributes.FirstOrDefault()?.NamedArguments.FirstOrDefault(i => i.MemberName.Equals("Order")).TypedValue.Value)
+                .Select(p => $"{ToCamelCase(p.Name)}={HttpUtility.UrlEncode(FormatPropertyValue(p.GetValue(clonedFilter, null)))}"));
+    }
 
-        return string.Join("&", properties.ToArray());
+    private static object CloneWithUpdatedPageNumber(FilterDto filterDto, int newPageNumber)
+    {
+        var clonedFilter = Activator.CreateInstance(filterDto.GetType());
+
+        foreach (var prop in filterDto.GetType().GetProperties().Where(p => p.CanRead && p.CanWrite))
+        {
+            object value = prop.Name == "PageNumber" ? newPageNumber : prop.GetValue(filterDto);
+            prop.SetValue(clonedFilter, value);
+        }
+
+        return clonedFilter;
     }
 
     private static string FormatPropertyValue(object value) =>
@@ -69,4 +75,6 @@ public class UrlService : IUrlService
             bool boolValue => boolValue ? "true" : "false",
             _ => value?.ToString() ?? string.Empty
         };
+
+    private static string ToCamelCase(string input) => string.IsNullOrEmpty(input) ? input : char.ToLowerInvariant(input[0]) + input.Substring(1);
 }

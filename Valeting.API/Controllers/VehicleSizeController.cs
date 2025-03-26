@@ -39,7 +39,6 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
             new()
             {
                 Request = Request,
-                PageNumber = vehicleSizeApiParameters.PageNumber,
                 TotalPages = paginatedVehicleSizeDtoResponse.TotalPages,
                 Filter = paginatedVehicleSizeDtoRequest.Filter
             }
