@@ -47,12 +47,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
 
     public async Task DeleteAsync(DeleteBookingDtoRequest deleteBookingDtoRequest)
     {
-        var validator = new DeleteBookingValidator();
-        var result = validator.Validate(deleteBookingDtoRequest);
-        if (!result.IsValid)
-        {
-            throw new ValidationException(result.Errors);
-        }
+        deleteBookingDtoRequest.ValidateRequest(new DeleteBookingValidator());
 
         _ = await bookingRepository.GetByIdAsync(deleteBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
         await bookingRepository.DeleteAsync(deleteBookingDtoRequest.Id);
@@ -98,10 +93,13 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
                     throw new KeyNotFoundException(Messages.NotFound);
 
                 paginatedBookingDtoResponse.TotalItems = bookingDtoList.Count();
-                var nrPages = decimal.Divide(paginatedBookingDtoResponse.TotalItems, paginatedBookingDtoRequest.Filter.PageSize);
-                paginatedBookingDtoResponse.TotalPages = (int)(nrPages - Math.Truncate(nrPages) > 0 ? Math.Truncate(nrPages) + 1 : Math.Truncate(nrPages));
-                bookingDtoList = bookingDtoList.OrderBy(x => x.Id).ToList();
-                bookingDtoList = bookingDtoList.Skip((paginatedBookingDtoRequest.Filter.PageNumber - 1) * paginatedBookingDtoRequest.Filter.PageSize).Take(paginatedBookingDtoRequest.Filter.PageSize).ToList();
+                paginatedBookingDtoResponse.TotalPages = (int)Math.Ceiling((double)paginatedBookingDtoResponse.TotalItems / paginatedBookingDtoRequest.Filter.PageSize);
+
+                bookingDtoList = bookingDtoList
+                    .OrderBy(x => x.Id)
+                    .Skip((paginatedBookingDtoRequest.Filter.PageNumber - 1) * paginatedBookingDtoRequest.Filter.PageSize)
+                    .Take(paginatedBookingDtoRequest.Filter.PageSize)
+                    .ToList();
 
                 paginatedBookingDtoResponse.Bookings = bookingDtoList;
                 return paginatedBookingDtoResponse;
