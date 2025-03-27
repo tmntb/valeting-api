@@ -23,10 +23,6 @@ public class FlexibilityMapper : Profile
         CreateMap<RdFlexibility, FlexibilityDto>();
         #endregion
 
-        #region Entity -> Dto
-        CreateMap<RdFlexibility, FlexibilityDto>();
-        #endregion
-
         #region Dto -> Api
         CreateMap<FlexibilityDto, FlexibilityApi>();
         #endregion

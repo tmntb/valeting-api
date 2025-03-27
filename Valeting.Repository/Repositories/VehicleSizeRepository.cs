@@ -12,8 +12,8 @@ public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapp
     {
         var initialList = await valetingContext.RdVehicleSizes.ToListAsync();
         var listVehicleSize = from rdVehicleSize in initialList
-                                where !vehicleSizeFilterDto.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDto.Active
-                                select rdVehicleSize;
+                              where !vehicleSizeFilterDto.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDto.Active
+                              select rdVehicleSize;
 
         return mapper.Map<List<VehicleSizeDto>>(listVehicleSize);
     }
@@ -24,11 +24,6 @@ public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapp
         if (rdVehicleSize == null)
             return null;
 
-       return new VehicleSizeDto()
-        {
-            Id = id,
-            Description = rdVehicleSize.Description,
-            Active = rdVehicleSize.Active
-        };
+        return mapper.Map<VehicleSizeDto>(rdVehicleSize);
     }
 }
