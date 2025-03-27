@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Valeting.Common.Models.Flexibility;
 using Valeting.Repository.Entities;
 using Valeting.Repository.Interfaces;
-using Valeting.Common.Models.Flexibility;
 
 namespace Valeting.Repository.Repositories;
 
@@ -24,11 +24,6 @@ public class FlexibilityRepository(ValetingContext valetingContext, IMapper mapp
         if (rdFlexibility == null)
             return null;
 
-        return new FlexibilityDto()
-        {
-            Id = id,
-            Description = rdFlexibility.Description,
-            Active = rdFlexibility.Active
-        };
+        return mapper.Map<FlexibilityDto>(rdFlexibility);
     }
 }

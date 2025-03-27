@@ -175,7 +175,7 @@ public class BookingRepositoryTests
     }
 
     [Fact]
-    public async Task GetFilteredAsync_Should_Return_Filtered_List()
+    public async Task GetFilteredAsync_ShouldReturnFilteredList()
     {
         // Arrange
         _valetingContext.Bookings.AddRange(
