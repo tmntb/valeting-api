@@ -8,11 +8,11 @@ namespace Valeting.Tests.Core.Services;
 public class UrlServiceTests
 {
     private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-    private readonly UrlService _service;
+    private readonly UrlService _urlService;
 
     public UrlServiceTests()
     {
-        _service = new UrlService();
+        _urlService = new UrlService();
     }
 
     [Fact]
@@ -25,12 +25,13 @@ public class UrlServiceTests
         context.Request.PathBase = "/test";
 
         // Act
-        var result = _service.GenerateSelf(new()
-        {
-            Id = _mockId,
-            Path = "path",
-            Request = context.Request
-        });
+        var result = _urlService.GenerateSelf(
+            new()
+            {
+                Id = _mockId,
+                Path = "path",
+                Request = context.Request
+            });
 
         // Assert
         Assert.NotNull(result);
@@ -47,11 +48,12 @@ public class UrlServiceTests
         context.Request.Path = "/rPath";
 
         // Act
-        var result = _service.GenerateSelf(new()
-        {
-            Id = _mockId,
-            Request = context.Request
-        });
+        var result = _urlService.GenerateSelf(
+            new()
+            {
+                Id = _mockId,
+                Request = context.Request
+            });
 
         // Assert
         Assert.NotNull(result);
@@ -71,17 +73,18 @@ public class UrlServiceTests
         context.Request.QueryString = new QueryString("?pageNumber=1&pageSize=1&active=false");
 
         // Act
-        var result = _service.GeneratePaginatedLinks(new()
-        {
-            Request = context.Request,
-            TotalPages = 1,
-            Filter = new TestFilter
+        var result = _urlService.GeneratePaginatedLinks(
+            new()
             {
-                PageNumber = 1,
-                PageSize = 1,
-                Active = false
-            }
-        });
+                Request = context.Request,
+                TotalPages = 1,
+                Filter = new TestFilter
+                {
+                    PageNumber = 1,
+                    PageSize = 1,
+                    Active = false
+                }
+            });
 
         // Assert
         Assert.NotNull(result);
@@ -103,17 +106,18 @@ public class UrlServiceTests
         context.Request.QueryString = new QueryString("?pageNumber=1&pageSize=1&active=true");
 
         // Act
-        var result = _service.GeneratePaginatedLinks(new()
-        {
-            Request = context.Request,
-            TotalPages = 4,
-            Filter = new TestFilter
+        var result = _urlService.GeneratePaginatedLinks(
+            new()
             {
-                PageNumber = 1,
-                PageSize = 1,
-                Active = true
-            }
-        });
+                Request = context.Request,
+                TotalPages = 4,
+                Filter = new TestFilter
+                {
+                    PageNumber = 1,
+                    PageSize = 1,
+                    Active = true
+                }
+            });
 
         // Assert
         Assert.NotNull(result);
@@ -136,17 +140,18 @@ public class UrlServiceTests
         context.Request.QueryString = new QueryString("?pageNumber=4&pageSize=1&active=true");
 
         // Act
-        var result = _service.GeneratePaginatedLinks(new()
-        {
-            Request = context.Request,
-            TotalPages = 4,
-            Filter = new TestFilter
+        var result = _urlService.GeneratePaginatedLinks(
+            new()
             {
-                PageNumber = 4,
-                PageSize = 1,
-                Active = true
-            }
-        });
+                Request = context.Request,
+                TotalPages = 4,
+                Filter = new TestFilter
+                {
+                    PageNumber = 4,
+                    PageSize = 1,
+                    Active = true
+                }
+            });
 
         // Assert
         Assert.NotNull(result);
@@ -169,17 +174,18 @@ public class UrlServiceTests
         context.Request.QueryString = new QueryString("?pageNumber=2&pageSize=1&active=true");
 
         // Act
-        var result = _service.GeneratePaginatedLinks(new()
-        {
-            Request = context.Request,
-            TotalPages = 4,
-            Filter = new TestFilter
+        var result = _urlService.GeneratePaginatedLinks(
+            new()
             {
-                PageNumber = 2,
-                PageSize = 1,
-                Active = true
-            }
-        });
+                Request = context.Request,
+                TotalPages = 4,
+                Filter = new TestFilter
+                {
+                    PageNumber = 2,
+                    PageSize = 1,
+                    Active = true
+                }
+            });
 
         // Assert
         Assert.NotNull(result);

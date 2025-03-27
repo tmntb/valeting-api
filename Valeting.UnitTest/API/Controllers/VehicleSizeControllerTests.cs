@@ -15,12 +15,11 @@ namespace Valeting.Tests.API.Controllers;
 
 public class VehicleSizeControllerTests
 {
-    private readonly string _mockVehicleSizeId = "00000000-0000-0000-0000-000000000000";
-
     private readonly Mock<IMapper> _mockMapper;
     private readonly Mock<IUrlService> _mockUrlService;
     private readonly Mock<IVehicleSizeService> _mockVehicleSizeService;
 
+    private readonly Guid _mockVehicleSizeId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly VehicleSizeController _vehicleSizeController;
 
     public VehicleSizeControllerTests()
@@ -47,42 +46,56 @@ public class VehicleSizeControllerTests
     public async Task GetFilteredAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        _mockMapper.Setup(m => m.Map<PaginatedVehicleSizeDtoRequest>(It.IsAny<VehicleSizeApiParameters>())).Returns(new PaginatedVehicleSizeDtoRequest());
-        _mockVehicleSizeService.Setup(s => s.GetFilteredAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>())).ReturnsAsync(new PaginatedVehicleSizeDtoResponse
-        {
-            TotalItems = 1,
-            TotalPages = 1,
-            VehicleSizes = 
-            [
-                new()
+        _mockMapper.Setup(m => m.Map<PaginatedVehicleSizeDtoRequest>(It.IsAny<VehicleSizeApiParameters>()))
+            .Returns(new PaginatedVehicleSizeDtoRequest());
+
+        _mockVehicleSizeService.Setup(s => s.GetFilteredAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>()))
+            .ReturnsAsync(
+                new PaginatedVehicleSizeDtoResponse
                 {
-                    Id = It.IsAny<Guid>(),
-                    Description = It.IsAny<string>(),
-                    Active = It.IsAny<bool>()
-                }    
-            ]
-        });
-        _mockUrlService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>())).Returns(new GeneratePaginatedLinksDtoResponse());
-        _mockMapper.Setup(m => m.Map<PaginationLinksApi>(It.IsAny<GeneratePaginatedLinksDtoResponse>())).Returns(new PaginationLinksApi());
-        _mockMapper.Setup(m => m.Map<List<VehicleSizeApi>>(It.IsAny<List<VehicleSizeDto>>())).Returns(new List<VehicleSizeApi>
-        {
-            new()
-            {
-                Id = Guid.Parse(_mockVehicleSizeId),
-                Description = It.IsAny<string>(),
-                Active = It.IsAny<bool>()
-            }
-        });
-        _mockUrlService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>())).Returns(new GenerateSelfUrlDtoResponse
-        {
-            Self = $"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}"
-        });
+                    TotalItems = 1,
+                    TotalPages = 1,
+                    VehicleSizes =
+                    [
+                        new()
+                        {
+                            Id = _mockVehicleSizeId,
+                            Description = "description",
+                            Active = true
+                        }
+                    ]
+                });
+
+        _mockUrlService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
+            .Returns(new GeneratePaginatedLinksDtoResponse());
+
+        _mockMapper.Setup(m => m.Map<PaginationLinksApi>(It.IsAny<GeneratePaginatedLinksDtoResponse>()))
+            .Returns(new PaginationLinksApi());
+
+        _mockMapper.Setup(m => m.Map<List<VehicleSizeApi>>(It.IsAny<List<VehicleSizeDto>>()))
+            .Returns(
+                new List<VehicleSizeApi>
+                {
+                    new()
+                    {
+                        Id = _mockVehicleSizeId,
+                        Description = "description",
+                        Active = true
+                    }
+                });
+
+        _mockUrlService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
+            .Returns(
+                new GenerateSelfUrlDtoResponse
+                {
+                    Self = $"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}"
+                });
 
         // Act
         var result = await _vehicleSizeController.GetFilteredAsync
         (
             new()
-            { 
+            {
                 Active = false
             }
         ) as ObjectResult;
@@ -111,15 +124,32 @@ public class VehicleSizeControllerTests
     public async Task GetByIdAsync_ShouldReturnOk_WhenValidId()
     {
         // Arrange
-        _mockVehicleSizeService.Setup(s => s.GetByIdAsync(It.IsAny<GetVehicleSizeDtoRequest>())).ReturnsAsync(new GetVehicleSizeDtoResponse());
-        _mockMapper.Setup(m => m.Map<VehicleSizeApi>(It.IsAny<VehicleSizeDto>())).Returns(new VehicleSizeApi());
-        _mockUrlService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>())).Returns(new GenerateSelfUrlDtoResponse
-        {
-            Self = $"http://example.com/flexibility/{_mockVehicleSizeId}"
-        });
+        _mockVehicleSizeService.Setup(s => s.GetByIdAsync(It.IsAny<GetVehicleSizeDtoRequest>()))
+            .ReturnsAsync(
+                new GetVehicleSizeDtoResponse
+                {
+                    VehicleSize = new()
+                    {
+                        Id = _mockVehicleSizeId
+                    }
+                });
+
+        _mockMapper.Setup(m => m.Map<VehicleSizeApi>(It.IsAny<VehicleSizeDto>()))
+            .Returns(
+                new VehicleSizeApi
+                {
+                    Id = _mockVehicleSizeId
+                });
+
+        _mockUrlService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
+            .Returns(
+                new GenerateSelfUrlDtoResponse
+                {
+                    Self = $"http://example.com/flexibility/{_mockVehicleSizeId}"
+                });
 
         // Act
-        var result = await _vehicleSizeController.GetByIdAsync(_mockVehicleSizeId) as ObjectResult;
+        var result = await _vehicleSizeController.GetByIdAsync(_mockVehicleSizeId.ToString()) as ObjectResult;
 
         // Assert
         Assert.NotNull(result);
@@ -128,7 +158,7 @@ public class VehicleSizeControllerTests
         var responseApi = result.Value as VehicleSizeApiResponse;
         Assert.NotNull(responseApi);
         Assert.NotNull(responseApi.VehicleSize);
-        Assert.Equal(Guid.Parse(_mockVehicleSizeId), responseApi.VehicleSize.Id);
+        Assert.Equal(_mockVehicleSizeId, responseApi.VehicleSize.Id);
         Assert.Equal($"http://example.com/flexibility/{_mockVehicleSizeId}", responseApi.VehicleSize.Link.Self.Href);
     }
 }

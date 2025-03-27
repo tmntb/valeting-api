@@ -10,78 +10,75 @@ namespace Valeting.Tests.Core.Services;
 
 public class FlexibilityServiceTests
 {
-    private readonly Mock<IFlexibilityRepository> _mockRepository;
+    private readonly Mock<IFlexibilityRepository> _mockFlexibilityRepository;
     private readonly Mock<ICacheHandler> _mockCacheHandler;
 
     private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-    private readonly FlexibilityService _service;
+    private readonly FlexibilityService _flexibilityService;
 
     public FlexibilityServiceTests()
     {
-        _mockRepository = new Mock<IFlexibilityRepository>();
+        _mockFlexibilityRepository = new Mock<IFlexibilityRepository>();
         _mockCacheHandler = new Mock<ICacheHandler>();
 
-        _service = new FlexibilityService(_mockRepository.Object, _mockCacheHandler.Object);
+        _flexibilityService = new FlexibilityService(_mockFlexibilityRepository.Object, _mockCacheHandler.Object);
     }
 
     [Fact]
     public async Task GetFilteredAsync_ShouldReturnCachedData_WhenAvailable()
     {
         // Arrange
-        var request = new PaginatedFlexibilityDtoRequest
-        {
-            Filter = new()
-            {
-                PageNumber = 1,
-                PageSize = 2
-            }
-        };
-        var flexibilities = new List<FlexibilityDto>()
-        {
-            new() { Id = _mockId },
-            new() { Id = _mockId }
-        };
-
-        _mockCacheHandler.Setup(cache => cache.GetOrCreateRecordAsync(request, It.IsAny<Func<Task<PaginatedFlexibilityDtoResponse>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler.Setup(cache => cache.GetOrCreateRecordAsync(It.IsAny<PaginatedFlexibilityDtoRequest>(), It.IsAny<Func<Task<PaginatedFlexibilityDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .ReturnsAsync(
                 new PaginatedFlexibilityDtoResponse
                 {
-                    Flexibilities = flexibilities,
+                    Flexibilities =
+                    [
+                        new() { Id = _mockId },
+                        new() { Id = _mockId }
+                    ],
                     TotalItems = 2,
                     TotalPages = 1
                 });
 
         // Act
-        var result = await _service.GetFilteredAsync(request);
+        var result = await _flexibilityService.GetFilteredAsync(
+            new()
+            {
+                Filter = new()
+                {
+                    PageNumber = 1,
+                    PageSize = 2
+                }
+            });
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.TotalItems);
         Assert.Equal(1, result.TotalPages);
-        _mockRepository.Verify(x => x.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()), Times.Never);
+        _mockFlexibilityRepository.Verify(x => x.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()), Times.Never);
     }
 
     [Fact]
     public async Task GetFilteredAsync_ShouldThrowKeyNotFoundException_WhenNoFlexibilitiesFound()
     {
         // Arrange
-        var request = new PaginatedFlexibilityDtoRequest
-        {
-            Filter = new()
-            {
-                PageNumber = 1,
-                PageSize = 2
-            }
-        };
-
         _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedFlexibilityDtoRequest>(), It.IsAny<Func<Task<PaginatedFlexibilityDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .Returns((PaginatedFlexibilityDtoRequest _, Func<Task<PaginatedFlexibilityDtoResponse>> factory, CacheOptions __) => factory());
 
-        _mockRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
+        _mockFlexibilityRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
             .ReturnsAsync(new List<FlexibilityDto>());
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.GetFilteredAsync(request));
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _flexibilityService.GetFilteredAsync(
+            new()
+            {
+                Filter = new()
+                {
+                    PageNumber = 1,
+                    PageSize = 2
+                }
+            }));
 
         Assert.Equal(exception.Message, Messages.NotFound);
     }
@@ -90,29 +87,27 @@ public class FlexibilityServiceTests
     public async Task GetFilteredAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
     {
         // Arrange
-        var request = new PaginatedFlexibilityDtoRequest
-        {
-            Filter = new()
-            {
-                PageNumber = 1,
-                PageSize = 2
-            }
-        };
-        var flexibilities = new List<FlexibilityDto>
-        {
-            new() { Id = _mockId },
-            new() { Id = _mockId },
-            new() { Id = _mockId }
-        };
-
         _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedFlexibilityDtoRequest>(), It.IsAny<Func<Task<PaginatedFlexibilityDtoResponse>>>(), It.IsAny<CacheOptions>()))
              .Returns((PaginatedFlexibilityDtoRequest _, Func<Task<PaginatedFlexibilityDtoResponse>> factory, CacheOptions __) => factory());
 
-        _mockRepository.Setup(x => x.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
-            .ReturnsAsync(flexibilities);
+        _mockFlexibilityRepository.Setup(x => x.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
+            .ReturnsAsync(
+                [
+                    new() { Id = _mockId },
+                    new() { Id = _mockId },
+                    new() { Id = _mockId }
+                ]);
 
         // Act
-        var result = await _service.GetFilteredAsync(request);
+        var result = await _flexibilityService.GetFilteredAsync(
+            new()
+            {
+                Filter = new()
+                {
+                    PageNumber = 1,
+                    PageSize = 2
+                }
+            });
 
         // Assert
         Assert.NotNull(result);
@@ -122,53 +117,48 @@ public class FlexibilityServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_ShouldReturnCachedData_WhenAvailable()
+    public async Task GetByIdAsync_ShouldReturnCachedData()
     {
         // Arrange
-        var request = new GetFlexibilityDtoRequest
-        {
-            Id = _mockId
-        };
-        var expectedFlexibility = new FlexibilityDto
-        {
-            Id = _mockId
-        };
-
-        _mockRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(expectedFlexibility);
-
-        _mockCacheHandler.Setup(cache => cache.GetOrCreateRecordAsync(request, It.IsAny<Func<Task<GetFlexibilityDtoResponse>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<GetFlexibilityDtoRequest>(), It.IsAny<Func<Task<GetFlexibilityDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .ReturnsAsync(
                 new GetFlexibilityDtoResponse
                 {
-                    Flexibility = expectedFlexibility
+                    Flexibility = new()
+                    {
+                        Id = _mockId
+                    }
                 });
 
         // Act
-        var result = await _service.GetByIdAsync(request);
+        var result = await _flexibilityService.GetByIdAsync(
+            new()
+            {
+                Id = _mockId
+            });
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(result.Flexibility.Id, request.Id);
+        Assert.NotNull(result.Flexibility);
+        Assert.Equal(_mockId, result.Flexibility.Id);
     }
 
     [Fact]
     public async Task GetByIdAsync_ShouldThrowKeyNotFoundException_WhenNoFlexibilityFound()
     {
         // Arrange
-        var request = new GetFlexibilityDtoRequest
-        {
-            Id = _mockId
-        };
-
         _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<GetFlexibilityDtoRequest>(), It.IsAny<Func<Task<GetFlexibilityDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .Returns((GetFlexibilityDtoRequest _, Func<Task<GetFlexibilityDtoResponse>> factory, CacheOptions __) => factory());
 
-        _mockRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+        _mockFlexibilityRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync((FlexibilityDto)null);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.GetByIdAsync(request));
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _flexibilityService.GetByIdAsync(
+            new()
+            {
+                Id = _mockId
+            }));
 
         Assert.Equal(exception.Message, Messages.NotFound);
     }
@@ -177,26 +167,25 @@ public class FlexibilityServiceTests
     public async Task GetByIdAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
     {
         // Arrange
-        var request = new GetFlexibilityDtoRequest
-        {
-            Id = _mockId
-        };
-        var expectedFlexibility = new FlexibilityDto
-        {
-            Id = _mockId
-        };
-
         _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<GetFlexibilityDtoRequest>(), It.IsAny<Func<Task<GetFlexibilityDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .Returns((GetFlexibilityDtoRequest _, Func<Task<GetFlexibilityDtoResponse>> factory, CacheOptions __) => factory());
 
-        _mockRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-             .ReturnsAsync(expectedFlexibility);
+        _mockFlexibilityRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+             .ReturnsAsync(
+                new FlexibilityDto
+                {
+                    Id = _mockId
+                });
 
         // Act
-        var result = await _service.GetByIdAsync(request);
+        var result = await _flexibilityService.GetByIdAsync(
+            new()
+            {
+                Id = _mockId
+            });
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(result.Flexibility.Id, request.Id);
+        Assert.Equal(_mockId, result.Flexibility.Id);
     }
 }

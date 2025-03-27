@@ -10,7 +10,7 @@ public class MemoryCacheHandlerTests
 {
     private readonly Mock<IMemoryCache> _mockMemoryCache;
 
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000000");
+    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly MemoryCacheHandler _cacheHandler;
 
     public MemoryCacheHandlerTests()

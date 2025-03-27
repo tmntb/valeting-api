@@ -11,6 +11,7 @@ public class ValidationHelpersTests
     private readonly Mock<IFlexibilityRepository> _mockFlexibilityRepository;
     private readonly Mock<IVehicleSizeRepository> _mockVehicleSizeRepository;
 
+    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly ValidationHelpers _validationHelpers;
 
     public ValidationHelpersTests()
@@ -25,11 +26,11 @@ public class ValidationHelpersTests
     public async Task FlexibilityIsValid_ShouldReturnTrue_WhenFound()
     {
         // Arrange
-        var flexibilityId = Guid.NewGuid();
-        _mockFlexibilityRepository.Setup(repo => repo.GetByIdAsync(flexibilityId)).ReturnsAsync(new FlexibilityDto());
+        _mockFlexibilityRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(new FlexibilityDto());
 
         // Act
-        var result = await _validationHelpers.FlexibilityIsValid(flexibilityId, CancellationToken.None);
+        var result = await _validationHelpers.FlexibilityIsValid(_mockId, CancellationToken.None);
 
         // Assert
         Assert.True(result);
@@ -39,11 +40,11 @@ public class ValidationHelpersTests
     public async Task FlexibilityIsValid_ShouldReturnFalse_WhenNotFound()
     {
         // Arrange
-        var flexibilityId = Guid.NewGuid();
-        _mockFlexibilityRepository.Setup(repo => repo.GetByIdAsync(flexibilityId)).ReturnsAsync((FlexibilityDto)null);
+        _mockFlexibilityRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((FlexibilityDto)null);
 
         // Act
-        var result = await _validationHelpers.FlexibilityIsValid(flexibilityId, CancellationToken.None);
+        var result = await _validationHelpers.FlexibilityIsValid(_mockId, CancellationToken.None);
 
         // Assert
         Assert.False(result);
@@ -53,11 +54,11 @@ public class ValidationHelpersTests
     public async Task VehicleSizeIsValid_ShouldReturnTrue_WhenFound()
     {
         // Arrange
-        var vehicleSizeId = Guid.NewGuid();
-        _mockVehicleSizeRepository.Setup(repo => repo.GetByIdAsync(vehicleSizeId)).ReturnsAsync(new VehicleSizeDto());
+        _mockVehicleSizeRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(new VehicleSizeDto());
 
         // Act
-        var result = await _validationHelpers.VehicleSizeIsValid(vehicleSizeId, CancellationToken.None);
+        var result = await _validationHelpers.VehicleSizeIsValid(_mockId, CancellationToken.None);
 
         // Assert
         Assert.True(result);
@@ -67,11 +68,11 @@ public class ValidationHelpersTests
     public async Task VehicleSizeIsValid_ShouldReturnFalse_WhenNotFound()
     {
         // Arrange
-        var vehicleSizeId = Guid.NewGuid();
-        _mockVehicleSizeRepository.Setup(repo => repo.GetByIdAsync(vehicleSizeId)).ReturnsAsync((VehicleSizeDto)null);
+        _mockVehicleSizeRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((VehicleSizeDto)null);
 
         // Act
-        var result = await _validationHelpers.VehicleSizeIsValid(vehicleSizeId, CancellationToken.None);
+        var result = await _validationHelpers.VehicleSizeIsValid(_mockId, CancellationToken.None);
 
         // Assert
         Assert.False(result);

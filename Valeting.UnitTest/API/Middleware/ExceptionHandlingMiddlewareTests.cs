@@ -64,7 +64,7 @@ public class ExceptionHandlingMiddlewareTests
         services.AddSingleton(_mockEnvironment.Object);
         context.RequestServices = services.BuildServiceProvider();
 
-        RequestDelegate nextDelegate = _ => throw exception;
+        Task nextDelegate(HttpContext _) => throw exception;
 
         // Act
         await _middleware.InvokeAsync(context, nextDelegate);
@@ -92,7 +92,7 @@ public class ExceptionHandlingMiddlewareTests
         services.AddSingleton(_mockEnvironment.Object);
         context.RequestServices = services.BuildServiceProvider();
 
-        RequestDelegate nextDelegate = _ => throw exception;
+        Task nextDelegate(HttpContext _) => throw exception;
 
         // Act
         await _middleware.InvokeAsync(context, nextDelegate);
