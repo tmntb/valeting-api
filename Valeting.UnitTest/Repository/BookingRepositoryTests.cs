@@ -80,12 +80,13 @@ public class BookingRepositoryTests
     public async Task UpdateAsync_ShouldUpdateBookingInDatabase()
     {
         // Arrange
-        _valetingContext.Bookings.Add(new Booking
-        {
-            Id = _mockId,
-            Name = "name",
-            Email = "email"
-        });
+        _valetingContext.Bookings.Add(
+            new Booking
+            {
+                Id = _mockId,
+                Name = "name",
+                Email = "email"
+            });
         await _valetingContext.SaveChangesAsync();
 
         _mockMapper.Setup(m => m.Map(It.IsAny<BookingDto>(), It.IsAny<Booking>()));
@@ -114,12 +115,13 @@ public class BookingRepositoryTests
     public async Task DeleteAsync_ShouldRemoveBookingFromDatabase()
     {
         // Arrange
-        _valetingContext.Bookings.Add(new Booking
-        {
-            Id = _mockId,
-            Name = "name",
-            Email = "email"
-        });
+        _valetingContext.Bookings.Add(
+            new Booking
+            {
+                Id = _mockId,
+                Name = "name",
+                Email = "email"
+            });
         await _valetingContext.SaveChangesAsync();
 
         // Act
@@ -145,12 +147,13 @@ public class BookingRepositoryTests
     public async Task GetByIdAsync_ShouldReturnBookingDtoWhenBookingExists()
     {
         // Arrange
-        _valetingContext.Bookings.Add(new Booking
-        {
-            Id = _mockId,
-            Name = "name",
-            Email = "email"
-        });
+        _valetingContext.Bookings.Add(
+            new Booking
+            {
+                Id = _mockId,
+                Name = "name",
+                Email = "email"
+            });
         await _valetingContext.SaveChangesAsync();
 
         _mockMapper.Setup(m => m.Map<BookingDto>(It.IsAny<Booking>()))

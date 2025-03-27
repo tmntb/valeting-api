@@ -42,12 +42,13 @@ public class VehicleSizeRepositoryTests
     public async Task GetByIdAsync_ShouldReturnVehicleSizeDtoWhenRdVehicleSizeExists()
     {
         // Arrange
-        _valetingContext.RdVehicleSizes.Add(new RdVehicleSize
-        {
-            Id = _mockId,
-            Description = "description",
-            Active = true,
-        });
+        _valetingContext.RdVehicleSizes.Add(
+            new RdVehicleSize
+            {
+                Id = _mockId,
+                Description = "description",
+                Active = true,
+            });
         await _valetingContext.SaveChangesAsync();
 
         _mockMapper.Setup(m => m.Map<VehicleSizeDto>(It.IsAny<RdVehicleSize>()))

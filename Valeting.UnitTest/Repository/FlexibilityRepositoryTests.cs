@@ -42,12 +42,13 @@ public class FlexibilityRepositoryTests
     public async Task GetByIdAsync_ShouldReturnFlexibilityDtoWhenRdFlexibilityExists()
     {
         // Arrange
-        _valetingContext.RdFlexibilities.Add(new RdFlexibility
-        {
-            Id = _mockId,
-            Description = "description",
-            Active = true,
-        });
+        _valetingContext.RdFlexibilities.Add(
+            new RdFlexibility
+            {
+                Id = _mockId,
+                Description = "description",
+                Active = true,
+            });
         await _valetingContext.SaveChangesAsync();
 
         _mockMapper.Setup(m => m.Map<FlexibilityDto>(It.IsAny<RdFlexibility>()))
