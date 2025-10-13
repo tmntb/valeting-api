@@ -18,11 +18,24 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
 
         var createBookingDtoRequest = new CreateBookingDtoRequest
         {
+            Name = createBookingApiRequest.Name,
+            BookingDate = createBookingApiRequest.BookingDate,
+            Flexibility = new()
+            {
+                Id = createBookingApiRequest.Flexibility.Id
+            },
+            VehicleSize = new()
+            {
+                Id = createBookingApiRequest.VehicleSize.Id
+            },
+            ContactNumber = createBookingApiRequest.ContactNumber,
+            Email = createBookingApiRequest.Email
         };
         var createBookingDtoResponse = await bookingService.CreateAsync(createBookingDtoRequest);
 
         var createBookingApiResponse = new CreateBookingApiResponse
         {
+            Id = createBookingDtoResponse.Id
         };
         return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
     }

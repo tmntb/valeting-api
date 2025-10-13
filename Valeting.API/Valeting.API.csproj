@@ -27,6 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="../Valeting.Repository/Valeting.Repository.csproj" />
 		<ProjectReference Include="..\Valeting.Core\Valeting.Core.csproj" />
 	</ItemGroup>
 

@@ -3,7 +3,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Valeting.Core;
 using Valeting.Repository;
-using Valeting.API.Mappers;
 using Valeting.API.SwaggerDocumentation;
 using Valeting.API.Middleware;
 
@@ -45,9 +44,6 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 
 builder.Services.AddSwaggerDocumentation();
-
-// Register AutoMapper
-builder.Services.AddMappers();
 
 var app = builder.Build();
 
