@@ -1,12 +1,11 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Valeting.Common.Models.Flexibility;
 using Valeting.Repository.Entities;
 using Valeting.Repository.Interfaces;
 
 namespace Valeting.Repository.Repositories;
 
-public class FlexibilityRepository(ValetingContext valetingContext, IMapper mapper) : IFlexibilityRepository
+public class FlexibilityRepository(ValetingContext valetingContext) : IFlexibilityRepository
 {
     public async Task<List<FlexibilityDto>> GetFilteredAsync(FlexibilityFilterDto flexibilityFilterDto)
     {
@@ -15,7 +14,7 @@ public class FlexibilityRepository(ValetingContext valetingContext, IMapper mapp
                                 where !flexibilityFilterDto.Active.HasValue || rdFlexibility.Active == flexibilityFilterDto.Active
                                 select rdFlexibility;
 
-        return mapper.Map<List<FlexibilityDto>>(listFlexibility);
+        return new List<FlexibilityDto>();
     }
 
     public async Task<FlexibilityDto> GetByIdAsync(Guid id)
@@ -24,6 +23,6 @@ public class FlexibilityRepository(ValetingContext valetingContext, IMapper mapp
         if (rdFlexibility == null)
             return null;
 
-        return mapper.Map<FlexibilityDto>(rdFlexibility);
+        return new FlexibilityDto { };
     }
 }

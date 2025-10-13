@@ -1,11 +1,10 @@
-﻿using AutoMapper;
-using Valeting.Common.Models.User;
+﻿using Valeting.Common.Models.User;
 using Valeting.Repository.Entities;
 using Valeting.Repository.Interfaces;
 
 namespace Valeting.Repository.Repositories;
 
-public class UserRepository(ValetingContext valetingContext, IMapper mapper) : IUserRepository
+public class UserRepository(ValetingContext valetingContext) : IUserRepository
 {
     public async Task<UserDto> GetUserByEmailAsync(string username)
     {
@@ -14,12 +13,12 @@ public class UserRepository(ValetingContext valetingContext, IMapper mapper) : I
         if (applicationUser == null)
             return null;
 
-        return mapper.Map<UserDto>(applicationUser);
+        return new UserDto { };
     }
 
     public async Task RegisterAsync(UserDto userDto)
     {
-        var applicationUser = mapper.Map<ApplicationUser>(userDto);
+        var applicationUser = new ApplicationUser();
         await valetingContext.ApplicationUsers.AddAsync(applicationUser);
         await valetingContext.SaveChangesAsync();
     }

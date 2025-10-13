@@ -1,12 +1,11 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Valeting.Repository.Entities;
 using Valeting.Repository.Interfaces;
 using Valeting.Common.Models.VehicleSize;
 
 namespace Valeting.Repository.Repositories;
 
-public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapper) : IVehicleSizeRepository
+public class VehicleSizeRepository(ValetingContext valetingContext) : IVehicleSizeRepository
 {
     public async Task<List<VehicleSizeDto>> GetFilteredAsync(VehicleSizeFilterDto vehicleSizeFilterDto)
     {
@@ -15,7 +14,7 @@ public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapp
                               where !vehicleSizeFilterDto.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDto.Active
                               select rdVehicleSize;
 
-        return mapper.Map<List<VehicleSizeDto>>(listVehicleSize);
+        return new List<VehicleSizeDto>();
     }
 
     public async Task<VehicleSizeDto> GetByIdAsync(Guid id)
@@ -24,6 +23,6 @@ public class VehicleSizeRepository(ValetingContext valetingContext, IMapper mapp
         if (rdVehicleSize == null)
             return null;
 
-        return mapper.Map<VehicleSizeDto>(rdVehicleSize);
+        return new VehicleSizeDto { };
     }
 }

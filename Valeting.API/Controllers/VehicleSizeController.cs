@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using Valeting.API.Controllers.BaseController;
@@ -11,13 +10,13 @@ using Valeting.Core.Interfaces;
 
 namespace Valeting.API.Controllers;
 
-public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlService urlService, IMapper mapper) : VehicleSizeBaseController
+public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlService urlService) : VehicleSizeBaseController
 {
     public override async Task<IActionResult> GetFilteredAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
     {
         ArgumentNullException.ThrowIfNull(vehicleSizeApiParameters, Messages.InvalidRequestQueryParameters);
 
-        var paginatedVehicleSizeDtoRequest = mapper.Map<PaginatedVehicleSizeDtoRequest>(vehicleSizeApiParameters);
+        var paginatedVehicleSizeDtoRequest = new PaginatedVehicleSizeDtoRequest { };
 
         var paginatedVehicleSizeDtoResponse = await vehicleSizeService.GetFilteredAsync(paginatedVehicleSizeDtoRequest);
         var vehicleSizeApiPaginatedResponse = new VehicleSizeApiPaginatedResponse
@@ -44,10 +43,10 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
             }
         );
 
-        var links = mapper.Map<PaginationLinksApi>(paginatedLinks);
+        var links = new PaginationLinksApi { };
         vehicleSizeApiPaginatedResponse.Links = links;
 
-        var vehicleSizeApis = mapper.Map<List<VehicleSizeApi>>(paginatedVehicleSizeDtoResponse.VehicleSizes);
+        var vehicleSizeApis = new List<VehicleSizeApi>();
         vehicleSizeApis.ForEach(v =>
             v.Link = new()
             {
@@ -73,7 +72,7 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
 
         var getVehicleSizeDtoResponse = await vehicleSizeService.GetByIdAsync(getVehicleSizeDtoRequest);
 
-        var vehicleSizeApi = mapper.Map<VehicleSizeApi>(getVehicleSizeDtoResponse.VehicleSize);
+        var vehicleSizeApi = new VehicleSizeApi { };
         vehicleSizeApi.Link = new()
         {
             Self = new()

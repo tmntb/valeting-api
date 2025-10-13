@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using Valeting.API.Controllers.BaseController;
@@ -11,13 +10,15 @@ using Valeting.Core.Interfaces;
 
 namespace Valeting.API.Controllers;
 
-public class FlexibilityController(IFlexibilityService flexibilityService, IUrlService urlService, IMapper mapper) : FlexibilityBaseController
+public class FlexibilityController(IFlexibilityService flexibilityService, IUrlService urlService) : FlexibilityBaseController
 {
     public override async Task<IActionResult> GetFilteredAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
     {
         ArgumentNullException.ThrowIfNull(flexibilityApiParameters, Messages.InvalidRequestQueryParameters);
 
-        var paginatedFlexibilityDtoRequest = mapper.Map<PaginatedFlexibilityDtoRequest>(flexibilityApiParameters);
+        var paginatedFlexibilityDtoRequest = new PaginatedFlexibilityDtoRequest 
+        { 
+        };
         var paginatedFlexibilityDtoResponse = await flexibilityService.GetFilteredAsync(paginatedFlexibilityDtoRequest);
 
         var flexibilityApiPaginatedResponse = new FlexibilityApiPaginatedResponse
@@ -44,10 +45,10 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
             }
         );
 
-        var links = mapper.Map<PaginationLinksApi>(paginatedLinks);
+        var links = new PaginationLinksApi { };
         flexibilityApiPaginatedResponse.Links = links;
 
-        var flexibilityApis = mapper.Map<List<FlexibilityApi>>(paginatedFlexibilityDtoResponse.Flexibilities);
+        var flexibilityApis = new List<FlexibilityApi>();
         flexibilityApis.ForEach(f =>
             f.Link = new()
             {
@@ -73,7 +74,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
 
         var getFlexibilityDtoResponse = await flexibilityService.GetByIdAsync(getFlexibilityDtoRequest);
 
-        var flexibilityApi = mapper.Map<FlexibilityApi>(getFlexibilityDtoResponse.Flexibility);
+        var flexibilityApi = new FlexibilityApi { };
         flexibilityApi.Link = new()
         {
             Self = new()

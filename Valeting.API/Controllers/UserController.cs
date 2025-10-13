@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Valeting.API.Controllers.BaseController;
 using Valeting.API.Models.User;
@@ -9,23 +8,23 @@ using Valeting.Core.Interfaces;
 
 namespace Valeting.API.Controllers;
 
-public class UserController(IUserService userService, IMapper mapper) : UserBaseController
+public class UserController(IUserService userService) : UserBaseController
 {
     public override async Task<IActionResult> Login([FromBody] LoginApiRequest loginApiRequest)
     {
         ArgumentNullException.ThrowIfNull(loginApiRequest, Messages.InvalidRequestBody);
 
-        var validateLoginDtoRequest = mapper.Map<ValidateLoginDtoRequest>(loginApiRequest);
+        var validateLoginDtoRequest = new ValidateLoginDtoRequest { };
         var validateLoginDtoResponse = await userService.ValidateLoginAsync(validateLoginDtoRequest);
         if (!validateLoginDtoResponse.Valid)
         {
             throw new UnauthorizedAccessException(Messages.InvalidPassword);
         }
 
-        var generateTokenJWTDtoRequest = mapper.Map<GenerateTokenJWTDtoRequest>(loginApiRequest);
+        var generateTokenJWTDtoRequest = new GenerateTokenJWTDtoRequest { };
         var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(generateTokenJWTDtoRequest);
 
-        var validateLoginApiResponse = mapper.Map<LoginApiResponse>(generateTokenJWTDtoResponse);
+        var validateLoginApiResponse =  new LoginApiResponse { };
         return StatusCode((int)HttpStatusCode.OK, validateLoginApiResponse);
     }
 
@@ -33,7 +32,7 @@ public class UserController(IUserService userService, IMapper mapper) : UserBase
     {
         ArgumentNullException.ThrowIfNull(registerApiRequest, Messages.InvalidRequestBody);
 
-        var registerDtoRequest = mapper.Map<RegisterDtoRequest>(registerApiRequest);
+        var registerDtoRequest = new RegisterDtoRequest { };
         await userService.RegisterAsync(registerDtoRequest);
 
         return StatusCode((int)HttpStatusCode.OK);

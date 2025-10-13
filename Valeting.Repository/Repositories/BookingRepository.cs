@@ -1,16 +1,15 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Valeting.Repository.Entities;
 using Valeting.Repository.Interfaces;
 using Valeting.Common.Models.Booking;
 
 namespace Valeting.Repository.Repositories;
 
-public class BookingRepository(ValetingContext valetingContext, IMapper mapper) : IBookingRepository
+public class BookingRepository(ValetingContext valetingContext) : IBookingRepository
 {
     public async Task CreateAsync(BookingDto bookingDto)
     {
-        var booking = mapper.Map<Booking>(bookingDto);
+        var booking = new Booking { };
         await valetingContext.Bookings.AddAsync(booking);
         await valetingContext.SaveChangesAsync();
     }
@@ -21,7 +20,7 @@ public class BookingRepository(ValetingContext valetingContext, IMapper mapper) 
         if (bookingCheck == null)
             return;
 
-        mapper.Map(bookingDto, bookingCheck);
+        //mapper.Map(bookingDto, bookingCheck);
         await valetingContext.SaveChangesAsync();
     }
 
@@ -41,7 +40,7 @@ public class BookingRepository(ValetingContext valetingContext, IMapper mapper) 
         var listBookings = from booking in initialList
                             select booking;
 
-        return mapper.Map<List<BookingDto>>(listBookings);
+        return new List<BookingDto>();
     }
 
     public async Task<BookingDto> GetByIdAsync(Guid id)
@@ -50,6 +49,6 @@ public class BookingRepository(ValetingContext valetingContext, IMapper mapper) 
         if (booking == null)
             return null;
 
-       return mapper.Map<BookingDto>(booking);
+       return new BookingDto { };
     }
 }

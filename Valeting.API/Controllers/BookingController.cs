@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using Valeting.API.Controllers.BaseController;
@@ -11,16 +10,20 @@ using Valeting.Core.Interfaces;
 
 namespace Valeting.API.Controllers;
 
-public class BookingController(IBookingService bookingService, IUrlService urlService, IMapper mapper) : BookingBaseController
+public class BookingController(IBookingService bookingService, IUrlService urlService) : BookingBaseController
 {
     public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
     {
         ArgumentNullException.ThrowIfNull(createBookingApiRequest, Messages.InvalidRequestBody);
-        
-        var createBookingDtoRequest = mapper.Map<CreateBookingDtoRequest>(createBookingApiRequest);
+
+        var createBookingDtoRequest = new CreateBookingDtoRequest
+        {
+        };
         var createBookingDtoResponse = await bookingService.CreateAsync(createBookingDtoRequest);
-        
-        var createBookingApiResponse = mapper.Map<CreateBookingApiResponse>(createBookingDtoResponse);
+
+        var createBookingApiResponse = new CreateBookingApiResponse
+        {
+        };
         return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
     }
 
@@ -29,8 +32,10 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
         ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
         ArgumentNullException.ThrowIfNull(updateBookingApiRequest, Messages.InvalidRequestBody);
 
-        var updateBookingDtoRequest = mapper.Map<UpdateBookingDtoRequest>(updateBookingApiRequest);
-        updateBookingDtoRequest.Id = Guid.Parse(id);
+        var updateBookingDtoRequest = new UpdateBookingDtoRequest
+        {
+            Id = Guid.Parse(id)
+        };
 
         await bookingService.UpdateAsync(updateBookingDtoRequest);
         return StatusCode((int)HttpStatusCode.NoContent);
@@ -58,9 +63,12 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
             Id = Guid.Parse(id)
         };
 
-        var getBookingDtoResponse = await bookingService.GetByIdAsync(getBookingDtoRequest);  
+        var getBookingDtoResponse = await bookingService.GetByIdAsync(getBookingDtoRequest);
 
-        var bookingApi = mapper.Map<BookingApi>(getBookingDtoResponse.Booking);
+        var bookingApi = new BookingApi
+        {
+
+        };
         bookingApi.Flexibility.Link = new()
         {
             Self = new()
@@ -94,7 +102,7 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
     {
         ArgumentNullException.ThrowIfNull(bookingApiParameters, Messages.InvalidRequestQueryParameters);
 
-        var paginatedBookingDtoRequest = mapper.Map<PaginatedBookingDtoRequest>(bookingApiParameters);
+        var paginatedBookingDtoRequest = new PaginatedBookingDtoRequest { };
 
         var paginatedBookingDtoResponse = await bookingService.GetFilteredAsync(paginatedBookingDtoRequest);
 
@@ -122,10 +130,10 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
             }
         );
 
-        var links = mapper.Map<PaginationLinksApi>(paginatedLinks);
+        var links = new PaginationLinksApi { };
         bookingApiPaginatedResponse.Links = links;
 
-        var bookingApis = mapper.Map<List<BookingApi>>(paginatedBookingDtoResponse.Bookings);
+        var bookingApis = new List<BookingApi>();
         bookingApis.ForEach(b =>
         {
             b.Flexibility.Link = new()

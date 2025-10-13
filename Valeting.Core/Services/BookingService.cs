@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
-using Valeting.Common.Cache;
+﻿using Valeting.Common.Cache;
 using Valeting.Common.Cache.Interfaces;
 using Valeting.Common.Messages;
 using Valeting.Common.Models.Booking;
@@ -11,7 +9,7 @@ using Valeting.Repository.Interfaces;
 
 namespace Valeting.Core.Services;
 
-public class BookingService(IBookingRepository bookingRepository, ICacheHandler cacheHandler, IMapper mapper) : IBookingService
+public class BookingService(IBookingRepository bookingRepository, ICacheHandler cacheHandler) : IBookingService
 {
     public async Task<CreateBookingDtoResponse> CreateAsync(CreateBookingDtoRequest createBookingDtoRequest)
     {
@@ -20,7 +18,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         createBookingDtoRequest.ValidateRequest(new CreateBookingValidator());
 
         var id = Guid.NewGuid();
-        var bookingDto = mapper.Map<BookingDto>(createBookingDtoRequest);
+        var bookingDto = new BookingDto { };
         bookingDto.Id = id;
 
         await bookingRepository.CreateAsync(bookingDto);
@@ -37,7 +35,7 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
 
         var bookingDto = await bookingRepository.GetByIdAsync(updateBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        mapper.Map(updateBookingDtoRequest, bookingDto);
+        //mapper.Map(updateBookingDtoRequest, bookingDto);
         await bookingRepository.UpdateAsync(bookingDto);
 
         // Keep the cache up to date
