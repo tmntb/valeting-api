@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -7,12 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="9.0.3" />
+	<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.3" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Valeting.Repository\Valeting.Repository.csproj" />
+    <ProjectReference Include="..\Valeting.Common\Valeting.Common.csproj" />
   </ItemGroup>
 </Project>
