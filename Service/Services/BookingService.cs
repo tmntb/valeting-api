@@ -10,110 +10,96 @@ namespace Service.Services;
 
 public class BookingService(IBookingRepository bookingRepository, ICacheHandler cacheHandler) : IBookingService
 {
-    public async Task<CreateBookingDtoResponse> CreateAsync(CreateBookingDtoRequest createBookingDtoRequest)
+    /// <inheritdoc />
+    public async Task<Guid> CreateAsync(BookingDto bookingDto)
     {
-        var createBookingDtoResponse = new CreateBookingDtoResponse();
-
-        createBookingDtoRequest.ValidateRequest(new CreateBookingValidator());
+        bookingDto.ValidateRequest(new CreateBookingValidator());
 
         var id = Guid.NewGuid();
-        var bookingDto = new BookingDto
-        {
-            Id = id,
-            Name = createBookingDtoRequest.Name,
-            BookingDate = createBookingDtoRequest.BookingDate,
-            ContactNumber = createBookingDtoRequest.ContactNumber,
-            Email = createBookingDtoRequest.Email,
-            Approved = false,
-            Flexibility = createBookingDtoRequest.Flexibility,
-            VehicleSize = createBookingDtoRequest.VehicleSize
-        };
+        bookingDto.Id = id;
 
         await bookingRepository.CreateAsync(bookingDto);
-        createBookingDtoResponse.Id = id;
 
         cacheHandler.InvalidateCacheByListType(CacheListType.Booking);
 
-        return createBookingDtoResponse;
+        return id;
     }
 
-    public async Task UpdateAsync(UpdateBookingDtoRequest updateBookingDtoRequest)
+    /// <inheritdoc />
+    public async Task UpdateAsync(BookingDto bookingDto)
     {
-        updateBookingDtoRequest.ValidateRequest(new UpdateBookinValidator());
+        bookingDto.ValidateRequest(new UpdateBookingValidator());
 
-        var bookingDto = await bookingRepository.GetByIdAsync(updateBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
-        bookingDto.Name = updateBookingDtoRequest.Name;
-        bookingDto.BookingDate = updateBookingDtoRequest.BookingDate;
-        bookingDto.ContactNumber = updateBookingDtoRequest.ContactNumber;
-        bookingDto.Email = updateBookingDtoRequest.Email;
-        bookingDto.Approved = updateBookingDtoRequest.Approved;
-        bookingDto.Flexibility = updateBookingDtoRequest.Flexibility;
-        bookingDto.VehicleSize = updateBookingDtoRequest.VehicleSize;
+        var bookingDtoToUpdate = await bookingRepository.GetByIdAsync(bookingDto.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
+        bookingDtoToUpdate.Name = bookingDto.Name;
+        bookingDtoToUpdate.BookingDate = bookingDto.BookingDate;
+        bookingDtoToUpdate.ContactNumber = bookingDto.ContactNumber;
+        bookingDtoToUpdate.Email = bookingDto.Email;
+        bookingDtoToUpdate.Approved = bookingDto.Approved;
+        bookingDtoToUpdate.Flexibility = bookingDto.Flexibility;
+        bookingDtoToUpdate.VehicleSize = bookingDto.VehicleSize;
 
         await bookingRepository.UpdateAsync(bookingDto);
 
         // Keep the cache up to date
-        cacheHandler.InvalidateCacheById(updateBookingDtoRequest.Id);
+        cacheHandler.InvalidateCacheById(bookingDto.Id);
         cacheHandler.InvalidateCacheByListType(CacheListType.Booking);
     }
 
-    public async Task DeleteAsync(DeleteBookingDtoRequest deleteBookingDtoRequest)
+    /// <inheritdoc />
+    public async Task DeleteAsync(Guid id)
     {
-        deleteBookingDtoRequest.ValidateRequest(new DeleteBookingValidator());
-
-        _ = await bookingRepository.GetByIdAsync(deleteBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
-        await bookingRepository.DeleteAsync(deleteBookingDtoRequest.Id);
+        _ = await bookingRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(Messages.NotFound);
+        await bookingRepository.DeleteAsync(id);
 
         // Keep cache up to date
-        cacheHandler.InvalidateCacheById(deleteBookingDtoRequest.Id);
+        cacheHandler.InvalidateCacheById(id);
         cacheHandler.InvalidateCacheByListType(CacheListType.Booking);
     }
 
-    public async Task<GetBookingDtoResponse> GetByIdAsync(GetBookingDtoRequest getBookingDtoRequest)
+    /// <inheritdoc />
+    public async Task<BookingDto> GetByIdAsync(Guid id)
     {
-        var getBookingDtoResponse = new GetBookingDtoResponse();
-
-        getBookingDtoRequest.ValidateRequest(new GetBookingValidator());
-
         return await cacheHandler.GetOrCreateRecordAsync(
-            getBookingDtoRequest,
+            id,
             async () =>
             {
-                getBookingDtoResponse.Booking = await bookingRepository.GetByIdAsync(getBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
-                return getBookingDtoResponse;
+                return await bookingRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(Messages.NotFound);
             },
             new()
             {
-                Id = getBookingDtoRequest.Id,
+                Id = id,
                 AbsoluteExpireTime = TimeSpan.FromDays(1)
             }
         );
     }
 
-    public async Task<PaginatedBookingDtoResponse> GetFilteredAsync(PaginatedBookingDtoRequest paginatedBookingDtoRequest)
+    /// <inheritdoc />
+    public async Task<BookingPaginatedDtoResponse> GetFilteredAsync(BookingFilterDto bookingFilterDto)
     {
-        var paginatedBookingDtoResponse = new PaginatedBookingDtoResponse();
+        var paginatedBookingDtoResponse = new BookingPaginatedDtoResponse();
 
-        paginatedBookingDtoRequest.ValidateRequest(new PaginatedBookingValidator());
+        bookingFilterDto.ValidateRequest(new PaginatedBookingValidator());
 
         return await cacheHandler.GetOrCreateRecordAsync(
-            paginatedBookingDtoRequest,
+            bookingFilterDto,
             async () =>
             {
-                var bookingDtoList = await bookingRepository.GetFilteredAsync(paginatedBookingDtoRequest.Filter);
+                var bookingDtoList = await bookingRepository.GetFilteredAsync(bookingFilterDto);
                 if (bookingDtoList.Count == 0)
                     throw new KeyNotFoundException(Messages.NotFound);
 
                 paginatedBookingDtoResponse.TotalItems = bookingDtoList.Count();
-                paginatedBookingDtoResponse.TotalPages = (int)Math.Ceiling((double)paginatedBookingDtoResponse.TotalItems / paginatedBookingDtoRequest.Filter.PageSize);
+                paginatedBookingDtoResponse.TotalPages = (int)Math.Ceiling((double)paginatedBookingDtoResponse.TotalItems / bookingFilterDto.PageSize);
 
                 bookingDtoList = bookingDtoList
                     .OrderBy(x => x.Id)
-                    .Skip((paginatedBookingDtoRequest.Filter.PageNumber - 1) * paginatedBookingDtoRequest.Filter.PageSize)
-                    .Take(paginatedBookingDtoRequest.Filter.PageSize)
+                    .Skip((bookingFilterDto.PageNumber - 1) * bookingFilterDto.PageSize)
+                    .Take(bookingFilterDto.PageSize)
                     .ToList();
 
                 paginatedBookingDtoResponse.Bookings = bookingDtoList;
+
                 return paginatedBookingDtoResponse;
             },
             new()

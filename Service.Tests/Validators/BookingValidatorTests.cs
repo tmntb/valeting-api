@@ -18,7 +18,7 @@ public class CreateBookingValidatorTests
     public void Name_Null_ShouldFail()
     {
         // Arrange
-        var request = new CreateBookingDtoRequest
+        var request = new BookingDto
         {
             Name = null
         };
@@ -35,7 +35,7 @@ public class CreateBookingValidatorTests
     public void Name_Empty_ShouldFail()
     {
         // Arrange
-        var request = new CreateBookingDtoRequest
+        var request = new BookingDto
         {
             Name = string.Empty
         };
@@ -52,7 +52,7 @@ public class CreateBookingValidatorTests
     public void Email_Null_ShouldFail()
     {
         // Arrange
-        var request = new CreateBookingDtoRequest
+        var request = new BookingDto
         {
             Name = "name",
             Email = null
@@ -70,7 +70,7 @@ public class CreateBookingValidatorTests
     public void Email_Empty_ShouldFail()
     {
         // Arrange
-        var request = new CreateBookingDtoRequest
+        var request = new BookingDto
         {
             Name = "name",
             Email = string.Empty
@@ -88,7 +88,7 @@ public class CreateBookingValidatorTests
     public void ContactNumber_Null_ShouldFail()
     {
         // Arrange
-        var request = new CreateBookingDtoRequest
+        var request = new BookingDto
         {
             Name = "name",
             Email = "email",
@@ -107,7 +107,7 @@ public class CreateBookingValidatorTests
     public void BookingDate_MinValue_ShouldFail()
     {
         // Arrange
-        var request = new CreateBookingDtoRequest
+        var request = new BookingDto
         {
             Name = "name",
             Email = "email",
@@ -127,7 +127,7 @@ public class CreateBookingValidatorTests
     public void BookingDate_LessThanNow_ShouldFail()
     {
         // Arrange
-        var request = new CreateBookingDtoRequest
+        var request = new BookingDto
         {
             Name = "name",
             Email = "email",
@@ -147,7 +147,7 @@ public class CreateBookingValidatorTests
     public void FlexibilityId_Empty_ShouldFail()
     {
         // Arrange
-        var request = new CreateBookingDtoRequest
+        var request = new BookingDto
         {
             Name = "name",
             Email = "email",
@@ -171,7 +171,7 @@ public class CreateBookingValidatorTests
     public void VehicleSizeId_Empty_ShouldFail()
     {
         // Arrange
-        var request = new CreateBookingDtoRequest
+        var request = new BookingDto
         {
             Name = "name",
             Email = "email",
@@ -199,7 +199,7 @@ public class CreateBookingValidatorTests
     public void CreateBookingRequest_Valid()
     {
         // Arrange
-        var request = new CreateBookingDtoRequest
+        var request = new BookingDto
         {
             Name = "name",
             Email = "email",
@@ -228,18 +228,18 @@ public class CreateBookingValidatorTests
 public class UpdateBookingValidatorTests
 {
     private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-    private readonly UpdateBookinValidator _validator;
+    private readonly UpdateBookingValidator _validator;
 
     public UpdateBookingValidatorTests()
     {
-        _validator = new UpdateBookinValidator();
+        _validator = new UpdateBookingValidator();
     }
 
     [Fact]
     public void Id_Empty_ShouldFail()
     {
         // Arrange
-        var request = new UpdateBookingDtoRequest
+        var request = new BookingDto
         {
             Id = Guid.Empty
         };
@@ -256,7 +256,7 @@ public class UpdateBookingValidatorTests
     public void Name_Null_ShouldFail()
     {
         // Arrange
-        var request = new UpdateBookingDtoRequest
+        var request = new BookingDto
         {
             Id = _mockId,
             Name = null
@@ -274,7 +274,7 @@ public class UpdateBookingValidatorTests
     public void Name_Empty_ShouldFail()
     {
         // Arrange
-        var request = new UpdateBookingDtoRequest
+        var request = new BookingDto
         {
             Id = _mockId,
             Name = string.Empty
@@ -292,7 +292,7 @@ public class UpdateBookingValidatorTests
     public void Email_Null_ShouldFail()
     {
         // Arrange
-        var request = new UpdateBookingDtoRequest
+        var request = new BookingDto
         {
             Id = _mockId,
             Name = "name",
@@ -311,7 +311,7 @@ public class UpdateBookingValidatorTests
     public void Email_Empty_ShouldFail()
     {
         // Arrange
-        var request = new UpdateBookingDtoRequest
+        var request = new BookingDto
         {
             Id = _mockId,
             Name = "name",
@@ -330,7 +330,7 @@ public class UpdateBookingValidatorTests
     public void ContactNumber_Null_ShouldFail()
     {
         // Arrange
-        var request = new UpdateBookingDtoRequest
+        var request = new BookingDto
         {
             Id = _mockId,
             Name = "name",
@@ -350,7 +350,7 @@ public class UpdateBookingValidatorTests
     public void BookingDate_MinValue_ShouldFail()
     {
         // Arrange
-        var request = new UpdateBookingDtoRequest
+        var request = new BookingDto
         {
             Id = _mockId,
             Name = "name",
@@ -371,7 +371,7 @@ public class UpdateBookingValidatorTests
     public void BookingDate_LessThanNow_ShouldFail()
     {
         // Arrange
-        var request = new UpdateBookingDtoRequest
+        var request = new BookingDto
         {
             Id = _mockId,
             Name = "name",
@@ -392,7 +392,7 @@ public class UpdateBookingValidatorTests
     public void FlexibilityId_Empty_ShouldFail()
     {
         // Arrange
-        var request = new UpdateBookingDtoRequest
+        var request = new BookingDto
         {
             Id = _mockId,
             Name = "name",
@@ -417,7 +417,7 @@ public class UpdateBookingValidatorTests
     public void VehicleSizeId_Empty_ShouldFail()
     {
         // Arrange
-        var request = new UpdateBookingDtoRequest
+        var request = new BookingDto
         {
             Id = _mockId,
             Name = "name",
@@ -443,10 +443,10 @@ public class UpdateBookingValidatorTests
     }
 
     [Fact]
-    public void UpdateBookingDtoRequest_Valid()
+    public void BookingDto_Valid()
     {
         // Arrange
-        var request = new UpdateBookingDtoRequest
+        var request = new BookingDto
         {
             Id = _mockId,
             Name = "name",
@@ -461,98 +461,6 @@ public class UpdateBookingValidatorTests
             {
                 Id = _mockId
             }
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.True(result.IsValid);
-    }
-}
-#endregion
-
-#region DeleteBookingValidatorTests
-public class DeleteBookingValidatorTests
-{
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-    private readonly DeleteBookingValidator _validator;
-
-    public DeleteBookingValidatorTests()
-    {
-        _validator = new DeleteBookingValidator();
-    }
-
-    [Fact]
-    public void Id_Empty_ShouldFail()
-    {
-        // Arrange
-        var request = new DeleteBookingDtoRequest
-        {
-            Id = Guid.Empty
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Id", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void DeleteBookingDtoRequest_Valid()
-    {
-        // Arrange
-        var request = new DeleteBookingDtoRequest
-        {
-            Id = _mockId
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.True(result.IsValid);
-    }
-}
-#endregion
-
-#region GetBookingValidatorTests
-public class GetBookingValidatorTests
-{
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-    private readonly GetBookingValidator _validator;
-
-    public GetBookingValidatorTests()
-    {
-        _validator = new GetBookingValidator();
-    }
-
-    [Fact]
-    public void Id_Empty_ShouldFail()
-    {
-        // Arrange
-        var request = new GetBookingDtoRequest
-        {
-            Id = Guid.Empty
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Id", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void GetBookingDtoRequest_Valid()
-    {
-        // Arrange
-        var request = new GetBookingDtoRequest
-        {
-            Id = _mockId
         };
 
         // Act
@@ -579,10 +487,7 @@ public class PaginatedBookingValidatorTests
     public void Filter_Empty_ShouldFail()
     {
         // Arrange
-        var request = new PaginatedBookingDtoRequest
-        {
-            Filter = null
-        };
+        var request = (BookingFilterDto)null;
 
         // Act
         var result = _validator.Validate(request);
@@ -596,12 +501,9 @@ public class PaginatedBookingValidatorTests
     public void PageNumber_EqualToZero_ShouldFail()
     {
         // Arrange
-        var request = new PaginatedBookingDtoRequest
+        var request = new BookingFilterDto
         {
-            Filter = new()
-            {
-                PageNumber = 0
-            }
+            PageNumber = 0
         };
 
         // Act
@@ -616,12 +518,9 @@ public class PaginatedBookingValidatorTests
     public void PageNumber_LessThanZero_ShouldFail()
     {
         // Arrange
-        var request = new PaginatedBookingDtoRequest
+        var request = new BookingFilterDto
         {
-            Filter = new()
-            {
-                PageNumber = -1
-            }
+            PageNumber = -1
         };
 
         // Act
@@ -636,13 +535,10 @@ public class PaginatedBookingValidatorTests
     public void PaginatedBookingDtoRequest_Valid()
     {
         // Arrange
-        var request = new PaginatedBookingDtoRequest
+        var request = new BookingFilterDto
         {
-            Filter = new()
-            {
-                PageNumber = 1,
-                PageSize = 1
-            }
+            PageNumber = 1,
+            PageSize = 1
         };
 
         // Act

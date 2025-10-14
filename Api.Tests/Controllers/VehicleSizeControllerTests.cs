@@ -43,9 +43,9 @@ public class VehicleSizeControllerTests
     public async Task GetFilteredAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        _mockVehicleSizeService.Setup(s => s.GetFilteredAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>()))
+        _mockVehicleSizeService.Setup(s => s.GetFilteredAsync(It.IsAny<VehicleSizeFilterDto>()))
             .ReturnsAsync(
-                new PaginatedVehicleSizeDtoResponse
+                new VehicleSizePaginatedDtoResponse
                 {
                     TotalItems = 1,
                     TotalPages = 1,
@@ -64,11 +64,7 @@ public class VehicleSizeControllerTests
             .Returns(new GeneratePaginatedLinksDtoResponse());
 
         _mockUrlService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
-            .Returns(
-                new GenerateSelfUrlDtoResponse
-                {
-                    Self = $"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}"
-                });
+            .Returns($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}");
 
         // Act
         var result = await _vehicleSizeController.GetFilteredAsync
@@ -103,22 +99,15 @@ public class VehicleSizeControllerTests
     public async Task GetByIdAsync_ShouldReturnOk_WhenValidId()
     {
         // Arrange
-        _mockVehicleSizeService.Setup(s => s.GetByIdAsync(It.IsAny<GetVehicleSizeDtoRequest>()))
+        _mockVehicleSizeService.Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(
-                new GetVehicleSizeDtoResponse
+                new VehicleSizeDto
                 {
-                    VehicleSize = new()
-                    {
-                        Id = _mockVehicleSizeId
-                    }
+                    Id = _mockVehicleSizeId
                 });
 
         _mockUrlService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
-            .Returns(
-                new GenerateSelfUrlDtoResponse
-                {
-                    Self = $"http://example.com/flexibility/{_mockVehicleSizeId}"
-                });
+            .Returns($"http://example.com/flexibility/{_mockVehicleSizeId}");
 
         // Act
         var result = await _vehicleSizeController.GetByIdAsync(_mockVehicleSizeId.ToString()) as ObjectResult;

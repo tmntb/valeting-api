@@ -1,12 +1,12 @@
 ﻿using Api.Controllers.BaseController;
-using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
 using Api.Models.Booking;
 using Api.Models.Core;
 using Common.Messages;
 using Common.Models.Booking;
+using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
 
 namespace Api.Controllers;
 
@@ -16,7 +16,7 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
     {
         ArgumentNullException.ThrowIfNull(createBookingApiRequest, Messages.InvalidRequestBody);
 
-        var createBookingDtoRequest = new CreateBookingDtoRequest
+        var bookingDto = new BookingDto
         {
             Name = createBookingApiRequest.Name,
             BookingDate = createBookingApiRequest.BookingDate,
@@ -31,11 +31,12 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
             ContactNumber = createBookingApiRequest.ContactNumber,
             Email = createBookingApiRequest.Email
         };
-        var createBookingDtoResponse = await bookingService.CreateAsync(createBookingDtoRequest);
+
+        var bookingId = await bookingService.CreateAsync(bookingDto);
 
         var createBookingApiResponse = new CreateBookingApiResponse
         {
-            Id = createBookingDtoResponse.Id
+            Id = bookingId
         };
         return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
     }
@@ -45,12 +46,12 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
         ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
         ArgumentNullException.ThrowIfNull(updateBookingApiRequest, Messages.InvalidRequestBody);
 
-        var updateBookingDtoRequest = new UpdateBookingDtoRequest
+        var bookingDto = new BookingDto
         {
             Id = Guid.Parse(id)
         };
 
-        await bookingService.UpdateAsync(updateBookingDtoRequest);
+        await bookingService.UpdateAsync(bookingDto);
         return StatusCode((int)HttpStatusCode.NoContent);
     }
 
@@ -58,12 +59,7 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
     {
         ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
 
-        var deleteBookingDtoRequest = new DeleteBookingDtoRequest
-        {
-            Id = Guid.Parse(id)
-        };
-
-        await bookingService.DeleteAsync(deleteBookingDtoRequest);
+        await bookingService.DeleteAsync(Guid.Parse(id));
         return StatusCode((int)HttpStatusCode.NoContent);
     }
 
@@ -71,51 +67,46 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
     {
         ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
 
-        var getBookingDtoRequest = new GetBookingDtoRequest
-        {
-            Id = Guid.Parse(id)
-        };
-
-        var getBookingDtoResponse = await bookingService.GetByIdAsync(getBookingDtoRequest);
+        var bookingDto = await bookingService.GetByIdAsync(Guid.Parse(id));
 
         var bookingApi = new BookingApi
         {
-            Id = getBookingDtoResponse.Booking.Id,
-            Name = getBookingDtoResponse.Booking.Name,
-            BookingDate = getBookingDtoResponse.Booking.BookingDate,
+            Id = bookingDto.Id,
+            Name = bookingDto.Name,
+            BookingDate = bookingDto.BookingDate,
             Flexibility = new()
             {
-                Id = getBookingDtoResponse.Booking.Flexibility.Id,
-                Description = getBookingDtoResponse.Booking.Flexibility.Description
+                Id = bookingDto.Flexibility.Id,
+                Description = bookingDto.Flexibility.Description
             },
             VehicleSize = new()
             {
-                Id = getBookingDtoResponse.Booking.VehicleSize.Id,
-                Description = getBookingDtoResponse.Booking.VehicleSize.Description
+                Id = bookingDto.VehicleSize.Id,
+                Description = bookingDto.VehicleSize.Description
             },
-            ContactNumber = getBookingDtoResponse.Booking.ContactNumber.Value,
-            Approved = getBookingDtoResponse.Booking.Approved
+            ContactNumber = bookingDto.ContactNumber.Value,
+            Approved = bookingDto.Approved
         };
 
         bookingApi.Flexibility.Link = new()
         {
             Self = new()
             {
-                Href = urlService.GenerateSelf(new() { Request = Request, Path = "flexibilities", Id = bookingApi.Flexibility.Id }).Self
+                Href = urlService.GenerateSelf(new() { Request = Request, Path = "flexibilities", Id = bookingApi.Flexibility.Id })
             }
         };
         bookingApi.VehicleSize.Link = new()
         {
             Self = new()
             {
-                Href = urlService.GenerateSelf(new() { Request = Request, Path = "vehicleSizes", Id = bookingApi.VehicleSize.Id }).Self
+                Href = urlService.GenerateSelf(new() { Request = Request, Path = "vehicleSizes", Id = bookingApi.VehicleSize.Id })
             }
         };
         bookingApi.Link = new()
         {
             Self = new()
             {
-                Href = urlService.GenerateSelf(new() { Request = Request, Path = "bookings", Id = bookingApi.Id }).Self
+                Href = urlService.GenerateSelf(new() { Request = Request, Path = "bookings", Id = bookingApi.Id })
             }
         };
 
@@ -130,16 +121,13 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
     {
         ArgumentNullException.ThrowIfNull(bookingApiParameters, Messages.InvalidRequestQueryParameters);
 
-        var paginatedBookingDtoRequest = new PaginatedBookingDtoRequest
+        var bookingFilterDto = new BookingFilterDto
         {
-            Filter = new()
-            {
-                PageNumber = bookingApiParameters.PageNumber,
-                PageSize = bookingApiParameters.PageSize
-            }
+            PageNumber = bookingApiParameters.PageNumber,
+            PageSize = bookingApiParameters.PageSize
         };
 
-        var paginatedBookingDtoResponse = await bookingService.GetFilteredAsync(paginatedBookingDtoRequest);
+        var paginatedBookingDtoResponse = await bookingService.GetFilteredAsync(bookingFilterDto);
 
         var bookingApiPaginatedResponse = new BookingApiPaginatedResponse
         {
@@ -161,11 +149,16 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
             {
                 Request = Request,
                 TotalPages = paginatedBookingDtoResponse.TotalPages,
-                Filter = paginatedBookingDtoRequest.Filter
+                Filter = bookingFilterDto
             }
         );
 
-        var links = new PaginationLinksApi { };
+        var links = new PaginationLinksApi
+        {
+            Self = new() { Href = paginatedLinks.Self },
+            Next = new() { Href = paginatedLinks.Next },
+            Prev = new() { Href = paginatedLinks.Prev }
+        };
         bookingApiPaginatedResponse.Links = links;
 
         var bookingApis = paginatedBookingDtoResponse.Bookings.Select(x =>
@@ -195,21 +188,21 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new() { Request = Request, Path = "flexibilities", Id = b.Flexibility.Id }).Self
+                    Href = urlService.GenerateSelf(new() { Request = Request, Path = "flexibilities", Id = b.Flexibility.Id })
                 }
             };
             b.VehicleSize.Link = new()
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new() { Request = Request, Path = "vehicleSizes", Id = b.VehicleSize.Id }).Self
+                    Href = urlService.GenerateSelf(new() { Request = Request, Path = "vehicleSizes", Id = b.VehicleSize.Id })
                 }
             };
             b.Link = new()
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new() { Request = Request, Id = b.Id }).Self
+                    Href = urlService.GenerateSelf(new() { Request = Request, Id = b.Id })
                 }
             };
         });

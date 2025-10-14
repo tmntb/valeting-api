@@ -4,9 +4,9 @@ namespace Service.Interfaces;
 
 public interface IBookingService
 {
-    Task<CreateBookingDtoResponse> CreateAsync(CreateBookingDtoRequest createBookingDtoRequest);
-    Task UpdateAsync(UpdateBookingDtoRequest updateBookingDtoRequest);
-    Task DeleteAsync(DeleteBookingDtoRequest deleteBookingDtoRequest);
-    Task<GetBookingDtoResponse> GetByIdAsync(GetBookingDtoRequest getBookingDtoRequest);
-    Task<PaginatedBookingDtoResponse> GetFilteredAsync(PaginatedBookingDtoRequest paginatedBookingDtoRequest);
+    Task<Guid> CreateAsync(BookingDto bookingDto);
+    Task UpdateAsync(BookingDto bookingDto);
+    Task DeleteAsync(Guid id);
+    Task<BookingDto> GetByIdAsync(Guid id);
+    Task<BookingPaginatedDtoResponse> GetFilteredAsync(BookingFilterDto bookingFilterDto);
 }

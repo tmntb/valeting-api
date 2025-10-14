@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using Api.Controllers.BaseController;
+﻿using Api.Controllers.BaseController;
 using Api.Models.Core;
 using Api.Models.VehicleSize;
 using Common.Messages;
 using Common.Models.VehicleSize;
+using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
 
 namespace Api.Controllers;
 
@@ -16,17 +16,14 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
     {
         ArgumentNullException.ThrowIfNull(vehicleSizeApiParameters, Messages.InvalidRequestQueryParameters);
 
-        var paginatedVehicleSizeDtoRequest = new PaginatedVehicleSizeDtoRequest 
+        var vehicleSizeFilterDto = new VehicleSizeFilterDto 
         {
-            Filter = new()
-            {
                 PageNumber = vehicleSizeApiParameters.PageNumber,
                 PageSize = vehicleSizeApiParameters.PageSize,
                 Active = vehicleSizeApiParameters.Active                
-            }
         };
 
-        var paginatedVehicleSizeDtoResponse = await vehicleSizeService.GetFilteredAsync(paginatedVehicleSizeDtoRequest);
+        var paginatedVehicleSizeDtoResponse = await vehicleSizeService.GetFilteredAsync(vehicleSizeFilterDto);
         var vehicleSizeApiPaginatedResponse = new VehicleSizeApiPaginatedResponse
         {
             VehicleSizes = [],
@@ -47,11 +44,16 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
             {
                 Request = Request,
                 TotalPages = paginatedVehicleSizeDtoResponse.TotalPages,
-                Filter = paginatedVehicleSizeDtoRequest.Filter
+                Filter = vehicleSizeFilterDto
             }
         );
 
-        var links = new PaginationLinksApi { };
+        var links = new PaginationLinksApi
+        {
+            Self = new() { Href = paginatedLinks.Self },
+            Next = new() { Href = paginatedLinks.Next },
+            Prev = new() { Href = paginatedLinks.Prev }
+        };
         vehicleSizeApiPaginatedResponse.Links = links;
 
         var vehicleSizeApis = paginatedVehicleSizeDtoResponse.VehicleSizes.Select(x =>
@@ -68,7 +70,7 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new() { Request = Request, Id = v.Id }).Self
+                    Href = urlService.GenerateSelf(new() { Request = Request, Id = v.Id })
                 }
             }
         );
@@ -81,23 +83,18 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
     {
         ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
 
-        var getVehicleSizeDtoRequest = new GetVehicleSizeDtoRequest
-        {
-            Id = Guid.Parse(id)
-        };
-
-        var getVehicleSizeDtoResponse = await vehicleSizeService.GetByIdAsync(getVehicleSizeDtoRequest);
+        var vehicleSizeDto = await vehicleSizeService.GetByIdAsync(Guid.Parse(id));
 
         var vehicleSizeApi = new VehicleSizeApi
         {
-            Id = getVehicleSizeDtoResponse.VehicleSize.Id,
-            Description = getVehicleSizeDtoResponse.VehicleSize.Description,
-            Active = getVehicleSizeDtoResponse.VehicleSize.Active,
+            Id = vehicleSizeDto.Id,
+            Description = vehicleSizeDto.Description,
+            Active = vehicleSizeDto.Active,
             Link = new()
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new() { Request = Request }).Self
+                    Href = urlService.GenerateSelf(new() { Request = Request })
                 }
             }
         };

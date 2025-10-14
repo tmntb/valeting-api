@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using Api.Controllers.BaseController;
+﻿using Api.Controllers.BaseController;
 using Api.Models.Core;
 using Api.Models.Flexibility;
 using Common.Messages;
 using Common.Models.Flexibility;
+using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
 
 namespace Api.Controllers;
 
@@ -16,16 +16,13 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
     {
         ArgumentNullException.ThrowIfNull(flexibilityApiParameters, Messages.InvalidRequestQueryParameters);
 
-        var paginatedFlexibilityDtoRequest = new PaginatedFlexibilityDtoRequest 
+        var flexibilityFilterDto = new FlexibilityFilterDto 
         { 
-            Filter = new()
-            {
                 PageNumber = flexibilityApiParameters.PageNumber,
                 PageSize = flexibilityApiParameters.PageSize,
                 Active = flexibilityApiParameters.Active
-            }
         };
-        var paginatedFlexibilityDtoResponse = await flexibilityService.GetFilteredAsync(paginatedFlexibilityDtoRequest);
+        var paginatedFlexibilityDtoResponse = await flexibilityService.GetFilteredAsync(flexibilityFilterDto);
 
         var flexibilityApiPaginatedResponse = new FlexibilityApiPaginatedResponse
         {
@@ -47,11 +44,16 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
             {
                 Request = Request,
                 TotalPages = paginatedFlexibilityDtoResponse.TotalPages,
-                Filter = paginatedFlexibilityDtoRequest.Filter
+                Filter = flexibilityFilterDto
             }
         );
 
-        var links = new PaginationLinksApi { };
+        var links = new PaginationLinksApi 
+        {
+            Self = new() { Href = paginatedLinks.Self },
+            Next = new() { Href = paginatedLinks.Next },
+            Prev = new() { Href = paginatedLinks.Prev }
+        };
         flexibilityApiPaginatedResponse.Links = links;
 
         var flexibilityApis = paginatedFlexibilityDtoResponse.Flexibilities.Select(x => 
@@ -68,7 +70,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new() { Request = Request, Id = f.Id }).Self
+                    Href = urlService.GenerateSelf(new() { Request = Request, Id = f.Id })
                 }
             }
         );
@@ -81,23 +83,18 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
     {
         ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
 
-        var getFlexibilityDtoRequest = new GetFlexibilityDtoRequest
-        {
-            Id = Guid.Parse(id)
-        };
-
-        var getFlexibilityDtoResponse = await flexibilityService.GetByIdAsync(getFlexibilityDtoRequest);
+        var flexibilityDto = await flexibilityService.GetByIdAsync(Guid.Parse(id));
 
         var flexibilityApi = new FlexibilityApi
         {
-            Id = getFlexibilityDtoResponse.Flexibility.Id,
-            Description = getFlexibilityDtoResponse.Flexibility.Description,
-            Active = getFlexibilityDtoResponse.Flexibility.Active,
+            Id = flexibilityDto.Id,
+            Description = flexibilityDto.Description,
+            Active = flexibilityDto.Active,
             Link = new()
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new() { Request = Request }).Self
+                    Href = urlService.GenerateSelf(new() { Request = Request })
                 }
             }
         };

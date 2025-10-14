@@ -28,9 +28,9 @@ public class VehicleSizeServiceTests
     public async Task GetFilteredAsync_ShouldReturnCachedData_WhenAvailable()
     {
         // Arrange
-        _mockCacheHandler.Setup(cache => cache.GetOrCreateRecordAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>(), It.IsAny<Func<Task<PaginatedVehicleSizeDtoResponse>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler.Setup(cache => cache.GetOrCreateRecordAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>(), It.IsAny<Func<Task<VehicleSizePaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .ReturnsAsync(
-                new PaginatedVehicleSizeDtoResponse
+                new VehicleSizePaginatedDtoResponse
                 {
                     VehicleSizes =
                     [
@@ -45,11 +45,8 @@ public class VehicleSizeServiceTests
         var result = await _vehicleSizeService.GetFilteredAsync(
             new()
             {
-                Filter = new()
-                {
                     PageNumber = 1,
                     PageSize = 2
-                }
             });
 
         // Assert
@@ -63,8 +60,8 @@ public class VehicleSizeServiceTests
     public async Task GetFilteredAsync_ShouldThrowKeyNotFoundException_WhenNoVehicleSizesFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>(), It.IsAny<Func<Task<PaginatedVehicleSizeDtoResponse>>>(), It.IsAny<CacheOptions>()))
-            .Returns((PaginatedVehicleSizeDtoRequest _, Func<Task<PaginatedVehicleSizeDtoResponse>> factory, CacheOptions __) => factory());
+        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>(), It.IsAny<Func<Task<VehicleSizePaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
+            .Returns((PaginatedVehicleSizeDtoRequest _, Func<Task<VehicleSizePaginatedDtoResponse>> factory, CacheOptions __) => factory());
 
         _mockVehicleSizeRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<VehicleSizeFilterDto>()))
             .ReturnsAsync(new List<VehicleSizeDto>());
@@ -73,11 +70,8 @@ public class VehicleSizeServiceTests
         var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _vehicleSizeService.GetFilteredAsync(
             new()
             {
-                Filter = new()
-                {
                     PageNumber = 1,
                     PageSize = 2
-                }
             }));
 
         Assert.Equal(exception.Message, Messages.NotFound);
@@ -87,8 +81,8 @@ public class VehicleSizeServiceTests
     public async Task GetFilteredAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>(), It.IsAny<Func<Task<PaginatedVehicleSizeDtoResponse>>>(), It.IsAny<CacheOptions>()))
-             .Returns((PaginatedVehicleSizeDtoRequest _, Func<Task<PaginatedVehicleSizeDtoResponse>> factory, CacheOptions __) => factory());
+        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>(), It.IsAny<Func<Task<VehicleSizePaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
+             .Returns((PaginatedVehicleSizeDtoRequest _, Func<Task<VehicleSizePaginatedDtoResponse>> factory, CacheOptions __) => factory());
 
         _mockVehicleSizeRepository.Setup(x => x.GetFilteredAsync(It.IsAny<VehicleSizeFilterDto>()))
             .ReturnsAsync(
@@ -102,11 +96,8 @@ public class VehicleSizeServiceTests
         var result = await _vehicleSizeService.GetFilteredAsync(
             new()
             {
-                Filter = new()
-                {
                     PageNumber = 1,
                     PageSize = 2
-                }
             });
 
         // Assert
@@ -137,15 +128,11 @@ public class VehicleSizeServiceTests
                 });
 
         // Act
-        var result = await _vehicleSizeService.GetByIdAsync(
-            new()
-            {
-                Id = _mockId
-            });
+        var result = await _vehicleSizeService.GetByIdAsync(_mockId);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(_mockId, result.VehicleSize.Id);
+        Assert.Equal(_mockId, result.Id);
     }
 
     [Fact]
@@ -159,11 +146,7 @@ public class VehicleSizeServiceTests
             .ReturnsAsync((VehicleSizeDto)null);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _vehicleSizeService.GetByIdAsync(
-            new()
-            {
-                Id = _mockId
-            }));
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _vehicleSizeService.GetByIdAsync(_mockId));
 
         Assert.Equal(exception.Message, Messages.NotFound);
     }
@@ -188,14 +171,10 @@ public class VehicleSizeServiceTests
                 });
 
         // Act
-        var result = await _vehicleSizeService.GetByIdAsync(
-            new()
-            {
-                Id = _mockId
-            });
+        var result = await _vehicleSizeService.GetByIdAsync(_mockId);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(_mockId, result.VehicleSize.Id);
+        Assert.Equal(_mockId, result.Id);
     }
 }

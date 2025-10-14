@@ -62,7 +62,7 @@ public class UserServiceTests
             });
 
         // Assert
-        Assert.True(response.Valid);
+        Assert.True(response);
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class UserServiceTests
             });
 
         // Assert
-        Assert.False(response.Valid);
+        Assert.False(response);
     }
 
     [Fact]
@@ -98,11 +98,7 @@ public class UserServiceTests
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.GenerateTokenJWTAsync(
-                new()
-                {
-                    Username = "user@example.com"
-                }));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.GenerateTokenJWTAsync("user@example.com"));
     }
 
     [Fact]
@@ -124,11 +120,7 @@ public class UserServiceTests
             .Returns("audience");
 
         // Act
-        var response = await _userService.GenerateTokenJWTAsync(
-            new()
-            {
-                Username = "user@example.com"
-            });
+        var response = await _userService.GenerateTokenJWTAsync("user@example.com");
 
         // Assert
         Assert.NotNull(response.Token);

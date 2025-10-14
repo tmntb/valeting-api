@@ -15,7 +15,7 @@ public class PaginatedFlexibilityDtoRequest
     public FlexibilityFilterDto Filter { get; set; }
 }
 
-public class PaginatedFlexibilityDtoResponse
+public class FlexibilityPaginatedDtoResponse
 {
     public int TotalItems { get; set; }
     public int TotalPages { get; set; }

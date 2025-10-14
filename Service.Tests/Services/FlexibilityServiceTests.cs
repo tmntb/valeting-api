@@ -28,9 +28,9 @@ public class FlexibilityServiceTests
     public async Task GetFilteredAsync_ShouldReturnCachedData_WhenAvailable()
     {
         // Arrange
-        _mockCacheHandler.Setup(cache => cache.GetOrCreateRecordAsync(It.IsAny<PaginatedFlexibilityDtoRequest>(), It.IsAny<Func<Task<PaginatedFlexibilityDtoResponse>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler.Setup(cache => cache.GetOrCreateRecordAsync(It.IsAny<PaginatedFlexibilityDtoRequest>(), It.IsAny<Func<Task<FlexibilityPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .ReturnsAsync(
-                new PaginatedFlexibilityDtoResponse
+                new FlexibilityPaginatedDtoResponse
                 {
                     Flexibilities =
                     [
@@ -45,11 +45,8 @@ public class FlexibilityServiceTests
         var result = await _flexibilityService.GetFilteredAsync(
             new()
             {
-                Filter = new()
-                {
                     PageNumber = 1,
                     PageSize = 2
-                }
             });
 
         // Assert
@@ -63,8 +60,8 @@ public class FlexibilityServiceTests
     public async Task GetFilteredAsync_ShouldThrowKeyNotFoundException_WhenNoFlexibilitiesFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedFlexibilityDtoRequest>(), It.IsAny<Func<Task<PaginatedFlexibilityDtoResponse>>>(), It.IsAny<CacheOptions>()))
-            .Returns((PaginatedFlexibilityDtoRequest _, Func<Task<PaginatedFlexibilityDtoResponse>> factory, CacheOptions __) => factory());
+        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedFlexibilityDtoRequest>(), It.IsAny<Func<Task<FlexibilityPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
+            .Returns((PaginatedFlexibilityDtoRequest _, Func<Task<FlexibilityPaginatedDtoResponse>> factory, CacheOptions __) => factory());
 
         _mockFlexibilityRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
             .ReturnsAsync(new List<FlexibilityDto>());
@@ -73,11 +70,8 @@ public class FlexibilityServiceTests
         var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _flexibilityService.GetFilteredAsync(
             new()
             {
-                Filter = new()
-                {
                     PageNumber = 1,
                     PageSize = 2
-                }
             }));
 
         Assert.Equal(exception.Message, Messages.NotFound);
@@ -87,8 +81,8 @@ public class FlexibilityServiceTests
     public async Task GetFilteredAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedFlexibilityDtoRequest>(), It.IsAny<Func<Task<PaginatedFlexibilityDtoResponse>>>(), It.IsAny<CacheOptions>()))
-             .Returns((PaginatedFlexibilityDtoRequest _, Func<Task<PaginatedFlexibilityDtoResponse>> factory, CacheOptions __) => factory());
+        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedFlexibilityDtoRequest>(), It.IsAny<Func<Task<FlexibilityPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
+             .Returns((PaginatedFlexibilityDtoRequest _, Func<Task<FlexibilityPaginatedDtoResponse>> factory, CacheOptions __) => factory());
 
         _mockFlexibilityRepository.Setup(x => x.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
             .ReturnsAsync(
@@ -102,11 +96,8 @@ public class FlexibilityServiceTests
         var result = await _flexibilityService.GetFilteredAsync(
             new()
             {
-                Filter = new()
-                {
                     PageNumber = 1,
                     PageSize = 2
-                }
             });
 
         // Assert
@@ -131,16 +122,12 @@ public class FlexibilityServiceTests
                 });
 
         // Act
-        var result = await _flexibilityService.GetByIdAsync(
-            new()
-            {
-                Id = _mockId
-            });
+        var result = await _flexibilityService.GetByIdAsync(_mockId);
 
         // Assert
         Assert.NotNull(result);
-        Assert.NotNull(result.Flexibility);
-        Assert.Equal(_mockId, result.Flexibility.Id);
+        Assert.NotNull(result);
+        Assert.Equal(_mockId, result.Id);
     }
 
     [Fact]
@@ -154,11 +141,7 @@ public class FlexibilityServiceTests
             .ReturnsAsync((FlexibilityDto)null);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _flexibilityService.GetByIdAsync(
-            new()
-            {
-                Id = _mockId
-            }));
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _flexibilityService.GetByIdAsync(_mockId));
 
         Assert.Equal(exception.Message, Messages.NotFound);
     }
@@ -178,14 +161,10 @@ public class FlexibilityServiceTests
                 });
 
         // Act
-        var result = await _flexibilityService.GetByIdAsync(
-            new()
-            {
-                Id = _mockId
-            });
+        var result = await _flexibilityService.GetByIdAsync(_mockId);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(_mockId, result.Flexibility.Id);
+        Assert.Equal(_mockId, result.Id);
     }
 }

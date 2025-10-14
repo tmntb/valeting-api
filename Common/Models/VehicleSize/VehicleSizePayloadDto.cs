@@ -15,7 +15,7 @@ public class PaginatedVehicleSizeDtoRequest
     public VehicleSizeFilterDto Filter { get; set; }
 }
 
-public class PaginatedVehicleSizeDtoResponse
+public class VehicleSizePaginatedDtoResponse
 {
     public int TotalItems { get; set; }
     public int TotalPages { get; set; }

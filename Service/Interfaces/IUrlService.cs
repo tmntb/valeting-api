@@ -4,6 +4,6 @@ namespace Service.Interfaces;
 
 public interface IUrlService
 {
-    GenerateSelfUrlDtoResponse GenerateSelf(GenerateSelfUrlDtoRequest generateSelfUrlDtoRequest);
+    string GenerateSelf(GenerateSelfUrlDtoRequest generateSelfUrlDtoRequest);
     GeneratePaginatedLinksDtoResponse GeneratePaginatedLinks(GeneratePaginatedLinksDtoRequest generatePaginatedLinksDtoRequest);
 }

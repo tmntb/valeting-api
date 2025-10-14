@@ -3,52 +3,6 @@ using Service.Validators;
 
 namespace Service.Tests.Validators;
 
-#region GetVehicleSizeValidatorTests
-public class GetVehicleSizeValidatorTests
-{
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-    private readonly GetVehicleSizeValidator _validator;
-
-    public GetVehicleSizeValidatorTests()
-    {
-        _validator = new GetVehicleSizeValidator();
-    }
-
-    [Fact]
-    public void Id_Empty_ShouldFail()
-    {
-        // Arrange
-        var request = new GetVehicleSizeDtoRequest
-        {
-            Id = Guid.Empty
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Id", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void GetVehicleSizeDtoRequest_Valid()
-    {
-        // Arrange
-        var request = new GetVehicleSizeDtoRequest
-        {
-            Id = _mockId
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.True(result.IsValid);
-    }
-}
-#endregion
-
 #region PaginatedVehicleSizeValidatorTests
 public class PaginatedVehicleSizeValidatorTests
 {
@@ -64,10 +18,7 @@ public class PaginatedVehicleSizeValidatorTests
     public void Filter_Empty_ShouldFail()
     {
         // Arrange
-        var request = new PaginatedVehicleSizeDtoRequest
-        {
-            Filter = null
-        };
+        var request = (VehicleSizeFilterDto)null;
 
         // Act
         var result = _validator.Validate(request);
@@ -81,12 +32,9 @@ public class PaginatedVehicleSizeValidatorTests
     public void PageNumber_EqualToZero_ShouldFail()
     {
         // Arrange
-        var request = new PaginatedVehicleSizeDtoRequest
+        var request = new VehicleSizeFilterDto
         {
-            Filter = new()
-            {
-                PageNumber = 0
-            }
+            PageNumber = 0
         };
 
         // Act
@@ -101,12 +49,9 @@ public class PaginatedVehicleSizeValidatorTests
     public void PageNumber_LessThanZero_ShouldFail()
     {
         // Arrange
-        var request = new PaginatedVehicleSizeDtoRequest
+        var request = new VehicleSizeFilterDto
         {
-            Filter = new()
-            {
-                PageNumber = -1
-            }
+            PageNumber = -1
         };
 
         // Act
@@ -121,13 +66,10 @@ public class PaginatedVehicleSizeValidatorTests
     public void PaginatedVehicleSizeDtoRequest_Valid()
     {
         // Arrange
-        var request = new PaginatedVehicleSizeDtoRequest
+        var request = new VehicleSizeFilterDto
         {
-            Filter = new()
-            {
-                PageNumber = 1,
-                PageSize = 1
-            }
+            PageNumber = 1,
+            PageSize = 1
         };
 
         // Act

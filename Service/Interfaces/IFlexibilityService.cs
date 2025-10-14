@@ -4,6 +4,6 @@ namespace Service.Interfaces;
 
 public interface IFlexibilityService
 {
-    Task<PaginatedFlexibilityDtoResponse> GetFilteredAsync(PaginatedFlexibilityDtoRequest paginatedFlexibilityDtoRequest);
-    Task<GetFlexibilityDtoResponse> GetByIdAsync(GetFlexibilityDtoRequest getFlexibilityDtoRequest);
+    Task<FlexibilityDto> GetByIdAsync(Guid id);
+    Task<FlexibilityPaginatedDtoResponse> GetFilteredAsync(FlexibilityFilterDto flexibilityFilterDto);
 }

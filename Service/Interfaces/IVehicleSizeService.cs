@@ -4,6 +4,6 @@ namespace Service.Interfaces;
 
 public interface IVehicleSizeService
 {
-    Task<PaginatedVehicleSizeDtoResponse> GetFilteredAsync(PaginatedVehicleSizeDtoRequest paginatedVehicleSizeDtoRequest);
-    Task<GetVehicleSizeDtoResponse> GetByIdAsync(GetVehicleSizeDtoRequest getVehicleSizeDtoRequest);
+    Task<VehicleSizeDto> GetByIdAsync(Guid id);
+    Task<VehicleSizePaginatedDtoResponse> GetFilteredAsync(VehicleSizeFilterDto vehicleSizeFilterDto);
 }

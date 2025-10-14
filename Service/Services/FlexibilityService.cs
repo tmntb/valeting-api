@@ -10,57 +10,55 @@ namespace Service.Services;
 
 public class FlexibilityService(IFlexibilityRepository flexibilityRepository, ICacheHandler cacheHandler) : IFlexibilityService
 {
-    public async Task<PaginatedFlexibilityDtoResponse> GetFilteredAsync(PaginatedFlexibilityDtoRequest paginatedFlexibilityDtoRequest)
+    /// <inheritdoc />
+    public async Task<FlexibilityDto> GetByIdAsync(Guid id)
     {
-        var paginatedFlexibilityDtoResponse = new PaginatedFlexibilityDtoResponse();
-
-        paginatedFlexibilityDtoRequest.ValidateRequest(new PaginatedFlexibilityValidator());
-
         return await cacheHandler.GetOrCreateRecordAsync(
-            paginatedFlexibilityDtoRequest,
+            id,
             async () =>
             {
-                var flexibilityDtoList = await flexibilityRepository.GetFilteredAsync(paginatedFlexibilityDtoRequest.Filter);
+                return await flexibilityRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(Messages.NotFound);
+            },
+            new()
+            {
+                Id = id,
+                AbsoluteExpireTime = TimeSpan.FromDays(1)
+            }
+        );
+    }
+
+    /// <inheritdoc />
+    public async Task<FlexibilityPaginatedDtoResponse> GetFilteredAsync(FlexibilityFilterDto flexibilityFilterDto)
+    {
+        var paginatedFlexibilityDtoResponse = new FlexibilityPaginatedDtoResponse();
+
+        flexibilityFilterDto.ValidateRequest(new PaginatedFlexibilityValidator());
+
+        return await cacheHandler.GetOrCreateRecordAsync(
+            flexibilityFilterDto,
+            async () =>
+            {
+                var flexibilityDtoList = await flexibilityRepository.GetFilteredAsync(flexibilityFilterDto);
                 if (flexibilityDtoList.Count == 0)
                     throw new KeyNotFoundException(Messages.NotFound);
 
                 paginatedFlexibilityDtoResponse.TotalItems = flexibilityDtoList.Count();
-                paginatedFlexibilityDtoResponse.TotalPages = (int)Math.Ceiling((double)paginatedFlexibilityDtoResponse.TotalItems / paginatedFlexibilityDtoRequest.Filter.PageSize);
+                paginatedFlexibilityDtoResponse.TotalPages = (int)Math.Ceiling((double)paginatedFlexibilityDtoResponse.TotalItems / flexibilityFilterDto.PageSize);
 
                 flexibilityDtoList = flexibilityDtoList
                     .OrderBy(x => x.Id)
-                    .Skip((paginatedFlexibilityDtoRequest.Filter.PageNumber - 1) * paginatedFlexibilityDtoRequest.Filter.PageSize)
-                    .Take(paginatedFlexibilityDtoRequest.Filter.PageSize)
+                    .Skip((flexibilityFilterDto.PageNumber - 1) * flexibilityFilterDto.PageSize)
+                    .Take(flexibilityFilterDto.PageSize)
                     .ToList();
 
                 paginatedFlexibilityDtoResponse.Flexibilities = flexibilityDtoList;
+
                 return paginatedFlexibilityDtoResponse;
             },
             new()
             {
                 ListType = CacheListType.Flexibility,
                 AbsoluteExpireTime = TimeSpan.FromDays(5)
-            }
-        );
-    }
-
-    public async Task<GetFlexibilityDtoResponse> GetByIdAsync(GetFlexibilityDtoRequest getFlexibilityDtoRequest)
-    {
-        var getFlexibilityDtoResponse = new GetFlexibilityDtoResponse();
-
-        getFlexibilityDtoRequest.ValidateRequest(new GetFlexibilityValidator());
-
-        return await cacheHandler.GetOrCreateRecordAsync(
-            getFlexibilityDtoRequest,
-            async () =>
-            {
-                getFlexibilityDtoResponse.Flexibility = await flexibilityRepository.GetByIdAsync(getFlexibilityDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
-                return getFlexibilityDtoResponse;
-            },
-            new()
-            {
-                Id = getFlexibilityDtoRequest.Id,
-                AbsoluteExpireTime = TimeSpan.FromDays(1)
             }
         );
     }

@@ -1,24 +1,22 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using System.Web;
-using Common.Models.Core;
+﻿using Common.Models.Core;
 using Common.Models.Link;
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Service.Interfaces;
 using Service.Validators;
 using Service.Validators.Utils;
+using System.Web;
 
 namespace Service.Services;
 
 public class UrlService : IUrlService
 {
-    public GenerateSelfUrlDtoResponse GenerateSelf(GenerateSelfUrlDtoRequest generateSelfUrlDtoRequest)
+    public string GenerateSelf(GenerateSelfUrlDtoRequest generateSelfUrlDtoRequest)
     {
         generateSelfUrlDtoRequest.ValidateRequest(new GenerateSelfUrlValidator());
 
         var baseUrl = BuildBaseUrl(generateSelfUrlDtoRequest.Request, generateSelfUrlDtoRequest.Path);
-        var selfUrl = generateSelfUrlDtoRequest.Id == default ? baseUrl : $"{baseUrl}/{generateSelfUrlDtoRequest.Id}";
-
-        return new() { Self = selfUrl };
+        return generateSelfUrlDtoRequest.Id == default ? baseUrl : $"{baseUrl}/{generateSelfUrlDtoRequest.Id}";
     }
 
     public GeneratePaginatedLinksDtoResponse GeneratePaginatedLinks(GeneratePaginatedLinksDtoRequest generatePaginatedLinksDtoRequest)

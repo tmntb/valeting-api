@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using Api.Controllers.BaseController;
+﻿using Api.Controllers.BaseController;
 using Api.Models.User;
 using Common.Messages;
 using Common.Models.User;
+using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using System.Net;
 
 namespace Api.Controllers;
 
@@ -19,14 +19,13 @@ public class UserController(IUserService userService) : UserBaseController
             Username = loginApiRequest.Username,
             Password = loginApiRequest.Password
         };
-        var validateLoginDtoResponse = await userService.ValidateLoginAsync(validateLoginDtoRequest);
-        if (!validateLoginDtoResponse.Valid)
+        var validateLogin = await userService.ValidateLoginAsync(validateLoginDtoRequest);
+        if (!validateLogin)
         {
             throw new UnauthorizedAccessException(Messages.InvalidPassword);
         }
 
-        var generateTokenJWTDtoRequest = new GenerateTokenJWTDtoRequest { };
-        var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(generateTokenJWTDtoRequest);
+        var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(loginApiRequest.Username);
 
         var validateLoginApiResponse =  new LoginApiResponse 
         {

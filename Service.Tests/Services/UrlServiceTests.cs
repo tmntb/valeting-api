@@ -35,8 +35,8 @@ public class UrlServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.NotEmpty(result.Self);
-        Assert.Equal($"https://api/test/path/{_mockId}", result.Self);
+        Assert.NotEmpty(result);
+        Assert.Equal($"https://api/test/path/{_mockId}", result);
     }
 
     [Fact]
@@ -57,8 +57,8 @@ public class UrlServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.NotEmpty(result.Self);
-        Assert.Equal($"https://localhost/rPath/{_mockId}", result.Self);
+        Assert.NotEmpty(result);
+        Assert.Equal($"https://localhost/rPath/{_mockId}", result);
     }
 
     [Fact]

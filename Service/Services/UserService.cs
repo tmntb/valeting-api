@@ -13,21 +13,10 @@ namespace Service.Services;
 
 public class UserService(IUserRepository userRepository, IConfiguration configuration) : IUserService
 {
-    public async Task<ValidateLoginDtoResponse> ValidateLoginAsync(ValidateLoginDtoRequest validateLoginDtoRequest)
+    /// <inheritdoc />
+    public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string username)
     {
-        validateLoginDtoRequest.ValidateRequest(new ValidateLoginValidator());
-
-        var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
-
-        return new()
-        {
-            Valid = BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.Password)
-        };
-    }
-
-    public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(GenerateTokenJWTDtoRequest generateTokenJWTDtoRequest)
-    {
-        var userDto = await userRepository.GetUserByEmailAsync(generateTokenJWTDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDto = await userRepository.GetUserByEmailAsync(username) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         var secret = configuration["Jwt:Key"];
         var issuer = configuration["Jwt:Issuer"];
@@ -60,6 +49,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         };
     }
 
+    /// <inheritdoc />
     public async Task RegisterAsync(RegisterDtoRequest registerDtoRequest)
     {
         registerDtoRequest.ValidateRequest(new RegisterValidator());
@@ -79,5 +69,15 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             Password = hashedPassword
         };
         await userRepository.RegisterAsync(registerUserDto);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> ValidateLoginAsync(ValidateLoginDtoRequest validateLoginDtoRequest)
+    {
+        validateLoginDtoRequest.ValidateRequest(new ValidateLoginValidator());
+
+        var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
+
+        return BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.Password);
     }
 }

@@ -17,7 +17,7 @@ public class FlexibilityControllerTests
     private readonly Mock<IUrlService> _mockUrlService;
     private readonly Mock<IFlexibilityService> _mockFlexibilityService;
 
-    private readonly Guid _mockFlexibilityId = Guid.Parse( "00000000-0000-0000-0000-000000000001");
+    private readonly Guid _mockFlexibilityId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly FlexibilityController _flexibilityController;
 
     public FlexibilityControllerTests()
@@ -27,7 +27,7 @@ public class FlexibilityControllerTests
 
         _flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object)
         {
-            ControllerContext = new() {  HttpContext = new DefaultHttpContext() }
+            ControllerContext = new() { HttpContext = new DefaultHttpContext() }
         };
     }
 
@@ -43,9 +43,9 @@ public class FlexibilityControllerTests
     public async Task GetFilteredAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        _mockFlexibilityService.Setup(s => s.GetFilteredAsync(It.IsAny<PaginatedFlexibilityDtoRequest>()))
+        _mockFlexibilityService.Setup(s => s.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
             .ReturnsAsync(
-                new PaginatedFlexibilityDtoResponse
+                new FlexibilityPaginatedDtoResponse
                 {
                     TotalItems = 1,
                     TotalPages = 1,
@@ -64,18 +64,14 @@ public class FlexibilityControllerTests
             .Returns(new GeneratePaginatedLinksDtoResponse());
 
         _mockUrlService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
-            .Returns(
-                new GenerateSelfUrlDtoResponse
-                {
-                    Self = $"https://api.test.com/flexibilities/{_mockFlexibilityId}"
-                });
+            .Returns($"https://api.test.com/flexibilities/{_mockFlexibilityId}");
 
         // Act
         var result = await _flexibilityController.GetFilteredAsync
         (
-            new() 
-            { 
-                Active = false 
+            new()
+            {
+                Active = false
             }
         ) as ObjectResult;
 
@@ -103,22 +99,15 @@ public class FlexibilityControllerTests
     public async Task GetByIdAsync_ShouldReturnOk_WhenValidId()
     {
         // Arrange
-        _mockFlexibilityService.Setup(s => s.GetByIdAsync(It.IsAny<GetFlexibilityDtoRequest>()))
+        _mockFlexibilityService.Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(
-                new GetFlexibilityDtoResponse
+                new FlexibilityDto
                 {
-                    Flexibility = new()
-                    {
-                        Id = _mockFlexibilityId
-                    }
+                    Id = _mockFlexibilityId
                 });
 
         _mockUrlService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
-            .Returns(
-                new GenerateSelfUrlDtoResponse
-                {
-                    Self = $"http://example.com/flexibility/{_mockFlexibilityId}"
-                });
+            .Returns($"http://example.com/flexibility/{_mockFlexibilityId}");
 
         // Act
         var result = await _flexibilityController.GetByIdAsync(_mockFlexibilityId.ToString()) as ObjectResult;

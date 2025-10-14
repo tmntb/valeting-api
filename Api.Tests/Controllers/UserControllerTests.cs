@@ -35,11 +35,7 @@ public class UserControllerTests
     {
         // Arrange
         _mockUserService.Setup(s => s.ValidateLoginAsync(It.IsAny<ValidateLoginDtoRequest>()))
-            .ReturnsAsync(
-                new ValidateLoginDtoResponse
-                {
-                    Valid = false
-                });
+            .ReturnsAsync(false);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _userController.Login(
@@ -57,14 +53,10 @@ public class UserControllerTests
     {
         // Arrange
         _mockUserService.Setup(s => s.ValidateLoginAsync(It.IsAny<ValidateLoginDtoRequest>()))
-            .ReturnsAsync(
-                new ValidateLoginDtoResponse
-                {
-                    Valid = true
-                });
+            .ReturnsAsync(true);
 
         var expiryDate = DateTime.UtcNow;
-        _mockUserService.Setup(s => s.GenerateTokenJWTAsync(It.IsAny<GenerateTokenJWTDtoRequest>()))
+        _mockUserService.Setup(s => s.GenerateTokenJWTAsync(It.IsAny<string>()))
             .ReturnsAsync(
                 new GenerateTokenJWTDtoResponse
                 {

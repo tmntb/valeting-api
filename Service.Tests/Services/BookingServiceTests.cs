@@ -53,7 +53,7 @@ public class BookingServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.NotEqual(Guid.Empty, result);
 
         _mockBookingRepository.Verify(r => r.CreateAsync(It.IsAny<BookingDto>()), Times.Once);
         _mockCacheHandler.Verify(c => c.InvalidateCacheByListType(CacheListType.Booking), Times.Once);
@@ -134,11 +134,7 @@ public class BookingServiceTests
         _mockBookingRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((BookingDto)null);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(async () => await _bookingService.DeleteAsync(
-             new()
-             {
-                 Id = _mockId,
-             }));
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(async () => await _bookingService.DeleteAsync(_mockId));
 
         Assert.Equal(Messages.NotFound, exception.Message);
     }
@@ -157,11 +153,7 @@ public class BookingServiceTests
         _mockCacheHandler.Setup(c => c.InvalidateCacheByListType(It.IsAny<CacheListType>()));
 
         // Act
-        await _bookingService.DeleteAsync(
-            new()
-            {
-                Id = _mockId
-            });
+        await _bookingService.DeleteAsync(_mockId);
 
         // Assert
         _mockBookingRepository.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
@@ -185,16 +177,12 @@ public class BookingServiceTests
                 });
 
         // Act
-        var result = await _bookingService.GetByIdAsync(
-            new()
-            {
-                Id = _mockId
-            });
+        var result = await _bookingService.GetByIdAsync(_mockId);
 
         // Assert
         Assert.NotNull(result);
-        Assert.NotNull(result.Booking);
-        Assert.Equal(_mockId, result.Booking.Id);
+        Assert.NotNull(result);
+        Assert.Equal(_mockId, result.Id);
     }
 
     [Fact]
@@ -203,16 +191,12 @@ public class BookingServiceTests
         // Arrange
         _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<GetBookingDtoRequest>(), It.IsAny<Func<Task<GetBookingDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .Returns((GetBookingDtoRequest _, Func<Task<GetBookingDtoResponse>> factory, CacheOptions __) => factory());
-        
+
         _mockBookingRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync((BookingDto)null);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _bookingService.GetByIdAsync(
-            new()
-            {
-                Id = _mockId
-            }));
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _bookingService.GetByIdAsync(_mockId));
 
         Assert.Equal(exception.Message, Messages.NotFound);
     }
@@ -223,7 +207,7 @@ public class BookingServiceTests
         // Arrange
         _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<GetBookingDtoRequest>(), It.IsAny<Func<Task<GetBookingDtoResponse>>>(), It.IsAny<CacheOptions>()))
              .Returns((GetBookingDtoRequest _, Func<Task<GetBookingDtoResponse>> factory, CacheOptions __) => factory());
-        
+
         _mockBookingRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(
                 new BookingDto
@@ -232,44 +216,37 @@ public class BookingServiceTests
                 });
 
         // Act
-        var result = await _bookingService.GetByIdAsync(
-            new()
-            {
-                Id = _mockId
-            });
+        var result = await _bookingService.GetByIdAsync(_mockId);
 
         // Assert
         Assert.NotNull(result);
-        Assert.NotNull(result.Booking);
-        Assert.Equal(_mockId, result.Booking.Id);
+        Assert.NotNull(result);
+        Assert.Equal(_mockId, result.Id);
     }
 
     [Fact]
     public async Task GetFilteredAsync_Should_ReturnPaginatedBookings()
     {
         // Arrange
-        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<PaginatedBookingDtoRequest>(), It.IsAny<Func<Task<PaginatedBookingDtoResponse>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<PaginatedBookingDtoRequest>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .ReturnsAsync(
-                new PaginatedBookingDtoResponse 
-                { 
+                new BookingPaginatedDtoResponse
+                {
                     Bookings =
                     [
                         new(),
                         new()
-                    ], 
-                    TotalItems = 2, 
-                    TotalPages = 1 
+                    ],
+                    TotalItems = 2,
+                    TotalPages = 1
                 });
 
         // Act
         var result = await _bookingService.GetFilteredAsync(
             new()
             {
-                Filter = new()
-                {
-                    PageNumber = 1,
-                    PageSize = 10
-                }
+                PageNumber = 1,
+                PageSize = 10
             });
 
         // Assert
@@ -280,11 +257,11 @@ public class BookingServiceTests
     }
 
     [Fact]
-    public async Task GetFilteredAsync_ShouldThrowKeyNotFoundException_WhenNoBookingFound() 
+    public async Task GetFilteredAsync_ShouldThrowKeyNotFoundException_WhenNoBookingFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedBookingDtoRequest>(), It.IsAny<Func<Task<PaginatedBookingDtoResponse>>>(), It.IsAny<CacheOptions>()))
-            .Returns((PaginatedBookingDtoRequest _, Func<Task<PaginatedBookingDtoResponse>> factory, CacheOptions __) => factory());
+        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedBookingDtoRequest>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
+            .Returns((PaginatedBookingDtoRequest _, Func<Task<BookingPaginatedDtoResponse>> factory, CacheOptions __) => factory());
 
         _mockBookingRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
             .ReturnsAsync(new List<BookingDto>());
@@ -293,22 +270,19 @@ public class BookingServiceTests
         var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _bookingService.GetFilteredAsync(
             new()
             {
-                Filter = new() 
-                {
-                    PageNumber = 1,
-                    PageSize = 10
-                }
+                PageNumber = 1,
+                PageSize = 10
             }));
 
         Assert.Equal(exception.Message, Messages.NotFound);
     }
 
     [Fact]
-    public async Task GetFilteredAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists() 
+    public async Task GetFilteredAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedBookingDtoRequest>(), It.IsAny<Func<Task<PaginatedBookingDtoResponse>>>(), It.IsAny<CacheOptions>()))
-            .Returns((PaginatedBookingDtoRequest _, Func<Task<PaginatedBookingDtoResponse>> factory, CacheOptions __) => factory());
+        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<PaginatedBookingDtoRequest>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
+            .Returns((PaginatedBookingDtoRequest _, Func<Task<BookingPaginatedDtoResponse>> factory, CacheOptions __) => factory());
 
         _mockBookingRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
            .ReturnsAsync(
@@ -322,11 +296,8 @@ public class BookingServiceTests
         var result = await _bookingService.GetFilteredAsync(
             new()
             {
-                Filter = new()
-                {
-                    PageNumber = 1,
-                    PageSize = 2
-                }
+                PageNumber = 1,
+                PageSize = 2
             });
 
         // Assert

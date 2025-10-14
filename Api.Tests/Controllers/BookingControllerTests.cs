@@ -42,11 +42,8 @@ public class BookingControllerTests
     {
         // Arrange
         _mockBookingService
-            .Setup(s => s.CreateAsync(It.IsAny<CreateBookingDtoRequest>()))
-            .ReturnsAsync(new CreateBookingDtoResponse
-            {
-                Id = _mockBookingId
-            });
+            .Setup(s => s.CreateAsync(It.IsAny<BookingDto>()))
+            .ReturnsAsync(_mockBookingId);
 
         // Act
         var result = await _bookingController.CreateAsync(
@@ -89,7 +86,7 @@ public class BookingControllerTests
     public async Task UpdateAsync_ShouldReturnNoContent_WhenValidRequest()
     {
         // Arrange
-        _mockBookingService.Setup(s => s.UpdateAsync(It.IsAny<UpdateBookingDtoRequest>()))
+        _mockBookingService.Setup(s => s.UpdateAsync(It.IsAny<BookingDto>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -125,7 +122,7 @@ public class BookingControllerTests
     public async Task DeleteAsync_ShouldReturnNoContent_WhenValidId()
     {
         // Arrange
-        _mockBookingService.Setup(s => s.DeleteAsync(It.IsAny<DeleteBookingDtoRequest>()))
+        _mockBookingService.Setup(s => s.DeleteAsync(It.IsAny<Guid>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -148,21 +145,18 @@ public class BookingControllerTests
     public async Task GetByIdAsync_ShouldReturnBooking_WhenValidId()
     {
         // Arrange
-        _mockBookingService.Setup(s => s.GetByIdAsync(It.IsAny<GetBookingDtoRequest>()))
+        _mockBookingService.Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(
-                new GetBookingDtoResponse
+                new BookingDto()
                 {
-                    Booking = new()
-                    {
-                        Id = _mockBookingId,
-                        ContactNumber = 123
-                    }
+                    Id = _mockBookingId,
+                    ContactNumber = 123
                 });
 
         _mockUrlService.SetupSequence(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
-            .Returns(new GenerateSelfUrlDtoResponse { Self = $"https://api.test.com/flexibilities/{_mockFlexibilityId}" })
-            .Returns(new GenerateSelfUrlDtoResponse { Self = $"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}" })
-            .Returns(new GenerateSelfUrlDtoResponse { Self = $"https://api.test.com/bookings/{_mockBookingId}" });
+            .Returns($"https://api.test.com/flexibilities/{_mockFlexibilityId}")
+            .Returns($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}")
+            .Returns($"https://api.test.com/bookings/{_mockBookingId}");
 
         // Act
         var result = await _bookingController.GetByIdAsync(_mockBookingId.ToString()) as ObjectResult;
@@ -190,9 +184,9 @@ public class BookingControllerTests
     public async Task GetFilteredAsync_ShouldReturnPagedResponse_WhenValidRequest()
     {
         // Arrange
-        _mockBookingService.Setup(s => s.GetFilteredAsync(It.IsAny<PaginatedBookingDtoRequest>()))
+        _mockBookingService.Setup(s => s.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
             .ReturnsAsync(
-                new PaginatedBookingDtoResponse
+                new BookingPaginatedDtoResponse
                 {
                     TotalItems = 1,
                     TotalPages = 1,
@@ -209,9 +203,9 @@ public class BookingControllerTests
             .Returns(new GeneratePaginatedLinksDtoResponse());
 
         _mockUrlService.SetupSequence(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
-            .Returns(new GenerateSelfUrlDtoResponse { Self = $"https://api.test.com/flexibilities/{_mockFlexibilityId}" })
-            .Returns(new GenerateSelfUrlDtoResponse { Self = $"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}" })
-            .Returns(new GenerateSelfUrlDtoResponse { Self = $"https://api.test.com/bookings/{_mockBookingId}" });
+            .Returns($"https://api.test.com/flexibilities/{_mockFlexibilityId}")
+            .Returns($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}")
+            .Returns($"https://api.test.com/bookings/{_mockBookingId}");
 
         // Act
         var result = await _bookingController.GetFilteredAsync(new()) as ObjectResult;
