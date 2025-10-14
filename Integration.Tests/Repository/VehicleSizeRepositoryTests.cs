@@ -1,6 +1,6 @@
 ﻿using Integration.Tests.Repository;
-using Valeting.Repository.Entities;
-using Valeting.Repository.Repositories;
+using Repository.Entities;
+using Repository.Repositories;
 
 namespace Integration.Tests.Repository;
 

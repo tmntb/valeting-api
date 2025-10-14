@@ -15,7 +15,7 @@ services:
   api:
     build:
         context: .
-        dockerfile: /Valeting.API/Dockerfile
+        dockerfile: /Api/Dockerfile
     ports:
         - "8080:8080"
     container_name: api

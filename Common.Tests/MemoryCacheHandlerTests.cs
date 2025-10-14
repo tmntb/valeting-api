@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using System.Text.Json;
-using Valeting.Common.Cache;
-using Valeting.Common.Models.Booking;
+using Common.Cache;
+using Common.Models.Booking;
 
 namespace Common.Tests;
 

@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Valeting.Core.Validators.Utils;
+using Service.Validators.Utils;
 
 namespace Service.Tests.Validators.Utils;
 

@@ -1,5 +1,5 @@
-﻿using Valeting.Common.Models.Flexibility;
-using Valeting.Core.Validators;
+﻿using Common.Models.Flexibility;
+using Service.Validators;
 
 namespace Service.Tests.Validators;
 

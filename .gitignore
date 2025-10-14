@@ -107,4 +107,4 @@ StyleCopReport.xml
 # Others
 .vs/
 .env
-Valeting.API/appsettings.Development.json
+Api/appsettings.Development.json

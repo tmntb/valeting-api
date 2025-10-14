@@ -1,8 +1,8 @@
 ﻿using Moq;
-using Valeting.Common.Models.Flexibility;
-using Valeting.Common.Models.VehicleSize;
-using Valeting.Core.Interfaces;
-using Valeting.Core.Validators.Utils;
+using Common.Models.Flexibility;
+using Common.Models.VehicleSize;
+using Service.Interfaces;
+using Service.Validators.Utils;
 
 namespace Service.Tests.Validators.Utils;
 

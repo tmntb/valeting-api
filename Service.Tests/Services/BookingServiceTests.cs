@@ -1,10 +1,10 @@
 ﻿using Moq;
-using Valeting.Common.Cache;
-using Valeting.Common.Cache.Interfaces;
-using Valeting.Common.Messages;
-using Valeting.Common.Models.Booking;
-using Valeting.Core.Interfaces;
-using Valeting.Core.Services;
+using Common.Cache;
+using Common.Cache.Interfaces;
+using Common.Messages;
+using Common.Models.Booking;
+using Service.Interfaces;
+using Service.Services;
 
 namespace Service.Tests.Services;
 

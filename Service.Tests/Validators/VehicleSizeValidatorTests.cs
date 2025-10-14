@@ -1,5 +1,5 @@
-﻿using Valeting.Common.Models.VehicleSize;
-using Valeting.Core.Validators;
+﻿using Common.Models.VehicleSize;
+using Service.Validators;
 
 namespace Service.Tests.Validators;
 

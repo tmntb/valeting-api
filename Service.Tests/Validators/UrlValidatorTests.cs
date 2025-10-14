@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Valeting.Common.Models.Link;
-using Valeting.Core.Validators;
+using Common.Models.Link;
+using Service.Validators;
 
 namespace Service.Tests.Validators;
 

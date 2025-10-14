@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Moq;
-using Valeting.Common.Messages;
-using Valeting.Common.Models.User;
-using Valeting.Core.Interfaces;
-using Valeting.Core.Services;
+using Common.Messages;
+using Common.Models.User;
+using Service.Interfaces;
+using Service.Services;
 
 namespace Service.Tests.Services;
 

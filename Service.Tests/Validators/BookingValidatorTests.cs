@@ -1,5 +1,5 @@
-﻿using Valeting.Common.Models.Booking;
-using Valeting.Core.Validators;
+﻿using Common.Models.Booking;
+using Service.Validators;
 
 namespace Service.Tests.Validators;
 

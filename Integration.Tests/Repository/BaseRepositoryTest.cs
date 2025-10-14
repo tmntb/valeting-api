@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Valeting.Repository.Entities;
+using Repository.Entities;
 
 namespace Integration.Tests.Repository;
 

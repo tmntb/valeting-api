@@ -17,7 +17,7 @@ Clone the repository and navigate to the project directory:
 
 ```sh
 git clone https://github.com/tmb37/valeting-api.git
-cd Valeting.API
+cd Api
 ```
 
 Install dependencies:
@@ -108,9 +108,9 @@ Docker Compose will automatically load the value.
 ### Apply Migrations in Order
 
 ```sh
-dotnet ef database update 20221011202720_InitialCreate --project Valeting.Repository --startup-project Valeting.API
+dotnet ef database update 20221011202720_InitialCreate --project Repository --startup-project Api
 
-dotnet ef database update 20250305163544_ReferenceData --project Valeting.Repository --startup-project Valeting.API
+dotnet ef database update 20250305163544_ReferenceData --project Repository --startup-project Api
 ```
 
 ### Running the Application
@@ -118,7 +118,7 @@ dotnet ef database update 20250305163544_ReferenceData --project Valeting.Reposi
 To start the application, run:
 
 ```sh
-dotnet run --project Valeting.API
+dotnet run --project Api
 ```
 
 If using Docker:

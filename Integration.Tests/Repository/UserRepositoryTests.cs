@@ -1,4 +1,4 @@
-﻿using Valeting.Repository.Repositories;
+﻿using Repository.Repositories;
 
 namespace Integration.Tests.Repository;
 

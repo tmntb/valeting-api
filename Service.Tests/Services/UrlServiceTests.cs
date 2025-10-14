@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
-using Valeting.Common.Models.Core;
-using Valeting.Core.Services;
+using Common.Models.Core;
+using Service.Services;
 
 namespace Service.Tests.Services;
 
