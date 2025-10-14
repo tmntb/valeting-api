@@ -4,7 +4,7 @@ using System.Text.Json;
 using Valeting.Common.Cache;
 using Valeting.Common.Models.Booking;
 
-namespace Valeting.Tests.Common;
+namespace Common.Tests;
 
 public class MemoryCacheHandlerTests
 {
@@ -73,9 +73,17 @@ public class MemoryCacheHandlerTests
     }
 
     [Fact]
-    public void InvalidateCacheById_RemovesItemFromCache()
+    public async Task InvalidateCacheById_RemovesItemFromCache()
     {
         // Arrange
+        var request = new { Id = _mockId, Name = "Test" };
+        var cacheOptions = new CacheOptions { AbsoluteExpireTime = TimeSpan.FromMinutes(5), Id = request.Id };
+        var expectedResponse = JsonSerializer.Serialize(request);
+        object cachedValue = expectedResponse;
+
+        SetupCacheMiss(expectedResponse);
+        await _cacheHandler.GetOrCreateRecordAsync(request, () => SimulateCacheMiss(expectedResponse), cacheOptions);
+
         _mockMemoryCache.Setup(m => m.Remove(It.IsAny<object>()));
 
         // Act

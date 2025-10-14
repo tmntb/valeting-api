@@ -1,7 +1,7 @@
 ﻿using Valeting.Common.Models.Flexibility;
 using Valeting.Core.Validators;
 
-namespace Valeting.Tests.Core.Validators;
+namespace Service.Tests.Validators;
 
 #region GetFlexibilityValidatorTests
 public class GetFlexibilityValidatorTests

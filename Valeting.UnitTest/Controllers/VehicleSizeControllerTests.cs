@@ -10,7 +10,7 @@ using Valeting.Common.Models.Link;
 using Valeting.Common.Models.VehicleSize;
 using Valeting.Core.Interfaces;
 
-namespace Valeting.Tests.API.Controllers;
+namespace Api.Tests.Controllers;
 
 public class VehicleSizeControllerTests
 {

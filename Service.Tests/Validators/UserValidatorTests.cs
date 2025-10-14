@@ -1,7 +1,7 @@
 ﻿using Valeting.Common.Models.User;
 using Valeting.Core.Validators;
 
-namespace Valeting.Tests.Core.Validators;
+namespace Service.Tests.Validators;
 
 #region ValidateLoginValidatorTests
 public class ValidateLoginValidatorTests

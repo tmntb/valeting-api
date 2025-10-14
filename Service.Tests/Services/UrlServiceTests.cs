@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Valeting.Common.Models.Core;
 using Valeting.Core.Services;
 
-namespace Valeting.Tests.Core.Services;
+namespace Service.Tests.Services;
 
 public class UrlServiceTests
 {

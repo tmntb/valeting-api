@@ -11,7 +11,7 @@ using Valeting.API.Middleware;
 using Valeting.API.Models.Core;
 using Valeting.API.Models.Middleware;
 
-namespace Valeting.Tests.API.Middleware;
+namespace Api.Tests.Middleware;
 
 public class ExceptionHandlingMiddlewareTests
 {

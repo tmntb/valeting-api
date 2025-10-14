@@ -1,7 +1,7 @@
 ﻿using Valeting.Common.Models.VehicleSize;
 using Valeting.Core.Validators;
 
-namespace Valeting.Tests.Core.Validators;
+namespace Service.Tests.Validators;
 
 #region GetVehicleSizeValidatorTests
 public class GetVehicleSizeValidatorTests

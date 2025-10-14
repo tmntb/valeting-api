@@ -1,7 +1,7 @@
 ﻿using Valeting.Common.Models.Booking;
 using Valeting.Core.Validators;
 
-namespace Valeting.Tests.Core.Validators;
+namespace Service.Tests.Validators;
 
 #region CreateBookingValidatorTests
 public class CreateBookingValidatorTests

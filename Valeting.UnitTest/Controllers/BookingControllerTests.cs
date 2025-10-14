@@ -9,7 +9,7 @@ using Valeting.Common.Models.Booking;
 using Valeting.Common.Models.Link;
 using Valeting.Core.Interfaces;
 
-namespace Valeting.Tests.API.Controllers;
+namespace Api.Tests.Controllers;
 
 public class BookingControllerTests
 {
@@ -41,8 +41,12 @@ public class BookingControllerTests
     public async Task CreateAsync_ShouldReturnCreated_WhenValidRequest()
     {
         // Arrange
-        _mockBookingService.Setup(s => s.CreateAsync(It.IsAny<CreateBookingDtoRequest>()))
-            .ReturnsAsync(new CreateBookingDtoResponse());
+        _mockBookingService
+            .Setup(s => s.CreateAsync(It.IsAny<CreateBookingDtoRequest>()))
+            .ReturnsAsync(new CreateBookingDtoResponse
+            {
+                Id = _mockBookingId
+            });
 
         // Act
         var result = await _bookingController.CreateAsync(
@@ -150,7 +154,8 @@ public class BookingControllerTests
                 {
                     Booking = new()
                     {
-                        Id = _mockBookingId
+                        Id = _mockBookingId,
+                        ContactNumber = 123
                     }
                 });
 
@@ -187,11 +192,17 @@ public class BookingControllerTests
         // Arrange
         _mockBookingService.Setup(s => s.GetFilteredAsync(It.IsAny<PaginatedBookingDtoRequest>()))
             .ReturnsAsync(
-                new PaginatedBookingDtoResponse 
-                { 
+                new PaginatedBookingDtoResponse
+                {
                     TotalItems = 1,
                     TotalPages = 1,
-                    Bookings = [] 
+                    Bookings =
+                    [
+                        new()
+                        {
+                            ContactNumber = 123
+                        }
+                    ]
                 });
 
         _mockUrlService.Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))

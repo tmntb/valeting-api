@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Valeting.Core.Validators.Utils;
 
-namespace Valeting.Tests.Core.Validators.Utils;
+namespace Service.Tests.Validators.Utils;
 
 public class ValidationExtensionsTests
 {

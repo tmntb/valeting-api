@@ -4,7 +4,7 @@ using Valeting.Common.Models.VehicleSize;
 using Valeting.Core.Interfaces;
 using Valeting.Core.Validators.Utils;
 
-namespace Valeting.Tests.Core.Validators.Utils;
+namespace Service.Tests.Validators.Utils;
 
 public class ValidationHelpersTests
 {

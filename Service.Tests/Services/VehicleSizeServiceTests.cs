@@ -6,7 +6,7 @@ using Valeting.Common.Models.VehicleSize;
 using Valeting.Core.Interfaces;
 using Valeting.Core.Services;
 
-namespace Valeting.Tests.Core.Services;
+namespace Service.Tests.Services;
 
 public class VehicleSizeServiceTests
 {

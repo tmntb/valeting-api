@@ -7,7 +7,7 @@ using Valeting.Common.Messages;
 using Valeting.Common.Models.User;
 using Valeting.Core.Interfaces;
 
-namespace Valeting.Tests.API.Controllers;
+namespace Api.Tests.Controllers;
 
 public class UserControllerTests
 {
@@ -63,11 +63,14 @@ public class UserControllerTests
                     Valid = true
                 });
 
+        var expiryDate = DateTime.UtcNow;
         _mockUserService.Setup(s => s.GenerateTokenJWTAsync(It.IsAny<GenerateTokenJWTDtoRequest>()))
             .ReturnsAsync(
                 new GenerateTokenJWTDtoResponse
                 {
-                    Token = It.IsAny<string>()
+                    Token = "validToken",
+                    TokenType = "jwt",
+                    ExpiryDate = expiryDate
                 });
 
         // Act
@@ -86,7 +89,7 @@ public class UserControllerTests
 
         var responseApi = (LoginApiResponse)result.Value;
         Assert.Equal("validToken", responseApi.Token);
-        Assert.Equal(DateTime.Now, responseApi.ExpiryDate);
+        Assert.Equal(expiryDate, responseApi.ExpiryDate);
         Assert.Equal("jwt", responseApi.TokenType);
     }
 
