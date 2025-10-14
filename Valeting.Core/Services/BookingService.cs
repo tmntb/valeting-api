@@ -5,7 +5,6 @@ using Valeting.Common.Models.Booking;
 using Valeting.Core.Interfaces;
 using Valeting.Core.Validators;
 using Valeting.Core.Validators.Utils;
-using Valeting.Repository.Interfaces;
 
 namespace Valeting.Core.Services;
 
@@ -18,8 +17,17 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         createBookingDtoRequest.ValidateRequest(new CreateBookingValidator());
 
         var id = Guid.NewGuid();
-        var bookingDto = new BookingDto { };
-        bookingDto.Id = id;
+        var bookingDto = new BookingDto
+        {
+            Id = id,
+            Name = createBookingDtoRequest.Name,
+            BookingDate = createBookingDtoRequest.BookingDate,
+            ContactNumber = createBookingDtoRequest.ContactNumber,
+            Email = createBookingDtoRequest.Email,
+            Approved = false,
+            Flexibility = createBookingDtoRequest.Flexibility,
+            VehicleSize = createBookingDtoRequest.VehicleSize
+        };
 
         await bookingRepository.CreateAsync(bookingDto);
         createBookingDtoResponse.Id = id;
@@ -34,8 +42,14 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         updateBookingDtoRequest.ValidateRequest(new UpdateBookinValidator());
 
         var bookingDto = await bookingRepository.GetByIdAsync(updateBookingDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
+        bookingDto.Name = updateBookingDtoRequest.Name;
+        bookingDto.BookingDate = updateBookingDtoRequest.BookingDate;
+        bookingDto.ContactNumber = updateBookingDtoRequest.ContactNumber;
+        bookingDto.Email = updateBookingDtoRequest.Email;
+        bookingDto.Approved = updateBookingDtoRequest.Approved;
+        bookingDto.Flexibility = updateBookingDtoRequest.Flexibility;
+        bookingDto.VehicleSize = updateBookingDtoRequest.VehicleSize;
 
-        //mapper.Map(updateBookingDtoRequest, bookingDto);
         await bookingRepository.UpdateAsync(bookingDto);
 
         // Keep the cache up to date

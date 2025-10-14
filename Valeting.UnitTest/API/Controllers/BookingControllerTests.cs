@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Net;
 using Valeting.API.Controllers;
@@ -16,7 +15,6 @@ public class BookingControllerTests
 {
     private readonly Mock<IBookingService> _mockBookingService;
     private readonly Mock<IUrlService> _mockUrlService;
-    private readonly Mock<IMapper> _mockMapper;
 
     private readonly Guid _mockBookingId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly Guid _mockFlexibilityId = Guid.Parse("00000000-0000-0000-0000-000000000002");
@@ -27,9 +25,8 @@ public class BookingControllerTests
     {
         _mockBookingService = new Mock<IBookingService>();
         _mockUrlService = new Mock<IUrlService>();
-        _mockMapper = new Mock<IMapper>();
 
-        _bookingController = new BookingController(_mockBookingService.Object, _mockUrlService.Object, _mockMapper.Object);
+        _bookingController = new BookingController(_mockBookingService.Object, _mockUrlService.Object);
     }
 
     [Fact]
@@ -44,18 +41,8 @@ public class BookingControllerTests
     public async Task CreateAsync_ShouldReturnCreated_WhenValidRequest()
     {
         // Arrange
-        _mockMapper.Setup(m => m.Map<CreateBookingDtoRequest>(It.IsAny<CreateBookingApiRequest>()))
-            .Returns(new CreateBookingDtoRequest());
-
         _mockBookingService.Setup(s => s.CreateAsync(It.IsAny<CreateBookingDtoRequest>()))
             .ReturnsAsync(new CreateBookingDtoResponse());
-
-        _mockMapper.Setup(m => m.Map<CreateBookingApiResponse>(It.IsAny<CreateBookingDtoResponse>()))
-            .Returns(
-                new CreateBookingApiResponse()
-                {
-                    Id = _mockBookingId
-                });
 
         // Act
         var result = await _bookingController.CreateAsync(
@@ -98,13 +85,6 @@ public class BookingControllerTests
     public async Task UpdateAsync_ShouldReturnNoContent_WhenValidRequest()
     {
         // Arrange
-        _mockMapper.Setup(m => m.Map<UpdateBookingDtoRequest>(It.IsAny<UpdateBookingApiRequest>()))
-            .Returns(
-                new UpdateBookingDtoRequest
-                {
-                    Id = _mockBookingId
-                });
-
         _mockBookingService.Setup(s => s.UpdateAsync(It.IsAny<UpdateBookingDtoRequest>()))
             .Returns(Task.CompletedTask);
 
@@ -174,26 +154,6 @@ public class BookingControllerTests
                     }
                 });
 
-        _mockMapper.Setup(m => m.Map<BookingApi>(It.IsAny<BookingDto>()))
-            .Returns(
-                 new BookingApi
-                 {
-                     Id = _mockBookingId,
-                     Name = "name",
-                     BookingDate = DateTime.Now.AddDays(1),
-                     Flexibility = new()
-                     {
-                         Id = _mockFlexibilityId
-                     },
-                     VehicleSize = new()
-                     {
-                         Id = _mockVehicleSizeId
-                     },
-                     ContactNumber = 123,
-                     Email = "email",
-                     Approved = true
-                 });
-
         _mockUrlService.SetupSequence(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
             .Returns(new GenerateSelfUrlDtoResponse { Self = $"https://api.test.com/flexibilities/{_mockFlexibilityId}" })
             .Returns(new GenerateSelfUrlDtoResponse { Self = $"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}" })
@@ -225,9 +185,6 @@ public class BookingControllerTests
     public async Task GetFilteredAsync_ShouldReturnPagedResponse_WhenValidRequest()
     {
         // Arrange
-        _mockMapper.Setup(m => m.Map<PaginatedBookingDtoRequest>(It.IsAny<BookingApiParameters>()))
-            .Returns(new PaginatedBookingDtoRequest());
-
         _mockBookingService.Setup(s => s.GetFilteredAsync(It.IsAny<PaginatedBookingDtoRequest>()))
             .ReturnsAsync(
                 new PaginatedBookingDtoResponse 
@@ -239,31 +196,6 @@ public class BookingControllerTests
 
         _mockUrlService.Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
             .Returns(new GeneratePaginatedLinksDtoResponse());
-
-        _mockMapper.Setup(s => s.Map<PaginationLinksApi>(It.IsAny<GeneratePaginatedLinksDtoResponse>()))
-            .Returns(new PaginationLinksApi());
-
-        _mockMapper.Setup(m => m.Map<List<BookingApi>>(It.IsAny<List<BookingDto>>()))
-            .Returns(
-                [
-                    new()
-                    {
-                        Id = _mockBookingId,
-                        Name = "name",
-                        BookingDate = DateTime.Now.AddDays(1),
-                        Flexibility = new()
-                        {
-                            Id = _mockFlexibilityId
-                        },
-                        VehicleSize = new()
-                        {
-                            Id = _mockVehicleSizeId
-                        },
-                        ContactNumber = 123,
-                        Email = "email",
-                        Approved = true
-                    }
-                ]);
 
         _mockUrlService.SetupSequence(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
             .Returns(new GenerateSelfUrlDtoResponse { Self = $"https://api.test.com/flexibilities/{_mockFlexibilityId}" })

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Valeting.Common.Models.Flexibility;
+using Valeting.Core.Interfaces;
 using Valeting.Repository.Entities;
-using Valeting.Repository.Interfaces;
 
 namespace Valeting.Repository.Repositories;
 
@@ -14,7 +14,14 @@ public class FlexibilityRepository(ValetingContext valetingContext) : IFlexibili
                                 where !flexibilityFilterDto.Active.HasValue || rdFlexibility.Active == flexibilityFilterDto.Active
                                 select rdFlexibility;
 
-        return new List<FlexibilityDto>();
+        return listFlexibility.Select(x =>
+            new FlexibilityDto
+            {
+                Id = x.Id,
+                Description = x.Description,
+                Active = x.Active
+            }
+        ).ToList();
     }
 
     public async Task<FlexibilityDto> GetByIdAsync(Guid id)
@@ -23,6 +30,11 @@ public class FlexibilityRepository(ValetingContext valetingContext) : IFlexibili
         if (rdFlexibility == null)
             return null;
 
-        return new FlexibilityDto { };
+        return new() 
+        {
+            Id = rdFlexibility.Id,
+            Description = rdFlexibility.Description,
+            Active = rdFlexibility.Active
+        };
     }
 }

@@ -3,8 +3,8 @@ using Valeting.Common.Cache;
 using Valeting.Common.Cache.Interfaces;
 using Valeting.Common.Messages;
 using Valeting.Common.Models.VehicleSize;
+using Valeting.Core.Interfaces;
 using Valeting.Core.Services;
-using Valeting.Repository.Interfaces;
 
 namespace Valeting.Tests.Core.Services;
 

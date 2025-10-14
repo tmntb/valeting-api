@@ -1,11 +1,10 @@
-﻿using AutoMapper;
-using Moq;
+﻿using Moq;
 using Valeting.Common.Cache;
 using Valeting.Common.Cache.Interfaces;
 using Valeting.Common.Messages;
 using Valeting.Common.Models.Booking;
+using Valeting.Core.Interfaces;
 using Valeting.Core.Services;
-using Valeting.Repository.Interfaces;
 
 namespace Valeting.Tests.Core.Services;
 
@@ -13,7 +12,6 @@ public class BookingServiceTests
 {
     private readonly Mock<IBookingRepository> _mockBookingRepository;
     private readonly Mock<ICacheHandler> _mockCacheHandler;
-    private readonly Mock<IMapper> _mockMapper;
 
     private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly BookingService _bookingService;
@@ -22,18 +20,14 @@ public class BookingServiceTests
     {
         _mockBookingRepository = new Mock<IBookingRepository>();
         _mockCacheHandler = new Mock<ICacheHandler>();
-        _mockMapper = new Mock<IMapper>();
 
-        _bookingService = new BookingService(_mockBookingRepository.Object, _mockCacheHandler.Object, _mockMapper.Object);
+        _bookingService = new BookingService(_mockBookingRepository.Object, _mockCacheHandler.Object);
     }
 
     [Fact]
     public async Task CreateAsync_ShouldCreateBookingAndInvalidateCache()
     {
         // Arrange
-        _mockMapper.Setup(m => m.Map<BookingDto>(It.IsAny<CreateBookingDtoRequest>()))
-            .Returns(new BookingDto());
-
         _mockBookingRepository.Setup(r => r.CreateAsync(It.IsAny<BookingDto>()))
             .Returns(Task.CompletedTask);
 
@@ -100,8 +94,6 @@ public class BookingServiceTests
         // Arrange
         _mockBookingRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(new BookingDto());
-
-        _mockMapper.Setup(m => m.Map(It.IsAny<UpdateBookingDtoRequest>(), It.IsAny<BookingDto>()));
 
         _mockBookingRepository.Setup(r => r.UpdateAsync(It.IsAny<BookingDto>()))
             .Returns(Task.CompletedTask);

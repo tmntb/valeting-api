@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Valeting.Repository.Entities;
-using Valeting.Repository.Interfaces;
 using Valeting.Common.Models.Booking;
+using Valeting.Core.Interfaces;
 
 namespace Valeting.Repository.Repositories;
 
@@ -9,18 +9,36 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
 {
     public async Task CreateAsync(BookingDto bookingDto)
     {
-        var booking = new Booking { };
+        var booking = new Booking 
+        {
+            Id = bookingDto.Id,
+            Name = bookingDto.Name,
+            BookingDate = bookingDto.BookingDate,
+            ContactNumber = bookingDto.ContactNumber.Value,
+            Email = bookingDto.Email,
+            Approved = bookingDto.Approved,
+            FlexibilityId = bookingDto.Flexibility.Id,
+            VehicleSizeId = bookingDto.VehicleSize.Id,
+        };
+
         await valetingContext.Bookings.AddAsync(booking);
         await valetingContext.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(BookingDto bookingDto)
     {
-        var bookingCheck = await valetingContext.Bookings.FindAsync(bookingDto.Id);
-        if (bookingCheck == null)
+        var booking = await valetingContext.Bookings.FindAsync(bookingDto.Id);
+        if (booking == null)
             return;
 
-        //mapper.Map(bookingDto, bookingCheck);
+        booking.Name = bookingDto.Name;
+        booking.BookingDate = bookingDto.BookingDate;
+        booking.ContactNumber = bookingDto.ContactNumber.Value;
+        booking.Email = bookingDto.Email;
+        booking.Approved = bookingDto.Approved;
+        booking.FlexibilityId = bookingDto.Flexibility.Id;
+        booking.VehicleSizeId = bookingDto.VehicleSize.Id;
+        
         await valetingContext.SaveChangesAsync();
     }
 
@@ -40,7 +58,27 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
         var listBookings = from booking in initialList
                             select booking;
 
-        return new List<BookingDto>();
+        return listBookings.Select(x => 
+            new BookingDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                BookingDate = x.BookingDate,
+                ContactNumber = x.ContactNumber,
+                Email = x.Email,
+                Approved = x.Approved,
+                Flexibility = new()
+                {
+                    Id = x.Flexibility.Id,
+                    Description = x.Flexibility.Description
+                },
+                VehicleSize = new()
+                {
+                    Id = x.VehicleSize.Id,
+                    Description= x.VehicleSize.Description
+                }
+            }
+        ).ToList();
     }
 
     public async Task<BookingDto> GetByIdAsync(Guid id)
@@ -49,6 +87,24 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
         if (booking == null)
             return null;
 
-       return new BookingDto { };
+       return new()
+       {
+           Id = booking.Id,
+           Name = booking.Name,
+           BookingDate = booking.BookingDate,
+           ContactNumber = booking.ContactNumber,
+           Email = booking.Email,
+           Approved = booking.Approved,
+           Flexibility = new()
+           {
+               Id = booking.Flexibility.Id,
+               Description = booking.Flexibility.Description
+           },
+           VehicleSize = new()
+           {
+               Id = booking.VehicleSize.Id,
+               Description = booking.VehicleSize.Description
+           }
+       };
     }
 }

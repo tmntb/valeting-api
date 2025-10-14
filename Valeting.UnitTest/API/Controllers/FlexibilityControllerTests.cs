@@ -1,4 +1,3 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -15,7 +14,6 @@ namespace Valeting.Tests.API.Controllers;
 
 public class FlexibilityControllerTests
 {
-    private readonly Mock<IMapper> _mockMapper;
     private readonly Mock<IUrlService> _mockUrlService;
     private readonly Mock<IFlexibilityService> _mockFlexibilityService;
 
@@ -24,11 +22,10 @@ public class FlexibilityControllerTests
 
     public FlexibilityControllerTests()
     {
-        _mockMapper = new Mock<IMapper>();
         _mockUrlService = new Mock<IUrlService>();
         _mockFlexibilityService = new Mock<IFlexibilityService>();
 
-        _flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object, _mockMapper.Object)
+        _flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object)
         {
             ControllerContext = new() {  HttpContext = new DefaultHttpContext() }
         };
@@ -46,9 +43,6 @@ public class FlexibilityControllerTests
     public async Task GetFilteredAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        _mockMapper.Setup(m => m.Map<PaginatedFlexibilityDtoRequest>(It.IsAny<FlexibilityApiParameters>()))
-            .Returns(new PaginatedFlexibilityDtoRequest());
-
         _mockFlexibilityService.Setup(s => s.GetFilteredAsync(It.IsAny<PaginatedFlexibilityDtoRequest>()))
             .ReturnsAsync(
                 new PaginatedFlexibilityDtoResponse
@@ -69,20 +63,6 @@ public class FlexibilityControllerTests
         _mockUrlService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
             .Returns(new GeneratePaginatedLinksDtoResponse());
 
-        _mockMapper.Setup(m => m.Map<PaginationLinksApi>(It.IsAny<GeneratePaginatedLinksDtoResponse>()))
-            .Returns(new PaginationLinksApi());
-
-        _mockMapper.Setup(m => m.Map<List<FlexibilityApi>>(It.IsAny<List<FlexibilityDto>>()))
-            .Returns(new List<FlexibilityApi>
-            {
-                new()
-                {
-                    Id = It.IsAny<Guid>(),
-                    Description = It.IsAny<string>(),
-                    Active = It.IsAny<bool>()
-                }
-            });
-        
         _mockUrlService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
             .Returns(
                 new GenerateSelfUrlDtoResponse
@@ -131,13 +111,6 @@ public class FlexibilityControllerTests
                     {
                         Id = _mockFlexibilityId
                     }
-                });
-
-        _mockMapper.Setup(m => m.Map<FlexibilityApi>(It.IsAny<FlexibilityDto>()))
-            .Returns(
-                new FlexibilityApi
-                {
-                    Id = _mockFlexibilityId
                 });
 
         _mockUrlService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))

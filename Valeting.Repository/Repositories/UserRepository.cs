@@ -1,6 +1,6 @@
 ﻿using Valeting.Common.Models.User;
+using Valeting.Core.Interfaces;
 using Valeting.Repository.Entities;
-using Valeting.Repository.Interfaces;
 
 namespace Valeting.Repository.Repositories;
 
@@ -13,12 +13,22 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
         if (applicationUser == null)
             return null;
 
-        return new UserDto { };
+        return new() 
+        {
+            Id = applicationUser.Id,
+            Username = applicationUser.Username,
+            Password = applicationUser.Password
+        };
     }
 
     public async Task RegisterAsync(UserDto userDto)
     {
-        var applicationUser = new ApplicationUser();
+        var applicationUser = new ApplicationUser
+        {
+            Id = userDto.Id,
+            Username = userDto.Username,
+            Password = userDto.Password
+        };
         await valetingContext.ApplicationUsers.AddAsync(applicationUser);
         await valetingContext.SaveChangesAsync();
     }

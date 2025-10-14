@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Moq;
 using Valeting.Common.Models.Flexibility;
 using Valeting.Repository.Entities;
@@ -9,8 +8,6 @@ namespace Valeting.Tests.Repository;
 
 public class FlexibilityRepositoryTests
 {
-    private readonly Mock<IMapper> _mockMapper;
-
     private readonly ValetingContext _valetingContext;
     private readonly FlexibilityRepository _flexibilityRepository;
     private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
@@ -21,10 +18,8 @@ public class FlexibilityRepositoryTests
            .UseInMemoryDatabase(databaseName: "ValetingTestDb")
            .Options;
 
-        _mockMapper = new Mock<IMapper>();
-
         _valetingContext = new ValetingContext(dbContextOptions);
-        _flexibilityRepository = new FlexibilityRepository(_valetingContext, _mockMapper.Object);
+        _flexibilityRepository = new FlexibilityRepository(_valetingContext);
     }
 
     [Fact]
@@ -35,7 +30,6 @@ public class FlexibilityRepositoryTests
 
         // Assert
         Assert.Null(result);
-        _mockMapper.Verify(m => m.Map<FlexibilityDto>(It.IsAny<RdFlexibility>()), Times.Never);
     }
 
     [Fact]
@@ -51,20 +45,12 @@ public class FlexibilityRepositoryTests
             });
         await _valetingContext.SaveChangesAsync();
 
-        _mockMapper.Setup(m => m.Map<FlexibilityDto>(It.IsAny<RdFlexibility>()))
-            .Returns(
-                new FlexibilityDto
-                {
-                    Id = _mockId
-                });
-
         // Act
         var result = await _flexibilityRepository.GetByIdAsync(_mockId);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(_mockId, result.Id);
-        _mockMapper.Verify(m => m.Map<FlexibilityDto>(It.IsAny<RdFlexibility>()), Times.Once);
 
         // Clear data
         var clearData = _valetingContext.RdFlexibilities;
@@ -94,27 +80,12 @@ public class FlexibilityRepositoryTests
             });
         await _valetingContext.SaveChangesAsync();
 
-        _mockMapper.Setup(m => m.Map<List<FlexibilityDto>>(It.IsAny<IEnumerable<RdFlexibility>>()))
-            .Returns(
-                new List<FlexibilityDto>()
-                {
-                    new()
-                    {
-                        Id = _mockId
-                    },
-                    new()
-                    {
-                        Id = Guid.Parse("00000000-0000-0000-0000-000000000002")
-                    }
-                });
-
         // Act
         var result = await _flexibilityRepository.GetFilteredAsync(new());
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
-        _mockMapper.Verify(m => m.Map<List<FlexibilityDto>>(It.IsAny<IEnumerable<RdFlexibility>>()), Times.Once);
 
         // Clear data
         var clearData = _valetingContext.RdFlexibilities;
@@ -144,16 +115,6 @@ public class FlexibilityRepositoryTests
             });
         await _valetingContext.SaveChangesAsync();
 
-        _mockMapper.Setup(m => m.Map<List<FlexibilityDto>>(It.IsAny<IEnumerable<RdFlexibility>>()))
-            .Returns(
-                new List<FlexibilityDto>()
-                {
-                    new()
-                    {
-                        Id = _mockId
-                    }
-                });
-
         // Act
         var result = await _flexibilityRepository.GetFilteredAsync(
             new()
@@ -164,7 +125,6 @@ public class FlexibilityRepositoryTests
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
-        _mockMapper.Verify(m => m.Map<List<FlexibilityDto>>(It.IsAny<IEnumerable<RdFlexibility>>()), Times.Once);
 
         // Clear data
         var clearData = _valetingContext.RdFlexibilities;
@@ -194,16 +154,6 @@ public class FlexibilityRepositoryTests
             });
         await _valetingContext.SaveChangesAsync();
 
-        _mockMapper.Setup(m => m.Map<List<FlexibilityDto>>(It.IsAny<IEnumerable<RdFlexibility>>()))
-            .Returns(
-                new List<FlexibilityDto>()
-                {
-                    new()
-                    {
-                        Id = Guid.Parse("00000000-0000-0000-0000-000000000002")
-                    }
-                });
-
         // Act
         var result = await _flexibilityRepository.GetFilteredAsync(
             new()
@@ -214,7 +164,6 @@ public class FlexibilityRepositoryTests
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
-        _mockMapper.Verify(m => m.Map<List<FlexibilityDto>>(It.IsAny<IEnumerable<RdFlexibility>>()), Times.Once);
 
         // Clear data
         var clearData = _valetingContext.RdFlexibilities;

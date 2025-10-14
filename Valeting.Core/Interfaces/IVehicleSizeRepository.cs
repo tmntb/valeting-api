@@ -1,6 +1,6 @@
 ﻿using Valeting.Common.Models.VehicleSize;
 
-namespace Valeting.Repository.Interfaces;
+namespace Valeting.Core.Interfaces;
 
 public interface IVehicleSizeRepository
 {

@@ -1,6 +1,6 @@
 ﻿using Valeting.Common.Models.User;
 
-namespace Valeting.Repository.Interfaces;
+namespace Valeting.Core.Interfaces;
 
 public interface IUserRepository
 {

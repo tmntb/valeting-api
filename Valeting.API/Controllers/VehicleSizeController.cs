@@ -16,7 +16,15 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
     {
         ArgumentNullException.ThrowIfNull(vehicleSizeApiParameters, Messages.InvalidRequestQueryParameters);
 
-        var paginatedVehicleSizeDtoRequest = new PaginatedVehicleSizeDtoRequest { };
+        var paginatedVehicleSizeDtoRequest = new PaginatedVehicleSizeDtoRequest 
+        {
+            Filter = new()
+            {
+                PageNumber = vehicleSizeApiParameters.PageNumber,
+                PageSize = vehicleSizeApiParameters.PageSize,
+                Active = vehicleSizeApiParameters.Active                
+            }
+        };
 
         var paginatedVehicleSizeDtoResponse = await vehicleSizeService.GetFilteredAsync(paginatedVehicleSizeDtoRequest);
         var vehicleSizeApiPaginatedResponse = new VehicleSizeApiPaginatedResponse
@@ -46,7 +54,15 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
         var links = new PaginationLinksApi { };
         vehicleSizeApiPaginatedResponse.Links = links;
 
-        var vehicleSizeApis = new List<VehicleSizeApi>();
+        var vehicleSizeApis = paginatedVehicleSizeDtoResponse.VehicleSizes.Select(x =>
+            new VehicleSizeApi()
+            {
+                Id = x.Id,
+                Description = x.Description,
+                Active = x.Active
+            }
+        ).ToList();
+
         vehicleSizeApis.ForEach(v =>
             v.Link = new()
             {
@@ -72,12 +88,17 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlS
 
         var getVehicleSizeDtoResponse = await vehicleSizeService.GetByIdAsync(getVehicleSizeDtoRequest);
 
-        var vehicleSizeApi = new VehicleSizeApi { };
-        vehicleSizeApi.Link = new()
+        var vehicleSizeApi = new VehicleSizeApi
         {
-            Self = new()
+            Id = getVehicleSizeDtoResponse.VehicleSize.Id,
+            Description = getVehicleSizeDtoResponse.VehicleSize.Description,
+            Active = getVehicleSizeDtoResponse.VehicleSize.Active,
+            Link = new()
             {
-                Href = urlService.GenerateSelf(new() { Request = Request }).Self
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new() { Request = Request }).Self
+                }
             }
         };
 

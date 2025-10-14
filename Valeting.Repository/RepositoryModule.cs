@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Valeting.Core.Interfaces;
 using Valeting.Repository.Entities;
-using Valeting.Repository.Interfaces;
 using Valeting.Repository.Repositories;
 
 namespace Valeting.Repository;

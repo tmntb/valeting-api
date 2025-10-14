@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Valeting.Repository.Entities;
-using Valeting.Repository.Interfaces;
 using Valeting.Common.Models.VehicleSize;
+using Valeting.Core.Interfaces;
+using Valeting.Repository.Entities;
 
 namespace Valeting.Repository.Repositories;
 
@@ -14,7 +14,14 @@ public class VehicleSizeRepository(ValetingContext valetingContext) : IVehicleSi
                               where !vehicleSizeFilterDto.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDto.Active
                               select rdVehicleSize;
 
-        return new List<VehicleSizeDto>();
+        return listVehicleSize.Select(x =>
+           new VehicleSizeDto
+           {
+               Id = x.Id,
+               Description = x.Description,
+               Active = x.Active
+           }
+       ).ToList();
     }
 
     public async Task<VehicleSizeDto> GetByIdAsync(Guid id)
@@ -23,6 +30,11 @@ public class VehicleSizeRepository(ValetingContext valetingContext) : IVehicleSi
         if (rdVehicleSize == null)
             return null;
 
-        return new VehicleSizeDto { };
+        return new() 
+        {
+            Id = rdVehicleSize.Id,
+            Description = rdVehicleSize.Description,
+            Active = rdVehicleSize.Active
+        };
     }
 }

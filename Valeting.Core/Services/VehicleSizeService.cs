@@ -5,7 +5,6 @@ using Valeting.Common.Models.VehicleSize;
 using Valeting.Core.Interfaces;
 using Valeting.Core.Validators;
 using Valeting.Core.Validators.Utils;
-using Valeting.Repository.Interfaces;
 
 namespace Valeting.Core.Services;
 

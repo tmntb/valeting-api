@@ -1,18 +1,13 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Moq;
-using Valeting.Common.Models.Booking;
-using Valeting.Common.Models.Flexibility;
 using Valeting.Common.Models.User;
 using Valeting.Repository.Entities;
-using Valeting.Repository.Interfaces;
 using Valeting.Repository.Repositories;
 
 namespace Valeting.Tests.Repository;
 
 public class UserRepositoryTests
 {
-    private readonly Mock<IMapper> _mockMapper;
 
     private readonly ValetingContext _valetingContext;
     private readonly UserRepository _userRepository;
@@ -24,10 +19,8 @@ public class UserRepositoryTests
            .UseInMemoryDatabase(databaseName: "ValetingTestDb")
            .Options;
 
-        _mockMapper = new Mock<IMapper>();
-
         _valetingContext = new ValetingContext(dbContextOptions);
-        _userRepository = new UserRepository(_valetingContext, _mockMapper.Object);
+        _userRepository = new UserRepository(_valetingContext);
     }
 
     [Fact]
@@ -38,7 +31,6 @@ public class UserRepositoryTests
 
         // Assert
         Assert.Null(result);
-        _mockMapper.Verify(m => m.Map<UserDto>(It.IsAny<ApplicationUser>()), Times.Never);
     }
 
     [Fact]
@@ -54,20 +46,12 @@ public class UserRepositoryTests
             });
         await _valetingContext.SaveChangesAsync();
 
-        _mockMapper.Setup(m => m.Map<UserDto>(It.IsAny<ApplicationUser>()))
-            .Returns(
-                new UserDto
-                {
-                    Id = _mockId
-                });
-
         // Act
         var result = await _userRepository.GetUserByEmailAsync("username");
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(_mockId, result.Id);
-        _mockMapper.Verify(m => m.Map<UserDto>(It.IsAny<ApplicationUser>()), Times.Once);
 
         // Clear data
         var clearData = _valetingContext.ApplicationUsers;
@@ -78,16 +62,6 @@ public class UserRepositoryTests
     [Fact]
     public async Task RegisterAsync_ShouldAddUserToDatabase()
     {
-        // Arrange
-        _mockMapper.Setup(m => m.Map<ApplicationUser>(It.IsAny<UserDto>()))
-            .Returns(
-                new ApplicationUser
-                {
-                    Id = _mockId,
-                    Username = "username",
-                    Password = "password"
-                });
-
         // Act
         await _userRepository.RegisterAsync(
             new()
@@ -101,7 +75,6 @@ public class UserRepositoryTests
 
         // Assert
         Assert.NotNull(result);
-        _mockMapper.Verify(m => m.Map<ApplicationUser>(It.IsAny<UserDto>()), Times.Once);
 
         // Clear data
         _valetingContext.ApplicationUsers.Remove(result);

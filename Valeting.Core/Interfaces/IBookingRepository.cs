@@ -1,6 +1,6 @@
 ﻿using Valeting.Common.Models.Booking;
 
-namespace Valeting.Repository.Interfaces;
+namespace Valeting.Core.Interfaces;
 
 public interface IBookingRepository
 {

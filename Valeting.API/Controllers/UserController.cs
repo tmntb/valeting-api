@@ -14,7 +14,11 @@ public class UserController(IUserService userService) : UserBaseController
     {
         ArgumentNullException.ThrowIfNull(loginApiRequest, Messages.InvalidRequestBody);
 
-        var validateLoginDtoRequest = new ValidateLoginDtoRequest { };
+        var validateLoginDtoRequest = new ValidateLoginDtoRequest 
+        {
+            Username = loginApiRequest.Username,
+            Password = loginApiRequest.Password
+        };
         var validateLoginDtoResponse = await userService.ValidateLoginAsync(validateLoginDtoRequest);
         if (!validateLoginDtoResponse.Valid)
         {
@@ -24,7 +28,12 @@ public class UserController(IUserService userService) : UserBaseController
         var generateTokenJWTDtoRequest = new GenerateTokenJWTDtoRequest { };
         var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(generateTokenJWTDtoRequest);
 
-        var validateLoginApiResponse =  new LoginApiResponse { };
+        var validateLoginApiResponse =  new LoginApiResponse 
+        {
+            Token = generateTokenJWTDtoResponse.Token,
+            TokenType = generateTokenJWTDtoResponse.TokenType,
+            ExpiryDate = generateTokenJWTDtoResponse.ExpiryDate
+        };
         return StatusCode((int)HttpStatusCode.OK, validateLoginApiResponse);
     }
 
@@ -32,7 +41,11 @@ public class UserController(IUserService userService) : UserBaseController
     {
         ArgumentNullException.ThrowIfNull(registerApiRequest, Messages.InvalidRequestBody);
 
-        var registerDtoRequest = new RegisterDtoRequest { };
+        var registerDtoRequest = new RegisterDtoRequest 
+        {
+            Username = registerApiRequest.Username,
+            Password = registerApiRequest.Password,
+        };
         await userService.RegisterAsync(registerDtoRequest);
 
         return StatusCode((int)HttpStatusCode.OK);

@@ -80,8 +80,23 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
 
         var bookingApi = new BookingApi
         {
-
+            Id = getBookingDtoResponse.Booking.Id,
+            Name = getBookingDtoResponse.Booking.Name,
+            BookingDate = getBookingDtoResponse.Booking.BookingDate,
+            Flexibility = new()
+            {
+                Id = getBookingDtoResponse.Booking.Flexibility.Id,
+                Description = getBookingDtoResponse.Booking.Flexibility.Description
+            },
+            VehicleSize = new()
+            {
+                Id = getBookingDtoResponse.Booking.VehicleSize.Id,
+                Description = getBookingDtoResponse.Booking.VehicleSize.Description
+            },
+            ContactNumber = getBookingDtoResponse.Booking.ContactNumber.Value,
+            Approved = getBookingDtoResponse.Booking.Approved
         };
+
         bookingApi.Flexibility.Link = new()
         {
             Self = new()
@@ -115,7 +130,14 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
     {
         ArgumentNullException.ThrowIfNull(bookingApiParameters, Messages.InvalidRequestQueryParameters);
 
-        var paginatedBookingDtoRequest = new PaginatedBookingDtoRequest { };
+        var paginatedBookingDtoRequest = new PaginatedBookingDtoRequest
+        {
+            Filter = new()
+            {
+                PageNumber = bookingApiParameters.PageNumber,
+                PageSize = bookingApiParameters.PageSize
+            }
+        };
 
         var paginatedBookingDtoResponse = await bookingService.GetFilteredAsync(paginatedBookingDtoRequest);
 
@@ -146,7 +168,27 @@ public class BookingController(IBookingService bookingService, IUrlService urlSe
         var links = new PaginationLinksApi { };
         bookingApiPaginatedResponse.Links = links;
 
-        var bookingApis = new List<BookingApi>();
+        var bookingApis = paginatedBookingDtoResponse.Bookings.Select(x =>
+            new BookingApi
+            {
+                Id = x.Id,
+                Name = x.Name,
+                BookingDate = x.BookingDate,
+                Flexibility = new()
+                {
+                    Id = x.Flexibility.Id,
+                    Description = x.Flexibility.Description
+                },
+                VehicleSize = new()
+                {
+                    Id = x.VehicleSize.Id,
+                    Description = x.VehicleSize.Description
+                },
+                ContactNumber = x.ContactNumber.Value,
+                Approved = x.Approved
+            }
+        ).ToList();
+
         bookingApis.ForEach(b =>
         {
             b.Flexibility.Link = new()

@@ -18,6 +18,12 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
 
         var paginatedFlexibilityDtoRequest = new PaginatedFlexibilityDtoRequest 
         { 
+            Filter = new()
+            {
+                PageNumber = flexibilityApiParameters.PageNumber,
+                PageSize = flexibilityApiParameters.PageSize,
+                Active = flexibilityApiParameters.Active
+            }
         };
         var paginatedFlexibilityDtoResponse = await flexibilityService.GetFilteredAsync(paginatedFlexibilityDtoRequest);
 
@@ -48,7 +54,15 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
         var links = new PaginationLinksApi { };
         flexibilityApiPaginatedResponse.Links = links;
 
-        var flexibilityApis = new List<FlexibilityApi>();
+        var flexibilityApis = paginatedFlexibilityDtoResponse.Flexibilities.Select(x => 
+            new FlexibilityApi()
+            {
+                Id = x.Id,
+                Description = x.Description,
+                Active = x.Active
+            }
+        ).ToList();
+
         flexibilityApis.ForEach(f =>
             f.Link = new()
             {
@@ -74,12 +88,17 @@ public class FlexibilityController(IFlexibilityService flexibilityService, IUrlS
 
         var getFlexibilityDtoResponse = await flexibilityService.GetByIdAsync(getFlexibilityDtoRequest);
 
-        var flexibilityApi = new FlexibilityApi { };
-        flexibilityApi.Link = new()
+        var flexibilityApi = new FlexibilityApi
         {
-            Self = new()
+            Id = getFlexibilityDtoResponse.Flexibility.Id,
+            Description = getFlexibilityDtoResponse.Flexibility.Description,
+            Active = getFlexibilityDtoResponse.Flexibility.Active,
+            Link = new()
             {
-                Href = urlService.GenerateSelf(new() { Request = Request }).Self
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new() { Request = Request }).Self
+                }
             }
         };
 

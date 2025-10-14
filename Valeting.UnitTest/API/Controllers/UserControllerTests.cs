@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Net;
 using Valeting.API.Controllers;
@@ -13,16 +12,14 @@ namespace Valeting.Tests.API.Controllers;
 public class UserControllerTests
 {
     private readonly Mock<IUserService> _mockUserService;
-    private readonly Mock<IMapper> _mockMapper;
 
     private readonly UserController _userController;
 
     public UserControllerTests()
     {
         _mockUserService = new Mock<IUserService>();
-        _mockMapper = new Mock<IMapper>();
 
-        _userController = new UserController(_mockUserService.Object, _mockMapper.Object);
+        _userController = new UserController(_mockUserService.Object);
     }
 
     [Fact]
@@ -37,9 +34,6 @@ public class UserControllerTests
     public async Task Login_ShouldThrowUnauthorizedAccessException_WhenInvalidCredentials()
     {
         // Arrange
-        _mockMapper.Setup(m => m.Map<ValidateLoginDtoRequest>(It.IsAny<LoginApiRequest>()))
-            .Returns(new ValidateLoginDtoRequest());
-
         _mockUserService.Setup(s => s.ValidateLoginAsync(It.IsAny<ValidateLoginDtoRequest>()))
             .ReturnsAsync(
                 new ValidateLoginDtoResponse
@@ -62,8 +56,6 @@ public class UserControllerTests
     public async Task Login_ShouldReturnOk_WhenCredentialsAreValid()
     {
         // Arrange
-        _mockMapper.Setup(m => m.Map<ValidateLoginDtoRequest>(It.IsAny<LoginApiRequest>()))
-            .Returns(new ValidateLoginDtoRequest());
         _mockUserService.Setup(s => s.ValidateLoginAsync(It.IsAny<ValidateLoginDtoRequest>()))
             .ReturnsAsync(
                 new ValidateLoginDtoResponse
@@ -71,24 +63,11 @@ public class UserControllerTests
                     Valid = true
                 });
 
-        _mockMapper.Setup(m => m.Map<GenerateTokenJWTDtoRequest>(It.IsAny<LoginApiRequest>()))
-            .Returns(new GenerateTokenJWTDtoRequest());
-
         _mockUserService.Setup(s => s.GenerateTokenJWTAsync(It.IsAny<GenerateTokenJWTDtoRequest>()))
             .ReturnsAsync(
                 new GenerateTokenJWTDtoResponse
                 {
                     Token = It.IsAny<string>()
-                });
-
-        var dateNow = DateTime.Now;
-        _mockMapper.Setup(m => m.Map<LoginApiResponse>(It.IsAny<GenerateTokenJWTDtoResponse>()))
-            .Returns(
-                new LoginApiResponse
-                {
-                    Token = "validToken",
-                    ExpiryDate = dateNow,
-                    TokenType = "jwt"
                 });
 
         // Act
@@ -107,7 +86,7 @@ public class UserControllerTests
 
         var responseApi = (LoginApiResponse)result.Value;
         Assert.Equal("validToken", responseApi.Token);
-        Assert.Equal(dateNow, responseApi.ExpiryDate);
+        Assert.Equal(DateTime.Now, responseApi.ExpiryDate);
         Assert.Equal("jwt", responseApi.TokenType);
     }
 
@@ -123,9 +102,6 @@ public class UserControllerTests
     public async Task Register_ShouldReturnOk_WhenSuccessful()
     {
         // Arrange
-        _mockMapper.Setup(m => m.Map<RegisterDtoRequest>(It.IsAny<RegisterApiRequest>()))
-            .Returns(new RegisterDtoRequest());
-
         _mockUserService.Setup(s => s.RegisterAsync(It.IsAny<RegisterDtoRequest>()))
             .Returns(Task.CompletedTask);
 

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Net;
@@ -15,7 +14,6 @@ namespace Valeting.Tests.API.Controllers;
 
 public class VehicleSizeControllerTests
 {
-    private readonly Mock<IMapper> _mockMapper;
     private readonly Mock<IUrlService> _mockUrlService;
     private readonly Mock<IVehicleSizeService> _mockVehicleSizeService;
 
@@ -24,11 +22,10 @@ public class VehicleSizeControllerTests
 
     public VehicleSizeControllerTests()
     {
-        _mockMapper = new Mock<IMapper>();
         _mockUrlService = new Mock<IUrlService>();
         _mockVehicleSizeService = new Mock<IVehicleSizeService>();
 
-        _vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object, _mockMapper.Object)
+        _vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object)
         {
             ControllerContext = new() { HttpContext = new DefaultHttpContext() }
         };
@@ -46,9 +43,6 @@ public class VehicleSizeControllerTests
     public async Task GetFilteredAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        _mockMapper.Setup(m => m.Map<PaginatedVehicleSizeDtoRequest>(It.IsAny<VehicleSizeApiParameters>()))
-            .Returns(new PaginatedVehicleSizeDtoRequest());
-
         _mockVehicleSizeService.Setup(s => s.GetFilteredAsync(It.IsAny<PaginatedVehicleSizeDtoRequest>()))
             .ReturnsAsync(
                 new PaginatedVehicleSizeDtoResponse
@@ -68,21 +62,6 @@ public class VehicleSizeControllerTests
 
         _mockUrlService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
             .Returns(new GeneratePaginatedLinksDtoResponse());
-
-        _mockMapper.Setup(m => m.Map<PaginationLinksApi>(It.IsAny<GeneratePaginatedLinksDtoResponse>()))
-            .Returns(new PaginationLinksApi());
-
-        _mockMapper.Setup(m => m.Map<List<VehicleSizeApi>>(It.IsAny<List<VehicleSizeDto>>()))
-            .Returns(
-                new List<VehicleSizeApi>
-                {
-                    new()
-                    {
-                        Id = _mockVehicleSizeId,
-                        Description = "description",
-                        Active = true
-                    }
-                });
 
         _mockUrlService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
             .Returns(
@@ -132,13 +111,6 @@ public class VehicleSizeControllerTests
                     {
                         Id = _mockVehicleSizeId
                     }
-                });
-
-        _mockMapper.Setup(m => m.Map<VehicleSizeApi>(It.IsAny<VehicleSizeDto>()))
-            .Returns(
-                new VehicleSizeApi
-                {
-                    Id = _mockVehicleSizeId
                 });
 
         _mockUrlService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
