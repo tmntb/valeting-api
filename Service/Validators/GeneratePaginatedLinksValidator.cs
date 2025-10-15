@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Common.Models.Link;
+using Service.Models.Link.Payload;
 
 namespace Service.Validators;
 

@@ -1,8 +1,9 @@
 ﻿using Common.Cache;
 using Common.Cache.Interfaces;
 using Common.Messages;
-using Common.Models.VehicleSize;
 using Service.Interfaces;
+using Service.Models.VehicleSize;
+using Service.Models.VehicleSize.Payload;
 using Service.Validators;
 using Service.Validators.Utils;
 
@@ -13,8 +14,6 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
     /// <inheritdoc />
     public async Task<VehicleSizeDto> GetByIdAsync(Guid id)
     {
-        var getVehicleSizeDtoResponse = new GetVehicleSizeDtoResponse();
-
         return await cacheHandler.GetOrCreateRecordAsync(
             id,
             async () =>

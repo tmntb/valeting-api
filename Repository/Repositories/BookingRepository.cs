@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
-using Common.Models.Booking;
 using Service.Interfaces;
+using Service.Models.Booking;
+using Service.Models.Booking.Payload;
 
 namespace Repository.Repositories;
 

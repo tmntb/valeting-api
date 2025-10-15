@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Common.Cache;
-using Service.Services;
-using Service.Interfaces;
+﻿using Common.Cache;
 using Common.Cache.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Service.Interfaces;
+using Service.Services;
 using Service.Validators.Utils;
 
 namespace Service;
@@ -19,6 +19,6 @@ public static class CoreModule
         services.AddScoped<IFlexibilityService, FlexibilityService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IVehicleSizeService, VehicleSizeService>();
-        services.AddScoped<IUrlService, UrlService>();
+        services.AddScoped<ILinkService, LinkService>();
     }
 }

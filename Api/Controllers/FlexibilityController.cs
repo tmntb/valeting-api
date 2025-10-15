@@ -2,15 +2,15 @@
 using Api.Models.Core;
 using Api.Models.Flexibility;
 using Common.Messages;
-using Common.Models.Flexibility;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using Service.Models.Flexibility.Payload;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
 namespace Api.Controllers;
 
-public class FlexibilityController(IFlexibilityService flexibilityService, IUrlService urlService) : FlexibilityBaseController
+public class FlexibilityController(IFlexibilityService flexibilityService, ILinkService urlService) : FlexibilityBaseController
 {
     public override async Task<IActionResult> GetFilteredAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
     {

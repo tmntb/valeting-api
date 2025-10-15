@@ -1,8 +1,8 @@
+using Common.Messages;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using Common.Messages;
-using Common.Models.User;
 using Service.Interfaces;
+using Service.Models.User;
 using Service.Services;
 
 namespace Service.Tests.Services;

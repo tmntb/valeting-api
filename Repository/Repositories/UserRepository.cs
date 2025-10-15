@@ -1,6 +1,6 @@
-﻿using Common.Models.User;
+﻿using Repository.Entities;
 using Service.Interfaces;
-using Repository.Entities;
+using Service.Models.User;
 
 namespace Repository.Repositories;
 

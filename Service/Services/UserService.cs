@@ -1,13 +1,14 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Common.Messages;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Service.Interfaces;
+using Service.Models.User;
+using Service.Models.User.Payload;
+using Service.Validators;
+using Service.Validators.Utils;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Common.Messages;
-using Common.Models.User;
-using Service.Interfaces;
-using Service.Validators;
-using Service.Validators.Utils;
 
 namespace Service.Services;
 

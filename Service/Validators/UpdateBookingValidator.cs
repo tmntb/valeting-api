@@ -1,5 +1,5 @@
-﻿using Common.Models.Booking;
-using FluentValidation;
+﻿using FluentValidation;
+using Service.Models.Booking;
 
 namespace Service.Validators;
 

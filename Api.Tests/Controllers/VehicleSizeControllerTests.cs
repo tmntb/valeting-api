@@ -1,20 +1,20 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using System.Net;
-using Api.Controllers;
-using Api.Models.Core;
+﻿using Api.Controllers;
 using Api.Models.VehicleSize;
 using Common.Messages;
-using Common.Models.Link;
-using Common.Models.VehicleSize;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 using Service.Interfaces;
+using Service.Models.Link.Payload;
+using Service.Models.VehicleSize;
+using Service.Models.VehicleSize.Payload;
+using System.Net;
 
 namespace Api.Tests.Controllers;
 
 public class VehicleSizeControllerTests
 {
-    private readonly Mock<IUrlService> _mockUrlService;
+    private readonly Mock<ILinkService> _mockLinkService;
     private readonly Mock<IVehicleSizeService> _mockVehicleSizeService;
 
     private readonly Guid _mockVehicleSizeId = Guid.Parse("00000000-0000-0000-0000-000000000001");
@@ -22,10 +22,10 @@ public class VehicleSizeControllerTests
 
     public VehicleSizeControllerTests()
     {
-        _mockUrlService = new Mock<IUrlService>();
+        _mockLinkService = new Mock<ILinkService>();
         _mockVehicleSizeService = new Mock<IVehicleSizeService>();
 
-        _vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockUrlService.Object)
+        _vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockLinkService.Object)
         {
             ControllerContext = new() { HttpContext = new DefaultHttpContext() }
         };
@@ -60,10 +60,10 @@ public class VehicleSizeControllerTests
                     ]
                 });
 
-        _mockUrlService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
+        _mockLinkService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
             .Returns(new GeneratePaginatedLinksDtoResponse());
 
-        _mockUrlService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
+        _mockLinkService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
             .Returns($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}");
 
         // Act
@@ -106,7 +106,7 @@ public class VehicleSizeControllerTests
                     Id = _mockVehicleSizeId
                 });
 
-        _mockUrlService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
+        _mockLinkService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
             .Returns($"http://example.com/flexibility/{_mockVehicleSizeId}");
 
         // Act

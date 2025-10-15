@@ -2,15 +2,15 @@
 using Api.Models.Core;
 using Api.Models.VehicleSize;
 using Common.Messages;
-using Common.Models.VehicleSize;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using Service.Models.VehicleSize.Payload;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
 namespace Api.Controllers;
 
-public class VehicleSizeController(IVehicleSizeService vehicleSizeService, IUrlService urlService) : VehicleSizeBaseController
+public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILinkService urlService) : VehicleSizeBaseController
 {
     public override async Task<IActionResult> GetFilteredAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
     {

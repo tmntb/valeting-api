@@ -1,5 +1,5 @@
 using FluentValidation;
-using Common.Models.Flexibility;
+using Service.Models.Flexibility.Payload;
 
 namespace Service.Validators;
 

@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Common.Models.VehicleSize;
-using Service.Interfaces;
 using Repository.Entities;
+using Service.Interfaces;
+using Service.Models.VehicleSize;
+using Service.Models.VehicleSize.Payload;
 
 namespace Repository.Repositories;
 

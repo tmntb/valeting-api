@@ -1,8 +1,9 @@
 ﻿using Common.Cache;
 using Common.Cache.Interfaces;
 using Common.Messages;
-using Common.Models.Booking;
 using Service.Interfaces;
+using Service.Models.Booking;
+using Service.Models.Booking.Payload;
 using Service.Validators;
 using Service.Validators.Utils;
 

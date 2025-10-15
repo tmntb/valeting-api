@@ -1,20 +1,20 @@
+using Api.Controllers;
+using Api.Models.Flexibility;
+using Common.Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System.Net;
-using Api.Controllers;
-using Api.Models.Core;
-using Api.Models.Flexibility;
-using Common.Messages;
-using Common.Models.Flexibility;
-using Common.Models.Link;
 using Service.Interfaces;
+using Service.Models.Flexibility;
+using Service.Models.Flexibility.Payload;
+using Service.Models.Link.Payload;
+using System.Net;
 
 namespace Api.Tests.Controllers;
 
 public class FlexibilityControllerTests
 {
-    private readonly Mock<IUrlService> _mockUrlService;
+    private readonly Mock<ILinkService> _mockLinkService;
     private readonly Mock<IFlexibilityService> _mockFlexibilityService;
 
     private readonly Guid _mockFlexibilityId = Guid.Parse("00000000-0000-0000-0000-000000000001");
@@ -22,10 +22,10 @@ public class FlexibilityControllerTests
 
     public FlexibilityControllerTests()
     {
-        _mockUrlService = new Mock<IUrlService>();
+        _mockLinkService = new Mock<ILinkService>();
         _mockFlexibilityService = new Mock<IFlexibilityService>();
 
-        _flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockUrlService.Object)
+        _flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockLinkService.Object)
         {
             ControllerContext = new() { HttpContext = new DefaultHttpContext() }
         };
@@ -60,10 +60,10 @@ public class FlexibilityControllerTests
                     ]
                 });
 
-        _mockUrlService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
+        _mockLinkService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
             .Returns(new GeneratePaginatedLinksDtoResponse());
 
-        _mockUrlService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
+        _mockLinkService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
             .Returns($"https://api.test.com/flexibilities/{_mockFlexibilityId}");
 
         // Act
@@ -106,7 +106,7 @@ public class FlexibilityControllerTests
                     Id = _mockFlexibilityId
                 });
 
-        _mockUrlService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
+        _mockLinkService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
             .Returns($"http://example.com/flexibility/{_mockFlexibilityId}");
 
         // Act

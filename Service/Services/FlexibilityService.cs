@@ -1,8 +1,9 @@
 ﻿using Common.Cache;
 using Common.Cache.Interfaces;
 using Common.Messages;
-using Common.Models.Flexibility;
 using Service.Interfaces;
+using Service.Models.Flexibility;
+using Service.Models.Flexibility.Payload;
 using Service.Validators;
 using Service.Validators.Utils;
 

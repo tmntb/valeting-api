@@ -1,7 +1,7 @@
 ﻿using Moq;
-using Common.Models.Flexibility;
-using Common.Models.VehicleSize;
 using Service.Interfaces;
+using Service.Models.Flexibility;
+using Service.Models.VehicleSize;
 using Service.Validators.Utils;
 
 namespace Service.Tests.Validators.Utils;

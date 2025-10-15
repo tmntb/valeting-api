@@ -1,4 +1,4 @@
-﻿using Common.Models.User;
+﻿using Service.Models.User.Payload;
 
 namespace Service.Interfaces;
 

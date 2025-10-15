@@ -1,5 +1,5 @@
 using FluentValidation;
-using Common.Models.VehicleSize;
+using Service.Models.VehicleSize.Payload;
 
 namespace Service.Validators;
 

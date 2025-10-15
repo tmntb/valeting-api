@@ -1,4 +1,5 @@
-﻿using Common.Models.VehicleSize;
+﻿using Service.Models.VehicleSize;
+using Service.Models.VehicleSize.Payload;
 
 namespace Service.Interfaces;
 

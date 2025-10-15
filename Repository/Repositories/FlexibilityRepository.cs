@@ -1,12 +1,27 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Common.Models.Flexibility;
-using Service.Interfaces;
 using Repository.Entities;
+using Service.Interfaces;
+using Service.Models.Flexibility;
+using Service.Models.Flexibility.Payload;
 
 namespace Repository.Repositories;
 
 public class FlexibilityRepository(ValetingContext valetingContext) : IFlexibilityRepository
 {
+    public async Task<FlexibilityDto> GetByIdAsync(Guid id)
+    {
+        var rdFlexibility = await valetingContext.RdFlexibilities.FindAsync(id);
+        if (rdFlexibility == null)
+            return null;
+
+        return new()
+        {
+            Id = rdFlexibility.Id,
+            Description = rdFlexibility.Description,
+            Active = rdFlexibility.Active
+        };
+    }
+
     public async Task<List<FlexibilityDto>> GetFilteredAsync(FlexibilityFilterDto flexibilityFilterDto)
     {
         var initialList = await valetingContext.RdFlexibilities.ToListAsync();
@@ -22,19 +37,5 @@ public class FlexibilityRepository(ValetingContext valetingContext) : IFlexibili
                 Active = x.Active
             }
         ).ToList();
-    }
-
-    public async Task<FlexibilityDto> GetByIdAsync(Guid id)
-    {
-        var rdFlexibility = await valetingContext.RdFlexibilities.FindAsync(id);
-        if (rdFlexibility == null)
-            return null;
-
-        return new() 
-        {
-            Id = rdFlexibility.Id,
-            Description = rdFlexibility.Description,
-            Active = rdFlexibility.Active
-        };
     }
 }

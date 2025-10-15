@@ -1,4 +1,5 @@
-﻿using Common.Models.Booking;
+﻿using Service.Models.Booking;
+using Service.Models.Booking.Payload;
 
 namespace Service.Interfaces;
 

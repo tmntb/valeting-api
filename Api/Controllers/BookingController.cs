@@ -2,15 +2,16 @@
 using Api.Models.Booking;
 using Api.Models.Core;
 using Common.Messages;
-using Common.Models.Booking;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using Service.Models.Booking;
+using Service.Models.Booking.Payload;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
 namespace Api.Controllers;
 
-public class BookingController(IBookingService bookingService, IUrlService urlService) : BookingBaseController
+public class BookingController(IBookingService bookingService, ILinkService urlService) : BookingBaseController
 {
     public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
     {

@@ -1,9 +1,9 @@
 ﻿using Api.Controllers.BaseController;
 using Api.Models.User;
 using Common.Messages;
-using Common.Models.User;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using Service.Models.User.Payload;
 using System.Net;
 
 namespace Api.Controllers;

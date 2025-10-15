@@ -1,20 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Moq;
-using System.Net;
-using Api.Controllers;
+﻿using Api.Controllers;
 using Api.Models.Booking;
-using Api.Models.Core;
 using Common.Messages;
-using Common.Models.Booking;
-using Common.Models.Link;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 using Service.Interfaces;
+using Service.Models.Booking;
+using Service.Models.Booking.Payload;
+using Service.Models.Link.Payload;
+using System.Net;
 
 namespace Api.Tests.Controllers;
 
 public class BookingControllerTests
 {
     private readonly Mock<IBookingService> _mockBookingService;
-    private readonly Mock<IUrlService> _mockUrlService;
+    private readonly Mock<ILinkService> _mockLinkService;
 
     private readonly Guid _mockBookingId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly Guid _mockFlexibilityId = Guid.Parse("00000000-0000-0000-0000-000000000002");
@@ -24,9 +24,9 @@ public class BookingControllerTests
     public BookingControllerTests()
     {
         _mockBookingService = new Mock<IBookingService>();
-        _mockUrlService = new Mock<IUrlService>();
+        _mockLinkService = new Mock<ILinkService>();
 
-        _bookingController = new BookingController(_mockBookingService.Object, _mockUrlService.Object);
+        _bookingController = new BookingController(_mockBookingService.Object, _mockLinkService.Object);
     }
 
     [Fact]
@@ -153,7 +153,7 @@ public class BookingControllerTests
                     ContactNumber = 123
                 });
 
-        _mockUrlService.SetupSequence(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
+        _mockLinkService.SetupSequence(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
             .Returns($"https://api.test.com/flexibilities/{_mockFlexibilityId}")
             .Returns($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}")
             .Returns($"https://api.test.com/bookings/{_mockBookingId}");
@@ -199,10 +199,10 @@ public class BookingControllerTests
                     ]
                 });
 
-        _mockUrlService.Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
+        _mockLinkService.Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
             .Returns(new GeneratePaginatedLinksDtoResponse());
 
-        _mockUrlService.SetupSequence(u => u.GenerateSelf(It.IsAny<GenerateSelfUrlDtoRequest>()))
+        _mockLinkService.SetupSequence(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
             .Returns($"https://api.test.com/flexibilities/{_mockFlexibilityId}")
             .Returns($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}")
             .Returns($"https://api.test.com/bookings/{_mockBookingId}");

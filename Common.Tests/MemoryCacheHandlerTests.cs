@@ -1,8 +1,7 @@
+using Common.Cache;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using System.Text.Json;
-using Common.Cache;
-using Common.Models.Booking;
 
 namespace Common.Tests;
 
@@ -41,7 +40,7 @@ public class MemoryCacheHandlerTests
     public async Task GetOrCreateRecordAsync_CacheMissList_CallsOnCacheMiss()
     {
         // Arrange
-        var request = new List<BookingDto> { new() };
+        var request = new List<TestData> { new() };
         var cacheOptions = new CacheOptions { AbsoluteExpireTime = TimeSpan.FromMinutes(5), ListType = CacheListType.Booking };
         var expectedResponse = JsonSerializer.Serialize(request);
 
@@ -98,7 +97,7 @@ public class MemoryCacheHandlerTests
     {
         // Arrange
         var listType = CacheListType.Booking;
-        var request = new List<BookingDto> { new() };
+        var request = new List<TestData> { new() };
         var cacheOptions = new CacheOptions { AbsoluteExpireTime = TimeSpan.FromMinutes(5), ListType = CacheListType.Booking };
         var expectedResponse = JsonSerializer.Serialize(request);
 
@@ -125,7 +124,7 @@ public class MemoryCacheHandlerTests
         SetupCacheMiss(expectedResponse);
         await _cacheHandler.GetOrCreateRecordAsync(request, () => SimulateCacheMiss(expectedResponse), cacheOptions);
 
-        var requestList = new List<BookingDto> { new() };
+        var requestList = new List<TestData> { new() };
         var cacheOptionsList = new CacheOptions { AbsoluteExpireTime = TimeSpan.FromMinutes(5), ListType = CacheListType.Booking };
         var expectedResponseList = JsonSerializer.Serialize(request);
 
@@ -159,4 +158,10 @@ public class MemoryCacheHandlerTests
                 return cacheEntry.Object;
             });
     }
+}
+
+public record TestData
+{
+    public int Id { get; set; }
+    public string Description { get; set; }
 }
