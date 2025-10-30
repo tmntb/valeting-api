@@ -106,6 +106,15 @@ namespace Common.Messages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid Token..
+        /// </summary>
+        public static string InvalidToken {
+            get {
+                return ResourceManager.GetString("InvalidToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Record not found..
         /// </summary>
         public static string NotFound {

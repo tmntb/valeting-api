@@ -1,5 +1,5 @@
 using Api.Controllers;
-using Api.Models.Flexibility;
+using Api.Models.Flexibility.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

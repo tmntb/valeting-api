@@ -1,33 +1,30 @@
-﻿using FluentValidation;
+﻿using Api.Middleware;
+using Api.Models.Core;
+using Api.Models.Middleware;
+using FluentValidation;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Moq;
 using System.Net;
 using System.Text.Json;
-using Api.Middleware;
-using Api.Models.Core;
-using Api.Models.Middleware;
 
 namespace Api.Tests.Middleware;
 
 public class ExceptionHandlingMiddlewareTests
 {
-    private readonly Mock<ILogger<ExceptionHandlingMiddleware>> _mockLogger;
     private readonly Mock<IWebHostEnvironment> _mockEnvironment;
 
     private readonly ExceptionHandlingMiddleware _middleware;
 
     public ExceptionHandlingMiddlewareTests()
     {
-        _mockLogger = new Mock<ILogger<ExceptionHandlingMiddleware>>();
         _mockEnvironment = new Mock<IWebHostEnvironment>();
 
         _mockEnvironment.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        _middleware = new ExceptionHandlingMiddleware(_mockLogger.Object);
+        _middleware = new ExceptionHandlingMiddleware();
     }
 
     [Fact]

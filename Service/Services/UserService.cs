@@ -19,11 +19,9 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
     {
         var userDto = await userRepository.GetUserByEmailAsync(username) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        var secret = configuration["Jwt:Key"];
-        var issuer = configuration["Jwt:Issuer"];
-        var audience = configuration["Jwt:Audience"];
+        var (issuer, audience) = GetJwtSettings();
 
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+        var securityKey = GetSecurityKey();
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -80,5 +78,39 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         return BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.Password);
+    }
+
+    /// <inheritdoc />
+    public string ValidateToken(string token)
+    {
+        var (issuer, audience) = GetJwtSettings();
+        var securityKey = GetSecurityKey();
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = issuer,
+            ValidAudience = audience,
+            IssuerSigningKey = securityKey,
+            ClockSkew = TimeSpan.Zero
+        }, out _);
+
+        return principal.FindFirst("Username")?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
+    }
+
+    private (string Issuer, string Audience) GetJwtSettings()
+    {
+        var issuer = configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT issuer not configured.");
+        var audience = configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT audience not configured.");
+        return (issuer, audience);
+    }
+
+    private SymmetricSecurityKey GetSecurityKey()
+    {
+        var secret = configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT secret not configured.");
+        return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
     }
 }

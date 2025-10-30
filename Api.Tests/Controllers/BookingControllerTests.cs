@@ -1,5 +1,5 @@
 ﻿using Api.Controllers;
-using Api.Models.Booking;
+using Api.Models.Booking.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

@@ -1,5 +1,6 @@
 ﻿using Api.Controllers.BaseController;
 using Api.Models.Booking;
+using Api.Models.Booking.Payload;
 using Api.Models.Core;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace Api.Controllers;
 
 public class BookingController(IBookingService bookingService, ILinkService urlService) : BookingBaseController
 {
+    /// <inheritdoc />
     public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
     {
         ArgumentNullException.ThrowIfNull(createBookingApiRequest, Messages.InvalidRequestBody);
@@ -42,6 +44,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
     }
 
+    /// <inheritdoc />
     public override async Task<IActionResult> UpdateAsync([FromRoute(Name = "id"), MinLength(1), Required] string id, [FromBody] UpdateBookingApiRequest updateBookingApiRequest)
     {
         ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
@@ -56,6 +59,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         return StatusCode((int)HttpStatusCode.NoContent);
     }
 
+    /// <inheritdoc />
     public override async Task<IActionResult> DeleteAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
         ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
@@ -64,6 +68,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         return StatusCode((int)HttpStatusCode.NoContent);
     }
 
+    /// <inheritdoc />
     public override async Task<IActionResult> GetByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
     {
         ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
@@ -118,6 +123,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         return StatusCode((int)HttpStatusCode.OK, bookingApiResponse);
     }
 
+    /// <inheritdoc />
     public override async Task<IActionResult> GetFilteredAsync([FromQuery] BookingApiParameters bookingApiParameters)
     {
         ArgumentNullException.ThrowIfNull(bookingApiParameters, Messages.InvalidRequestQueryParameters);

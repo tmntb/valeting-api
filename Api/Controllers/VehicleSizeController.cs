@@ -1,6 +1,7 @@
 ﻿using Api.Controllers.BaseController;
 using Api.Models.Core;
 using Api.Models.VehicleSize;
+using Api.Models.VehicleSize.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
@@ -12,15 +13,44 @@ namespace Api.Controllers;
 
 public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILinkService urlService) : VehicleSizeBaseController
 {
+    /// <inheritdoc />
+    public override async Task<IActionResult> GetByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
+    {
+        ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
+
+        var vehicleSizeDto = await vehicleSizeService.GetByIdAsync(Guid.Parse(id));
+
+        var vehicleSizeApi = new VehicleSizeApi
+        {
+            Id = vehicleSizeDto.Id,
+            Description = vehicleSizeDto.Description,
+            Active = vehicleSizeDto.Active,
+            Link = new()
+            {
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new() { Request = Request })
+                }
+            }
+        };
+
+        var vehicleSizeApiResponse = new VehicleSizeApiResponse
+        {
+            VehicleSize = vehicleSizeApi
+        };
+        return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiResponse);
+    }
+
+    /// <inheritdoc />
     public override async Task<IActionResult> GetFilteredAsync([FromQuery] VehicleSizeApiParameters vehicleSizeApiParameters)
     {
         ArgumentNullException.ThrowIfNull(vehicleSizeApiParameters, Messages.InvalidRequestQueryParameters);
 
-        var vehicleSizeFilterDto = new VehicleSizeFilterDto 
+        var vehicleSizeFilterDto = new VehicleSizeFilterDto
         {
-                PageNumber = vehicleSizeApiParameters.PageNumber,
-                PageSize = vehicleSizeApiParameters.PageSize,
-                Active = vehicleSizeApiParameters.Active                
+            PageNumber = vehicleSizeApiParameters.PageNumber,
+            PageSize = vehicleSizeApiParameters.PageSize,
+            Active = vehicleSizeApiParameters.Active
         };
 
         var paginatedVehicleSizeDtoResponse = await vehicleSizeService.GetFilteredAsync(vehicleSizeFilterDto);
@@ -77,32 +107,5 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILink
 
         vehicleSizeApiPaginatedResponse.VehicleSizes = vehicleSizeApis;
         return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiPaginatedResponse);
-    }
-
-    public override async Task<IActionResult> GetByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
-    {
-        ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
-
-        var vehicleSizeDto = await vehicleSizeService.GetByIdAsync(Guid.Parse(id));
-
-        var vehicleSizeApi = new VehicleSizeApi
-        {
-            Id = vehicleSizeDto.Id,
-            Description = vehicleSizeDto.Description,
-            Active = vehicleSizeDto.Active,
-            Link = new()
-            {
-                Self = new()
-                {
-                    Href = urlService.GenerateSelf(new() { Request = Request })
-                }
-            }
-        };
-
-        var vehicleSizeApiResponse = new VehicleSizeApiResponse
-        {
-            VehicleSize = vehicleSizeApi
-        };
-        return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiResponse);
     }
 }

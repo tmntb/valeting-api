@@ -3,11 +3,31 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Api.SwaggerDocumentation.Document;
 
+/// <summary>
+/// Custom Swagger/OpenAPI document filter for the Flexibility endpoints.
+/// </summary>
+/// <remarks>
+/// This filter adds descriptive metadata for all flexibility-related operations,
+/// including listing all flexibilities and retrieving a flexibility by ID.
+/// It sets operation IDs, summaries, and descriptions for improved API documentation.
+/// </remarks>
 public class FlexibilityDocumentFilter : IDocumentFilter
 {
+    /// <summary>
+    /// Endpoint for the general flexibilities collection.
+    /// </summary>
     public const string FlexibilitiesEndpoint = "/flexibilities";
+
+    /// <summary>
+    /// Endpoint for a single flexibility by its identifier.
+    /// </summary>
     public const string FlexibilitiesIdEndpoint = "/flexibilities/{id}";
 
+    /// <summary>
+    /// Applies the filter to the given OpenAPI document.
+    /// </summary>
+    /// <param name="swaggerDoc">The OpenAPI document to modify.</param>
+    /// <param name="context">The document filter context.</param>
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
         swaggerDoc.Tags.Add(new OpenApiTag() { Name = "Flexibility", Description = "Flexiblity operations" });

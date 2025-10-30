@@ -1,5 +1,5 @@
 ﻿using Api.Controllers.BaseController;
-using Api.Models.User;
+using Api.Models.User.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
@@ -10,6 +10,7 @@ namespace Api.Controllers;
 
 public class UserController(IUserService userService) : UserBaseController
 {
+    /// <inheritdoc />
     public override async Task<IActionResult> Login([FromBody] LoginApiRequest loginApiRequest)
     {
         ArgumentNullException.ThrowIfNull(loginApiRequest, Messages.InvalidRequestBody);
@@ -36,6 +37,25 @@ public class UserController(IUserService userService) : UserBaseController
         return StatusCode((int)HttpStatusCode.OK, validateLoginApiResponse);
     }
 
+    /// <inheritdoc />
+    public override async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenApiRequest refreshTokenApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(refreshTokenApiRequest, Messages.InvalidRequestBody);
+
+        var username = userService.ValidateToken(refreshTokenApiRequest.Token);
+        var generateTokenJwtDtoResponse = await userService.GenerateTokenJWTAsync(username);
+
+        var refreshTokenApiResponse = new RefreshTokenApiResponse
+        {
+            Token = generateTokenJwtDtoResponse.Token,
+            TokenType = generateTokenJwtDtoResponse.TokenType,
+            ExpiryDate = generateTokenJwtDtoResponse.ExpiryDate
+        };
+
+        return StatusCode((int)HttpStatusCode.OK, refreshTokenApiResponse);
+    }
+
+    /// <inheritdoc />
     public override async Task<IActionResult> Register([FromBody] RegisterApiRequest registerApiRequest)
     {
         ArgumentNullException.ThrowIfNull(registerApiRequest, Messages.InvalidRequestBody);

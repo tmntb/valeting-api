@@ -1,6 +1,7 @@
 ﻿using Api.Controllers.BaseController;
 using Api.Models.Core;
 using Api.Models.Flexibility;
+using Api.Models.Flexibility.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
@@ -12,15 +13,44 @@ namespace Api.Controllers;
 
 public class FlexibilityController(IFlexibilityService flexibilityService, ILinkService urlService) : FlexibilityBaseController
 {
+    /// <inheritdoc />
+    public override async Task<IActionResult> GetByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
+    {
+        ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
+
+        var flexibilityDto = await flexibilityService.GetByIdAsync(Guid.Parse(id));
+
+        var flexibilityApi = new FlexibilityApi
+        {
+            Id = flexibilityDto.Id,
+            Description = flexibilityDto.Description,
+            Active = flexibilityDto.Active,
+            Link = new()
+            {
+                Self = new()
+                {
+                    Href = urlService.GenerateSelf(new() { Request = Request })
+                }
+            }
+        };
+
+        var flexibilityApiResponse = new FlexibilityApiResponse
+        {
+            Flexibility = flexibilityApi
+        };
+        return StatusCode((int)HttpStatusCode.OK, flexibilityApiResponse);
+    }
+
+    /// <inheritdoc />
     public override async Task<IActionResult> GetFilteredAsync([FromQuery] FlexibilityApiParameters flexibilityApiParameters)
     {
         ArgumentNullException.ThrowIfNull(flexibilityApiParameters, Messages.InvalidRequestQueryParameters);
 
-        var flexibilityFilterDto = new FlexibilityFilterDto 
-        { 
-                PageNumber = flexibilityApiParameters.PageNumber,
-                PageSize = flexibilityApiParameters.PageSize,
-                Active = flexibilityApiParameters.Active
+        var flexibilityFilterDto = new FlexibilityFilterDto
+        {
+            PageNumber = flexibilityApiParameters.PageNumber,
+            PageSize = flexibilityApiParameters.PageSize,
+            Active = flexibilityApiParameters.Active
         };
         var paginatedFlexibilityDtoResponse = await flexibilityService.GetFilteredAsync(flexibilityFilterDto);
 
@@ -48,7 +78,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, ILink
             }
         );
 
-        var links = new PaginationLinksApi 
+        var links = new PaginationLinksApi
         {
             Self = new() { Href = paginatedLinks.Self },
             Next = new() { Href = paginatedLinks.Next },
@@ -56,7 +86,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, ILink
         };
         flexibilityApiPaginatedResponse.Links = links;
 
-        var flexibilityApis = paginatedFlexibilityDtoResponse.Flexibilities.Select(x => 
+        var flexibilityApis = paginatedFlexibilityDtoResponse.Flexibilities.Select(x =>
             new FlexibilityApi()
             {
                 Id = x.Id,
@@ -77,32 +107,5 @@ public class FlexibilityController(IFlexibilityService flexibilityService, ILink
 
         flexibilityApiPaginatedResponse.Flexibilities = flexibilityApis;
         return StatusCode((int)HttpStatusCode.OK, flexibilityApiPaginatedResponse);
-    }
-
-    public override async Task<IActionResult> GetByIdAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
-    {
-        ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
-
-        var flexibilityDto = await flexibilityService.GetByIdAsync(Guid.Parse(id));
-
-        var flexibilityApi = new FlexibilityApi
-        {
-            Id = flexibilityDto.Id,
-            Description = flexibilityDto.Description,
-            Active = flexibilityDto.Active,
-            Link = new()
-            {
-                Self = new()
-                {
-                    Href = urlService.GenerateSelf(new() { Request = Request })
-                }
-            }
-        };
-
-        var flexibilityApiResponse = new FlexibilityApiResponse
-        {
-            Flexibility = flexibilityApi
-        };
-        return StatusCode((int)HttpStatusCode.OK, flexibilityApiResponse);
     }
 }

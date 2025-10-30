@@ -7,4 +7,5 @@ public interface IUserService
     Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string username);
     Task RegisterAsync(RegisterDtoRequest registerDtoRequest);
     Task<bool> ValidateLoginAsync(ValidateLoginDtoRequest validateLoginSVRequest);
+    string ValidateToken(string token);
 }

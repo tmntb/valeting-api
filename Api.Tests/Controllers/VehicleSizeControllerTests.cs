@@ -1,5 +1,5 @@
 ﻿using Api.Controllers;
-using Api.Models.VehicleSize;
+using Api.Models.VehicleSize.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

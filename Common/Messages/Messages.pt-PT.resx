@@ -132,6 +132,9 @@
   <data name="InvalidRequestQueryParameters" xml:space="preserve">
     <value>Parâmetros de consulta de pedido inválidos.</value>
   </data>
+  <data name="InvalidToken" xml:space="preserve">
+    <value>Token inválido.</value>
+  </data>
   <data name="NotFound" xml:space="preserve">
     <value>Registo não encontrado.</value>
   </data>
