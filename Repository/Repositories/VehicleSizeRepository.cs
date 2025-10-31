@@ -8,6 +8,7 @@ namespace Repository.Repositories;
 
 public class VehicleSizeRepository(ValetingContext valetingContext) : IVehicleSizeRepository
 {
+    /// <inheritdoc />
     public async Task<List<VehicleSizeDto>> GetFilteredAsync(VehicleSizeFilterDto vehicleSizeFilterDto)
     {
         var initialList = await valetingContext.RdVehicleSizes.ToListAsync();
@@ -25,6 +26,7 @@ public class VehicleSizeRepository(ValetingContext valetingContext) : IVehicleSi
        ).ToList();
     }
 
+    /// <inheritdoc />
     public async Task<VehicleSizeDto> GetByIdAsync(Guid id)
     {
         var rdVehicleSize = await valetingContext.RdVehicleSizes.FindAsync(id);

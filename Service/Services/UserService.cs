@@ -101,6 +101,11 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         return principal.FindFirst("Username")?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
     }
 
+    /// <summary>
+    /// Retrieves the JWT issuer and audience from configuration.
+    /// </summary>
+    /// <returns>A tuple containing the issuer and audience values.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the issuer or audience is not configured.</exception>
     private (string Issuer, string Audience) GetJwtSettings()
     {
         var issuer = configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT issuer not configured.");
@@ -108,6 +113,11 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         return (issuer, audience);
     }
 
+    /// <summary>
+    /// Retrieves the symmetric security key used for JWT signing from configuration.
+    /// </summary>
+    /// <returns>A <see cref="SymmetricSecurityKey"/> constructed from the configured JWT secret.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the JWT secret is not configured.</exception>
     private SymmetricSecurityKey GetSecurityKey()
     {
         var secret = configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT secret not configured.");

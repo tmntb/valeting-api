@@ -12,6 +12,7 @@ public class MemoryCacheHandler(IMemoryCache memoryCache) : ICacheHandler
     private static readonly ConcurrentDictionary<Guid, string> _cachedKeys = new();
     private static readonly ConcurrentDictionary<CacheListType, string> _cachedListKeys = new();
 
+    /// <inheritdoc />
     public async Task<TResponse> GetOrCreateRecordAsync<TRequest, TResponse>(TRequest request, Func<Task<TResponse>> onCacheMiss, CacheOptions cacheOptions)
     {
         var hashKey = GenerateHashKey(request);
@@ -36,6 +37,7 @@ public class MemoryCacheHandler(IMemoryCache memoryCache) : ICacheHandler
         );
     }
 
+    /// <inheritdoc />
     public void InvalidateAllCache()
     {
         foreach (var key in _cachedKeys.Keys)
@@ -52,6 +54,7 @@ public class MemoryCacheHandler(IMemoryCache memoryCache) : ICacheHandler
         _cachedListKeys.Clear();
     }
 
+    /// <inheritdoc />
     public void InvalidateCacheById(Guid id)
     {
         if (_cachedKeys.TryRemove(id, out var key))
@@ -60,6 +63,7 @@ public class MemoryCacheHandler(IMemoryCache memoryCache) : ICacheHandler
         }
     }
 
+    /// <inheritdoc />
     public void InvalidateCacheByListType(CacheListType listType)
     {
         if (_cachedListKeys.TryRemove(listType, out var key))
@@ -68,6 +72,12 @@ public class MemoryCacheHandler(IMemoryCache memoryCache) : ICacheHandler
         }
     }
 
+    /// <summary>
+    /// Generates a deterministic hash key from the request object for use in caching.
+    /// </summary>
+    /// <typeparam name="TRequest">Type of the request object.</typeparam>
+    /// <param name="requestData">The object to hash.</param>
+    /// <returns>A lowercase hexadecimal SHA-256 hash string representing the object.</returns>
     private static string GenerateHashKey<TRequest>(TRequest requestData)
     {
         var json = JsonSerializer.Serialize(requestData, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });

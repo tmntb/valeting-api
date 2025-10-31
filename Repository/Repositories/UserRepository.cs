@@ -6,6 +6,7 @@ namespace Repository.Repositories;
 
 public class UserRepository(ValetingContext valetingContext) : IUserRepository
 {
+    /// <inheritdoc />
     public async Task<UserDto> GetUserByEmailAsync(string username)
     {
         var applicationUser = await valetingContext.ApplicationUsers.FindAsync(username);
@@ -21,6 +22,7 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
         };
     }
 
+    /// <inheritdoc />
     public async Task RegisterAsync(UserDto userDto)
     {
         var applicationUser = new ApplicationUser

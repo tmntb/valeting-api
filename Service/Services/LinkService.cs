@@ -11,6 +11,7 @@ namespace Service.Services;
 
 public class LinkService : ILinkService
 {
+    /// <inheritdoc />
     public string GenerateSelf(GenerateSelfLinkDtoRequest generateSelfLinkDtoRequest)
     {
         generateSelfLinkDtoRequest.ValidateRequest(new GenerateSelfLinkValidator());
@@ -19,6 +20,7 @@ public class LinkService : ILinkService
         return generateSelfLinkDtoRequest.Id == default ? baseUrl : $"{baseUrl}/{generateSelfLinkDtoRequest.Id}";
     }
 
+    /// <inheritdoc />
     public GeneratePaginatedLinksDtoResponse GeneratePaginatedLinks(GeneratePaginatedLinksDtoRequest generatePaginatedLinksDtoRequest)
     {
         generatePaginatedLinksDtoRequest.ValidateRequest(new GeneratePaginatedLinksValidator());
@@ -34,6 +36,12 @@ public class LinkService : ILinkService
         };
     }
 
+    /// <summary>
+    /// Builds the base URL for a given HTTP request, optionally replacing the path with a custom one.
+    /// </summary>
+    /// <param name="request">The current HTTP request.</param>
+    /// <param name="customPath">Optional custom path to use instead of the request's path.</param>
+    /// <returns>The fully constructed base URL including protocol, host, path base, and path.</returns>
     private static string BuildBaseUrl(HttpRequest request, string? customPath = null)
     {
         var protocol = request.Scheme;
@@ -44,6 +52,12 @@ public class LinkService : ILinkService
         return $"{protocol}://{host}{(string.IsNullOrEmpty(pathBase) ? string.Empty : "/" + pathBase)}/{path}";
     }
 
+    /// <summary>
+    /// Generates a query string from a filter object, updating its page number.
+    /// </summary>
+    /// <param name="filterDto">The filter object containing query parameters.</param>
+    /// <param name="newPageNumber">The new page number to include in the query string.</param>
+    /// <returns>A URL-encoded query string representing the filter.</returns>
     private string GenerateQueryString(FilterDto filterDto, int newPageNumber)
     {
         var clonedFilter = CloneWithUpdatedPageNumber(filterDto, newPageNumber);
@@ -54,6 +68,12 @@ public class LinkService : ILinkService
                 .Select(p => $"{ToCamelCase(p.Name)}={HttpUtility.UrlEncode(FormatPropertyValue(p.GetValue(clonedFilter, null)))}"));
     }
 
+    /// <summary>
+    /// Clones a filter object and updates its PageNumber property.
+    /// </summary>
+    /// <param name="filterDto">The original filter object.</param>
+    /// <param name="newPageNumber">The new page number to set in the clone.</param>
+    /// <returns>A new filter object with the updated page number.</returns>
     private static object CloneWithUpdatedPageNumber(FilterDto filterDto, int newPageNumber)
     {
         var clonedFilter = Activator.CreateInstance(filterDto.GetType());
@@ -67,6 +87,11 @@ public class LinkService : ILinkService
         return clonedFilter;
     }
 
+    /// <summary>
+    /// Formats a property value for use in a query string.
+    /// </summary>
+    /// <param name="value">The value to format.</param>
+    /// <returns>A string representation of the value, with booleans converted to "true" or "false".</returns>
     private static string FormatPropertyValue(object value) =>
         value switch
         {
@@ -74,5 +99,10 @@ public class LinkService : ILinkService
             _ => value?.ToString() ?? string.Empty
         };
 
+    /// <summary>
+    /// Converts a string to camelCase.
+    /// </summary>
+    /// <param name="input">The input string.</param>
+    /// <returns>The camelCase version of the string, or the original if null/empty.</returns>
     private static string ToCamelCase(string input) => string.IsNullOrEmpty(input) ? input : char.ToLowerInvariant(input[0]) + input.Substring(1);
 }

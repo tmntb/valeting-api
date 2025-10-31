@@ -8,6 +8,7 @@ namespace Repository.Repositories;
 
 public class BookingRepository(ValetingContext valetingContext) : IBookingRepository
 {
+    /// <inheritdoc />
     public async Task CreateAsync(BookingDto bookingDto)
     {
         var booking = new Booking 
@@ -26,6 +27,7 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
         await valetingContext.SaveChangesAsync();
     }
 
+    /// <inheritdoc />
     public async Task UpdateAsync(BookingDto bookingDto)
     {
         var booking = await valetingContext.Bookings.FindAsync(bookingDto.Id);
@@ -43,6 +45,7 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
         await valetingContext.SaveChangesAsync();
     }
 
+    /// <inheritdoc />
     public async Task DeleteAsync(Guid id)
     {
         var booking = await valetingContext.Bookings.FindAsync(id);
@@ -53,6 +56,7 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
         await valetingContext.SaveChangesAsync();
     }
 
+    /// <inheritdoc />
     public async Task<List<BookingDto>> GetFilteredAsync(BookingFilterDto bookingFilterDto)
     {
         var initialList = await valetingContext.Bookings.ToListAsync();
@@ -82,6 +86,7 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
         ).ToList();
     }
 
+    /// <inheritdoc />
     public async Task<BookingDto> GetByIdAsync(Guid id)
     {
         var booking = await valetingContext.Bookings.FindAsync(id);

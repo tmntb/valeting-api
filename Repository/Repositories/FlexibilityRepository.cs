@@ -8,6 +8,7 @@ namespace Repository.Repositories;
 
 public class FlexibilityRepository(ValetingContext valetingContext) : IFlexibilityRepository
 {
+    /// <inheritdoc />
     public async Task<FlexibilityDto> GetByIdAsync(Guid id)
     {
         var rdFlexibility = await valetingContext.RdFlexibilities.FindAsync(id);
@@ -22,6 +23,7 @@ public class FlexibilityRepository(ValetingContext valetingContext) : IFlexibili
         };
     }
 
+    /// <inheritdoc />
     public async Task<List<FlexibilityDto>> GetFilteredAsync(FlexibilityFilterDto flexibilityFilterDto)
     {
         var initialList = await valetingContext.RdFlexibilities.ToListAsync();
