@@ -37,6 +37,10 @@ runs:
       shell: bash
       run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
+    - name: Restore dependencies
+      shell: bash
+      run: dotnet restore
+
     - name: Build solution
       shell: bash
       run: dotnet build --no-restore -c Release
