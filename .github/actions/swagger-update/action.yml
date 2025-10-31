@@ -1,0 +1,49 @@
+name: Swagger Update
+description: Generate Swagger file and create PR
+inputs:
+  swagger-path:
+    description: 'Path to Swagger JSON output'
+    required: true
+  target-branch:
+    description: 'Branch to push Swagger update'
+    default: 'swagger-update'
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Generate Swagger JSON
+      run: dotnet run --project ./YourApiProject --swagger-output ${{ inputs.swagger-path }}
+
+    - name: Configure Git
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+
+    - name: Create new branch
+      run: |
+        git checkout -b ${{ inputs.target-branch }}
+
+    - name: Commit Swagger file
+      run: |
+        git add ${{ inputs.swagger-path }}
+        git commit -m "Update Swagger file"
+
+    - name: Push branch
+      run: git push origin ${{ inputs.target-branch }}
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        title: "Update Swagger file"
+        body: "Automatic Swagger file update"
+        base: main
+        branch: ${{ inputs.target-branch }}
+        delete-branch: true

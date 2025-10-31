@@ -1,0 +1,11 @@
+name: Pull-Request
+on:
+  pull_request:
+    paths-ignore:
+        - ReadMe.md
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: your-org/repo/.github/actions/build-test@main

@@ -1,0 +1,20 @@
+name: Merge to Main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/build-test@feat/github_workflow
+
+  swagger:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/swagger-update@feat/github_workflow
+        with:
+          swagger-path: "wwwroot/swagger/v1/swagger.json"
+          target-branch: "swagger-update"
