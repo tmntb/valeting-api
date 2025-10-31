@@ -6,23 +6,23 @@ on:
       - ReadMe.md
 
 jobs:
-  build-test:
-    name: Build and Test
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  # build-test:
+  #   name: Build and Test
+  #   runs-on: ubuntu-latest
+  #   permissions: write-all
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Build & Test
-        uses: tmntb/valeting-api/.github/actions/build-test@feat/github_workflow
+  #     - name: Build & Test
+  #       uses: tmntb/valeting-api/.github/actions/build-test@feat/github_workflow
 
   swagger-gen:
     name: Generate Swagger
     runs-on: ubuntu-latest
-    needs: build-test
+    #needs: build-test
     permissions: write-all
     steps:
       - uses: tmntb/valeting-api/.github/actions/swagger-update@feat/github_workflow
@@ -32,3 +32,25 @@ jobs:
           target-dll-path: " Valeting.API/bin/Release/net9.0/Valeting.API.dll"
           swagger-version: "v1"
           target-branch: "swagger-update"
+
+  create-swagger-pr: 
+      name: Create Pull Request
+      runs-on: ubuntu-latest
+      steps:
+        - uses: peter-evans/create-pull-request@v7
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+            author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+            signoff: false
+            branch: swagger-update
+            delete-branch: false
+            title: "Update Swagger file"
+            body: "Automatic Swagger file update"
+            labels: |
+                report
+                automated pr
+            assignees: tmntb
+            reviewers: tmntb
+            milestone: 1
+            draft: false
