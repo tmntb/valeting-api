@@ -8,4 +8,8 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./github/actions/build-test
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build & Test
+        uses: ./github/actions/build-test
