@@ -15,18 +15,18 @@ runs:
         dotnet-version: 9.0.x
 
     - name: Restore dependencies
-      run: dotnet restore
       shell: bash
+      run: dotnet restore
 
     - name: Build solution
-      run: dotnet build --no-restore -c Release
       shell: bash
+      run: dotnet build --no-restore -c Release
 
     - name: Run tests with coverage
+      shell: bash
       run: |
         dotnet tool install --global dotnet-coverage  
         dotnet-coverage collect "dotnet test --no-restore -c Release --logger trx --results-directory test-results" -f xml -o "coverage.xml"
-      shell: bash
      
     - name: Upload test results
       if: (!cancelled())
