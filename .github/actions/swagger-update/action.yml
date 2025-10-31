@@ -88,4 +88,3 @@ runs:
         body: "Automatic Swagger file update"
         base: main
         branch: ${{ inputs.target-branch }}
-        delete-branch: true
