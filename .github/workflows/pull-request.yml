@@ -17,4 +17,4 @@ jobs:
           fetch-depth: 0
 
       - name: Build & Test
-        uses: tmntb/valeting-api/.github/actions/build-test
+        uses: "tmntb/valeting-api/.github/actions/build-test@feat/github_workflow"
