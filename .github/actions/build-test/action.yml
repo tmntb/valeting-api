@@ -5,18 +5,32 @@ runs:
   using: "composite"
   steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: Restore dependencies
       run: dotnet restore
+      shell: bash
 
-    - name: Build project
-      run: dotnet build --no-restore --configuration Release
+    - name: Build solution
+      run: dotnet build --no-restore -c Release
+      shell: bash
 
-    - name: Run tests
-      run: dotnet test --no-build --verbosity normal
+    - name: Run tests with coverage
+      run: |
+        dotnet tool install --global dotnet-coverage  
+        dotnet-coverage collect "dotnet test --no-restore -c Release --logger trx --results-directory test-results" -f xml -o "coverage.xml"
+      shell: bash
+     
+    - name: Upload test results
+      if: (!cancelled())
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: ./test-results/**/*.trx
