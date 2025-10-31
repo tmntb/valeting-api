@@ -66,25 +66,37 @@ runs:
           git checkout -b ${{ inputs.target-branch }}
         fi
 
-    - name: Commit Swagger file if changed
-      shell: bash
-      run: |
-        git add ${{ inputs.swagger-path }}
-        if git diff --cached --quiet; then
-          echo "No changes in Swagger file — skipping commit."
-          exit 0
-        fi
-        git commit -m "Update Swagger file [skip ci]"
+    # - name: Commit Swagger file if changed
+    #   shell: bash
+    #   run: |
+    #     git add ${{ inputs.swagger-path }}
+    #     if git diff --cached --quiet; then
+    #       echo "No changes in Swagger file — skipping commit."
+    #       exit 0
+    #     fi
+    #     git commit -m "Update Swagger file [skip ci]"
 
     - name: Push branch
       shell: bash
       run: git push origin ${{ inputs.target-branch }}
 
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v5
+      id: cpr
+      uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ inputs.github-token }}
+        commit-message: "Update Swagger file [skip ci]"
+        committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+        author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+        signoff: false
+        branch: inputs.target-branch
+        delete-branch: false
         title: "Update Swagger file"
         body: "Automatic Swagger file update"
-        base: main
-        branch: ${{ inputs.target-branch }}
+        labels: |
+            report
+            automated pr
+        assignees: tmntb
+        reviewers: tmntb
+        milestone: 1
+        draft: false
