@@ -28,41 +28,8 @@ jobs:
       - uses: tmntb/valeting-api/.github/actions/swagger-update@feat/github_workflow
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          pat-token: ${{ secrets.PAT_TOKEN }} 
           swagger-path: "swagger/swagger.json"
           target-dll-path: " Valeting.API/bin/Release/net9.0/Valeting.API.dll"
           swagger-version: "v1"
           target-branch: "swagger-update"
-
-  create-swagger-pr: 
-      name: Create Pull Request
-      runs-on: ubuntu-latest
-      needs: swagger-gen
-      permissions:
-        contents: write
-        pull-requests: write
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 0
-            ref: swagger-update
-
-        - name: Create Pull Request
-          uses: peter-evans/create-pull-request@v7
-          with:
-            token: ${{ secrets.GITHUB_TOKEN }}
-            committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-            author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
-            signoff: false
-            branch: swagger-update
-            base: main
-            delete-branch: false
-            title: "Update Swagger file"
-            body: "Automatic Swagger file update"
-            labels: |
-                report
-                automated pr
-            assignees: tmntb
-            reviewers: tmntb
-            milestone: 1
-            draft: false

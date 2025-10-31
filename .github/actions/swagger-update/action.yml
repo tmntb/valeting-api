@@ -4,6 +4,9 @@ inputs:
   github-token:
     description: 'GitHub token'
     required: true
+  pat-token:
+    description: 'Personal Access Token (for approving PR)'
+    required: true
   swagger-path:
     description: 'Path to Swagger JSON output'
     required: true
@@ -80,5 +83,45 @@ runs:
     - name: Push branch
       shell: bash
       run: git push origin ${{ inputs.target-branch }}
+
+    - name: Authenticate GitHub CLI
+      shell: bash
+      run: gh auth login --with-token <<< "${{ inputs.github-token }}"
+
+    - name: Create PR if not exists
+      shell: bash
+      run: |
+        if gh pr list --head ${{ inputs.target-branch }} --json number --jq '.[0].number' | grep -q .; then
+          echo "PR already exists — skipping creation."
+        else
+          gh pr create \
+            --title "Update Swagger file" \
+            --body "Automatic Swagger file update" \
+            --base main \
+            --head ${{ inputs.target-branch }} \
+            --assignee tmntb \
+            --reviewer tmntb \
+            --label "report, automated pr" \
+            --milestone 1 \
+            --draft false
+
+    - name: Approve PR automatically
+      shell: bash
+      run: |
+        PR_NUMBER=$(gh pr list --head ${{ inputs.target-branch }} --json number --jq '.[0].number')
+        if [ -n "$PR_NUMBER" ]; then
+          gh pr review $PR_NUMBER --approve --body "Automatically approved"
+        else
+          echo "No PR found to approve"
+      env:
+        GH_TOKEN: ${{ inputs.pat-token }}
+
+    - name: Delete local and remote branch
+      shell: bash
+      run: |
+        git checkout main
+        git branch -D ${{ inputs.target-branch }} || true
+
+        git push origin --delete ${{ inputs.target-branch }} || true
 
    
