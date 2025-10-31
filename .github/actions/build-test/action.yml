@@ -46,10 +46,11 @@ runs:
 
     - name: Check code coverage
       run: |
+        set -e
         coverage=$(xmllint --xpath "string(//coverage/@line-rate)" coverage.xml)
         coverage_percent=$(echo "$coverage * 100" | bc)
         echo "Coverage: $coverage_percent%"
-
+        
         min_coverage=80
         coverage_int=$(printf "%.0f" $coverage_percent)
         if [ "$coverage_int" -lt "$min_coverage" ]; then
@@ -57,3 +58,5 @@ runs:
           exit 1
         fi
       shell: bash
+      env:
+        DOTNET_ROOT: /usr/share/dotnet
