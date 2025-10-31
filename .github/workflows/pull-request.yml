@@ -27,6 +27,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           swagger-path: "swagger/swagger.json"
-          target-dll-path: " Valeting.API/bin/Debug/net9.0/Valeting.API.dll"
+          target-dll-path: " Valeting.API/bin/Release/net9.0/Valeting.API.dll"
           swagger-version: "v1"
           target-branch: "swagger-update"
