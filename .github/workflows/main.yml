@@ -1,20 +1,32 @@
 name: Merge to Main
+
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
+    paths-ignore:
+      - ReadMe.md
 
 jobs:
   build-test:
+    name: Build and Test
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
-      - uses: ./github/actions/build-test
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  swagger:
+      - name: Build & Test
+        uses: tmntb/valeting-api/.github/actions/build-test@feat/github_workflow
+
+  swagger-gen:
     needs: build-test
     runs-on: ubuntu-latest
     steps:
-      - uses: ./github/actions/swagger-update
+      - uses: tmntb/valeting-api/.github/actions/swagger-update@feat/github_workflow
         with:
-          swagger-path: "wwwroot/swagger/v1/swagger.json"
+          swagger-path: "swagger/swagger.json"
           target-branch: "swagger-update"

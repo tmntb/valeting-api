@@ -1,4 +1,4 @@
-name: Swagger Update
+name: Swagger Gen and Update
 description: Generate Swagger file and create PR
 inputs:
   swagger-path:
@@ -11,32 +11,39 @@ runs:
   using: "composite"
   steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
 
     - name: Generate Swagger JSON
       run: dotnet run --project ./YourApiProject --swagger-output ${{ inputs.swagger-path }}
+      shell: bash
 
     - name: Configure Git
       run: |
         git config user.name "github-actions"
         git config user.email "actions@github.com"
+      shell: bash
 
     - name: Create new branch
       run: |
         git checkout -b ${{ inputs.target-branch }}
+      shell: bash
 
     - name: Commit Swagger file
       run: |
         git add ${{ inputs.swagger-path }}
-        git commit -m "Update Swagger file"
+        git commit -m "Update Swagger file [skip ci]"
+      shell: bash
 
     - name: Push branch
       run: git push origin ${{ inputs.target-branch }}
+      shell: bash
 
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v5
