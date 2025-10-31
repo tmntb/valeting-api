@@ -1,6 +1,9 @@
 name: Swagger Gen and Update
 description: Generate Swagger file and create PR
 inputs:
+  github-token:
+    description: 'GitHub token'
+    required: true
   swagger-path:
     description: 'Path to Swagger JSON output'
     required: true
@@ -48,7 +51,7 @@ runs:
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v5
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ inputs.github-token }}
         title: "Update Swagger file"
         body: "Automatic Swagger file update"
         base: main
