@@ -1,0 +1,20 @@
+name: Pull-Request
+
+on:
+  pull_request:
+    paths-ignore:
+      - ReadMe.md
+
+jobs:
+  build-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build & Test
+        uses: tmntb/valeting-api/.github/actions/build-test@main

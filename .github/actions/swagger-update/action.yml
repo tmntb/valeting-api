@@ -1,0 +1,143 @@
+name: Swagger Gen and Update
+description: Generate Swagger file and create PR
+inputs:
+  pat-bot-token:
+    description: "Personal Access Token (for bot)"
+    required: true
+  pat-token:
+    description: "Personal Access Token (for approving PR)"
+    required: true
+  swagger-path:
+    description: "Path to Swagger JSON output"
+    required: true
+  target-dll-path:
+    description: "Path to dll to generate the swagger"
+    required: true
+  swagger-version:
+    description: "Swagger docs version"
+    required: true
+  target-branch:
+    description: "Branch to push Swagger update"
+    default: "swagger-update"
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Install dependencies (global)
+      shell: bash
+      run: dotnet tool install --global Swashbuckle.AspNetCore.Cli
+
+    - name: Add .NET tools to PATH
+      shell: bash
+      run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+    - name: Restore dependencies
+      shell: bash
+      run: dotnet restore
+
+    - name: Build solution
+      shell: bash
+      run: dotnet build --no-restore -c Release
+
+    - name: Generate Swagger JSON
+      shell: bash
+      run: |
+        set -euo pipefail
+        swagger tofile --output "${{ inputs.swagger-path }}" ${{ inputs.target-dll-path }} ${{ inputs.swagger-version }}
+
+    - name: Configure Git
+      shell: bash
+      run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+
+    - name: Create or switch to branch from main
+      shell: bash
+      run: |
+        git fetch origin main
+        if git show-ref --quiet refs/heads/${{ inputs.target-branch }}; then
+          git checkout ${{ inputs.target-branch }}
+        else
+          git checkout -b ${{ inputs.target-branch }} origin/main
+        fi
+
+    - name: Commit Swagger file if changed
+      shell: bash
+      run: |
+        git add ${{ inputs.swagger-path }}
+        if git diff --cached --quiet; then
+          echo "No changes in Swagger file — skipping commit."
+          exit 0
+        fi
+        git commit -m "Update Swagger file [skip ci]"
+
+    - name: Push branch (safe)
+      shell: bash
+      run: |
+        if ! git push origin ${{ inputs.target-branch }}; then
+          echo "Normal push failed — trying force push."
+          git push --force origin ${{ inputs.target-branch }}
+        fi
+
+    - name: Authenticate GitHub CLI
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.pat-bot-token }}
+      run: |
+        gh auth setup-git
+        gh auth status
+
+    - name: Create PR if not exists
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.pat-bot-token }}
+      run: |
+        PR_NUMBER=$(gh pr list --head "${{ inputs.target-branch }}" --json number --jq '.[0].number')
+        if [ -n "$PR_NUMBER" ]; then
+          echo "✅ PR already exists (#$PR_NUMBER) — skipping creation."
+        else
+          echo "🛠 Creating new PR from ${{ inputs.target-branch }} → main..."
+          gh pr create \
+            --title "Update Swagger file" \
+            --body "Automatic Swagger file update" \
+            --base main \
+            --head "${{ inputs.target-branch }}" \
+            --assignee tmntb \
+            --reviewer tmntb \
+            --label "report" \
+            --label "automated pr"
+        fi
+
+    - name: Approve and merge PR (using PAT)
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.pat-token }}
+      run: |
+        PR_NUMBER=$(gh pr list --head "${{ inputs.target-branch }}" --json number --jq '.[0].number')
+        if [ -z "$PR_NUMBER" ]; then
+          echo "❌ No PR found to approve or merge."
+          exit 0
+        fi
+
+        echo "✅ Approving PR #$PR_NUMBER..."
+        gh pr review "$PR_NUMBER" --approve --body "Automatically approved by workflow."
+
+        echo "🔀 Merging PR #$PR_NUMBER..."
+        gh pr merge "$PR_NUMBER" --merge --admin --delete-branch
+
+    - name: Delete local branch
+      shell: bash
+      run: |
+        git fetch origin main
+        git checkout main
+        git branch -D "${{ inputs.target-branch }}" || true
+
