@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build & Test
-        uses: tmntb/valeting-api/.github/actions/build-test@feat/github_workflow
+        uses: tmntb/valeting-api/.github/actions/build-test@main
 
   swagger-gen:
     name: Generate Swagger
@@ -28,7 +28,7 @@ jobs:
     needs: build-test
     permissions: write-all
     steps:
-      - uses: tmntb/valeting-api/.github/actions/swagger-update@feat/github_workflow
+      - uses: tmntb/valeting-api/.github/actions/swagger-update@main
         with:
           pat-bot-token: ${{ secrets.PAT_BOT_TOKEN }}
           pat-token: ${{ secrets.PAT_TOKEN }} 
