@@ -23,11 +23,16 @@ jobs:
         uses: tmntb/valeting-api/.github/actions/build-test@feat/github_workflow
 
   swagger-gen:
-    needs: build-test
+    name: Generate Swagger
     runs-on: ubuntu-latest
+    needs: build-test
+    permissions: write-all
     steps:
       - uses: tmntb/valeting-api/.github/actions/swagger-update@feat/github_workflow
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pat-bot-token: ${{ secrets.PAT_BOT_TOKEN }}
+          pat-token: ${{ secrets.PAT_TOKEN }} 
           swagger-path: "swagger/swagger.json"
+          target-dll-path: " Valeting.API/bin/Release/net9.0/Valeting.API.dll"
+          swagger-version: "v1"
           target-branch: "swagger-update"
