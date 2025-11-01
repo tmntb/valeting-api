@@ -105,9 +105,8 @@ runs:
             --head ${{ inputs.target-branch }} \
             --assignee tmntb \
             --reviewer tmntb \
-            --label "report, automated pr" \
-            --milestone 1 \
-            --draft false
+            --label "report" \
+            --label "automated pr"
         fi
 
     - name: Approve PR automatically
