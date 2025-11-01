@@ -75,7 +75,7 @@ runs:
       run: |
         git add ${{ inputs.swagger-path }}
         if git diff --cached --quiet; then
-          echo "No changes in Swagger file — skipping commit."
+          echo "No changes in Swagger file â€” skipping commit."
           exit 0
         fi
         git commit -m "Update Swagger file [skip ci]"
@@ -92,7 +92,7 @@ runs:
       shell: bash
       run: |
         if gh pr list --head ${{ inputs.target-branch }} --json number --jq '.[0].number' | grep -q .; then
-          echo "PR already exists — skipping creation."
+          echo "PR already exists â€” skipping creation."
         else
           gh pr create \
             --title "Update Swagger file" \
@@ -104,6 +104,7 @@ runs:
             --label "report, automated pr" \
             --milestone 1 \
             --draft false
+        fi
 
     - name: Approve PR automatically
       shell: bash
@@ -113,6 +114,7 @@ runs:
           gh pr review $PR_NUMBER --approve --body "Automatically approved"
         else
           echo "No PR found to approve"
+        fi
       env:
         GH_TOKEN: ${{ inputs.pat-token }}
 
@@ -121,7 +123,4 @@ runs:
       run: |
         git checkout main
         git branch -D ${{ inputs.target-branch }} || true
-
         git push origin --delete ${{ inputs.target-branch }} || true
-
-   
