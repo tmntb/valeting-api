@@ -117,10 +117,10 @@ runs:
             --label "automated pr"
         fi
 
-    - name: Auto-merge PR
+    - name: Approve and merge PR (using PAT)
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.github-token }}
+        GH_TOKEN: ${{ inputs.pat-token }}
       run: |
         PR_NUMBER=$(gh pr list --head "${{ inputs.target-branch }}" --json number --jq '.[0].number')
         if [ -z "$PR_NUMBER" ]; then
@@ -129,12 +129,12 @@ runs:
         fi
 
         echo "✅ Approving PR #$PR_NUMBER..."
-        gh pr review "$PR_NUMBER" --approve --body "Automatically approved"
+        gh pr review "$PR_NUMBER" --approve --body "Automatically approved by workflow."
 
         echo "🔀 Merging PR #$PR_NUMBER..."
-        gh pr merge "$PR_NUMBER" --merge --delete-branch --admin
+        gh pr merge "$PR_NUMBER" --merge --admin --delete-branch
 
-    - name: Cleanup local branch
+    - name: Delete local branch
       shell: bash
       run: |
         git fetch origin main
