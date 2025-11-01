@@ -1,8 +1,8 @@
 name: Swagger Gen and Update
 description: Generate Swagger file and create PR
 inputs:
-  github-token:
-    description: "GitHub token"
+  pat-bot-token:
+    description: "Personal Access Token (for bot)"
     required: true
   pat-token:
     description: "Personal Access Token (for approving PR)"
@@ -88,31 +88,56 @@ runs:
           git push --force origin ${{ inputs.target-branch }}
         fi
 
-    - name: Create Pull Request for Swagger update
-      id: cpr
-      uses: peter-evans/create-pull-request@v7
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        branch: swagger-update
-        title: "Update Swagger file"
-        body: "Automatic Swagger file update"
-        commit-message: "Update Swagger file [skip ci]"
-        labels: |
-          report
-          automated pr
-        assignees: tmntb
-        reviewers: tmntb
-        delete-branch: false
-
-    - name: Approve and merge PR
+    - name: Authenticate GitHub CLI
       shell: bash
-      if: steps.cpr.outputs.pull-request-number != ''
       env:
-        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        GH_TOKEN: ${{ inputs.pat-bot-token }}
       run: |
-        PR_NUMBER=${{ steps.cpr.outputs.pull-request-number }}
-        echo "Approving PR #$PR_NUMBER"
-        gh pr review "$PR_NUMBER" --approve --body "Automatically approved by workflow"
-        echo "Merging PR #$PR_NUMBER"
-        gh pr merge "$PR_NUMBER" --merge --delete-branch --admin
+        gh auth setup-git
+        gh auth status
+
+    - name: Create PR if not exists
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.pat-bot-token }}
+      run: |
+        PR_NUMBER=$(gh pr list --head "${{ inputs.target-branch }}" --json number --jq '.[0].number')
+        if [ -n "$PR_NUMBER" ]; then
+          echo "✅ PR already exists (#$PR_NUMBER) — skipping creation."
+        else
+          echo "🛠 Creating new PR from ${{ inputs.target-branch }} → main..."
+          gh pr create \
+            --title "Update Swagger file" \
+            --body "Automatic Swagger file update" \
+            --base main \
+            --head "${{ inputs.target-branch }}" \
+            --assignee tmntb \
+            --reviewer tmntb \
+            --label "report" \
+            --label "automated pr"
+        fi
+
+    - name: Approve and merge PR (using PAT)
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.pat-token }}
+      run: |
+        PR_NUMBER=$(gh pr list --head "${{ inputs.target-branch }}" --json number --jq '.[0].number')
+        if [ -z "$PR_NUMBER" ]; then
+          echo "❌ No PR found to approve or merge."
+          exit 0
+        fi
+
+        echo "✅ Approving PR #$PR_NUMBER..."
+        gh pr review "$PR_NUMBER" --approve --body "Automatically approved by workflow."
+
+        echo "🔀 Merging PR #$PR_NUMBER..."
+        gh pr merge "$PR_NUMBER" --merge --admin --delete-branch
+
+    - name: Delete local branch
+      shell: bash
+      run: |
+        git fetch origin main
+        git checkout main
+        git branch -D "${{ inputs.target-branch }}" || true
 
