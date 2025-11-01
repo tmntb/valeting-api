@@ -108,3 +108,4 @@ StyleCopReport.xml
 .vs/
 .env
 Api/appsettings.Development.json
+.DS_Store
