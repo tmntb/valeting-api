@@ -2,23 +2,23 @@ name: Swagger Gen and Update
 description: Generate Swagger file and create PR
 inputs:
   github-token:
-    description: 'GitHub token'
+    description: "GitHub token"
     required: true
   pat-token:
-    description: 'Personal Access Token (for approving PR)'
+    description: "Personal Access Token (for approving PR)"
     required: true
   swagger-path:
-    description: 'Path to Swagger JSON output'
+    description: "Path to Swagger JSON output"
     required: true
   target-dll-path:
-    description: 'Path to dll to generate the swagger'
+    description: "Path to dll to generate the swagger"
     required: true
   swagger-version:
-    description: 'Swagger docs version'
+    description: "Swagger docs version"
     required: true
   target-branch:
-    description: 'Branch to push Swagger update'
-    default: 'swagger-update'
+    description: "Branch to push Swagger update"
+    default: "swagger-update"
 runs:
   using: "composite"
   steps:
@@ -122,9 +122,24 @@ runs:
           echo "No PR found to approve"
         fi
 
-    - name: Delete local and remote branch
+    - name: Delete branch after merge
       shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.pat-token }}
       run: |
-        git checkout main
-        git branch -D ${{ inputs.target-branch }} || true
-        git push origin --delete ${{ inputs.target-branch }} || true
+        PR_NUMBER=$(gh pr list --head ${{ inputs.target-branch }} --json number --jq '.[0].number')
+        if [ -z "$PR_NUMBER" ]; then
+          echo "No PR found — skipping branch deletion."
+          exit 0
+        fi
+
+        MERGED=$(gh pr view "$PR_NUMBER" --json merged --jq '.merged')
+        if [ "$MERGED" = "true" ]; then
+          echo "PR merged — deleting branch ${{ inputs.target-branch }}"
+          git fetch origin main
+          git checkout main
+          git branch -D ${{ inputs.target-branch }} || true
+          git push origin --delete ${{ inputs.target-branch }} || true
+        else
+          echo "PR not merged yet — keeping branch ${{ inputs.target-branch }}"
+        fi
