@@ -80,9 +80,13 @@ runs:
         fi
         git commit -m "Update Swagger file [skip ci]"
 
-    - name: Push branch
+    - name: Push branch (safe)
       shell: bash
-      run: git push origin ${{ inputs.target-branch }}
+      run: |
+        if ! git push origin ${{ inputs.target-branch }}; then
+          echo "Normal push failed — trying force push."
+          git push --force origin ${{ inputs.target-branch }}
+        fi
 
     - name: Authenticate GitHub CLI
       shell: bash
@@ -108,15 +112,15 @@ runs:
 
     - name: Approve PR automatically
       shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.pat-token }}
       run: |
         PR_NUMBER=$(gh pr list --head ${{ inputs.target-branch }} --json number --jq '.[0].number')
         if [ -n "$PR_NUMBER" ]; then
-          gh pr review $PR_NUMBER --approve --body "Automatically approved"
+          gh pr review "$PR_NUMBER" --approve --body "Automatically approved"
         else
           echo "No PR found to approve"
         fi
-      env:
-        GH_TOKEN: ${{ inputs.pat-token }}
 
     - name: Delete local and remote branch
       shell: bash
