@@ -101,6 +101,12 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.pat-bot-token }}
       run: |
+        git fetch origin main
+        if git diff --quiet origin/main...${{ inputs.target-branch }}; then
+          echo "No differences between main and ${{ inputs.target-branch }} — skipping PR."
+          exit 0
+        fi
+        
         PR_NUMBER=$(gh pr list --head "${{ inputs.target-branch }}" --json number --jq '.[0].number')
         if [ -n "$PR_NUMBER" ]; then
           echo "✅ PR already exists (#$PR_NUMBER) — skipping creation."
