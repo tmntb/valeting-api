@@ -90,55 +90,54 @@ runs:
 
     - name: Authenticate GitHub CLI
       shell: bash
-      run: gh auth login --with-token <<< "${{ inputs.github-token }}"
+      env:
+        GH_TOKEN: ${{ inputs.pat-token }}
+      run: |
+        gh auth setup-git
+        gh auth status
 
     - name: Create PR if not exists
       shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.pat-token }}
       run: |
-        if gh pr list --head ${{ inputs.target-branch }} --json number --jq '.[0].number' | grep -q .; then
-          echo "PR already exists — skipping creation."
+        PR_NUMBER=$(gh pr list --head "${{ inputs.target-branch }}" --json number --jq '.[0].number')
+        if [ -n "$PR_NUMBER" ]; then
+          echo "✅ PR already exists (#$PR_NUMBER) — skipping creation."
         else
+          echo "🛠 Creating new PR from ${{ inputs.target-branch }} → main..."
           gh pr create \
             --title "Update Swagger file" \
             --body "Automatic Swagger file update" \
             --base main \
-            --head ${{ inputs.target-branch }} \
+            --head "${{ inputs.target-branch }}" \
             --assignee tmntb \
             --reviewer tmntb \
             --label "report" \
             --label "automated pr"
         fi
 
-    - name: Approve PR automatically
+    - name: Approve and merge PR automatically
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.pat-token }}
       run: |
-        PR_NUMBER=$(gh pr list --head ${{ inputs.target-branch }} --json number --jq '.[0].number')
-        if [ -n "$PR_NUMBER" ]; then
-          gh pr review "$PR_NUMBER" --approve --body "Automatically approved"
-        else
-          echo "No PR found to approve"
-        fi
-
-    - name: Delete branch after merge
-      shell: bash
-      env:
-        GH_TOKEN: ${{ inputs.pat-token }}
-      run: |
-        PR_NUMBER=$(gh pr list --head ${{ inputs.target-branch }} --json number --jq '.[0].number')
+        PR_NUMBER=$(gh pr list --head "${{ inputs.target-branch }}" --json number --jq '.[0].number')
         if [ -z "$PR_NUMBER" ]; then
-          echo "No PR found — skipping branch deletion."
+          echo "❌ No PR found to approve or merge."
           exit 0
         fi
 
-        MERGED=$(gh pr view "$PR_NUMBER" --json merged --jq '.merged')
-        if [ "$MERGED" = "true" ]; then
-          echo "PR merged — deleting branch ${{ inputs.target-branch }}"
-          git fetch origin main
-          git checkout main
-          git branch -D ${{ inputs.target-branch }} || true
-          git push origin --delete ${{ inputs.target-branch }} || true
-        else
-          echo "PR not merged yet — keeping branch ${{ inputs.target-branch }}"
-        fi
+        echo "✅ Approving PR #$PR_NUMBER..."
+        gh pr review "$PR_NUMBER" --approve --body "Automatically approved"
+
+        echo "🔀 Merging PR #$PR_NUMBER..."
+        gh pr merge "$PR_NUMBER" --merge --delete-branch --admin
+
+    - name: Cleanup local branch
+      shell: bash
+      run: |
+        git fetch origin main
+        git checkout main
+        git branch -D "${{ inputs.target-branch }}" || true
+
