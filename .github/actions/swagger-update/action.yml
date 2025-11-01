@@ -91,7 +91,7 @@ runs:
     - name: Authenticate GitHub CLI
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.pat-token }}
+        GH_TOKEN: ${{ inputs.github-token }}
       run: |
         gh auth setup-git
         gh auth status
@@ -99,7 +99,7 @@ runs:
     - name: Create PR if not exists
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.pat-token }}
+        GH_TOKEN: ${{ inputs.github-token }}
       run: |
         PR_NUMBER=$(gh pr list --head "${{ inputs.target-branch }}" --json number --jq '.[0].number')
         if [ -n "$PR_NUMBER" ]; then
@@ -117,10 +117,10 @@ runs:
             --label "automated pr"
         fi
 
-    - name: Approve and merge PR automatically
+    - name: Auto-merge PR
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.pat-token }}
+        GH_TOKEN: ${{ inputs.github-token }}
       run: |
         PR_NUMBER=$(gh pr list --head "${{ inputs.target-branch }}" --json number --jq '.[0].number')
         if [ -z "$PR_NUMBER" ]; then
