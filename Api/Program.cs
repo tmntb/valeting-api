@@ -5,13 +5,20 @@ using Service;
 using Repository;
 using Api.SwaggerDocumentation;
 using Api.Middleware;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+
+var configBasePath = Path.GetFullPath(Path.Combine(assemblyLocation, "..", "..", ".."));
+
+var appSettingsPath = Path.Combine(configBasePath, "appsettings.json");
+var appSettingsDevPath = Path.Combine(configBasePath, "appsettings.Development.json");
+
 builder.Configuration
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddJsonFile(appSettingsPath, optional: true, reloadOnChange: true)
+    .AddJsonFile(appSettingsDevPath, optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
 // Add services to the container.
