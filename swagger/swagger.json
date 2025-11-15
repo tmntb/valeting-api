@@ -2,7 +2,7 @@
   "openapi": "3.0.4",
   "info": {
     "title": "Valeting",
-    "description": "This is an API to and manage your reserves for cars.",
+    "description": "This is an API to manage car bookings.",
     "contact": {
       "name": "Tiago Baeta",
       "email": "tmntb.work@gmail.com"
@@ -316,6 +316,69 @@
         }
       }
     },
+    "/flexibilities/{id}": {
+      "get": {
+        "tags": [
+          "Flexibility"
+        ],
+        "summary": "List flexibilities by id",
+        "description": "Returns a **Flexibility** by the given id",
+        "operationId": "get-flexibilities-id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlexibilityApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/flexibilities": {
       "get": {
         "tags": [
@@ -372,69 +435,6 @@
           },
           "400": {
             "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorApi"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorApi"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/flexibilities/{id}": {
-      "get": {
-        "tags": [
-          "Flexibility"
-        ],
-        "summary": "List flexibilities by id",
-        "description": "Returns a **Flexibility** by the given id",
-        "operationId": "get-flexibilities-id",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "minLength": 1,
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FlexibilityApiResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorApi"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -527,6 +527,64 @@
         }
       }
     },
+    "/user/refreshToken": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenApiRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/user/register": {
       "post": {
         "tags": [
@@ -557,6 +615,89 @@
           },
           "400": {
             "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vehicleSizes/{id}": {
+      "get": {
+        "tags": [
+          "VehicleSize"
+        ],
+        "summary": "List vehicle sizes by id",
+        "description": "Returns a **Vehicle Size** by the given id",
+        "operationId": "get-vehiclesizes-id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleSizeApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorApi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
@@ -644,69 +785,6 @@
           }
         }
       }
-    },
-    "/vehicleSizes/{id}": {
-      "get": {
-        "tags": [
-          "VehicleSize"
-        ],
-        "summary": "List vehicle sizes by id",
-        "description": "Returns a **Vehicle Size** by the given id",
-        "operationId": "get-vehiclesizes-id",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "minLength": 1,
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VehicleSizeApiResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorApi"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorApi"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorApi"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -719,8 +797,7 @@
             "format": "uuid"
           },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "bookingDate": {
             "type": "string",
@@ -737,8 +814,7 @@
             "format": "int32"
           },
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "approved": {
             "type": "boolean",
@@ -781,8 +857,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BookingApi"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -800,8 +875,7 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "bookingDate": {
             "type": "string",
@@ -819,8 +893,7 @@
             "nullable": true
           },
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -839,8 +912,7 @@
         "type": "object",
         "properties": {
           "detail": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -853,8 +925,7 @@
             "format": "uuid"
           },
           "description": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "active": {
             "type": "boolean"
@@ -896,8 +967,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/FlexibilityApi"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -915,22 +985,25 @@
         "type": "object",
         "properties": {
           "href": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
       },
       "LoginApiRequest": {
+        "required": [
+          "password",
+          "username"
+        ],
         "type": "object",
         "properties": {
           "username": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "password": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -939,16 +1012,14 @@
         "type": "object",
         "properties": {
           "token": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "expiryDate": {
             "type": "string",
             "format": "date-time"
           },
           "tokenType": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -968,16 +1039,49 @@
         },
         "additionalProperties": false
       },
+      "RefreshTokenApiRequest": {
+        "required": [
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RefreshTokenApiResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "tokenType": {
+            "type": "string"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
       "RegisterApiRequest": {
+        "required": [
+          "password",
+          "username"
+        ],
         "type": "object",
         "properties": {
           "username": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "password": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -986,8 +1090,7 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "bookingDate": {
             "type": "string",
@@ -1005,8 +1108,7 @@
             "nullable": true
           },
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "approved": {
             "type": "boolean",
@@ -1023,8 +1125,7 @@
             "format": "uuid"
           },
           "description": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "active": {
             "type": "boolean"
@@ -1066,8 +1167,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/VehicleSizeApi"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -1085,7 +1185,7 @@
     "securitySchemes": {
       "Bearer": {
         "type": "apiKey",
-        "description": "JWT Authorization header using the Bearer scheme.\r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+        "description": "JWT Authorization header using the Bearer scheme.\r\n\r\nEnter 'Bearer' [space] and then your token.\r\nExample: \"Bearer 12345abcdef\"",
         "name": "Authorization",
         "in": "header"
       }
