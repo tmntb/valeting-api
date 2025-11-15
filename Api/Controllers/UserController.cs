@@ -41,6 +41,7 @@ public class UserController(IUserService userService) : UserBaseController
     public override async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenApiRequest refreshTokenApiRequest)
     {
         ArgumentNullException.ThrowIfNull(refreshTokenApiRequest, Messages.InvalidRequestBody);
+        ArgumentException.ThrowIfNullOrEmpty(refreshTokenApiRequest.Token, Messages.InvalidRequestBody);
 
         var username = userService.ValidateToken(refreshTokenApiRequest.Token);
         var generateTokenJwtDtoResponse = await userService.GenerateTokenJWTAsync(username);
