@@ -34,7 +34,7 @@ runs:
 
     - name: Install dependencies (global)
       shell: bash
-      run: dotnet tool install --global Swashbuckle.AspNetCore.Cli
+      run: dotnet tool install --global Swashbuckle.AspNetCore.Cli --version 9.0.6
 
     - name: Add .NET tools to PATH
       shell: bash

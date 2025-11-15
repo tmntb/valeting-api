@@ -14,10 +14,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{933558E1-C927-415A-B636-B966D97E150F}"
 	ProjectSection(SolutionItems) = preProject
-		.env = .env
 		.gitignore = .gitignore
 		docker-compose.yml = docker-compose.yml
 		README.md = README.md
+		.releaserc = .releaserc
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1D8BCDD1-682B-4ADD-8155-B9085CDFE2A4}"
