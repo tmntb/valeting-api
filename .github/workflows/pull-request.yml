@@ -5,11 +5,12 @@ on:
     paths-ignore:
       - ReadMe.md
 
+permissions: write-all
+
 jobs:
   build-test:
     name: Build and Test
     runs-on: ubuntu-latest
-    permissions: write-all
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
