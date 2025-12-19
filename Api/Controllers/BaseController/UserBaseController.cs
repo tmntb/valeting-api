@@ -69,7 +69,7 @@ public abstract class UserBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPost]
     [Route("/user/register")]
-    [ProducesResponseType(statusCode: 200)]
+    [ProducesResponseType(statusCode: 201)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
