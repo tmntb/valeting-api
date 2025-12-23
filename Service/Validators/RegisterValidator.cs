@@ -9,7 +9,8 @@ public class RegisterValidator : AbstractValidator<RegisterDtoRequest>
     {
         RuleFor(x => x.Username)
             .NotNull()
-            .NotEmpty();
+            .NotEmpty()
+            .EmailAddress();
 
         RuleFor(x => x.Password)
             .NotNull()
