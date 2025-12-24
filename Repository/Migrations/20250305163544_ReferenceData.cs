@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Common.Enums;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -32,6 +33,16 @@ namespace Repository.Migrations
                     { "2209acff-4bad-4e6e-9262-5d7ede5bef81", "+/- 3 Days", true },
                 }
             );
+
+            migrationBuilder.InsertData(
+                table: "RD_Role",
+                columns: ["Id", "Name"],
+                values: new object[,]
+                {
+                    { "1e3f5c6d-8b6f-4d2a-9f4e-1c2b3a4d5e6f", RoleEnum.Admin.ToString() },
+                    { "2f4e6d7c-9a8b-4c3d-0e1f-2a3b4c5d6e7f", RoleEnum.User.ToString() }
+                }
+            );
         }
 
         /// <inheritdoc />
@@ -47,6 +58,12 @@ namespace Repository.Migrations
                 table: "RD_Flexibility",
                 keyColumn: "Id",
                 keyValues: ["5afb5192-45f3-418d-8a48-bbecdeedd9e9", "e3cff703-3cd2-4253-999d-8230b8a550e2", "2209acff-4bad-4e6e-9262-5d7ede5bef81"]
+            );
+
+            migrationBuilder.DeleteData(
+                table: "RD_Role",
+                keyColumn: "Id",
+                keyValues: ["1e3f5c6d-8b6f-4d2a-9f4e-1c2b3a4d5e6f", "2f4e6d7c-9a8b-4c3d-0e1f-2a3b4c5d6e7f"]
             );
         }
     }

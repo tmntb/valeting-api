@@ -9,17 +9,16 @@ namespace Repository.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "ApplicationUser",
-                columns: table => new
-                {
-                    Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ApplicationUser", x => x.Username);
-                });
+               name: "RD_Role",
+               columns: table => new
+               {
+                   Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                   Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+               },
+               constraints: table =>
+               {
+                   table.PrimaryKey("PK_RD_Role", x => x.Id);
+               });
 
             migrationBuilder.CreateTable(
                 name: "RD_Flexibility",
@@ -48,6 +47,26 @@ namespace Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ApplicationUser",
+                columns: table => new
+                {
+                    Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Role_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationUser", x => x.Username);
+                    table.ForeignKey(
+                        name: "FK_ApplicationUser_Role",
+                        column: x => x.Role_Id,
+                        principalTable: "RD_Role",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Booking",
                 columns: table => new
                 {
@@ -61,7 +80,7 @@ namespace Repository.Migrations
                     Approved = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
-                {   
+                {
                     table.PrimaryKey("PK_Booking", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Booking_Flexibility",
@@ -84,6 +103,11 @@ namespace Repository.Migrations
                 name: "IX_Booking_VehicleSize_Id",
                 table: "Booking",
                 column: "VehicleSize_Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUser_Role_Id",
+                table: "ApplicationUser",
+                column: "Role_Id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -99,6 +123,9 @@ namespace Repository.Migrations
 
             migrationBuilder.DropTable(
                 name: "RD_VehicleSize");
+
+            migrationBuilder.DropTable(
+                name: "RD_Role");
         }
     }
 }

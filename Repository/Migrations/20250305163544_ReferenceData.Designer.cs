@@ -41,13 +41,17 @@ namespace Repository.Migrations
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+                        
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Role_Id");
 
-                    b.Property<string>("Salt")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.HasKey("Username");
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("ApplicationUser", (string)null);
                 });
@@ -73,7 +77,7 @@ namespace Repository.Migrations
 
                     b.Property<Guid>("FlexibilityId")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Flexibility_ID");
+                        .HasColumnName("Flexibility_Id");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -81,7 +85,7 @@ namespace Repository.Migrations
 
                     b.Property<Guid>("VehicleSizeId")
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("VehicleSize_ID");
+                        .HasColumnName("VehicleSize_Id");
 
                     b.HasKey("Id");
 
@@ -128,6 +132,21 @@ namespace Repository.Migrations
                     b.ToTable("RD_VehicleSize", (string)null);
                 });
 
+            modelBuilder.Entity("Repository.Entities.RdRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RD_Role", (string)null);
+                });
+
             modelBuilder.Entity("Repository.Entities.Booking", b =>
                 {
                     b.HasOne("Repository.Entities.RdFlexibility", "Flexibility")
@@ -155,6 +174,22 @@ namespace Repository.Migrations
             modelBuilder.Entity("Repository.Entities.RdVehicleSize", b =>
                 {
                     b.Navigation("Bookings");
+                });
+
+            modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
+                {
+                    b.HasOne("Repository.Entities.RdRole", "Role")
+                        .WithMany("ApplicationUsers")
+                        .HasForeignKey("RoleId")
+                        .IsRequired()
+                        .HasConstraintName("FK_ApplicationUser_Role");
+
+                    b.Navigation("Role");
+                });
+            
+            modelBuilder.Entity("Repository.Entities.RdRole", b =>
+                {
+                    b.Navigation("ApplicationUsers");
                 });
 #pragma warning restore 612, 618
         }

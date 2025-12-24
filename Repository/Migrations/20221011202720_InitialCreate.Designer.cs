@@ -38,12 +38,17 @@ namespace Repository.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Salt")
+                    b.Property<Guid>("RoleId")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Role_Id");
+                    
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.HasKey("Username");
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("ApplicationUser", (string)null);
                 });
@@ -124,6 +129,21 @@ namespace Repository.Migrations
                     b.ToTable("RD_VehicleSize", (string)null);
                 });
 
+            modelBuilder.Entity("Repository.Models.User.Entities.RdRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RD_Role", (string)null);
+                });
+
             modelBuilder.Entity("Repository.Models.User.Entities.Booking", b =>
                 {
                     b.HasOne("Repository.Models.User.Entities.RdFlexibility", "Flexibility")
@@ -151,6 +171,22 @@ namespace Repository.Migrations
             modelBuilder.Entity("Repository.Models.User.Entities.RdVehicleSize", b =>
                 {
                     b.Navigation("Bookings");
+                });
+
+            modelBuilder.Entity("Repository.Models.User.Entities.ApplicationUser", b =>
+                {
+                    b.HasOne("Repository.Models.User.Entities.RdRole", "Role")
+                        .WithMany("ApplicationUsers")
+                        .HasForeignKey("RoleId")
+                        .IsRequired()
+                        .HasConstraintName("FK_ApplicationUser_Role");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Repository.Models.User.Entities.RdRole", b =>
+                {
+                    b.Navigation("ApplicationUsers");
                 });
 #pragma warning restore 612, 618
         }
