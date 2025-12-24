@@ -127,10 +127,31 @@ To start the application, run:
 dotnet run --project Api
 ```
 
-If using Docker:
+### Using Docker:
 
+#### Start containers
 ```sh
-docker-compose up --build
+./docker-compose.sh up
+```
+
+#### Start in detached mode
+```sh
+./docker-compose.sh up -d
+```
+
+#### Stop containers
+```sh
+./docker-compose.sh down
+```
+
+#### View logs
+```sh
+./docker-compose.sh logs -f
+```
+
+#### Rebuild
+```sh
+./docker-compose.sh up --build
 ```
 
 ## Contributing
