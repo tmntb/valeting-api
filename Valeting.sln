@@ -18,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{933558E1-C
 		docker-compose.yml = docker-compose.yml
 		README.md = README.md
 		.releaserc = .releaserc
+		.env = .env
+		docker-compose.override.yml = docker-compose.override.yml
+		docker-compose.mac.yml = docker-compose.mac.yml
+		docker-compose.sh = docker-compose.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1D8BCDD1-682B-4ADD-8155-B9085CDFE2A4}"

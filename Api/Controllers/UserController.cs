@@ -68,6 +68,6 @@ public class UserController(IUserService userService) : UserBaseController
         };
         await userService.RegisterAsync(registerDtoRequest);
 
-        return StatusCode((int)HttpStatusCode.OK);
+        return StatusCode((int)HttpStatusCode.Created);
     }
 }

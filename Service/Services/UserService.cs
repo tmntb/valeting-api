@@ -92,6 +92,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateIssuerSigningKey = true,
+            ValidateLifetime = false,
             ValidIssuer = issuer,
             ValidAudience = audience,
             IssuerSigningKey = securityKey,

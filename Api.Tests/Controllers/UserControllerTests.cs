@@ -112,6 +112,6 @@ public class UserControllerTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
+        Assert.Equal((int)HttpStatusCode.Created, result.StatusCode);
     }
 }

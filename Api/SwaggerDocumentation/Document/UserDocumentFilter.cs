@@ -14,9 +14,19 @@ namespace Api.SwaggerDocumentation.Document;
 public class UserDocumentFilter : IDocumentFilter
 {
     /// <summary>
-    /// Endpoint for user login/verification.
+    /// Endpoint for user login.
     /// </summary>
-    public const string UserVerifyEndpoint = "/user/login";
+    public const string UserLoginEndpoint = "/user/login";
+
+    /// <summary>
+    /// Endpoint for user register.
+    /// </summary>
+    public const string UserRegisterEndpoint = "/user/register";
+
+    /// <summary>
+    /// Endpoint to refresh user token
+    /// </summary>
+    public const string UserRefreshTokenEndpoint = "/user/refreshToken";
 
     /// <summary>
     /// Applies the filter to the given OpenAPI document.
@@ -27,9 +37,19 @@ public class UserDocumentFilter : IDocumentFilter
     {
         swaggerDoc.Tags.Add(new OpenApiTag() { Name = "User", Description = "User operations" });
 
-        var flexibilitiesPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserVerifyEndpoint).Value;
-        flexibilitiesPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.OperationId = "post-login-user";
-        flexibilitiesPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Summary = "Validates user credentials";
-        flexibilitiesPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Description = "Returns an access token for the **User**";
+        var userLoginPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserLoginEndpoint).Value;
+        userLoginPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.OperationId = "post-login-user";
+        userLoginPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Summary = "Validates user credentials";
+        userLoginPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Description = "Returns an access token for the **User**";
+
+        var userRegisterPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserRegisterEndpoint).Value;
+        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.OperationId= "post-register-user";
+        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Summary = "Register a new user";
+        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Description = string.Empty;
+
+        var userRefreshTokenPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserRefreshTokenEndpoint).Value;
+        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.OperationId= "post-refresh-token-user";
+        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Summary = "Refresh the token for valid user";
+        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Description = "Returns a refreshed access token for the **User**";
     }
 }

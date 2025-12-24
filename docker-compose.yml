@@ -1,26 +1,16 @@
 name: valeting
 
 services:
-  sqlserver:    
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
-    ports:
-      - "1433:1433"
-    environment:
-      ACCEPT_EULA: "Y"
-      SA_PASSWORD: ${SA_PASSWORD}
-    volumes:
-      - sqlserver_data:/var/opt/mssql
-
   api:
     build:
         context: .
-        dockerfile: /Api/Dockerfile
+        dockerfile: Api/Dockerfile
     ports:
         - "8080:8080"
     container_name: api
     depends_on: 
-        - sqlserver
+        sqlserver:
+          condition: service_healthy
     environment: 
         - ConnectionStrings__ValetingConnection=Server=sqlserver,1433;Database=Valeting;User ID=sa;Password=${SA_PASSWORD};Integrated Security=False;Trusted_Connection=False;TrustServerCertificate=True;
 
