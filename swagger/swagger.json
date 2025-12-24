@@ -532,6 +532,9 @@
         "tags": [
           "User"
         ],
+        "summary": "Refresh the token for valid user",
+        "description": "Returns a refreshed access token for the **User**",
+        "operationId": "post-refresh-token-user",
         "requestBody": {
           "content": {
             "application/json": {
@@ -590,6 +593,9 @@
         "tags": [
           "User"
         ],
+        "summary": "Register a new user",
+        "description": "",
+        "operationId": "post-register-user",
         "requestBody": {
           "content": {
             "application/json": {
@@ -610,8 +616,8 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created"
           },
           "400": {
             "description": "Bad Request",
