@@ -11,8 +11,10 @@ services:
     depends_on: 
         sqlserver:
           condition: service_healthy
-    environment: 
-        - ConnectionStrings__ValetingConnection=Server=sqlserver,1433;Database=Valeting;User ID=sa;Password=${SA_PASSWORD};Integrated Security=False;Trusted_Connection=False;TrustServerCertificate=True;
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - SA_PASSWORD=${SA_PASSWORD}
+      - JWT_KEY=${JWT_KEY}
 
 volumes:
   sqlserver_data:
