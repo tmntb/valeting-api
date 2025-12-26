@@ -28,9 +28,9 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         {
             Subject = new ClaimsIdentity(
             [
-                new Claim("UserId", userDto.Id.ToString()),
-                new Claim("Username", userDto.Username),
-                new Claim("Role", userDto.Role.Name.ToString())
+                new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
+                new Claim(ClaimTypes.Name, userDto.Username),
+                new Claim(ClaimTypes.Role, userDto.Role.Name.ToString())
             ]),
             Expires = DateTime.Now.AddMinutes(60),
             Issuer = issuer,
@@ -100,10 +100,11 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
             ValidIssuer = issuer,
             ValidAudience = audience,
             IssuerSigningKey = securityKey,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+            RoleClaimType = ClaimTypes.Role
         }, out _);
 
-        return claims.FindFirst("Username")?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
+        return claims.FindFirst(ClaimTypes.Name)?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
     }
 
     /// <summary>
