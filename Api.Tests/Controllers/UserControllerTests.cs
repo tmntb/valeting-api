@@ -86,6 +86,52 @@ public class UserControllerTests
     }
 
     [Fact]
+    public async Task RefreshTokenAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.RefreshTokenAsync(null));
+        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
+    }
+
+    [Fact]
+    public async Task RefreshTokenAsync_ShouldThrowArgumentNullException_WhenTokenIsNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.RefreshTokenAsync(new() { Token = null }));
+        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
+    }
+
+    [Fact]
+    public async Task RefreshTokenAsync_ShouldReturnOk_WhenSuccessful()
+    {
+        // Arrange
+        _mockUserService.Setup(s => s.ValidateToken(It.IsAny<string>()))
+            .Returns("test@example.com");
+
+        _mockUserService.Setup(s => s.GenerateTokenJWTAsync(It.IsAny<string>()))
+            .ReturnsAsync(
+                new GenerateTokenJWTDtoResponse
+                {
+                    Token = "newValidToken",
+                    TokenType = "jwt",
+                    ExpiryDate = DateTime.UtcNow.AddHours(1)
+                });
+
+        // Act
+        var result = await _userController.RefreshTokenAsync
+        (
+            new()
+            {
+                Token = "oldValidToken"
+            }
+        ) as ObjectResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [Fact]
     public async Task Register_ShouldThrowArgumentNullException_WhenParamsAreNull()
     {
         // Act & Assert

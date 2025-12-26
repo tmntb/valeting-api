@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repository.Entities;
 
+[ExcludeFromCodeCoverage]
 public partial class ValetingContext : DbContext
 {
     public ValetingContext()
@@ -17,6 +19,7 @@ public partial class ValetingContext : DbContext
     public virtual DbSet<Booking> Bookings { get; set; } = null!;
     public virtual DbSet<RdFlexibility> RdFlexibilities { get; set; } = null!;
     public virtual DbSet<RdVehicleSize> RdVehicleSizes { get; set; } = null!;
+    public virtual DbSet<RdRole> RdRoles { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -31,9 +34,23 @@ public partial class ValetingContext : DbContext
 
             entity.ToTable("ApplicationUser");
 
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("Id");
+
             entity.Property(e => e.Username).HasMaxLength(50);
 
-            entity.Property(e => e.Id).HasColumnName("Id");
+            entity.Property(e => e.Password).IsRequired();
+
+            entity.Property(e => e.RoleId).HasColumnName("Role_Id");
+
+            entity.Property(e => e.IsActive);
+
+            entity.HasOne(d => d.Role)
+                .WithMany(p => p.ApplicationUsers)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ApplicationUser_Role");
         });
 
         modelBuilder.Entity<Booking>(entity =>
@@ -79,12 +96,27 @@ public partial class ValetingContext : DbContext
         modelBuilder.Entity<RdVehicleSize>(entity =>
         {
             entity.HasKey(e => e.Id);
-            
+
             entity.ToTable("RD_VehicleSize");
 
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("Id");
+        });
+
+        modelBuilder.Entity<RdRole>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.ToTable("RD_Role");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("Id");
+
+            entity.Property(e => e.Name)
+                .HasConversion<string>()
+                .HasColumnName("Name");
         });
 
         OnModelCreatingPartial(modelBuilder);

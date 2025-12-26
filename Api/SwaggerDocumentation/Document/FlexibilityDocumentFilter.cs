@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Api.SwaggerDocumentation.Document;
@@ -11,6 +12,7 @@ namespace Api.SwaggerDocumentation.Document;
 /// including listing all flexibilities and retrieving a flexibility by ID.
 /// It sets operation IDs, summaries, and descriptions for improved API documentation.
 /// </remarks>
+[ExcludeFromCodeCoverage]
 public class FlexibilityDocumentFilter : IDocumentFilter
 {
     /// <summary>

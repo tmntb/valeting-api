@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Api.SwaggerDocumentation.Document;
@@ -11,6 +12,7 @@ namespace Api.SwaggerDocumentation.Document;
 /// specifically the login endpoint. It sets operation IDs, summaries,
 /// and descriptions to improve API documentation and clarity for consumers.
 /// </remarks>
+[ExcludeFromCodeCoverage]
 public class UserDocumentFilter : IDocumentFilter
 {
     /// <summary>

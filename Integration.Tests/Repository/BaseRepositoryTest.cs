@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Common.Enums;
+using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
 
 namespace Integration.Tests.Repository;
@@ -46,11 +47,19 @@ public class BaseRepositoryTest : IAsyncLifetime
             Active = true
         };
 
+        var role = new RdRole
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000051"),
+            Name = RoleEnum.User
+        };
+
         var user = new ApplicationUser
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000041"),
             Username = "username",
-            Password = "password"
+            Password = "password",
+            Role = role,
+            IsActive = true
         };
 
         var booking = new Booking
@@ -69,6 +78,7 @@ public class BaseRepositoryTest : IAsyncLifetime
         Context.RdFlexibilities.Add(flexibility);
         Context.RdVehicleSizes.Add(vehicleSize);
         Context.ApplicationUsers.Add(user);
+        Context.RdRoles.Add(role);
 
         await Context.SaveChangesAsync();
     }
@@ -79,6 +89,7 @@ public class BaseRepositoryTest : IAsyncLifetime
         Context.RdFlexibilities.RemoveRange(Context.RdFlexibilities);
         Context.RdVehicleSizes.RemoveRange(Context.RdVehicleSizes);
         Context.ApplicationUsers.RemoveRange(Context.ApplicationUsers);
+        Context.RdRoles.RemoveRange(Context.RdRoles);
         await Context.SaveChangesAsync();
     }
 }

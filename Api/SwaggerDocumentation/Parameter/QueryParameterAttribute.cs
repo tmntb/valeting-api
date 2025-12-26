@@ -1,4 +1,6 @@
-﻿namespace Api.SwaggerDocumentation.Parameter;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Api.SwaggerDocumentation.Parameter;
 
 /// <summary>
 /// Attribute used to provide metadata for query parameters in Swagger/OpenAPI documentation.
@@ -8,6 +10,7 @@
 /// minimum and maximum values, and optionally a format. This metadata will be used by the
 /// <see cref="ParameterFilter"/> to generate enhanced OpenAPI documentation.
 /// </remarks>
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 public class QueryParameterAttribute : Attribute
 {

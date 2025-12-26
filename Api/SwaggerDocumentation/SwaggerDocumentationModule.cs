@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Api.SwaggerDocumentation.Document;
 using Api.SwaggerDocumentation.Parameter;
 using Microsoft.OpenApi.Models;
@@ -7,6 +8,7 @@ namespace Api.SwaggerDocumentation;
 /// <summary>
 /// Provides extension methods to configure Swagger/OpenAPI documentation for the Valeting API.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class SwaggerDocumentationExtensions
 {
     /// <summary>

@@ -19,4 +19,19 @@ public partial class ApplicationUser
     /// Hashed password of the user.
     /// </summary>
     public string Password { get; set; } = null!;
+
+    /// <summary>
+    /// Foreign key referencing the role assigned to the user.
+    /// </summary>
+    public Guid RoleId { get; set; }
+
+    /// <summary>
+    /// Indicates whether the user account is active.
+    /// </summary>
+    public bool IsActive { get; set; }
+
+    /// <summary>
+    /// Navigation property for the role assigned to the user.
+    /// </summary>
+    public virtual RdRole Role { get; set; } = null!;
 }

@@ -1,4 +1,5 @@
-﻿using Service.Models.User.Payload;
+﻿using Common.Enums;
+using Service.Models.User.Payload;
 using Service.Validators;
 
 namespace Service.Tests.Validators;
@@ -80,6 +81,25 @@ public class RegisterValidatorTests
         // Assert
         Assert.False(result.IsValid);
         Assert.Contains("Password", result.Errors.FirstOrDefault().ErrorMessage);
+    }
+
+    [Fact]
+    public void RoleName_IsDefault_ShouldFail()
+    {
+        // Arrange
+        var request = new RegisterDtoRequest
+        {
+            Username = "username@username.com",
+            Password = "password",
+            RoleName =  (RoleEnum)999
+        };
+
+        // Act
+        var result = _validator.Validate(request);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains("Role Name", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
     [Fact]

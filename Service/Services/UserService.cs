@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Service.Services;
 
-public class UserService(IUserRepository userRepository, IConfiguration configuration) : IUserService
+public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, IConfiguration configuration) : IUserService
 {
     /// <inheritdoc />
     public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string username)
@@ -28,8 +28,9 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         {
             Subject = new ClaimsIdentity(
             [
-                new Claim("UserId", userDto.Id.ToString()),
-                new Claim("Username", userDto.Username)
+                new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
+                new Claim(ClaimTypes.Name, userDto.Username),
+                new Claim(ClaimTypes.Role, userDto.Role.Name.ToString())
             ]),
             Expires = DateTime.Now.AddMinutes(60),
             Issuer = issuer,
@@ -59,13 +60,16 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             throw new InvalidOperationException(Messages.UsernameInUse);
         }
 
+        var roleDto = await roleRepository.GetByNameAsync(registerDtoRequest.RoleName) ?? throw new KeyNotFoundException(Messages.NotFound);
         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDtoRequest.Password, workFactor: 12);
 
         var registerUserDto = new UserDto
         {
             Id = Guid.NewGuid(),
             Username = registerDtoRequest.Username,
-            Password = hashedPassword
+            Password = hashedPassword,
+            Role = new() { Id = roleDto.Id },
+            IsActive = true
         };
         await userRepository.RegisterAsync(registerUserDto);
     }
@@ -77,7 +81,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
 
         var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        return BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.Password);
+        return userDto.IsActive && BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.Password);
     }
 
     /// <inheritdoc />
@@ -87,7 +91,7 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         var securityKey = GetSecurityKey();
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+        var claims = tokenHandler.ValidateToken(token, new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
@@ -96,10 +100,11 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             ValidIssuer = issuer,
             ValidAudience = audience,
             IssuerSigningKey = securityKey,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+            RoleClaimType = ClaimTypes.Role
         }, out _);
 
-        return principal.FindFirst("Username")?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
+        return claims.FindFirst(ClaimTypes.Name)?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
     }
 
     /// <summary>

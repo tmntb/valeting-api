@@ -1,4 +1,5 @@
-﻿using Common.Cache;
+﻿using System.Diagnostics.CodeAnalysis;
+using Common.Cache;
 using Common.Cache.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Service.Interfaces;
@@ -7,9 +8,10 @@ using Service.Validators.Utils;
 
 namespace Service;
 
-public static class CoreModule
+[ExcludeFromCodeCoverage]
+public static class ServiceModule
 {
-    public static void AddValetingCore(this IServiceCollection services)
+    public static void AddService(this IServiceCollection services)
     {
         services.AddMemoryCache();
         services.AddScoped<ICacheHandler, MemoryCacheHandler>();
