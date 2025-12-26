@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
 namespace Repository.Entities;
 
+[ExcludeFromCodeCoverage]
 public class ValetingContextFactory : IDesignTimeDbContextFactory<ValetingContext>
 {
     public ValetingContext CreateDbContext(string[] args)

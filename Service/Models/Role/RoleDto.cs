@@ -1,4 +1,3 @@
-using System;
 using Common.Enums;
 
 namespace Service.Models.Role;

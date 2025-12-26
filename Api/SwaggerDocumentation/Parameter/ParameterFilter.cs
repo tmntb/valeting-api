@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Any;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -12,6 +13,7 @@ namespace Api.SwaggerDocumentation.Parameter;
 /// This filter enhances OpenAPI documentation for query and path parameters
 /// by adding descriptions, examples, and constraints such as minimum/maximum values or format.
 /// </remarks>
+[ExcludeFromCodeCoverage]
 public class ParameterFilter : IParameterFilter
 {
     /// <summary>

@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Api.SwaggerDocumentation.Document;
@@ -11,6 +12,7 @@ namespace Api.SwaggerDocumentation.Document;
 /// including listing, creating, retrieving by id, updating, and deleting bookings.
 /// It sets operation IDs, summaries, and descriptions for better API documentation.
 /// </remarks>
+[ExcludeFromCodeCoverage]
 public class BookingDocumentFilter : IDocumentFilter
 {
     /// <summary>

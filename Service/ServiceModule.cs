@@ -1,4 +1,5 @@
-﻿using Common.Cache;
+﻿using System.Diagnostics.CodeAnalysis;
+using Common.Cache;
 using Common.Cache.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Service.Interfaces;
@@ -7,6 +8,7 @@ using Service.Validators.Utils;
 
 namespace Service;
 
+[ExcludeFromCodeCoverage]
 public static class ServiceModule
 {
     public static void AddService(this IServiceCollection services)

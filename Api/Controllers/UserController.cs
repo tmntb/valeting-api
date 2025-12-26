@@ -16,11 +16,12 @@ public class UserController(IUserService userService) : UserBaseController
     {
         ArgumentNullException.ThrowIfNull(loginApiRequest, Messages.InvalidRequestBody);
 
-        var validateLoginDtoRequest = new ValidateLoginDtoRequest 
+        var validateLoginDtoRequest = new ValidateLoginDtoRequest
         {
             Username = loginApiRequest.Username,
             Password = loginApiRequest.Password
         };
+        
         var validateLogin = await userService.ValidateLoginAsync(validateLoginDtoRequest);
         if (!validateLogin)
         {
@@ -29,7 +30,7 @@ public class UserController(IUserService userService) : UserBaseController
 
         var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(loginApiRequest.Username);
 
-        var validateLoginApiResponse =  new LoginApiResponse 
+        var validateLoginApiResponse = new LoginApiResponse
         {
             Token = generateTokenJWTDtoResponse.Token,
             TokenType = generateTokenJWTDtoResponse.TokenType,
@@ -62,7 +63,7 @@ public class UserController(IUserService userService) : UserBaseController
     {
         ArgumentNullException.ThrowIfNull(registerApiRequest, Messages.InvalidRequestBody);
 
-        var registerDtoRequest = new RegisterDtoRequest 
+        var registerDtoRequest = new RegisterDtoRequest
         {
             Username = registerApiRequest.Username,
             Password = registerApiRequest.Password,

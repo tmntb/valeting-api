@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Api.SwaggerDocumentation.Document;
@@ -11,6 +12,7 @@ namespace Api.SwaggerDocumentation.Document;
 /// including listing all vehicle sizes and retrieving a vehicle size by ID.
 /// It sets operation IDs, summaries, and descriptions to improve API documentation clarity.
 /// </remarks>
+[ExcludeFromCodeCoverage]
 public class VehicleSizeDocumentFilter : IDocumentFilter
 {
     /// <summary>

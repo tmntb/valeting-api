@@ -54,7 +54,8 @@ public class UserServiceTests
                 {
                     Id = _mockId,
                     Username = "user@example.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("password123")
+                    Password = BCrypt.Net.BCrypt.HashPassword("password123"),
+                    IsActive = true
                 });
 
         // Act

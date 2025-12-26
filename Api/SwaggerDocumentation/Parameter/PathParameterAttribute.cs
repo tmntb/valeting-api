@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Api.SwaggerDocumentation.Parameter;
 
@@ -16,6 +17,7 @@ namespace Api.SwaggerDocumentation.Parameter;
 /// <param name="description">Description of the path parameter.</param>
 /// <param name="example">Example value for the parameter.</param>
 /// <param name="format">Format of the parameter.</param>
+[ExcludeFromCodeCoverage]
 [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
 public class PathParameterAttribute(string description, string example, string format) : ValidationAttribute
 {

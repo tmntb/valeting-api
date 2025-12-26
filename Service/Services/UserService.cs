@@ -29,7 +29,8 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
             Subject = new ClaimsIdentity(
             [
                 new Claim("UserId", userDto.Id.ToString()),
-                new Claim("Username", userDto.Username)
+                new Claim("Username", userDto.Username),
+                new Claim("Role", userDto.Role.Name.ToString())
             ]),
             Expires = DateTime.Now.AddMinutes(60),
             Issuer = issuer,
@@ -80,7 +81,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
         var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        return BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.Password);
+        return userDto.IsActive && BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.Password);
     }
 
     /// <inheritdoc />
@@ -90,7 +91,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         var securityKey = GetSecurityKey();
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+        var claims = tokenHandler.ValidateToken(token, new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
@@ -102,7 +103,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
             ClockSkew = TimeSpan.Zero
         }, out _);
 
-        return principal.FindFirst("Username")?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
+        return claims.FindFirst("Username")?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
     }
 
     /// <summary>

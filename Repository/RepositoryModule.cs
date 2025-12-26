@@ -4,9 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Service.Interfaces;
 using Repository.Entities;
 using Repository.Repositories;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Repository;
 
+[ExcludeFromCodeCoverage]
 public static class RepositoryModule
 {
     public static void AddRepository(this IServiceCollection services, IConfiguration configuration)
