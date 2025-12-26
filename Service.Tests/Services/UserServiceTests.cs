@@ -29,6 +29,92 @@ public class UserServiceTests
     }
 
     [Fact]
+    public async Task GenerateTokenJWTAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    {
+        // Arrange
+        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync((UserDto)null);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.GenerateTokenJWTAsync("user@example.com"));
+    }
+
+    [Fact]
+    public async Task GenerateTokenJWTAsync_ShouldReturnValidToken_WhenUserExists()
+    {
+        // Arrange
+        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(new UserDto
+            {
+                Id = _mockId,
+                Username = "user@example.com"
+            });
+
+        _mockConfiguration.Setup(config => config["Jwt:Key"])
+            .Returns("this_is_a_secret_key_with_128bits");
+        _mockConfiguration.Setup(config => config["Jwt:Issuer"])
+            .Returns("issuer");
+        _mockConfiguration.Setup(config => config["Jwt:Audience"])
+            .Returns("audience");
+
+        // Act
+        var response = await _userService.GenerateTokenJWTAsync("user@example.com");
+
+        // Assert
+        Assert.NotNull(response.Token);
+        Assert.Equal("JwtSecurityToken", response.TokenType);
+        Assert.True(response.ExpiryDate > DateTime.Now);
+    }
+
+    [Fact]
+    public async Task RegisterAsync_ShouldThrowInvalidOperationException_WhenUserExists()
+    {
+        // Arrange
+        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(new UserDto
+            {
+                Id = _mockId,
+                Username = "user@example.com",
+            });
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(
+                new()
+                {
+                    Username = "user@example.com",
+                    Password = "password"
+                }));
+
+        Assert.Equal(exception.Message, Messages.UsernameInUse);
+    }
+
+    [Fact]
+    public async Task RegisterAsync_ShouldCreateUser_WhenValid()
+    {
+        // Arrange
+        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync((UserDto)null);
+
+        _mockRoleRepository.Setup(repo => repo.GetByNameAsync(It.IsAny<RoleEnum>()))
+            .ReturnsAsync(new RoleDto
+            {
+                Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                Name = RoleEnum.User
+            });
+
+        // Act
+        await _userService.RegisterAsync(new()
+        {
+            Username = "user@example.com",
+            Password = "password",
+            RoleName = RoleEnum.User
+        });
+
+        // Assert
+        _mockUserRepository.Verify(repo => repo.RegisterAsync(It.IsAny<UserDto>()), Times.Once);
+    }
+
+    [Fact]
     public async Task ValidateLoginAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
     {
         // Arrange
@@ -96,27 +182,9 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task GenerateTokenJWTAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    public async Task ValidateToken_ShouldReturnUsername_WhenTokenIsValid()
     {
         // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync((UserDto)null);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.GenerateTokenJWTAsync("user@example.com"));
-    }
-
-    [Fact]
-    public async Task GenerateTokenJWTAsync_ShouldReturnValidToken_WhenUserExists()
-    {
-        // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(new UserDto
-            {
-                Id = _mockId,
-                Username = "user@example.com"
-            });
-
         _mockConfiguration.Setup(config => config["Jwt:Key"])
             .Returns("this_is_a_secret_key_with_128bits");
         _mockConfiguration.Setup(config => config["Jwt:Issuer"])
@@ -124,60 +192,20 @@ public class UserServiceTests
         _mockConfiguration.Setup(config => config["Jwt:Audience"])
             .Returns("audience");
 
-        // Act
-        var response = await _userService.GenerateTokenJWTAsync("user@example.com");
-
-        // Assert
-        Assert.NotNull(response.Token);
-        Assert.Equal("JwtSecurityToken", response.TokenType);
-        Assert.True(response.ExpiryDate > DateTime.Now);
-    }
-
-    [Fact]
-    public async Task RegisterAsync_ShouldThrowInvalidOperationException_WhenUserExists()
-    {
-        // Arrange
         _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(new UserDto
             {
                 Id = _mockId,
-                Username = "user@example.com",
+                Username = "user@example.com"
             });
 
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(
-                new()
-                {
-                    Username = "user@example.com",
-                    Password = "password"
-                }));
-
-        Assert.Equal(exception.Message, Messages.UsernameInUse);
-    }
-
-    [Fact]
-    public async Task RegisterAsync_ShouldCreateUser_WhenValid()
-    {
-        // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync((UserDto)null);
-    
-        _mockRoleRepository.Setup(repo => repo.GetByNameAsync(It.IsAny<RoleEnum>()))
-            .ReturnsAsync(new RoleDto
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                Name = RoleEnum.User
-            });
+        var tokenResponse = await _userService.GenerateTokenJWTAsync("user@example.com");
+        var validToken = tokenResponse.Token;
 
         // Act
-        await _userService.RegisterAsync(new()
-        {
-            Username = "user@example.com",
-            Password = "password",
-            RoleName = RoleEnum.User
-        });
+        var username = _userService.ValidateToken(validToken);
 
         // Assert
-        _mockUserRepository.Verify(repo => repo.RegisterAsync(It.IsAny<UserDto>()), Times.Once);
+        Assert.Equal("user@example.com", username);
     }
 }

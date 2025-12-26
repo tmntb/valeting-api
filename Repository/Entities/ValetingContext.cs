@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repository.Entities;
 
+[ExcludeFromCodeCoverage]
 public partial class ValetingContext : DbContext
 {
     public ValetingContext()
