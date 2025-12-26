@@ -61,8 +61,8 @@ if(!string.IsNullOrEmpty(jwtKeyString))
 }
 
 // Add services to the container.
-builder.Services.AddValetingCore();
-builder.Services.AddValetingRepository(builder.Configuration);
+builder.Services.AddService();
+builder.Services.AddRepository(builder.Configuration);
 
 builder.Services.AddAuthentication(options =>
 {

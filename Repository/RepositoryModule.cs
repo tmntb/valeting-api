@@ -9,7 +9,7 @@ namespace Repository;
 
 public static class RepositoryModule
 {
-    public static void AddValetingRepository(this IServiceCollection services, IConfiguration configuration)
+    public static void AddRepository(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<ValetingContext>(options =>
             options.UseSqlServer(
@@ -26,5 +26,6 @@ public static class RepositoryModule
         services.AddScoped<IFlexibilityRepository, FlexibilityRepository>();
         services.AddScoped<IVehicleSizeRepository, VehicleSizeRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
     }
 }

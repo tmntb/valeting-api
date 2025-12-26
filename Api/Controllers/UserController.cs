@@ -1,5 +1,6 @@
 ﻿using Api.Controllers.BaseController;
 using Api.Models.User.Payload;
+using Common.Enums;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
@@ -65,6 +66,7 @@ public class UserController(IUserService userService) : UserBaseController
         {
             Username = registerApiRequest.Username,
             Password = registerApiRequest.Password,
+            RoleName = RoleEnum.User
         };
         await userService.RegisterAsync(registerDtoRequest);
 

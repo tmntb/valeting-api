@@ -1,4 +1,6 @@
-﻿namespace Service.Models.User;
+﻿using Service.Models.Role;
+
+namespace Service.Models.User;
 
 /// <summary>
 /// Represents a user in the system.
@@ -19,4 +21,14 @@ public class UserDto
     /// Hashed password of the user.
     /// </summary>
     public string Password { get; set; }
+
+    /// <summary>
+    /// Role assigned to the user.
+    /// </summary>
+    public RoleDto Role { get; set; } = new();
+
+    /// <summary>
+    /// Indicates whether the user is active.
+    /// </summary>
+    public bool IsActive { get; set; }
 }

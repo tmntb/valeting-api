@@ -1,4 +1,5 @@
-﻿using Repository.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Repository.Entities;
 using Service.Interfaces;
 using Service.Models.User;
 
@@ -9,7 +10,7 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
     /// <inheritdoc />
     public async Task<UserDto> GetUserByEmailAsync(string username)
     {
-        var applicationUser = await valetingContext.ApplicationUsers.FindAsync(username);
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Username == username);
 
         if (applicationUser == null)
             return null;
@@ -18,7 +19,13 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
         {
             Id = applicationUser.Id,
             Username = applicationUser.Username,
-            Password = applicationUser.Password
+            Password = applicationUser.Password,
+            Role = new()
+            {
+                Id = applicationUser.Role.Id,
+                Name = applicationUser.Role.Name
+            },
+            IsActive = applicationUser.IsActive
         };
     }
 
@@ -29,7 +36,9 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
         {
             Id = userDto.Id,
             Username = userDto.Username,
-            Password = userDto.Password
+            Password = userDto.Password,
+            RoleId = userDto.Role.Id,
+            IsActive = userDto.IsActive
         };
         await valetingContext.ApplicationUsers.AddAsync(applicationUser);
         await valetingContext.SaveChangesAsync();

@@ -15,5 +15,8 @@ public class RegisterValidator : AbstractValidator<RegisterDtoRequest>
         RuleFor(x => x.Password)
             .NotNull()
             .NotEmpty();
+
+        RuleFor(x => x.RoleName)
+            .IsInEnum();
     }
 }

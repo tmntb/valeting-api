@@ -111,6 +111,10 @@ public partial class ValetingContext : DbContext
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("Id");
+
+            entity.Property(e => e.Name)
+                .HasConversion<string>()
+                .HasColumnName("Name");
         });
 
         OnModelCreatingPartial(modelBuilder);

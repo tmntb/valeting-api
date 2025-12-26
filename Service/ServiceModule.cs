@@ -7,9 +7,9 @@ using Service.Validators.Utils;
 
 namespace Service;
 
-public static class CoreModule
+public static class ServiceModule
 {
-    public static void AddValetingCore(this IServiceCollection services)
+    public static void AddService(this IServiceCollection services)
     {
         services.AddMemoryCache();
         services.AddScoped<ICacheHandler, MemoryCacheHandler>();

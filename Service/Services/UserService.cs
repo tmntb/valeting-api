@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Service.Services;
 
-public class UserService(IUserRepository userRepository, IConfiguration configuration) : IUserService
+public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, IConfiguration configuration) : IUserService
 {
     /// <inheritdoc />
     public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string username)
@@ -59,13 +59,16 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
             throw new InvalidOperationException(Messages.UsernameInUse);
         }
 
+        var roleDto = await roleRepository.GetByNameAsync(registerDtoRequest.RoleName) ?? throw new KeyNotFoundException(Messages.NotFound);
         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDtoRequest.Password, workFactor: 12);
 
         var registerUserDto = new UserDto
         {
             Id = Guid.NewGuid(),
             Username = registerDtoRequest.Username,
-            Password = hashedPassword
+            Password = hashedPassword,
+            Role = new() { Id = roleDto.Id },
+            IsActive = true
         };
         await userRepository.RegisterAsync(registerUserDto);
     }
