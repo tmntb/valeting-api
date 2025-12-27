@@ -14,14 +14,6 @@ public class UpdateBookingValidator : AbstractValidator<BookingDto>
             .NotNull()
             .NotEmpty();
 
-        RuleFor(x => x.Email)
-            .NotNull()
-            .NotEmpty();
-
-        RuleFor(x => x.ContactNumber)
-            .NotNull()
-            .NotEmpty();
-
         RuleFor(x => x.BookingDate)
             .NotEqual(DateTime.MinValue)
             .GreaterThan(DateTime.Now);

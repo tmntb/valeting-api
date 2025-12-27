@@ -52,15 +52,20 @@ public partial class InitialCreate : Migration
             name: "ApplicationUser",
             columns: table => new
             {
-                Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                ContactNumber = table.Column<int>(type: "int", nullable: false),
+                Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 Role_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                IsActive = table.Column<bool>(type: "bit", nullable: false)
+                IsActive = table.Column<bool>(type: "bit", nullable: false),
+                CreatedAt = table.Column<DateTime>(type: "datetime", nullable: false),
+                UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: false),
+                LastLoginAt = table.Column<DateTime>(type: "datetime", nullable: false)
             },
             constraints: table =>
             {
-                table.PrimaryKey("PK_ApplicationUser", x => x.Username);
+                table.PrimaryKey("PK_ApplicationUser", x => x.Id);
                 table.ForeignKey(
                     name: "FK_ApplicationUser_Role",
                     column: x => x.Role_Id,
@@ -77,8 +82,6 @@ public partial class InitialCreate : Migration
                 BookingDate = table.Column<DateTime>(type: "datetime", nullable: false),
                 Flexibility_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 VehicleSize_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                ContactNumber = table.Column<int>(type: "int", nullable: false),
-                Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 Approved = table.Column<bool>(type: "bit", nullable: true)
             },
             constraints: table =>

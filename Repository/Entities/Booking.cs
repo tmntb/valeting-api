@@ -31,16 +31,6 @@ public partial class Booking
     public Guid VehicleSizeId { get; set; }
 
     /// <summary>
-    /// Contact number of the person who made the booking.
-    /// </summary>
-    public int ContactNumber { get; set; }
-
-    /// <summary>
-    /// Email of the person who made the booking.
-    /// </summary>
-    public string Email { get; set; } = null!;
-
-    /// <summary>
     /// Indicates whether the booking has been approved.
     /// </summary>
     public bool? Approved { get; set; }

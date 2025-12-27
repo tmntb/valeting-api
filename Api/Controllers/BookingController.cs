@@ -30,9 +30,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
             VehicleSize = new()
             {
                 Id = createBookingApiRequest.VehicleSize.Id
-            },
-            ContactNumber = createBookingApiRequest.ContactNumber,
-            Email = createBookingApiRequest.Email
+            }
         };
 
         var bookingId = await bookingService.CreateAsync(bookingDto);
@@ -90,7 +88,6 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
                 Id = bookingDto.VehicleSize.Id,
                 Description = bookingDto.VehicleSize.Description
             },
-            ContactNumber = bookingDto.ContactNumber.Value,
             Approved = bookingDto.Approved
         };
 
@@ -184,7 +181,6 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
                     Id = x.VehicleSize.Id,
                     Description = x.VehicleSize.Description
                 },
-                ContactNumber = x.ContactNumber.Value,
                 Approved = x.Approved
             }
         ).ToList();

@@ -16,8 +16,6 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
             Id = bookingDto.Id,
             Name = bookingDto.Name,
             BookingDate = bookingDto.BookingDate,
-            ContactNumber = bookingDto.ContactNumber.Value,
-            Email = bookingDto.Email,
             Approved = bookingDto.Approved,
             FlexibilityId = bookingDto.Flexibility.Id,
             VehicleSizeId = bookingDto.VehicleSize.Id,
@@ -36,8 +34,6 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
 
         booking.Name = bookingDto.Name;
         booking.BookingDate = bookingDto.BookingDate;
-        booking.ContactNumber = bookingDto.ContactNumber.Value;
-        booking.Email = bookingDto.Email;
         booking.Approved = bookingDto.Approved;
         booking.FlexibilityId = bookingDto.Flexibility.Id;
         booking.VehicleSizeId = bookingDto.VehicleSize.Id;
@@ -69,8 +65,6 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
                 Id = x.Id,
                 Name = x.Name,
                 BookingDate = x.BookingDate,
-                ContactNumber = x.ContactNumber,
-                Email = x.Email,
                 Approved = x.Approved,
                 Flexibility = new()
                 {
@@ -98,8 +92,6 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
            Id = booking.Id,
            Name = booking.Name,
            BookingDate = booking.BookingDate,
-           ContactNumber = booking.ContactNumber,
-           Email = booking.Email,
            Approved = booking.Approved,
            Flexibility = new()
            {

@@ -27,7 +27,7 @@ public class UserRepositoryTests : BaseRepositoryTest
     public async Task GetUserByEmailAsync_ShouldReturnUserDtoWhenApplicationUserExists()
     {
         // Act
-        var result = await _userRepository.GetUserByEmailAsync("username");
+        var result = await _userRepository.GetUserByEmailAsync("test@example.com");
 
         // Assert
         Assert.NotNull(result);
@@ -43,7 +43,8 @@ public class UserRepositoryTests : BaseRepositoryTest
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-000000000042"),
                 Username = "username42",
-                Password = "password42"
+                PasswordHash = "password42",
+                Email = "test@example.com"
             });
 
         var result = await Context.ApplicationUsers.FindAsync("username");

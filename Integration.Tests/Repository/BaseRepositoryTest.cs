@@ -57,7 +57,9 @@ public class BaseRepositoryTest : IAsyncLifetime
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000041"),
             Username = "username",
-            Password = "password",
+            PasswordHash = "password",
+            ContactNumber = 1234567890,
+            Email = "test@example.com",
             Role = role,
             IsActive = true
         };
@@ -67,8 +69,6 @@ public class BaseRepositoryTest : IAsyncLifetime
             Id = Guid.Parse("00000000-0000-0000-0000-000000000011"),
             Name = "name",
             BookingDate = DateTime.UtcNow,
-            ContactNumber = 123,
-            Email = "email",
             Approved = false,
             Flexibility = flexibility,
             VehicleSize = vehicleSize

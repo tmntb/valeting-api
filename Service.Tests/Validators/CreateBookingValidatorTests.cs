@@ -48,69 +48,12 @@ public class CreateBookingValidatorTests
     }
 
     [Fact]
-    public void Email_Null_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Name = "name",
-            Email = null
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Email", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void Email_Empty_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Name = "name",
-            Email = string.Empty
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Email", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void ContactNumber_Null_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Name = "name",
-            Email = "email",
-            ContactNumber = null
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Contact Number", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
     public void BookingDate_MinValue_ShouldFail()
     {
         // Arrange
         var request = new BookingDto
         {
             Name = "name",
-            Email = "email",
-            ContactNumber = 123,
             BookingDate = DateTime.MinValue
         };
 
@@ -129,8 +72,6 @@ public class CreateBookingValidatorTests
         var request = new BookingDto
         {
             Name = "name",
-            Email = "email",
-            ContactNumber = 123,
             BookingDate = DateTime.Now.AddDays(-1)
         };
 
@@ -149,8 +90,6 @@ public class CreateBookingValidatorTests
         var request = new BookingDto
         {
             Name = "name",
-            Email = "email",
-            ContactNumber = 123,
             BookingDate = DateTime.Now,
             Flexibility = new()
             {
@@ -173,8 +112,6 @@ public class CreateBookingValidatorTests
         var request = new BookingDto
         {
             Name = "name",
-            Email = "email",
-            ContactNumber = 123,
             BookingDate = DateTime.Now,
             Flexibility = new()
             {
@@ -201,8 +138,6 @@ public class CreateBookingValidatorTests
         var request = new BookingDto
         {
             Name = "name",
-            Email = "email",
-            ContactNumber = 123,
             BookingDate = DateTime.Now,
             Flexibility = new()
             {

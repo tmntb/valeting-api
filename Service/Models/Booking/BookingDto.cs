@@ -34,16 +34,6 @@ public class BookingDto
     public VehicleSizeDto VehicleSize { get; set; } = new();
 
     /// <summary>
-    /// The contact number of the person who made the booking.
-    /// </summary>
-    public int? ContactNumber { get; set; }
-
-    /// <summary>
-    /// The email of the person who made the booking.
-    /// </summary>
-    public string Email { get; set; }
-
-    /// <summary>
     /// Indicates whether the booking has been approved.
     /// </summary>
     public bool? Approved { get; set; }

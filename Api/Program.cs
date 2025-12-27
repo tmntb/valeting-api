@@ -32,11 +32,9 @@ var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Loc
 var configBasePath = Path.GetFullPath(Path.Combine(assemblyLocation, "..", "..", ".."));
 
 var appSettingsPath = Path.Combine(configBasePath, "appsettings.json");
-var appSettingsDevPath = Path.Combine(configBasePath, "appsettings.Development.json");
 
 builder.Configuration
     .AddJsonFile(appSettingsPath, optional: true, reloadOnChange: true)
-    .AddJsonFile(appSettingsDevPath, optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
 // Read environment variables

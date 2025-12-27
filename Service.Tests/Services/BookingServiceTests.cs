@@ -40,8 +40,6 @@ public class BookingServiceTests
             {
                 Name = "name",
                 BookingDate = DateTime.Now.AddDays(1),
-                ContactNumber = 123,
-                Email = "email",
                 Flexibility = new()
                 {
                     Id = _mockId
@@ -73,8 +71,6 @@ public class BookingServiceTests
                  Id = _mockId,
                  Name = "name",
                  BookingDate = DateTime.Now.AddDays(1),
-                 ContactNumber = 123,
-                 Email = "email",
                  Flexibility = new()
                  {
                      Id = _mockId
@@ -108,8 +104,6 @@ public class BookingServiceTests
                 Id = _mockId,
                 Name = "name",
                 BookingDate = DateTime.Now.AddDays(1),
-                ContactNumber = 123,
-                Email = "email",
                 Flexibility = new()
                 {
                     Id = _mockId

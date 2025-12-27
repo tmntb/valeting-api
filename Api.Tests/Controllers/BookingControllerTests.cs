@@ -150,7 +150,6 @@ public class BookingControllerTests
                 new BookingDto()
                 {
                     Id = _mockBookingId,
-                    ContactNumber = 123
                 });
 
         _mockLinkService.SetupSequence(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
@@ -194,7 +193,6 @@ public class BookingControllerTests
                     [
                         new()
                         {
-                            ContactNumber = 123
                         }
                     ]
                 });

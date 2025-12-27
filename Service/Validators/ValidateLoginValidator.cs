@@ -7,9 +7,10 @@ public class ValidateLoginValidator : AbstractValidator<ValidateLoginDtoRequest>
 {
     public ValidateLoginValidator()
     {
-        RuleFor(x => x.Username)
+        RuleFor(x => x.Email)
             .NotNull()
-            .NotEmpty();
+            .NotEmpty()
+            .EmailAddress();
 
         RuleFor(x => x.Password)
             .NotNull()

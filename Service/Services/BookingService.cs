@@ -34,8 +34,6 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         var bookingDtoToUpdate = await bookingRepository.GetByIdAsync(bookingDto.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
         bookingDtoToUpdate.Name = bookingDto.Name;
         bookingDtoToUpdate.BookingDate = bookingDto.BookingDate;
-        bookingDtoToUpdate.ContactNumber = bookingDto.ContactNumber;
-        bookingDtoToUpdate.Email = bookingDto.Email;
         bookingDtoToUpdate.Approved = bookingDto.Approved;
         bookingDtoToUpdate.Flexibility = bookingDto.Flexibility;
         bookingDtoToUpdate.VehicleSize = bookingDto.VehicleSize;

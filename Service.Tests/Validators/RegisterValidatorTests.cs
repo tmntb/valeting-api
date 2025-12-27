@@ -53,7 +53,7 @@ public class RegisterValidatorTests
         // Arrange
         var request = new RegisterDtoRequest
         {
-            Username = "username@username.com",
+            Username = "username",
             Password = null
         };
 
@@ -71,7 +71,7 @@ public class RegisterValidatorTests
         // Arrange
         var request = new RegisterDtoRequest
         {
-            Username = "username@username.com",
+            Username = "username",
             Password = string.Empty
         };
 
@@ -89,8 +89,10 @@ public class RegisterValidatorTests
         // Arrange
         var request = new RegisterDtoRequest
         {
-            Username = "username@username.com",
+            Username = "username",
             Password = "password",
+            ContactNumber = 123456789,
+            Email = "username@username.com",
             RoleName =  (RoleEnum)999
         };
 
@@ -108,8 +110,11 @@ public class RegisterValidatorTests
         // Arrange
         var request = new RegisterDtoRequest
         {
-            Username = "username@username.com",
-            Password = "password"
+            Username = "username",
+            Password = "password",
+            ContactNumber = 123456789,
+            Email = "username@username.com",
+            RoleName =  RoleEnum.User
         };
 
         // Act

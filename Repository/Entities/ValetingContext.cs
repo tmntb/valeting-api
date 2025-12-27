@@ -38,13 +38,25 @@ public partial class ValetingContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnName("Id");
 
-            entity.Property(e => e.Username).HasMaxLength(50);
+            entity.Property(e => e.Username)
+                .IsRequired()
+                .HasMaxLength(50);
 
-            entity.Property(e => e.Password).IsRequired();
+            entity.Property(e => e.PasswordHash).IsRequired();
+
+            entity.Property(e => e.ContactNumber).IsRequired();
+
+            entity.Property(e => e.Email).IsRequired();
 
             entity.Property(e => e.RoleId).HasColumnName("Role_Id");
 
             entity.Property(e => e.IsActive);
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.Property(e => e.LastLoginAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Role)
                 .WithMany(p => p.ApplicationUsers)

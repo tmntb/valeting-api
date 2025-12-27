@@ -18,7 +18,7 @@ public class UserController(IUserService userService) : UserBaseController
 
         var validateLoginDtoRequest = new ValidateLoginDtoRequest
         {
-            Username = loginApiRequest.Username,
+            Email = loginApiRequest.Email,
             Password = loginApiRequest.Password
         };
         
@@ -28,7 +28,7 @@ public class UserController(IUserService userService) : UserBaseController
             throw new UnauthorizedAccessException(Messages.InvalidPassword);
         }
 
-        var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(loginApiRequest.Username);
+        var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(loginApiRequest.Email);
 
         var validateLoginApiResponse = new LoginApiResponse
         {
@@ -45,8 +45,8 @@ public class UserController(IUserService userService) : UserBaseController
         ArgumentNullException.ThrowIfNull(refreshTokenApiRequest, Messages.InvalidRequestBody);
         ArgumentException.ThrowIfNullOrEmpty(refreshTokenApiRequest.Token, Messages.InvalidRequestBody);
 
-        var username = userService.ValidateToken(refreshTokenApiRequest.Token);
-        var generateTokenJwtDtoResponse = await userService.GenerateTokenJWTAsync(username);
+        var email = userService.ValidateToken(refreshTokenApiRequest.Token);
+        var generateTokenJwtDtoResponse = await userService.GenerateTokenJWTAsync(email);
 
         var refreshTokenApiResponse = new RefreshTokenApiResponse
         {
@@ -67,6 +67,8 @@ public class UserController(IUserService userService) : UserBaseController
         {
             Username = registerApiRequest.Username,
             Password = registerApiRequest.Password,
+            ContactNumber = registerApiRequest.ContactNumber,
+            Email = registerApiRequest.Email,
             RoleName = RoleEnum.User
         };
         await userService.RegisterAsync(registerDtoRequest);

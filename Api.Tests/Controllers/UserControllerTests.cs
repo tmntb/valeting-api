@@ -41,7 +41,7 @@ public class UserControllerTests
         var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _userController.Login(
             new()
             {
-                Username = "test@example.com",
+                Email = "test@example.com",
                 Password = "wrongpassword"
             }));
 
@@ -70,7 +70,7 @@ public class UserControllerTests
         (
             new()
             {
-                Username = "test@example.com",
+                Email = "test@example.com",
                 Password = "password"
             }
         ) as ObjectResult;

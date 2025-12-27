@@ -27,15 +27,24 @@ partial class InitialCreate
 
         modelBuilder.Entity("Repository.Models.User.Entities.ApplicationUser", b =>
             {
-                b.Property<string>("Username")
-                    .HasMaxLength(50)
-                    .HasColumnType("nvarchar(50)");
-
                 b.Property<Guid>("Id")
+                    .IsRequired()
                     .HasColumnType("uniqueidentifier")
                     .HasColumnName("Id");
 
-                b.Property<string>("Password")
+                b.Property<string>("Username")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
+
+                b.Property<string>("PasswordHash")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<int>("ContactNumber")
+                    .HasColumnType("int");
+
+                b.Property<string>("Email")
                     .IsRequired()
                     .HasColumnType("nvarchar(max)");
 
@@ -47,7 +56,16 @@ partial class InitialCreate
                 b.Property<bool>("IsActive")
                     .HasColumnType("bit");
 
-                b.HasKey("Username");
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("datetime");
+
+                b.Property<DateTime>("LastLoginAt")
+                    .HasColumnType("datetime");
+
+                b.HasKey("Id");
 
                 b.HasIndex("RoleId");
 
@@ -65,13 +83,6 @@ partial class InitialCreate
 
                 b.Property<DateTime>("BookingDate")
                     .HasColumnType("datetime");
-
-                b.Property<int>("ContactNumber")
-                    .HasColumnType("int");
-
-                b.Property<string>("Email")
-                    .IsRequired()
-                    .HasColumnType("nvarchar(max)");
 
                 b.Property<Guid>("FlexibilityId")
                     .HasColumnType("uniqueidentifier")

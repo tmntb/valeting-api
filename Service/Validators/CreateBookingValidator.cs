@@ -11,13 +11,6 @@ namespace Service.Validators
                 .NotNull()
                 .NotEmpty();
 
-            RuleFor(x => x.Email)
-                .NotNull()
-                .NotEmpty();
-
-            RuleFor(x => x.ContactNumber)
-                .NotNull();
-
             RuleFor(x => x.BookingDate)
                 .NotEqual(DateTime.MinValue)
                 .GreaterThan(DateTime.Now);

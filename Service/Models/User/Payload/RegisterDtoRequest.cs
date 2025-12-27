@@ -18,6 +18,16 @@ public class RegisterDtoRequest
     public string Password { get; set; }
 
     /// <summary>
+    /// The contact number for the new user.
+    /// </summary>
+    public int ContactNumber { get; set; }
+
+    /// <summary>
+    /// The email address for the new user.
+    /// </summary>
+    public string Email { get; set; }
+
+    /// <summary>
     /// The name of the role to be assigned to the new user.
     /// </summary>
     public RoleEnum RoleName { get; set; }

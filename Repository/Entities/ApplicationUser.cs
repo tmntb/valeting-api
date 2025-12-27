@@ -13,12 +13,22 @@ public partial class ApplicationUser
     /// <summary>
     /// Username of the user.
     /// </summary>
-    public string Username { get; set; } = null!;
+    public string Username { get; set; }
 
     /// <summary>
-    /// Hashed password of the user.
+    /// Hashed password hash of the user.
     /// </summary>
-    public string Password { get; set; } = null!;
+    public string PasswordHash { get; set; }
+
+    /// <summary>
+    /// Contact number of the user.
+    /// </summary>
+    public int ContactNumber { get; set; }
+    
+    /// <summary>
+    /// Email address of the user.
+    /// </summary>
+    public string Email { get; set; }
 
     /// <summary>
     /// Foreign key referencing the role assigned to the user.
@@ -29,6 +39,21 @@ public partial class ApplicationUser
     /// Indicates whether the user account is active.
     /// </summary>
     public bool IsActive { get; set; }
+
+    /// <summary>
+    /// Timestamp when the user account was created.
+    /// </summary>
+    public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// Timestamp when the user account was last updated.
+    /// </summary>
+    public DateTime UpdatedAt { get; set; }
+
+    /// <summary> 
+    /// Timestamp when the user last logged in.
+    /// </summary>
+    public DateTime LastLoginAt { get; set; }
 
     /// <summary>
     /// Navigation property for the role assigned to the user.

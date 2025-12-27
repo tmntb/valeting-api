@@ -9,4 +9,11 @@ public class RegisterApiRequest
 
     [Required]
     public string Password { get; set; }
+
+    [Required]
+    public int ContactNumber { get; set; }
+
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; }
 }
