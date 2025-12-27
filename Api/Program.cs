@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Load .env ONLY in local development (outside of Docker)
 if (builder.Environment.IsDevelopment())
 {
-    var rootPath = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName 
+    var rootPath = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName
                    ?? Directory.GetCurrentDirectory();
     var envPath = Path.Combine(rootPath, ".env");
 
@@ -28,24 +28,24 @@ if (builder.Environment.IsDevelopment())
     }
 }
 
+var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+var configBasePath = Path.GetFullPath(Path.Combine(assemblyLocation, "..", "..", ".."));
+
+var appSettingsPath = Path.Combine(configBasePath, "appsettings.json");
+var appSettingsDevPath = Path.Combine(configBasePath, "appsettings.Development.json");
+
 builder.Configuration
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+    .AddJsonFile(appSettingsPath, optional: true, reloadOnChange: true)
+    .AddJsonFile(appSettingsDevPath, optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-// Read environment variables with fallback
-var saPassword = Environment.GetEnvironmentVariable("SA_PASSWORD") 
-    ?? builder.Configuration["SA_PASSWORD"]
-    ?? throw new InvalidOperationException("SA_PASSWORD not configured");
-
-var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") 
-    ?? builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException("JWT_KEY not configured");
+// Read environment variables
+var saPassword = Environment.GetEnvironmentVariable("SA_PASSWORD") ?? string.Empty;
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? string.Empty;
 
 // Re-write connection string with the environment password
 var connectionString = builder.Configuration.GetConnectionString("ValetingConnection") ?? throw new InvalidOperationException("ValetingConnection not configured");
-if (!string.IsNullOrEmpty(connectionString))
+if (!string.IsNullOrEmpty(connectionString) && !string.IsNullOrEmpty(saPassword))
 {
     // Replace placeholder with the real password
     connectionString = connectionString.Replace("{SA_PASSWORD}", saPassword);
@@ -53,7 +53,7 @@ if (!string.IsNullOrEmpty(connectionString))
 }
 
 var jwtKeyString = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key not configured");
-if(!string.IsNullOrEmpty(jwtKeyString))
+if (!string.IsNullOrEmpty(jwtKeyString) && !string.IsNullOrEmpty(jwtKey))
 {
     // Replace placeholder with the real JWT key
     jwtKeyString = jwtKeyString.Replace("{JWT_KEY}", jwtKey);

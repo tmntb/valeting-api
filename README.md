@@ -72,7 +72,7 @@ Windows (CMD)
 echo %ConnectionStrings__ValetingConnection%
 ```
 
-### How to Pass the SA_PASSWORD Variable to Docker Compose
+### How to pass the SA_PASSWORD variable to docker compose
 
 Before running ==docker-compose up==, set the ==SA_PASSWORD== variable in the terminal:
 
@@ -83,27 +83,42 @@ export SA_PASSWORD=MySecretPassword
 docker-compose up -d
 ```
 
-Windows (PowerShell)
+#### Windows
 
 ```powershell
 $env:SA_PASSWORD="MySecretPassword"
 docker-compose up -d
 ```
 
-Windows (CMD)
-
 ```cmd
 set SA_PASSWORD=MySecretPassword
 docker-compose up -d
+```
+
+### How to pass the JWT_KEY to docker compose
+
+#### macOS/Linux
+
+```sh
+openssl rand -base64 32
+```
+
+#### Windows
+
+```powershell
+$bytes = New-Object byte[] 32
+[Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
+[Convert]::ToBase64String($bytes)
 ```
 
 Alternatively, you can create a .env file with:
 
 ```env
 SA_PASSWORD=MySecretPassword
+JWT_KEY=MyJwtKey
 ```
 
-Docker Compose will automatically load the value.
+Docker Compose will automatically load the values.
 
 ### Apply Migrations in Order
 
