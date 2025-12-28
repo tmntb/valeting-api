@@ -80,7 +80,6 @@ public class UserServiceTests
             .ReturnsAsync(new UserDto
             {
                 Id = _mockId,
-
                 Email = "user@example.com"
             });
 
@@ -95,7 +94,7 @@ public class UserServiceTests
                     RoleName = RoleEnum.User
                 }));
 
-        Assert.Equal(exception.Message, Messages.UsernameInUse);
+        Assert.Equal(exception.Message, Messages.EmailInUse);
     }
 
     [Fact]

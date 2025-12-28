@@ -123,15 +123,9 @@ Docker Compose will automatically load the values.
 ### Apply Migrations in Order
 
 ```sh
-dotnet ef database update 20221011202720_InitialCreate \
-  --project Repository \
-  --startup-project Api \
-  --connection "Server=localhost,1433;Database=Valeting;User ID=sa;Password=MySecretPassword;Integrated Security=False;Trusted_Connection=False;TrustServerCertificate=True;"
+dotnet ef database update 20221011202720_InitialCreate --project Repository --startup-project Api
 
-dotnet ef database update 20250305163544_ReferenceData \
-  --project Repository \
-  --startup-project Api \
-  --connection "Server=localhost,1433;Database=Valeting;User ID=sa;Password=MySecretPassword;Integrated Security=False;Trusted_Connection=False;TrustServerCertificate=True;"
+dotnet ef database update 20250305163544_ReferenceData --project Repository --startup-project Api
 ```
 
 ### Running the Application

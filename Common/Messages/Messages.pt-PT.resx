@@ -138,7 +138,7 @@
   <data name="NotFound" xml:space="preserve">
     <value>Registo não encontrado.</value>
   </data>
-  <data name="UsernameInUse" xml:space="preserve">
-    <value>O nome de utilizador já está atribuído.</value>
+  <data name="EmailInUse" xml:space="preserve">
+    <value>O email já está a ser utilizado.</value>
   </data>
 </root>

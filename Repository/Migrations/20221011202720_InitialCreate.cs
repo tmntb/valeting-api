@@ -59,9 +59,9 @@ public partial class InitialCreate : Migration
                 Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 Role_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 IsActive = table.Column<bool>(type: "bit", nullable: false),
-                CreatedAt = table.Column<DateTime>(type: "datetime", nullable: false),
-                UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: false),
-                LastLoginAt = table.Column<DateTime>(type: "datetime", nullable: false)
+                CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                LastLoginAt = table.Column<DateTime>(type: "datetime2", nullable: false)
             },
             constraints: table =>
             {

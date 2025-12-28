@@ -30,7 +30,7 @@ public partial class ValetingContext : DbContext
     {
         modelBuilder.Entity<ApplicationUser>(entity =>
         {
-            entity.HasKey(e => e.Username);
+            entity.HasKey(e => e.Id);
 
             entity.ToTable("ApplicationUser");
 
@@ -52,11 +52,11 @@ public partial class ValetingContext : DbContext
 
             entity.Property(e => e.IsActive);
 
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
 
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime2");
 
-            entity.Property(e => e.LastLoginAt).HasColumnType("datetime");
+            entity.Property(e => e.LastLoginAt).HasColumnType("datetime2");
 
             entity.HasOne(d => d.Role)
                 .WithMany(p => p.ApplicationUsers)

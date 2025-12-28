@@ -61,7 +61,10 @@ public class BaseRepositoryTest : IAsyncLifetime
             ContactNumber = 1234567890,
             Email = "test@example.com",
             Role = role,
-            IsActive = true
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.MinValue,
+            LastLoginAt = DateTime.MinValue
         };
 
         var booking = new Booking

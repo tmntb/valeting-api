@@ -138,7 +138,7 @@
   <data name="NotFound" xml:space="preserve">
     <value>Record not found.</value>
   </data>
-  <data name="UsernameInUse" xml:space="preserve">
-    <value>Username is already taken.</value>
+  <data name="EmailInUse" xml:space="preserve">
+    <value>Email is already registered.</value>
   </data>
 </root>

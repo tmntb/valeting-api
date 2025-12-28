@@ -58,7 +58,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         var userDto = await userRepository.GetUserByEmailAsync(registerDtoRequest.Email);
         if (userDto != null)
         {
-            throw new InvalidOperationException(Messages.UsernameInUse);
+            throw new InvalidOperationException(Messages.EmailInUse);
         }
 
         var roleDto = await roleRepository.GetByNameAsync(registerDtoRequest.RoleName) ?? throw new KeyNotFoundException(Messages.NotFound);

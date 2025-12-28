@@ -57,13 +57,13 @@ partial class InitialCreate
                     .HasColumnType("bit");
 
                 b.Property<DateTime>("CreatedAt")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime2");
 
                 b.Property<DateTime>("UpdatedAt")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime2");
 
                 b.Property<DateTime>("LastLoginAt")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime2");
 
                 b.HasKey("Id");
 

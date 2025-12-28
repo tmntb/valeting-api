@@ -126,9 +126,9 @@ namespace Common.Messages {
         /// <summary>
         ///   Looks up a localized string similar to Username is already taken..
         /// </summary>
-        public static string UsernameInUse {
+        public static string EmailInUse {
             get {
-                return ResourceManager.GetString("UsernameInUse", resourceCulture);
+                return ResourceManager.GetString("EmailInUse", resourceCulture);
             }
         }
     }
