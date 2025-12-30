@@ -1,4 +1,6 @@
-﻿namespace Repository.Entities;
+﻿using Common.Enums;
+
+namespace Repository.Entities;
 
 /// <summary>
 /// Represents a vehicle size option that can be associated with bookings.
@@ -19,9 +21,14 @@ public partial class RdVehicleSize
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Description of the vehicle size.
+    /// Code representing the vehicle size.
     /// </summary>
-    public string Description { get; set; } = null!;
+    public VehicleSizeEnum Code { get; set; }
+
+    /// <summary>
+    /// Name of the vehicle size.
+    /// </summary>
+    public string Name { get; set; }
 
     /// <summary>
     /// Indicates whether the vehicle size is active.

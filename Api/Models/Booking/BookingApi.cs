@@ -15,9 +15,9 @@ public class BookingApi
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Name associated with the booking.
+    /// Reference associated with the booking.
     /// </summary>
-    public string Name { get; set; }
+    public string Reference { get; set; }
 
     /// <summary>
     /// Date and time of the booking.

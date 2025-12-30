@@ -23,9 +23,9 @@ public class BookingRepositoryTests : BaseRepositoryTest
             new()
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-000000000012"),
-                Name = "name",
-                BookingDate = DateTime.UtcNow,
-                Approved = false,
+                Reference = "name",
+                ScheduledAt = DateTime.UtcNow,
+                RequiresApproval = false,
                 Flexibility = new()
                 {
                     Id = Guid.Parse("00000000-0000-0000-0000-000000000021")
@@ -50,18 +50,18 @@ public class BookingRepositoryTests : BaseRepositoryTest
             new()
             {
                 Id = _mockId,
-                Name = "name1",
-                BookingDate = DateTime.UtcNow,
-                Approved = false,
+                Reference = "name1",
+                ScheduledAt = DateTime.UtcNow,
+                RequiresApproval = false,
                 Flexibility = new()
                 {
                     Id = Guid.Parse("00000000-0000-0000-0000-000000000021"),
-                    Description = "1 Day"
+                    Name = "1 Day"
                 },
                 VehicleSize = new()
                 {
                     Id = Guid.Parse("00000000-0000-0000-0000-000000000031"),
-                    Description = "Van"
+                    Name = "Van"
                 }
             });
 
@@ -113,9 +113,9 @@ public class BookingRepositoryTests : BaseRepositoryTest
         var booking = new Booking
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000014"),
-            Name = "name",
-            BookingDate = DateTime.UtcNow,
-            Approved = false,
+            Reference = "name",
+            ScheduledAt = DateTime.UtcNow,
+            RequiresApproval = false,
             Flexibility = existingFlex,
             VehicleSize = existingVehicle
         };

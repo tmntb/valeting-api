@@ -114,7 +114,7 @@ public class RegisterValidatorTests
             Password = "password",
             ContactNumber = 123456789,
             Email = "username@username.com",
-            RoleName =  RoleEnum.User
+            RoleName =  RoleEnum.USER
         };
 
         // Act

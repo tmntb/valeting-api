@@ -38,8 +38,8 @@ public class BookingServiceTests
         var result = await _bookingService.CreateAsync(
             new()
             {
-                Name = "name",
-                BookingDate = DateTime.Now.AddDays(1),
+                Reference = "name",
+                ScheduledAt = DateTime.Now.AddDays(1),
                 Flexibility = new()
                 {
                     Id = _mockId
@@ -69,8 +69,8 @@ public class BookingServiceTests
              new()
              {
                  Id = _mockId,
-                 Name = "name",
-                 BookingDate = DateTime.Now.AddDays(1),
+                 Reference = "name",
+                 ScheduledAt = DateTime.Now.AddDays(1),
                  Flexibility = new()
                  {
                      Id = _mockId
@@ -102,8 +102,8 @@ public class BookingServiceTests
             new()
             {
                 Id = _mockId,
-                Name = "name",
-                BookingDate = DateTime.Now.AddDays(1),
+                Reference = "name",
+                ScheduledAt = DateTime.Now.AddDays(1),
                 Flexibility = new()
                 {
                     Id = _mockId

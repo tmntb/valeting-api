@@ -32,9 +32,9 @@ public class BookingService(IBookingRepository bookingRepository, ICacheHandler 
         bookingDto.ValidateRequest(new UpdateBookingValidator());
 
         var bookingDtoToUpdate = await bookingRepository.GetByIdAsync(bookingDto.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
-        bookingDtoToUpdate.Name = bookingDto.Name;
-        bookingDtoToUpdate.BookingDate = bookingDto.BookingDate;
-        bookingDtoToUpdate.Approved = bookingDto.Approved;
+        bookingDtoToUpdate.Reference = bookingDto.Reference;
+        bookingDtoToUpdate.ScheduledAt = bookingDto.ScheduledAt;
+        bookingDtoToUpdate.RequiresApproval = bookingDto.RequiresApproval;
         bookingDtoToUpdate.Flexibility = bookingDto.Flexibility;
         bookingDtoToUpdate.VehicleSize = bookingDto.VehicleSize;
 

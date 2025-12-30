@@ -21,8 +21,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
 
         var bookingDto = new BookingDto
         {
-            Name = createBookingApiRequest.Name,
-            BookingDate = createBookingApiRequest.BookingDate,
+            ScheduledAt = createBookingApiRequest.BookingDate,
             Flexibility = new()
             {
                 Id = createBookingApiRequest.Flexibility.Id
@@ -76,19 +75,19 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         var bookingApi = new BookingApi
         {
             Id = bookingDto.Id,
-            Name = bookingDto.Name,
-            BookingDate = bookingDto.BookingDate,
+            Reference = bookingDto.Reference,
+            BookingDate = bookingDto.ScheduledAt,
             Flexibility = new()
             {
                 Id = bookingDto.Flexibility.Id,
-                Description = bookingDto.Flexibility.Description
+                Name = bookingDto.Flexibility.Name
             },
             VehicleSize = new()
             {
                 Id = bookingDto.VehicleSize.Id,
-                Description = bookingDto.VehicleSize.Description
+                Name = bookingDto.VehicleSize.Name
             },
-            Approved = bookingDto.Approved
+            Approved = bookingDto.RequiresApproval
         };
 
         bookingApi.Flexibility.Link = new()
@@ -169,19 +168,19 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
             new BookingApi
             {
                 Id = x.Id,
-                Name = x.Name,
-                BookingDate = x.BookingDate,
+                Reference = x.Reference,
+                BookingDate = x.ScheduledAt,
                 Flexibility = new()
                 {
                     Id = x.Flexibility.Id,
-                    Description = x.Flexibility.Description
+                    Name = x.Flexibility.Name
                 },
                 VehicleSize = new()
                 {
                     Id = x.VehicleSize.Id,
-                    Description = x.VehicleSize.Description
+                    Name = x.VehicleSize.Name
                 },
-                Approved = x.Approved
+                Approved = x.RequiresApproval
             }
         ).ToList();
 

@@ -14,14 +14,14 @@ public class BookingDto
     public Guid Id { get; set; }
 
     /// <summary>
-    /// The name of the person who made the booking.
+    /// The reference of the booking.
     /// </summary>
-    public string Name { get; set; }
+    public string Reference { get; set; }
 
     /// <summary>
     /// The date and time of the booking.
     /// </summary>
-    public DateTime BookingDate { get; set; }
+    public DateTime ScheduledAt { get; set; }
 
     /// <summary>
     /// The flexibility option associated with the booking.
@@ -36,5 +36,5 @@ public class BookingDto
     /// <summary>
     /// Indicates whether the booking has been approved.
     /// </summary>
-    public bool? Approved { get; set; }
+    public bool RequiresApproval { get; set; }
 }

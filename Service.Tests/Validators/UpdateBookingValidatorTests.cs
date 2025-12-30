@@ -31,50 +31,13 @@ public class UpdateBookingValidatorTests
     }
 
     [Fact]
-    public void Name_Null_ShouldFail()
+    public void ScheduledAt_MinValue_ShouldFail()
     {
         // Arrange
         var request = new BookingDto
         {
             Id = _mockId,
-            Name = null
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Name", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void Name_Empty_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Id = _mockId,
-            Name = string.Empty
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Name", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void BookingDate_MinValue_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Id = _mockId,
-            Name = "name",
-            BookingDate = DateTime.MinValue
+            ScheduledAt = DateTime.MinValue
         };
 
         // Act
@@ -86,14 +49,13 @@ public class UpdateBookingValidatorTests
     }
 
     [Fact]
-    public void BookingDate_LessThanNow_ShouldFail()
+    public void ScheduledAt_LessThanNow_ShouldFail()
     {
         // Arrange
         var request = new BookingDto
         {
             Id = _mockId,
-            Name = "name",
-            BookingDate = DateTime.Now.AddDays(-1)
+            ScheduledAt = DateTime.Now.AddDays(-1)
         };
 
         // Act
@@ -111,8 +73,7 @@ public class UpdateBookingValidatorTests
         var request = new BookingDto
         {
             Id = _mockId,
-            Name = "name",
-            BookingDate = DateTime.Now,
+            ScheduledAt = DateTime.Now,
             Flexibility = new()
             {
                 Id = Guid.Empty
@@ -134,8 +95,7 @@ public class UpdateBookingValidatorTests
         var request = new BookingDto
         {
             Id = _mockId,
-            Name = "name",
-            BookingDate = DateTime.Now,
+            ScheduledAt = DateTime.Now,
             Flexibility = new()
             {
                 Id = _mockId
@@ -161,8 +121,7 @@ public class UpdateBookingValidatorTests
         var request = new BookingDto
         {
             Id = _mockId,
-            Name = "name",
-            BookingDate = DateTime.Now,
+            ScheduledAt = DateTime.Now,
             Flexibility = new()
             {
                 Id = _mockId

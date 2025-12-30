@@ -54,7 +54,7 @@ public class FlexibilityControllerTests
                         new()
                         {
                             Id = It.IsAny<Guid>(),
-                            Description = It.IsAny<string>(),
+                            Name = It.IsAny<string>(),
                             Active = It.IsAny<bool>()
                         }
                     ]

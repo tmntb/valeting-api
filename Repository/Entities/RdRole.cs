@@ -21,9 +21,19 @@ public partial class RdRole
     public Guid Id { get; set; }
 
     /// <summary>
+    /// Code representing the role.
+    /// </summary>
+    public RoleEnum Code { get; set; }
+
+    /// <summary>
     /// Name of the role.
     /// </summary>
-    public RoleEnum Name { get; set; }
+    public string Name { get; set; }
+
+    /// <summary>
+    /// Indicates whether the role is active.
+    /// </summary>
+    public bool Active { get; set; }
 
     /// <summary>
     /// Collection of application users associated with this role.

@@ -25,7 +25,7 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
             Role = new()
             {
                 Id = applicationUser.Role.Id,
-                Name = applicationUser.Role.Name
+                Code = applicationUser.Role.Code
             },
             IsActive = applicationUser.IsActive,
             CreatedAt = applicationUser.CreatedAt,

@@ -23,7 +23,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, ILink
         var flexibilityApi = new FlexibilityApi
         {
             Id = flexibilityDto.Id,
-            Description = flexibilityDto.Description,
+            Name = flexibilityDto.Name,
             Active = flexibilityDto.Active,
             Link = new()
             {
@@ -90,7 +90,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, ILink
             new FlexibilityApi()
             {
                 Id = x.Id,
-                Description = x.Description,
+                Name = x.Name,
                 Active = x.Active
             }
         ).ToList();

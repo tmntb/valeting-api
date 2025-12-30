@@ -10,7 +10,7 @@ public class RoleDto
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Name of the role.
+    /// Code of the role.
     /// </summary>
-    public RoleEnum Name { get; set; }
+    public RoleEnum Code { get; set; }
 }

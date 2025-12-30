@@ -30,7 +30,7 @@ partial class ReferenceData
 
         SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-        modelBuilder.Entity("Repository.Models.User.Entities.ApplicationUser", b =>
+        modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
             {
                 b.Property<Guid>("Id")
                     .IsRequired()
@@ -83,36 +83,60 @@ partial class ReferenceData
                     .HasColumnType("uniqueidentifier")
                     .HasColumnName("Id");
 
-                b.Property<bool?>("Approved")
-                    .HasColumnType("bit");
-
-                b.Property<DateTime>("BookingDate")
-                    .HasColumnType("datetime");
-
-                b.Property<int>("ContactNumber")
-                    .HasColumnType("int");
-
-                b.Property<string>("Email")
+                b.Property<string>("Reference")
                     .IsRequired()
-                    .HasColumnType("nvarchar(max)");
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
+
+                b.Property<Guid>("CustomerId")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("Customer_Id");
 
                 b.Property<Guid>("FlexibilityId")
                     .HasColumnType("uniqueidentifier")
                     .HasColumnName("Flexibility_Id");
 
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasColumnType("nvarchar(max)");
-
                 b.Property<Guid>("VehicleSizeId")
                     .HasColumnType("uniqueidentifier")
                     .HasColumnName("VehicleSize_Id");
 
+                b.Property<DateTime>("ScheduledAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<Guid>("StatusId")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("Status_Id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<DateTime>("DecisionAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<Guid?>("DecisionById")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("DecisionById");
+
+                b.Property<bool>("RequiresApproval");
+
+                b.Property<string>("Notes")
+                    .HasMaxLength(500)
+                    .HasColumnType("nvarchar(500)");
+
                 b.HasKey("Id");
+
+                b.HasIndex("CustomerId");
 
                 b.HasIndex("FlexibilityId");
 
                 b.HasIndex("VehicleSizeId");
+
+                b.HasIndex("StatusId");
+
+                b.HasIndex("DecisionById");
 
                 b.ToTable("Booking", (string)null);
             });
@@ -123,12 +147,18 @@ partial class ReferenceData
                     .HasColumnType("uniqueidentifier")
                     .HasColumnName("Id");
 
+                b.Property<string>("Code")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
                 b.Property<bool>("Active")
                     .HasColumnType("bit");
-
-                b.Property<string>("Description")
-                    .IsRequired()
-                    .HasColumnType("nvarchar(max)");
 
                 b.HasKey("Id");
 
@@ -141,12 +171,18 @@ partial class ReferenceData
                     .HasColumnType("uniqueidentifier")
                     .HasColumnName("Id");
 
+                b.Property<string>("Code")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
                 b.Property<bool>("Active")
                     .HasColumnType("bit");
-
-                b.Property<string>("Description")
-                    .IsRequired()
-                    .HasColumnType("nvarchar(max)");
 
                 b.HasKey("Id");
 
@@ -159,17 +195,66 @@ partial class ReferenceData
                     .HasColumnType("uniqueidentifier")
                     .HasColumnName("Id");
 
+                b.Property<string>("Code")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
+
                 b.Property<string>("Name")
                     .IsRequired()
-                    .HasColumnType("nvarchar(max)");
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                b.Property<bool>("Active")
+                    .HasColumnType("bit");
 
                 b.HasKey("Id");
 
                 b.ToTable("RD_Role", (string)null);
             });
 
+        modelBuilder.Entity("Repository.Entities.RdStatus", b =>
+            {
+                b.Property<Guid>("Id")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("Id");
+
+                b.Property<string>("Code")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("nvarchar(50)");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                b.Property<bool>("Active")
+                    .HasColumnType("bit");
+
+                b.HasKey("Id");
+
+                b.ToTable("RD_Status", (string)null);
+            });
+
+        modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
+           {
+               b.HasOne("Repository.Entities.RdRole", "Role")
+                   .WithMany("ApplicationUsers")
+                   .HasForeignKey("RoleId")
+                   .IsRequired()
+                   .HasConstraintName("FK_ApplicationUser_Role");
+
+               b.Navigation("Role");
+           });
+
         modelBuilder.Entity("Repository.Entities.Booking", b =>
             {
+                b.HasOne("Repository.Entities.ApplicationUser", "Customer")
+                    .WithMany("CustomerBookings")
+                    .HasForeignKey("CustomerId")
+                    .HasConstraintName("FK_Booking_ApplicationUser_Customer");
+
                 b.HasOne("Repository.Entities.RdFlexibility", "Flexibility")
                     .WithMany("Bookings")
                     .HasForeignKey("FlexibilityId")
@@ -182,9 +267,26 @@ partial class ReferenceData
                     .IsRequired()
                     .HasConstraintName("FK_Booking_VehicleSize");
 
+                b.HasOne("Repository.Entities.RdStatus", "Status")
+                    .WithMany("Bookings")
+                    .HasForeignKey("StatusId")
+                    .IsRequired()
+                    .HasConstraintName("FK_Booking_Status");
+
+                b.HasOne("Repository.Entities.ApplicationUser", "DecisionBy")
+                    .WithMany("DecisionBookings")
+                    .HasForeignKey("DecisionById")
+                    .HasConstraintName("FK_Booking_ApplicationUser_DecisionBy");
+
+                b.Navigation("Customer");
+
                 b.Navigation("Flexibility");
 
                 b.Navigation("VehicleSize");
+
+                b.Navigation("Status");
+
+                b.Navigation("DecisionBy");
             });
 
         modelBuilder.Entity("Repository.Entities.RdFlexibility", b =>
@@ -197,20 +299,14 @@ partial class ReferenceData
                 b.Navigation("Bookings");
             });
 
-        modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
-            {
-                b.HasOne("Repository.Entities.RdRole", "Role")
-                    .WithMany("ApplicationUsers")
-                    .HasForeignKey("RoleId")
-                    .IsRequired()
-                    .HasConstraintName("FK_ApplicationUser_Role");
-
-                b.Navigation("Role");
-            });
-
         modelBuilder.Entity("Repository.Entities.RdRole", b =>
             {
                 b.Navigation("ApplicationUsers");
+            });
+
+        modelBuilder.Entity("Repository.Entities.RdStatus", b =>
+            {
+                b.Navigation("Bookings");
             });
 #pragma warning restore 612, 618
     }

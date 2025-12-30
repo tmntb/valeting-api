@@ -5,6 +5,12 @@
 /// </summary>
 public partial class ApplicationUser
 {
+    public ApplicationUser()
+    {
+        CustomerBookings = new HashSet<Booking>();
+        DecisionBookings = new HashSet<Booking>();
+    }
+
     /// <summary>
     /// Unique identifier for the user.
     /// </summary>
@@ -24,7 +30,7 @@ public partial class ApplicationUser
     /// Contact number of the user.
     /// </summary>
     public int ContactNumber { get; set; }
-    
+
     /// <summary>
     /// Email address of the user.
     /// </summary>
@@ -48,15 +54,25 @@ public partial class ApplicationUser
     /// <summary>
     /// Timestamp when the user account was last updated.
     /// </summary>
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     /// <summary> 
     /// Timestamp when the user last logged in.
     /// </summary>
-    public DateTime LastLoginAt { get; set; }
+    public DateTime? LastLoginAt { get; set; }
 
     /// <summary>
     /// Navigation property for the role assigned to the user.
     /// </summary>
     public virtual RdRole Role { get; set; } = null!;
+
+    /// <summary>
+    /// Collection of bookings associated with this user customer.
+    /// </summary>
+    public virtual ICollection<Booking> CustomerBookings { get; set; }
+
+    /// <summary>
+    /// Collection of bookings associated with this user admin.
+    /// </summary>
+    public virtual ICollection<Booking> DecisionBookings { get; set; }
 }

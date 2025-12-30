@@ -50,10 +50,10 @@ public class UserDto
     /// <summary>
     /// Timestamp when the user account was last updated.
     /// </summary>
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     /// <summary> 
     /// Timestamp when the user last logged in.
     /// </summary>
-    public DateTime LastLoginAt { get; set; }
+    public DateTime? LastLoginAt { get; set; }
 }

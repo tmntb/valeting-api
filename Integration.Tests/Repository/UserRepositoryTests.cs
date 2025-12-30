@@ -54,7 +54,7 @@ public class UserRepositoryTests : BaseRepositoryTest
                 UpdatedAt = DateTime.MinValue,
                 LastLoginAt = DateTime.MinValue,
                 Role = new()
-                { Id = Guid.Parse("00000000-0000-0000-0000-000000000051"), Name = RoleEnum.User },
+                { Id = Guid.Parse("00000000-0000-0000-0000-000000000051"), Code = RoleEnum.USER },
                 IsActive = true
             });
 
@@ -88,7 +88,7 @@ public class UserRepositoryTests : BaseRepositoryTest
             PasswordHash = "updatedPassword",
             ContactNumber = 987654321,
             Email = "test@example.com",
-            Role = new() { Id = Guid.Parse("00000000-0000-0000-0000-000000000051"), Name = RoleEnum.User },
+            Role = new() { Id = Guid.Parse("00000000-0000-0000-0000-000000000051"), Code = RoleEnum.USER },
             IsActive = false,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,

@@ -14,47 +14,12 @@ public class CreateBookingValidatorTests
     }
 
     [Fact]
-    public void Name_Null_ShouldFail()
+    public void ScheduledAt_MinValue_ShouldFail()
     {
         // Arrange
         var request = new BookingDto
         {
-            Name = null
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Name", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void Name_Empty_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Name = string.Empty
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Name", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void BookingDate_MinValue_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Name = "name",
-            BookingDate = DateTime.MinValue
+            ScheduledAt = DateTime.MinValue
         };
 
         // Act
@@ -66,13 +31,12 @@ public class CreateBookingValidatorTests
     }
 
     [Fact]
-    public void BookingDate_LessThanNow_ShouldFail()
+    public void ScheduledAt_LessThanNow_ShouldFail()
     {
         // Arrange
         var request = new BookingDto
         {
-            Name = "name",
-            BookingDate = DateTime.Now.AddDays(-1)
+            ScheduledAt = DateTime.Now.AddDays(-1)
         };
 
         // Act
@@ -89,8 +53,7 @@ public class CreateBookingValidatorTests
         // Arrange
         var request = new BookingDto
         {
-            Name = "name",
-            BookingDate = DateTime.Now,
+            ScheduledAt = DateTime.Now,
             Flexibility = new()
             {
                 Id = Guid.Empty
@@ -111,8 +74,7 @@ public class CreateBookingValidatorTests
         // Arrange
         var request = new BookingDto
         {
-            Name = "name",
-            BookingDate = DateTime.Now,
+            ScheduledAt = DateTime.Now,
             Flexibility = new()
             {
                 Id = _mockId
@@ -137,8 +99,7 @@ public class CreateBookingValidatorTests
         // Arrange
         var request = new BookingDto
         {
-            Name = "name",
-            BookingDate = DateTime.Now,
+            ScheduledAt = DateTime.Now,
             Flexibility = new()
             {
                 Id = _mockId

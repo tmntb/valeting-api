@@ -69,7 +69,7 @@ public class UserController(IUserService userService) : UserBaseController
             Password = registerApiRequest.Password,
             ContactNumber = registerApiRequest.ContactNumber,
             Email = registerApiRequest.Email,
-            RoleName = RoleEnum.User
+            RoleName = RoleEnum.USER
         };
         await userService.RegisterAsync(registerDtoRequest);
 

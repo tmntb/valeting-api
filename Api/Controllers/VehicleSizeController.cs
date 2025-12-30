@@ -23,7 +23,7 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILink
         var vehicleSizeApi = new VehicleSizeApi
         {
             Id = vehicleSizeDto.Id,
-            Description = vehicleSizeDto.Description,
+            Name = vehicleSizeDto.Name,
             Active = vehicleSizeDto.Active,
             Link = new()
             {
@@ -90,7 +90,7 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILink
             new VehicleSizeApi()
             {
                 Id = x.Id,
-                Description = x.Description,
+                Name = x.Name,
                 Active = x.Active
             }
         ).ToList();

@@ -41,7 +41,7 @@ public class FlexibilityRepositoryTests : BaseRepositoryTest
         var flexibility = new RdFlexibility
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000022"),
-            Description = "2 Days",
+            Name = "2 Days",
             Active = false
         };
 
@@ -63,7 +63,7 @@ public class FlexibilityRepositoryTests : BaseRepositoryTest
         var flexibility = new RdFlexibility
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000022"),
-            Description = "2 Days",
+            Name = "2 Days",
             Active = false
         };
 
@@ -89,7 +89,7 @@ public class FlexibilityRepositoryTests : BaseRepositoryTest
         var flexibility = new RdFlexibility
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000022"),
-            Description = "2 Days",
+            Name = "2 Days",
             Active = false
         };
 

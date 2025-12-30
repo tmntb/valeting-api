@@ -7,11 +7,7 @@ namespace Service.Validators
     {
         public CreateBookingValidator()
         {
-            RuleFor(x => x.Name)
-                .NotNull()
-                .NotEmpty();
-
-            RuleFor(x => x.BookingDate)
+            RuleFor(x => x.ScheduledAt)
                 .NotEqual(DateTime.MinValue)
                 .GreaterThan(DateTime.Now);
 

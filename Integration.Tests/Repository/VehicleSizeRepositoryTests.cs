@@ -42,7 +42,7 @@ public class VehicleSizeRepositoryTests : BaseRepositoryTest
         var vehicleSize = new RdVehicleSize
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000032"),
-            Description = "Van",
+            Name = "Van",
             Active = false,
         };
 
@@ -64,7 +64,7 @@ public class VehicleSizeRepositoryTests : BaseRepositoryTest
         var vehicleSize = new RdVehicleSize
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000033"),
-            Description = "Van",
+            Name = "Van",
             Active = false,
         };
 
@@ -90,7 +90,7 @@ public class VehicleSizeRepositoryTests : BaseRepositoryTest
         var vehicleSize = new RdVehicleSize
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000034"),
-            Description = "Van",
+            Name = "Van",
             Active = false,
         };
 

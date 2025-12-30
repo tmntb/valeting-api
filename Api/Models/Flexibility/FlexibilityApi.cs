@@ -15,7 +15,7 @@ public class FlexibilityApi
     /// <summary>
     /// Description of the flexibility option.
     /// </summary>
-    public string Description { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Indicating whether the flexibility is active.

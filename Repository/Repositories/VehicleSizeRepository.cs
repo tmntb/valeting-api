@@ -20,7 +20,7 @@ public class VehicleSizeRepository(ValetingContext valetingContext) : IVehicleSi
            new VehicleSizeDto
            {
                Id = x.Id,
-               Description = x.Description,
+               Name = x.Name,
                Active = x.Active
            }
        ).ToList();
@@ -36,7 +36,7 @@ public class VehicleSizeRepository(ValetingContext valetingContext) : IVehicleSi
         return new() 
         {
             Id = rdVehicleSize.Id,
-            Description = rdVehicleSize.Description,
+            Name = rdVehicleSize.Name,
             Active = rdVehicleSize.Active
         };
     }

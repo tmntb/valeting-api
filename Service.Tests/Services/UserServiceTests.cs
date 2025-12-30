@@ -52,7 +52,7 @@ public class UserServiceTests
                 Role = new RoleDto
                 {
                     Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                    Name = RoleEnum.User
+                    Code = RoleEnum.USER
                 }
             });
 
@@ -91,7 +91,7 @@ public class UserServiceTests
                     Password = "password",
                     Email = "user@example.com",
                     ContactNumber = 123456789,
-                    RoleName = RoleEnum.User
+                    RoleName = RoleEnum.USER
                 }));
 
         Assert.Equal(exception.Message, Messages.EmailInUse);
@@ -108,7 +108,7 @@ public class UserServiceTests
             .ReturnsAsync(new RoleDto
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                Name = RoleEnum.User
+                Code = RoleEnum.USER
             });
 
         // Act
@@ -118,7 +118,7 @@ public class UserServiceTests
             Password = "password",
             Email = "user@example.com",
             ContactNumber = 123456789,
-            RoleName = RoleEnum.User
+            RoleName = RoleEnum.USER
         });
 
         // Assert
@@ -212,7 +212,7 @@ public class UserServiceTests
                 Role = new RoleDto
                 {
                     Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                    Name = RoleEnum.User
+                    Code = RoleEnum.USER
                 }
             });
 

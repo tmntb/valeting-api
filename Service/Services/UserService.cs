@@ -31,7 +31,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
                 new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
                 new Claim(ClaimTypes.Name, userDto.Username),
                 new Claim(ClaimTypes.Email, userDto.Email),
-                new Claim(ClaimTypes.Role, userDto.Role.Name.ToString())
+                new Claim(ClaimTypes.Role, userDto.Role.Code.ToString())
             ]),
             Expires = DateTime.Now.AddMinutes(60),
             Issuer = issuer,

@@ -36,21 +36,21 @@ public class BaseRepositoryTest : IAsyncLifetime
         var flexibility = new RdFlexibility
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000021"),
-            Description = "1 day",
+            Name = "1 day",
             Active = true
         };
 
         var vehicleSize = new RdVehicleSize
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000031"),
-            Description = "Small",
+            Name = "Small",
             Active = true
         };
 
         var role = new RdRole
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000051"),
-            Name = RoleEnum.User
+            Code = RoleEnum.USER
         };
 
         var user = new ApplicationUser
@@ -70,9 +70,9 @@ public class BaseRepositoryTest : IAsyncLifetime
         var booking = new Booking
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000011"),
-            Name = "name",
-            BookingDate = DateTime.UtcNow,
-            Approved = false,
+            Reference = "name",
+            ScheduledAt = DateTime.UtcNow,
+            RequiresApproval = false,
             Flexibility = flexibility,
             VehicleSize = vehicleSize
         };

@@ -13,7 +13,7 @@ public class FlexibilityDto
     /// <summary>
     /// Description of the flexibility.
     /// </summary>
-    public string Description { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Indicates whether the flexibility is active.

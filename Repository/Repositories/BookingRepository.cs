@@ -14,9 +14,9 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
         var booking = new Booking 
         {
             Id = bookingDto.Id,
-            Name = bookingDto.Name,
-            BookingDate = bookingDto.BookingDate,
-            Approved = bookingDto.Approved,
+            Reference = bookingDto.Reference,
+            ScheduledAt = bookingDto.ScheduledAt,
+            RequiresApproval = bookingDto.RequiresApproval,
             FlexibilityId = bookingDto.Flexibility.Id,
             VehicleSizeId = bookingDto.VehicleSize.Id,
         };
@@ -32,9 +32,9 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
         if (booking == null)
             return;
 
-        booking.Name = bookingDto.Name;
-        booking.BookingDate = bookingDto.BookingDate;
-        booking.Approved = bookingDto.Approved;
+        booking.Reference = bookingDto.Reference;
+        booking.ScheduledAt = bookingDto.ScheduledAt;
+        booking.RequiresApproval = bookingDto.RequiresApproval;
         booking.FlexibilityId = bookingDto.Flexibility.Id;
         booking.VehicleSizeId = bookingDto.VehicleSize.Id;
         
@@ -63,18 +63,18 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
             new BookingDto
             {
                 Id = x.Id,
-                Name = x.Name,
-                BookingDate = x.BookingDate,
-                Approved = x.Approved,
+                Reference = x.Reference,
+                ScheduledAt = x.ScheduledAt,
+                RequiresApproval = x.RequiresApproval,
                 Flexibility = new()
                 {
                     Id = x.Flexibility.Id,
-                    Description = x.Flexibility.Description
+                    Name = x.Flexibility.Name
                 },
                 VehicleSize = new()
                 {
                     Id = x.VehicleSize.Id,
-                    Description= x.VehicleSize.Description
+                    Name= x.VehicleSize.Name
                 }
             }
         ).ToList();
@@ -90,18 +90,18 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
        return new()
        {
            Id = booking.Id,
-           Name = booking.Name,
-           BookingDate = booking.BookingDate,
-           Approved = booking.Approved,
+           Reference = booking.Reference,
+           ScheduledAt = booking.ScheduledAt,
+           RequiresApproval = booking.RequiresApproval,
            Flexibility = new()
            {
                Id = booking.Flexibility.Id,
-               Description = booking.Flexibility.Description
+               Name = booking.Flexibility.Name
            },
            VehicleSize = new()
            {
                Id = booking.VehicleSize.Id,
-               Description = booking.VehicleSize.Description
+               Name = booking.VehicleSize.Name
            }
        };
     }
