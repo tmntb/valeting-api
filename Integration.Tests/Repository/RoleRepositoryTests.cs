@@ -17,7 +17,7 @@ public class RoleRepositoryTests : BaseRepositoryTest
     public async Task GetByNameAsync_ShouldReturnNull_WhenRoleDoesNotExists()
     {
         // Act
-        var result = await _roleRepository.GetByNameAsync(RoleEnum.ADMIN);
+        var result = await _roleRepository.GetByCodeAsync(RoleEnum.ADMIN);
 
         // Assert
         Assert.Null(result);
@@ -27,7 +27,7 @@ public class RoleRepositoryTests : BaseRepositoryTest
     public async Task GetByNameAsync_ShouldReturnRoleDtoWhenRoleExists()
     {
         // Act
-        var result = await _roleRepository.GetByNameAsync(RoleEnum.USER);
+        var result = await _roleRepository.GetByCodeAsync(RoleEnum.USER);
 
         // Assert
         Assert.NotNull(result);

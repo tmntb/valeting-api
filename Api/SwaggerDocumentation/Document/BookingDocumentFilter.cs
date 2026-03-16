@@ -25,6 +25,8 @@ public class BookingDocumentFilter : IDocumentFilter
     /// </summary>
     public const string BookingsIdEndpoint = "/bookings/{id}";
 
+    public const string BookingIdStatusEndpoint = "/bookings/{id}/status";
+
     /// <summary>
     /// Applies the filter to the given OpenAPI document.
     /// </summary>
@@ -48,12 +50,13 @@ public class BookingDocumentFilter : IDocumentFilter
         bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Get).Value.Summary = "List booking by id";
         bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Get).Value.Description = "Return a **Booking** by the given id";
 
-        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Put).Value.OperationId = "put-bookings-id";
-        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Put).Value.Summary = "Update booking";
-        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Put).Value.Description = "Update **Booking** by the given id";
-        
-        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Delete).Value.OperationId = "delete-bookings-id";
-        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Delete).Value.Summary = "Delete booking";
-        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Delete).Value.Description = "Delete **Booking** by the given id";
+        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Patch).Value.OperationId = "patch-bookings-id";
+        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Patch).Value.Summary = "Update booking";
+        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Patch).Value.Description = "Update **Booking** by the given id";
+
+        var bookingsIdStatusPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == BookingIdStatusEndpoint).Value;
+        bookingsIdStatusPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Patch).Value.OperationId = "patch-bookings-id-status";
+        bookingsIdStatusPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Patch).Value.Summary = "Update booking status";
+        bookingsIdStatusPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Patch).Value.Description = "Update **Booking** status by the given id";
     }
 }

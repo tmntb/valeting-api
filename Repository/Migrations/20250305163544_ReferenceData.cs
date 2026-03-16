@@ -50,11 +50,11 @@ public partial class ReferenceData : Migration
             columns: ["Id", "Code", "Name", "Active"],
             values: new object[,]
             {
-                    { "b2c3d4e5-f678-4890-1234-567890abcdef", StatusCodeEnum.APPROVED.ToString(), "Approved", true },
-                    { "35bcbbfa-98e2-444b-a337-09db4541913c", StatusCodeEnum.CANCELLED_BY_USER.ToString(), "Cancelled by User", true },
-                    { "d4e5f678-9012-3456-7890-abcdef123456", StatusCodeEnum.COMPLETED.ToString(), "Completed", true },
-                    { "a1b2c3d4-e5f6-4789-9012-34567890abcd", StatusCodeEnum.PENDING_APPROVAL.ToString(), "Pending Approval", true },
-                    { "c3d4e5f6-7890-4901-2345-67890abcdef1", StatusCodeEnum.REJECTED.ToString(), "Rejected", true }
+                    { "b2c3d4e5-f678-4890-1234-567890abcdef", StatusEnum.APPROVED.ToString(), "Approved", true },
+                    { "35bcbbfa-98e2-444b-a337-09db4541913c", StatusEnum.CANCELLED.ToString(), "Cancelled", true },
+                    { "d4e5f678-9012-3456-7890-abcdef123456", StatusEnum.COMPLETED.ToString(), "Completed", true },
+                    { "a1b2c3d4-e5f6-4789-9012-34567890abcd", StatusEnum.PENDING_APPROVAL.ToString(), "Pending Approval", true },
+                    { "c3d4e5f6-7890-4901-2345-67890abcdef1", StatusEnum.REJECTED.ToString(), "Rejected", true }
             }
         );
     }

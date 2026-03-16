@@ -1,8 +1,8 @@
-using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
+using Api.Helpers;
 using Api.Middleware;
 using Api.SwaggerDocumentation;
-using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Repository;
@@ -11,85 +11,59 @@ using Service;
 var builder = WebApplication.CreateBuilder(args);
 
 // Load .env ONLY in local development (outside of Docker)
-if (builder.Environment.IsDevelopment())
-{
-    var rootPath = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName
-                   ?? Directory.GetCurrentDirectory();
-    var envPath = Path.Combine(rootPath, ".env");
-
-    if (File.Exists(envPath))
-    {
-        Env.Load(envPath);
-        Console.WriteLine("✅ .env file loaded successfully");
-    }
-    else
-    {
-        Console.WriteLine("⚠️ .env file not found, using appsettings or environment variables");
-    }
-}
-
-var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-var configBasePath = Path.GetFullPath(Path.Combine(assemblyLocation, "..", "..", ".."));
-
-var appSettingsPath = Path.Combine(configBasePath, "appsettings.json");
+EnvironmentConfiguration.LoadDotEnvIfDevelopment(builder.Environment);
 
 builder.Configuration
-    .AddJsonFile(appSettingsPath, optional: true, reloadOnChange: true)
+    .SetBasePath(builder.Environment.ContentRootPath)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-// Read environment variables
-var saPassword = Environment.GetEnvironmentVariable("SA_PASSWORD") ?? string.Empty;
-var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? string.Empty;
-
-// Re-write connection string with the environment password
-var connectionString = builder.Configuration.GetConnectionString("ValetingConnection") ?? throw new InvalidOperationException("ValetingConnection not configured");
-if (!string.IsNullOrEmpty(connectionString) && !string.IsNullOrEmpty(saPassword))
-{
-    // Replace placeholder with the real password
-    connectionString = connectionString.Replace("{SA_PASSWORD}", saPassword);
-    builder.Configuration["ConnectionStrings:ValetingConnection"] = connectionString;
-}
-
-var jwtKeyString = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key not configured");
-if (!string.IsNullOrEmpty(jwtKeyString) && !string.IsNullOrEmpty(jwtKey))
-{
-    // Replace placeholder with the real JWT key
-    jwtKeyString = jwtKeyString.Replace("{JWT_KEY}", jwtKey);
-    builder.Configuration["Jwt:Key"] = jwtKeyString;
-}
+// Apply overrides from environment variables (if present)
+EnvironmentConfiguration.ConfigureConnectionString(builder.Configuration);
+EnvironmentConfiguration.ConfigureJwtKey(builder.Configuration);
 
 // Add services to the container.
 builder.Services.AddService();
 builder.Services.AddRepository(builder.Configuration);
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o =>
-{
-    o.TokenValidationParameters = new TokenValidationParameters
+builder.Services
+    .AddAuthentication(options =>
     {
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ClockSkew = TimeSpan.Zero
-    };
-});
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(o =>
+    {
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
-builder.Services.AddAuthorizationBuilder()
+builder.Services
+    .AddAuthorizationBuilder()
     .AddPolicy("RequireJwt", policy =>
     {
         policy.AuthenticationSchemes.Add("JwtBearer");
         policy.RequireAuthenticatedUser();
     });
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(opts =>
+    {
+        opts.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        opts.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+        opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 

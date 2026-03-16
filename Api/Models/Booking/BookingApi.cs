@@ -1,4 +1,6 @@
 ﻿using Api.Models.Flexibility;
+using Api.Models.Status;
+using Api.Models.User;
 using Api.Models.VehicleSize;
 using System.Text.Json.Serialization;
 
@@ -20,9 +22,9 @@ public class BookingApi
     public string Reference { get; set; }
 
     /// <summary>
-    /// Date and time of the booking.
+    /// Customer who made the booking.
     /// </summary>
-    public DateTime BookingDate { get; set; }
+    public UserApi Customer { get; set; }
 
     /// <summary>
     /// Flexibility option for the booking.
@@ -35,19 +37,44 @@ public class BookingApi
     public VehicleSizeApi VehicleSize { get; set; }
 
     /// <summary>
-    /// Contact number provided for the booking.
+    /// Date and time of the booking.
     /// </summary>
-    public int ContactNumber { get; set; }
+    public DateTime ScheduledAt { get; set; }
 
     /// <summary>
-    /// Email address provided for the booking.
+    /// Current status of the booking.
     /// </summary>
-    public string Email { get; set; }
+    public StatusApi Status { get; set; }
 
     /// <summary>
-    /// Indicating whether the booking has been approved.
+    /// Timestamp when the booking was created.
     /// </summary>
-    public bool? Approved { get; set; }
+    public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// Timestamp when the booking was last updated.
+    /// </summary>
+    public DateTime? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Indicates whether the booking has been decided.
+    /// </summary>
+    public DateTime? DecisionAt { get; set; }
+
+    /// <summary>
+    /// Foreign key referencing the user who decided the booking.
+    /// </summary>
+    public UserApi? DecisionBy { get; set; }
+
+    /// <summary>
+    /// Indicates whether the booking requires approval.
+    /// </summary>
+    public bool RequiresApproval { get; set; }
+
+    /// <summary>
+    /// Additional notes or comments related to the booking.
+    /// </summary>
+    public string? Notes { get; set; }
 
     /// <summary>
     /// HATEOAS link for the booking resource.

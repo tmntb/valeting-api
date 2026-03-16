@@ -50,6 +50,7 @@ public class BaseRepositoryTest : IAsyncLifetime
         var role = new RdRole
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000051"),
+            Name = "User",
             Code = RoleEnum.USER
         };
 
@@ -67,14 +68,28 @@ public class BaseRepositoryTest : IAsyncLifetime
             LastLoginAt = DateTime.MinValue
         };
 
+        var status = new RdStatus
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000061"),
+            Code = StatusEnum.PENDING_APPROVAL,
+            Name = "Pending"
+        };
+
         var booking = new Booking
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000011"),
             Reference = "name",
-            ScheduledAt = DateTime.UtcNow,
-            RequiresApproval = false,
+            Customer = user,
             Flexibility = flexibility,
-            VehicleSize = vehicleSize
+            VehicleSize = vehicleSize,
+            ScheduledAt = DateTime.UtcNow,
+            Status = status,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.MinValue,
+            DecisionAt = DateTime.MinValue,
+            DecisionBy = null,
+            RequiresApproval = false,
+            Notes = "notes"
         };
 
         Context.Bookings.Add(booking);
@@ -82,6 +97,7 @@ public class BaseRepositoryTest : IAsyncLifetime
         Context.RdVehicleSizes.Add(vehicleSize);
         Context.ApplicationUsers.Add(user);
         Context.RdRoles.Add(role);
+        Context.RdStatus.Add(status);
 
         await Context.SaveChangesAsync();
     }

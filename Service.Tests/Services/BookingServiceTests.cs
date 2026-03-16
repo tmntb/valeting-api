@@ -1,10 +1,12 @@
 ﻿using Common.Cache;
 using Common.Cache.Interfaces;
+using Common.Enums;
 using Common.Messages;
 using Moq;
 using Service.Interfaces;
 using Service.Models.Booking;
 using Service.Models.Booking.Payload;
+using Service.Models.Status;
 using Service.Services;
 
 namespace Service.Tests.Services;
@@ -12,6 +14,7 @@ namespace Service.Tests.Services;
 public class BookingServiceTests
 {
     private readonly Mock<IBookingRepository> _mockBookingRepository;
+    private readonly Mock<IStatusRepository> _mockStatusRepository;
     private readonly Mock<ICacheHandler> _mockCacheHandler;
 
     private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
@@ -20,17 +23,23 @@ public class BookingServiceTests
     public BookingServiceTests()
     {
         _mockBookingRepository = new Mock<IBookingRepository>();
+        _mockStatusRepository = new Mock<IStatusRepository>();
         _mockCacheHandler = new Mock<ICacheHandler>();
 
-        _bookingService = new BookingService(_mockBookingRepository.Object, _mockCacheHandler.Object);
+        _bookingService = new BookingService(_mockBookingRepository.Object, _mockStatusRepository.Object, _mockCacheHandler.Object);
     }
 
     [Fact]
     public async Task CreateAsync_ShouldCreateBookingAndInvalidateCache()
     {
         // Arrange
-        _mockBookingRepository.Setup(r => r.CreateAsync(It.IsAny<BookingDto>()))
+        _mockBookingRepository
+            .Setup(r => r.CreateAsync(It.IsAny<BookingDto>()))
             .Returns(Task.CompletedTask);
+
+        _mockStatusRepository
+            .Setup(r => r.GetByCodeAsync(It.IsAny<Common.Enums.StatusEnum>()))
+            .ReturnsAsync(new StatusDto());
 
         _mockCacheHandler.Setup(c => c.InvalidateCacheByListType(It.IsAny<CacheListType>()));
 
@@ -61,7 +70,8 @@ public class BookingServiceTests
     public async Task UpdateAsync_ShouldThrowKeyNotFoundException_WhenBookingNotFound()
     {
         // Arrange
-        _mockBookingRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync((BookingDto)null);
 
         // Act & Assert
@@ -88,10 +98,18 @@ public class BookingServiceTests
     public async Task UpdateAsync_ShouldUpdateBookingAndInvalidateCache()
     {
         // Arrange
-        _mockBookingRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(new BookingDto());
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(new BookingDto()
+            {
+                Status = new()
+                {
+                    Code = Common.Enums.StatusEnum.PENDING_APPROVAL
+                }
+            });
 
-        _mockBookingRepository.Setup(r => r.UpdateAsync(It.IsAny<BookingDto>()))
+        _mockBookingRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<BookingDto>()))
             .Returns(Task.CompletedTask);
 
         _mockCacheHandler.Setup(c => c.InvalidateCacheById(It.IsAny<Guid>()));
@@ -122,36 +140,101 @@ public class BookingServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_ShouldThrowKeyNotFoundException_WhenBookingNotFound()
+    public async Task UpdateStatusAsync_ShouldThrowKeyNotFoundException_WhenBookingNotFound()
     {
         // Arrange
-        _mockBookingRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((BookingDto)null);
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((BookingDto)null);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(async () => await _bookingService.DeleteAsync(_mockId));
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(async () => await _bookingService.UpdateStatusAsync(new()
+        {
+            Id = _mockId,
+            Status = StatusEnum.APPROVED,
+            UserDto = new()
+            {
+                Id = _mockId,
+                Role = new()                
+                {
+                    Code = RoleEnum.ADMIN
+                }
+            }            
+        }));
 
         Assert.Equal(Messages.NotFound, exception.Message);
     }
 
     [Fact]
-    public async Task DeleteAsync_ShouldDeleteBookingAndInvalidateCache()
+    public async Task UpdateStatusAsync_ShouldThrowKeyNotFoundException_WhenStatusNotFound()
     {
         // Arrange
-        _mockBookingRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(new BookingDto());
 
-        _mockBookingRepository.Setup(r => r.DeleteAsync(It.IsAny<Guid>()))
+        _mockStatusRepository
+            .Setup(r => r.GetByCodeAsync(It.IsAny<StatusEnum>()))
+            .ReturnsAsync((StatusDto)null);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(async () => await _bookingService.UpdateStatusAsync(new()
+        {
+            Id = _mockId,
+            Status = StatusEnum.APPROVED,
+            UserDto = new()
+            {
+                Id = _mockId,
+                Role = new()                
+                {
+                    Code = RoleEnum.ADMIN
+                }
+            }            
+        }));
+
+        Assert.Equal(Messages.NotFound, exception.Message);
+    }
+
+    [Fact]
+    public async Task UpdateStatusAsync_ShouldUpdateStatusAndInvalidateCache()
+    {
+        // Arrange
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(new BookingDto());
+
+        _mockStatusRepository
+            .Setup(r => r.GetByCodeAsync(It.IsAny<StatusEnum>()))
+            .ReturnsAsync(new StatusDto()
+            {
+                Code = StatusEnum.APPROVED
+            });
+
+        _mockBookingRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<BookingDto>()))
             .Returns(Task.CompletedTask);
 
         _mockCacheHandler.Setup(c => c.InvalidateCacheById(It.IsAny<Guid>()));
         _mockCacheHandler.Setup(c => c.InvalidateCacheByListType(It.IsAny<CacheListType>()));
 
         // Act
-        await _bookingService.DeleteAsync(_mockId);
+        await _bookingService.UpdateStatusAsync(new()
+        {
+            Id = _mockId,
+            Status = StatusEnum.APPROVED,
+            UserDto = new()
+            {
+                Id = _mockId,
+                Role = new()                
+                {
+                    Code = RoleEnum.ADMIN
+                }
+            }            
+        });
 
         // Assert
         _mockBookingRepository.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
-        _mockBookingRepository.Verify(r => r.DeleteAsync(It.IsAny<Guid>()), Times.Once);
+        _mockBookingRepository.Verify(r => r.UpdateAsync(It.IsAny<BookingDto>()), Times.Once);
         _mockCacheHandler.Verify(c => c.InvalidateCacheById(It.IsAny<Guid>()), Times.Once);
         _mockCacheHandler.Verify(c => c.InvalidateCacheByListType(CacheListType.Booking), Times.Once);
     }
@@ -160,7 +243,8 @@ public class BookingServiceTests
     public async Task GetByIdAsync_ShouldReturnCachedData()
     {
         // Arrange
-        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<BookingDto>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler
+            .Setup(c => c.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<BookingDto>>>(), It.IsAny<CacheOptions>()))
             .ReturnsAsync(
                 new BookingDto
                 {
@@ -180,10 +264,12 @@ public class BookingServiceTests
     public async Task GetByIdAsync_ShouldThrowKeyNotFoundException_WhenNoBookingFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<BookingDto>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler
+            .Setup(c => c.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<BookingDto>>>(), It.IsAny<CacheOptions>()))
             .Returns((Guid _, Func<Task<BookingDto>> factory, CacheOptions __) => factory());
 
-        _mockBookingRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+        _mockBookingRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync((BookingDto)null);
 
         // Act & Assert
@@ -196,10 +282,12 @@ public class BookingServiceTests
     public async Task GetByIdAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
     {
         // Arrange
-        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<BookingDto>>>(), It.IsAny<CacheOptions>()))
-             .Returns((Guid _, Func<Task<BookingDto>> factory, CacheOptions __) => factory());
+        _mockCacheHandler
+            .Setup(c => c.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<BookingDto>>>(), It.IsAny<CacheOptions>()))
+            .Returns((Guid _, Func<Task<BookingDto>> factory, CacheOptions __) => factory());
 
-        _mockBookingRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+        _mockBookingRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(
                 new BookingDto
                 {
@@ -219,7 +307,8 @@ public class BookingServiceTests
     public async Task GetFilteredAsync_Should_ReturnPaginatedBookings()
     {
         // Arrange
-        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<BookingFilterDto>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler
+            .Setup(c => c.GetOrCreateRecordAsync(It.IsAny<BookingFilterDto>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .ReturnsAsync(
                 new BookingPaginatedDtoResponse
                 {
@@ -251,10 +340,12 @@ public class BookingServiceTests
     public async Task GetFilteredAsync_ShouldThrowKeyNotFoundException_WhenNoBookingFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<BookingFilterDto>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler
+            .Setup(x => x.GetOrCreateRecordAsync(It.IsAny<BookingFilterDto>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .Returns((BookingFilterDto _, Func<Task<BookingPaginatedDtoResponse>> factory, CacheOptions __) => factory());
 
-        _mockBookingRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
+        _mockBookingRepository
+            .Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
             .ReturnsAsync(new List<BookingDto>());
 
         // Act & Assert
@@ -272,11 +363,13 @@ public class BookingServiceTests
     public async Task GetFilteredAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<BookingFilterDto>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler
+            .Setup(x => x.GetOrCreateRecordAsync(It.IsAny<BookingFilterDto>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
             .Returns((BookingFilterDto _, Func<Task<BookingPaginatedDtoResponse>> factory, CacheOptions __) => factory());
 
-        _mockBookingRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
-           .ReturnsAsync(
+        _mockBookingRepository
+            .Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
+            .ReturnsAsync(
                 [
                     new(),
                     new(),

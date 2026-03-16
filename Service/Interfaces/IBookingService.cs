@@ -1,5 +1,6 @@
 ﻿using Service.Models.Booking;
 using Service.Models.Booking.Payload;
+using Service.Models.User;
 
 namespace Service.Interfaces;
 
@@ -46,7 +47,7 @@ public interface IBookingService
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="KeyNotFoundException">Thrown when no booking is found with the provided ID.</exception>
     /// <exception cref="Exception">Thrown when an unexpected error occurs while deleting the booking.</exception>
-    Task DeleteAsync(Guid id);
+    Task UpdateStatusAsync(UpdateBookingStatusDtoRequest updateBookingStatusDtoRequest);
 
     /// <summary>
     /// Retrieves a booking by its unique identifier asynchronously.

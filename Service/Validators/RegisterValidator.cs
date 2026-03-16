@@ -24,7 +24,7 @@ public class RegisterValidator : AbstractValidator<RegisterDtoRequest>
             .NotEmpty()
             .EmailAddress();
 
-        RuleFor(x => x.RoleName)
+        RuleFor(x => x.RoleCode)
             .IsInEnum();
     }
 }

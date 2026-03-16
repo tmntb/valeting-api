@@ -5,5 +5,5 @@ namespace Service.Interfaces;
 
 public interface IRoleRepository
 {
-    Task<RoleDto> GetByNameAsync(RoleEnum roleName);
+    Task<RoleDto> GetByCodeAsync(RoleEnum roleCode);
 }

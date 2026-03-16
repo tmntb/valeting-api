@@ -1,4 +1,5 @@
-﻿using Repository.Entities;
+﻿using Common.Enums;
+using Repository.Entities;
 using Repository.Repositories;
 
 namespace Integration.Tests.Repository;
@@ -24,8 +25,10 @@ public class BookingRepositoryTests : BaseRepositoryTest
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-000000000012"),
                 Reference = "name",
-                ScheduledAt = DateTime.UtcNow,
-                RequiresApproval = false,
+                Customer = new()
+                {
+                    Id = Guid.Parse("00000000-0000-0000-0000-000000000041")
+                },
                 Flexibility = new()
                 {
                     Id = Guid.Parse("00000000-0000-0000-0000-000000000021")
@@ -33,7 +36,15 @@ public class BookingRepositoryTests : BaseRepositoryTest
                 VehicleSize = new()
                 {
                     Id = Guid.Parse("00000000-0000-0000-0000-000000000031")
-                }
+                },
+                ScheduledAt = DateTime.UtcNow,
+                Status = new()
+                {
+                    Id = Guid.Parse("00000000-0000-0000-0000-000000000051")
+                },
+                CreatedAt = DateTime.UtcNow,
+                RequiresApproval = false,
+                Notes = "notes"            
             });
 
         var result = await Context.Bookings.FindAsync(_mockId);
@@ -49,20 +60,28 @@ public class BookingRepositoryTests : BaseRepositoryTest
         await _bookingRepository.UpdateAsync(
             new()
             {
-                Id = _mockId,
-                Reference = "name1",
-                ScheduledAt = DateTime.UtcNow,
-                RequiresApproval = false,
+                Id = Guid.Parse("00000000-0000-0000-0000-000000000012"),
+                Reference = "name",
+                Customer = new()
+                {
+                    Id = Guid.Parse("00000000-0000-0000-0000-000000000041")
+                },
                 Flexibility = new()
                 {
-                    Id = Guid.Parse("00000000-0000-0000-0000-000000000021"),
-                    Name = "1 Day"
+                    Id = Guid.Parse("00000000-0000-0000-0000-000000000021")
                 },
                 VehicleSize = new()
                 {
-                    Id = Guid.Parse("00000000-0000-0000-0000-000000000031"),
-                    Name = "Van"
-                }
+                    Id = Guid.Parse("00000000-0000-0000-0000-000000000031")
+                },
+                ScheduledAt = DateTime.UtcNow,
+                Status = new()
+                {
+                    Id = Guid.Parse("00000000-0000-0000-0000-000000000051")
+                },
+                CreatedAt = DateTime.UtcNow,
+                RequiresApproval = false,
+                Notes = "notes"
             });
 
         var result = await Context.Bookings.FindAsync(_mockId);
@@ -109,22 +128,31 @@ public class BookingRepositoryTests : BaseRepositoryTest
         // Arrange
         var existingFlex = Context.RdFlexibilities.First();
         var existingVehicle = Context.RdVehicleSizes.First();
+        var existingCustomer = Context.ApplicationUsers.First();
+        var existingStatus = Context.RdStatus.First();
 
         var booking = new Booking
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000014"),
             Reference = "name",
-            ScheduledAt = DateTime.UtcNow,
-            RequiresApproval = false,
+            Customer = existingCustomer,
             Flexibility = existingFlex,
-            VehicleSize = existingVehicle
+            VehicleSize = existingVehicle,
+            ScheduledAt = DateTime.UtcNow,
+            Status = existingStatus,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.MinValue,
+            DecisionAt = DateTime.MinValue,
+            DecisionBy = null,
+            RequiresApproval = false,
+            Notes = "notes"
         };
 
         Context.Bookings.Add(booking);
         await Context.SaveChangesAsync();
 
         // Act
-        var result = await _bookingRepository.GetFilteredAsync(new());
+        var result = await _bookingRepository.GetFilteredAsync(new(){ CustomerId = existingCustomer.Id });
 
         // Assert
         Assert.NotNull(result);

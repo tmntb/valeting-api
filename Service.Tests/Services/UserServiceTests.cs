@@ -91,7 +91,7 @@ public class UserServiceTests
                     Password = "password",
                     Email = "user@example.com",
                     ContactNumber = 123456789,
-                    RoleName = RoleEnum.USER
+                    RoleCode = RoleEnum.USER
                 }));
 
         Assert.Equal(exception.Message, Messages.EmailInUse);
@@ -104,7 +104,7 @@ public class UserServiceTests
         _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync((UserDto)null);
 
-        _mockRoleRepository.Setup(repo => repo.GetByNameAsync(It.IsAny<RoleEnum>()))
+        _mockRoleRepository.Setup(repo => repo.GetByCodeAsync(It.IsAny<RoleEnum>()))
             .ReturnsAsync(new RoleDto
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
@@ -118,7 +118,7 @@ public class UserServiceTests
             Password = "password",
             Email = "user@example.com",
             ContactNumber = 123456789,
-            RoleName = RoleEnum.USER
+            RoleCode = RoleEnum.USER
         });
 
         // Assert

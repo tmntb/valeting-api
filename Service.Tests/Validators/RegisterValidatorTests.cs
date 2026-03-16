@@ -84,7 +84,7 @@ public class RegisterValidatorTests
     }
 
     [Fact]
-    public void RoleName_IsDefault_ShouldFail()
+    public void RoleCode_IsDefault_ShouldFail()
     {
         // Arrange
         var request = new RegisterDtoRequest
@@ -93,7 +93,7 @@ public class RegisterValidatorTests
             Password = "password",
             ContactNumber = 123456789,
             Email = "username@username.com",
-            RoleName =  (RoleEnum)999
+            RoleCode =  (RoleEnum)999
         };
 
         // Act
@@ -101,7 +101,7 @@ public class RegisterValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains("Role Name", result.Errors.FirstOrDefault().ErrorMessage);
+        Assert.Contains("Role Code", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public class RegisterValidatorTests
             Password = "password",
             ContactNumber = 123456789,
             Email = "username@username.com",
-            RoleName =  RoleEnum.USER
+            RoleCode =  RoleEnum.USER
         };
 
         // Act

@@ -44,7 +44,7 @@ public abstract class BookingBaseController : ControllerBase
     /// <response code="400">Returned when the request ID or body is invalid.</response>
     /// <response code="404">Returned when the specified booking does not exist.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
-    [HttpPut]
+    [HttpPatch]
     [Authorize]
     [Route("/bookings/{id}")]
     [Consumes("application/json")]
@@ -68,14 +68,14 @@ public abstract class BookingBaseController : ControllerBase
     /// <response code="400">Returned when the booking ID is invalid.</response>
     /// <response code="404">Returned when the booking does not exist.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
-    [HttpDelete]
+    [HttpPatch]
     [Authorize]
-    [Route("/bookings/{id}")]
+    [Route("/bookings/{id}/status")]
     [ProducesResponseType(statusCode: 204)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> DeleteAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id);
+    public abstract Task<IActionResult> UpdateStatusAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id, [FromBody] UpdateBookingApiStatusRequest updateBookingApiStatusRequest);
 
     /// <summary>
     /// Retrieves a specific booking by its unique identifier.
@@ -119,5 +119,5 @@ public abstract class BookingBaseController : ControllerBase
     [ProducesResponseType(statusCode: 200, type: typeof(BookingApiPaginatedResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> GetFilteredAsync([FromQuery] BookingApiParameters bookingApiParameters);
+    public abstract Task<IActionResult> GetCustomerFilteredAsync([FromQuery] BookingApiParameters bookingApiParameters);
 }

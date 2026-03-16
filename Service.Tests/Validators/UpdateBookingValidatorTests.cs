@@ -45,7 +45,7 @@ public class UpdateBookingValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains("Booking Date", result.Errors.FirstOrDefault().ErrorMessage);
+        Assert.Contains("Scheduled At", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public class UpdateBookingValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains("Booking Date", result.Errors.FirstOrDefault().ErrorMessage);
+        Assert.Contains("Scheduled At", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
     [Fact]

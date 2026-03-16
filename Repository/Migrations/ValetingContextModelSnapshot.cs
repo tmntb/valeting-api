@@ -116,7 +116,7 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
 
                 b.Property<Guid?>("DecisionById")
                     .HasColumnType("uniqueidentifier")
-                    .HasColumnName("DecisionById");
+                    .HasColumnName("DecisionBy_Id");
 
                 b.Property<bool>("RequiresApproval");
 

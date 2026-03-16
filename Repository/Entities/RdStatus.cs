@@ -23,7 +23,7 @@ public partial class RdStatus
     /// <summary>
     /// Code representing the status.
     /// </summary>
-    public StatusCodeEnum Code { get; set; }
+    public StatusEnum Code { get; set; }
 
     /// <summary>
     /// Name of the status.

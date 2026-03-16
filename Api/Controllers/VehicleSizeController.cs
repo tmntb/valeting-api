@@ -38,7 +38,7 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILink
         {
             VehicleSize = vehicleSizeApi
         };
-        return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiResponse);
+        return Ok(vehicleSizeApiResponse);
     }
 
     /// <inheritdoc />
@@ -106,6 +106,6 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILink
         );
 
         vehicleSizeApiPaginatedResponse.VehicleSizes = vehicleSizeApis;
-        return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiPaginatedResponse);
+        return Ok(vehicleSizeApiPaginatedResponse);
     }
 }

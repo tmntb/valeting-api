@@ -96,7 +96,7 @@ public partial class ValetingContext : DbContext
 
             entity.Property(e => e.DecisionAt).HasColumnType("datetime2");
 
-            entity.Property(e => e.DecisionById).HasColumnName("DecisionById");
+            entity.Property(e => e.DecisionById).HasColumnName("DecisionBy_Id");
 
             entity.Property(e => e.RequiresApproval);
 

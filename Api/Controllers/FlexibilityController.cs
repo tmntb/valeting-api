@@ -38,7 +38,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, ILink
         {
             Flexibility = flexibilityApi
         };
-        return StatusCode((int)HttpStatusCode.OK, flexibilityApiResponse);
+        return Ok(flexibilityApiResponse);
     }
 
     /// <inheritdoc />
@@ -106,6 +106,6 @@ public class FlexibilityController(IFlexibilityService flexibilityService, ILink
         );
 
         flexibilityApiPaginatedResponse.Flexibilities = flexibilityApis;
-        return StatusCode((int)HttpStatusCode.OK, flexibilityApiPaginatedResponse);
+        return Ok(flexibilityApiPaginatedResponse);
     }
 }

@@ -131,5 +131,14 @@ namespace Common.Messages {
                 return ResourceManager.GetString("EmailInUse", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The booking status provided is not valid for update details..
+        /// </summary>
+        public static string InvalidBookingStatusForUpdate {
+            get {
+                return ResourceManager.GetString("InvalidBookingStatusForUpdate", resourceCulture);
+            }
+        }
     }
 }

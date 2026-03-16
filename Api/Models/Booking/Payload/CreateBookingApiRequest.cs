@@ -9,32 +9,22 @@ namespace Api.Models.Booking.Payload;
 public class CreateBookingApiRequest
 {
     /// <summary>
-    /// The name of the person making the booking.
-    /// </summary>
-    public string Name { get; set; }
-
-    /// <summary>
-    /// The date and time of the booking.
-    /// </summary>
-    public DateTime BookingDate { get; set; }
-
-    /// <summary>
     /// The flexibility options associated with the booking.
     /// </summary>
-    public FlexibilityApi Flexibility { get; set; }
+    public Guid FlexibilityId { get; set; }
 
     /// <summary>
     /// The vehicle size associated with the booking.
     /// </summary>
-    public VehicleSizeApi VehicleSize { get; set; }
+    public Guid VehicleSizeId { get; set; }
 
     /// <summary>
-    /// The contact number of the person making the booking (optional).
+    /// The date and time of the booking.
     /// </summary>
-    public int? ContactNumber { get; set; }
+    public DateTime ScheduledAt { get; set; }
 
     /// <summary>
-    /// The email address of the person making the booking.
+    /// Additional notes for the booking.
     /// </summary>
-    public string Email { get; set; }
+    public string? Notes { get; set; }
 }

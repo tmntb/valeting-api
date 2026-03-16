@@ -1,10 +1,10 @@
 namespace Common.Enums;
 
-public enum StatusCodeEnum
+public enum StatusEnum
 {
     PENDING_APPROVAL,
     APPROVED,
     REJECTED,
-    CANCELLED_BY_USER,
+    CANCELLED,
     COMPLETED
 }

@@ -141,4 +141,7 @@
   <data name="EmailInUse" xml:space="preserve">
     <value>O email já está a ser utilizado.</value>
   </data>
+  <data name="InvalidBookingStatusForUpdate" xml:space="preserve">
+    <value>O estado da reserva não é válido para actualização de detalhes.</value>
+  </data>
 </root>

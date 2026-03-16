@@ -100,7 +100,7 @@ public partial class InitialCreate : Migration
                 Customer_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Flexibility_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 VehicleSize_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                ScheduleAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                ScheduledAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                 Status_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                 UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),

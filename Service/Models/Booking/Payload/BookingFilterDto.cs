@@ -6,4 +6,7 @@ namespace Service.Models.Booking.Payload;
 /// Represents the filter parameters used when querying bookings with pagination support.
 /// Inherits common filtering properties from <see cref="FilterDto"/> such as PageNumber and PageSize.
 /// </summary>
-public class BookingFilterDto : FilterDto { }
+public class BookingFilterDto : FilterDto
+{
+    public Guid CustomerId { get; set; }
+}

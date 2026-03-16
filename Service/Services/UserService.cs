@@ -61,7 +61,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
             throw new InvalidOperationException(Messages.EmailInUse);
         }
 
-        var roleDto = await roleRepository.GetByNameAsync(registerDtoRequest.RoleName) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var roleDto = await roleRepository.GetByCodeAsync(registerDtoRequest.RoleCode) ?? throw new KeyNotFoundException(Messages.NotFound);
         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDtoRequest.Password, workFactor: 12);
 
         var registerUserDto = new UserDto

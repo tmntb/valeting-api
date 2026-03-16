@@ -30,5 +30,5 @@ public class RegisterDtoRequest
     /// <summary>
     /// The name of the role to be assigned to the new user.
     /// </summary>
-    public RoleEnum RoleName { get; set; }
+    public RoleEnum RoleCode { get; set; }
 }

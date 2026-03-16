@@ -13,4 +13,9 @@ public class RoleDto
     /// Code of the role.
     /// </summary>
     public RoleEnum Code { get; set; }
+
+    /// <summary>
+    /// Name of the role.
+    /// </summary>
+    public string Name { get; set; }
 }

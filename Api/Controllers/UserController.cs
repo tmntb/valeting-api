@@ -36,7 +36,7 @@ public class UserController(IUserService userService) : UserBaseController
             TokenType = generateTokenJWTDtoResponse.TokenType,
             ExpiryDate = generateTokenJWTDtoResponse.ExpiryDate
         };
-        return StatusCode((int)HttpStatusCode.OK, validateLoginApiResponse);
+        return Ok(validateLoginApiResponse);
     }
 
     /// <inheritdoc />
@@ -55,7 +55,7 @@ public class UserController(IUserService userService) : UserBaseController
             ExpiryDate = generateTokenJwtDtoResponse.ExpiryDate
         };
 
-        return StatusCode((int)HttpStatusCode.OK, refreshTokenApiResponse);
+        return Ok(refreshTokenApiResponse);
     }
 
     /// <inheritdoc />
@@ -69,10 +69,10 @@ public class UserController(IUserService userService) : UserBaseController
             Password = registerApiRequest.Password,
             ContactNumber = registerApiRequest.ContactNumber,
             Email = registerApiRequest.Email,
-            RoleName = RoleEnum.USER
+            RoleCode = RoleEnum.USER
         };
         await userService.RegisterAsync(registerDtoRequest);
 
-        return StatusCode((int)HttpStatusCode.Created);
+        return Created();
     }
 }
