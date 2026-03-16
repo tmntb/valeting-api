@@ -152,7 +152,12 @@ partial class InitialCreate
                     .HasMaxLength(100)
                     .HasColumnType("nvarchar(100)");
 
+                b.Property<int>("NumberOfMinutes")
+                    .IsRequired()
+                    .HasColumnType("int");
+
                 b.Property<bool>("Active")
+                    .IsRequired()
                     .HasColumnType("bit");
 
                 b.HasKey("Id");
@@ -177,6 +182,7 @@ partial class InitialCreate
                     .HasColumnType("nvarchar(100)");
 
                 b.Property<bool>("Active")
+                    .IsRequired()
                     .HasColumnType("bit");
 
                 b.HasKey("Id");
@@ -201,6 +207,7 @@ partial class InitialCreate
                     .HasColumnType("nvarchar(100)");
 
                 b.Property<bool>("Active")
+                    .IsRequired()
                     .HasColumnType("bit");
 
                 b.HasKey("Id");
@@ -225,6 +232,7 @@ partial class InitialCreate
                     .HasColumnType("nvarchar(100)");
 
                 b.Property<bool>("Active")
+                    .IsRequired()
                     .HasColumnType("bit");
 
                 b.HasKey("Id");

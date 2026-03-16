@@ -31,6 +31,11 @@ public partial class RdFlexibility
     public string Name { get; set; }
 
     /// <summary>
+    /// Number of minutes that this flexibility option allows the booking to happen.
+    /// </summary>
+    public int NumberOfMinutes { get; set; }
+
+    /// <summary>
     /// Indicates whether the flexibility option is active.
     /// </summary>
     public bool Active { get; set; }

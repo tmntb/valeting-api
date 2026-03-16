@@ -26,12 +26,12 @@ public partial class ReferenceData : Migration
 
         migrationBuilder.InsertData(
             table: "RD_Flexibility",
-            columns: ["Id", "Code", "Name", "Active"],
+            columns: ["Id", "Code", "Name", "NumberOfMinutes", "Active"],
             values: new object[,]
             {
-                    { "5afb5192-45f3-418d-8a48-bbecdeedd9e9", FlexibilityEnum.FLEX_1D.ToString(), "+/- 1 Day", true },
-                    { "e3cff703-3cd2-4253-999d-8230b8a550e2", FlexibilityEnum.FLEX_2D.ToString(),"+/- 2 Days", true },
-                    { "2209acff-4bad-4e6e-9262-5d7ede5bef81", FlexibilityEnum.FLEX_3D.ToString(),"+/- 3 Days", true },
+                    { "5afb5192-45f3-418d-8a48-bbecdeedd9e9", FlexibilityEnum.FLEX_1D.ToString(), "1 Day", 1440, true },
+                    { "e3cff703-3cd2-4253-999d-8230b8a550e2", FlexibilityEnum.FLEX_2D.ToString(), "2 Days", 2880, true },
+                    { "2209acff-4bad-4e6e-9262-5d7ede5bef81", FlexibilityEnum.FLEX_3D.ToString(), "3 Days", 4320, true },
             }
         );
 
@@ -54,7 +54,8 @@ public partial class ReferenceData : Migration
                     { "35bcbbfa-98e2-444b-a337-09db4541913c", StatusEnum.CANCELLED.ToString(), "Cancelled", true },
                     { "d4e5f678-9012-3456-7890-abcdef123456", StatusEnum.COMPLETED.ToString(), "Completed", true },
                     { "a1b2c3d4-e5f6-4789-9012-34567890abcd", StatusEnum.PENDING_APPROVAL.ToString(), "Pending Approval", true },
-                    { "c3d4e5f6-7890-4901-2345-67890abcdef1", StatusEnum.REJECTED.ToString(), "Rejected", true }
+                    { "c3d4e5f6-7890-4901-2345-67890abcdef1", StatusEnum.REJECTED.ToString(), "Rejected", true },
+                    { "e5f67890-1234-5678-9012-34567890abc2", StatusEnum.EXPIRED.ToString(), "Expired", true }
             }
         );
     }
@@ -83,7 +84,7 @@ public partial class ReferenceData : Migration
         migrationBuilder.DeleteData(
             table: "RD_Status",
             keyColumn: "Id",
-            keyValues: ["b2c3d4e5-f678-4890-1234-567890abcdef", "35bcbbfa-98e2-444b-a337-09db4541913c", "d4e5f678-9012-3456-7890-abcdef123456", "a1b2c3d4-e5f6-4789-9012-34567890abcd", "c3d4e5f6-7890-4901-2345-67890abcdef1"]
+            keyValues: ["b2c3d4e5-f678-4890-1234-567890abcdef", "35bcbbfa-98e2-444b-a337-09db4541913c", "d4e5f678-9012-3456-7890-abcdef123456", "a1b2c3d4-e5f6-4789-9012-34567890abcd", "c3d4e5f6-7890-4901-2345-67890abcdef1", "e5f67890-1234-5678-9012-34567890abc2"]
         );
     }
 }

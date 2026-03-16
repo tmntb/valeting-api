@@ -152,7 +152,13 @@ public partial class ValetingContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("Name");
 
-            entity.Property(e => e.Active);
+            entity.Property(e => e.NumberOfMinutes)
+                .IsRequired()
+                .HasColumnName("NumberOfMinutes");
+
+            entity.Property(e => e.Active)
+                .IsRequired()
+                .HasColumnName("Active");
         });
 
         modelBuilder.Entity<RdVehicleSize>(entity =>
@@ -175,7 +181,9 @@ public partial class ValetingContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("Name");
 
-            entity.Property(e => e.Active);
+            entity.Property(e => e.Active)
+                .IsRequired()
+                .HasColumnName("Active");
         });
 
         modelBuilder.Entity<RdRole>(entity =>
@@ -198,7 +206,9 @@ public partial class ValetingContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("Name");
 
-            entity.Property(e => e.Active);
+            entity.Property(e => e.Active)
+                .IsRequired()
+                .HasColumnName("Active");
         });
 
         modelBuilder.Entity<RdStatus>(entity =>
@@ -221,7 +231,9 @@ public partial class ValetingContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("Name");
 
-            entity.Property(e => e.Active);
+            entity.Property(e => e.Active)
+                .IsRequired()
+                .HasColumnName("Active");
         });
 
         OnModelCreatingPartial(modelBuilder);

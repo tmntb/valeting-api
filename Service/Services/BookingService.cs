@@ -59,12 +59,14 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
 
         updateBookingStatusDtoRequest.ValidateRequest(new UpdateBookingStatusValidator());
 
+        var now = DateTime.UtcNow;
+
         bookingDto.Status = statusDto;
-        bookingDto.UpdatedAt = DateTime.Now;
+        bookingDto.UpdatedAt = now;
 
         if (updateBookingStatusDtoRequest.Status == StatusEnum.APPROVED || updateBookingStatusDtoRequest.Status == StatusEnum.REJECTED || updateBookingStatusDtoRequest.Status == StatusEnum.CANCELLED)
         {
-            bookingDto.DecisionAt = DateTime.Now;
+            bookingDto.DecisionAt = now;
             bookingDto.Decision = updateBookingStatusDtoRequest.UserDto;
             bookingDto.RequiresApproval = false;
         }
@@ -75,7 +77,8 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
     /// <inheritdoc />
     public async Task<BookingDto> GetByIdAsync(Guid id)
     {
-        return await bookingRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var bookingDto = await bookingRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(Messages.NotFound);
+        return await CheckStatusAsync(bookingDto);
     }
 
     /// <inheritdoc />
@@ -84,7 +87,7 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
         bookingFilterDto.ValidateRequest(new PaginatedBookingCustomerValidator());
 
         var bookingDtoList = await bookingRepository.GetFilteredAsync(bookingFilterDto);
-        return CreatePaginatedResponse(bookingDtoList, bookingFilterDto);
+        return await CreatePaginatedResponseAsync(bookingDtoList, bookingFilterDto);
     }
 
     /// <inheritdoc />
@@ -93,19 +96,16 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
         bookingFilterDto.ValidateRequest(new PaginatedBookingValidator());
 
         var bookingDtoList = await bookingRepository.GetFilteredAsync(bookingFilterDto);
-        return CreatePaginatedResponse(bookingDtoList, bookingFilterDto);
+        return await CreatePaginatedResponseAsync(bookingDtoList, bookingFilterDto);
     }
 
-    /// <summary>
-    /// Creates a paginated response for a list of bookings based on the provided filter criteria.
-    /// </summary>
-    /// <param name="bookingDtoList">The list of <see cref="BookingDto"/> to paginate.</param>
-    /// <param name="bookingFilterDto">The filter criteria used for pagination, including page number and page size.</param>
-    /// <returns>A <see cref="BookingPaginatedDtoResponse"/> containing the paginated list of bookings and pagination metadata.</returns>
-    private static BookingPaginatedDtoResponse CreatePaginatedResponse(List<BookingDto> bookingDtoList, BookingFilterDto bookingFilterDto)
+    private async Task<BookingPaginatedDtoResponse> CreatePaginatedResponseAsync(List<BookingDto> bookingDtoList, BookingFilterDto bookingFilterDto)
     {
         if (bookingDtoList.Count == 0)
             throw new KeyNotFoundException(Messages.NotFound);
+
+        // Ensure status updates run within the request scope and are awaited.
+        await Task.WhenAll(bookingDtoList.Select(CheckStatusAsync));
 
         var totalItems = bookingDtoList.Count;
         var totalPages = (int)Math.Ceiling((double)totalItems / bookingFilterDto.PageSize);
@@ -122,5 +122,38 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
             TotalPages = totalPages,
             Bookings = pagedBookings
         };
+    }
+
+    /// <summary>
+    /// Checks the status of a booking and updates it if necessary based on the current time and the booking's scheduled time and flexibility.
+    /// If the booking has passed its end time and is still in APPROVED status, it will be updated to COMPLETED. If the booking has passed its scheduled time and is still in PENDING_APPROVAL status, it will be updated to EXPIRED.
+    /// </summary>
+    /// <param name="bookingDto">The booking DTO to check and potentially update.</param>
+    /// <returns>The updated booking DTO after checking and potentially updating its status.</returns>
+    private async Task<BookingDto> CheckStatusAsync(BookingDto bookingDto)
+    {
+        var now = DateTime.UtcNow;
+        var endBookingTime = bookingDto.ScheduledAt.AddMinutes(bookingDto.Flexibility.NumberOfMinutes);
+        if (endBookingTime < now && bookingDto.Status.Code == StatusEnum.APPROVED)
+        {
+            var statusDto = await statusRepository.GetByCodeAsync(StatusEnum.COMPLETED) ?? throw new KeyNotFoundException(Messages.NotFound);
+            bookingDto.Status = statusDto;
+            bookingDto.UpdatedAt = now;
+            bookingDto.RequiresApproval = false;
+
+            await bookingRepository.UpdateAsync(bookingDto);
+        }
+
+        if(bookingDto.ScheduledAt < now && bookingDto.Status.Code == StatusEnum.PENDING_APPROVAL)
+        {
+            var statusDto = await statusRepository.GetByCodeAsync(StatusEnum.EXPIRED) ?? throw new KeyNotFoundException(Messages.NotFound);
+            bookingDto.Status = statusDto;
+            bookingDto.UpdatedAt = now;
+            bookingDto.RequiresApproval = false;
+
+            await bookingRepository.UpdateAsync(bookingDto);
+        }
+
+        return bookingDto;
     }
 }

@@ -130,7 +130,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         };
 
         var paginatedBookingDtoResponse = await bookingService.GetCustomerFilteredAsync(bookingFilterDto);
-        return await CreatePaginatedBookingResponseAsync(paginatedBookingDtoResponse, bookingApiParameters, bookingFilterDto, false);
+        return CreatePaginatedBookingResponseAsync(paginatedBookingDtoResponse, bookingApiParameters, bookingFilterDto, false);
     }
 
     /// <inheritdoc />
@@ -146,7 +146,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         };
 
         var paginatedBookingDtoResponse = await bookingService.GetFilteredAsync(bookingFilterDto);
-        return await CreatePaginatedBookingResponseAsync(paginatedBookingDtoResponse, bookingApiParameters, bookingFilterDto);
+        return CreatePaginatedBookingResponseAsync(paginatedBookingDtoResponse, bookingApiParameters, bookingFilterDto);
     }
 
     /// <summary>
@@ -158,7 +158,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
     /// <param name="bookingFilterDto">The filter DTO used to generate pagination links.</param>
     /// <param name="includeCustomer">A boolean flag indicating whether to include customer information in the booking API models.</param>
     /// <returns>An IActionResult containing the paginated booking API response.</returns>
-    private async Task<IActionResult> CreatePaginatedBookingResponseAsync(BookingPaginatedDtoResponse paginatedBookingDtoResponse, BookingApiParameters bookingApiParameters, BookingFilterDto bookingFilterDto, bool includeCustomer = true)
+    private IActionResult CreatePaginatedBookingResponseAsync(BookingPaginatedDtoResponse paginatedBookingDtoResponse, BookingApiParameters bookingApiParameters, BookingFilterDto bookingFilterDto, bool includeCustomer = true)
     {
         var bookingApiPaginatedResponse = new BookingApiPaginatedResponse
         {

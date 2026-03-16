@@ -155,7 +155,12 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(100)
                     .HasColumnType("nvarchar(100)");
 
+                b.Property<int>("NumberOfMinutes")
+                    .IsRequired()
+                    .HasColumnType("int");
+
                 b.Property<bool>("Active")
+                    .IsRequired()
                     .HasColumnType("bit");
 
                 b.HasKey("Id");
@@ -180,6 +185,7 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                     .HasColumnType("nvarchar(100)");
 
                 b.Property<bool>("Active")
+                    .IsRequired()
                     .HasColumnType("bit");
 
                 b.HasKey("Id");
@@ -204,6 +210,7 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                     .HasColumnType("nvarchar(100)");
 
                 b.Property<bool>("Active")
+                    .IsRequired()
                     .HasColumnType("bit");
 
                 b.HasKey("Id");
@@ -228,6 +235,7 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                     .HasColumnType("nvarchar(100)");
 
                 b.Property<bool>("Active")
+                    .IsRequired()
                     .HasColumnType("bit");
 
                 b.HasKey("Id");

@@ -16,6 +16,11 @@ public class FlexibilityDto
     public string Name { get; set; }
 
     /// <summary>
+    /// The number of minutes that the flexibility represents (e.g., 1440 for +/- 1 day).
+    /// </summary>
+    public int NumberOfMinutes { get; set; }
+
+    /// <summary>
     /// Indicates whether the flexibility is active.
     /// </summary>
     public bool Active { get; set; }

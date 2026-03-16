@@ -45,6 +45,7 @@ public partial class InitialCreate : Migration
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Code = table.Column<string>(type: "nvarchar(50)", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                NumberOfMinutes = table.Column<int>(type: "int", nullable: false),
                 Active = table.Column<bool>(type: "bit", nullable: false)
             },
             constraints: table =>

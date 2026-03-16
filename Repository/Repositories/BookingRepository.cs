@@ -85,7 +85,8 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
             Flexibility = new()
             {
                 Id = booking.Flexibility.Id,
-                Name = booking.Flexibility.Name
+                Name = booking.Flexibility.Name,
+                NumberOfMinutes = booking.Flexibility.NumberOfMinutes
             },
             VehicleSize = new()
             {
@@ -146,7 +147,8 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
                 Flexibility = new()
                 {
                     Id = x.Flexibility.Id,
-                    Name = x.Flexibility.Name
+                    Name = x.Flexibility.Name,
+                    NumberOfMinutes = x.Flexibility.NumberOfMinutes
                 },
                 VehicleSize = new()
                 {
