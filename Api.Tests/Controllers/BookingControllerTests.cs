@@ -223,7 +223,7 @@ public class BookingControllerTests
         SetupUserClaims(_bookingController, Guid.Parse("00000000-0000-0000-0000-000000000099"));
 
         _mockBookingService
-            .Setup(s => s.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
+            .Setup(s => s.GetCustomerFilteredAsync(It.IsAny<BookingFilterDto>()))
             .ReturnsAsync(
                 new BookingPaginatedDtoResponse
                 {

@@ -1,4 +1,5 @@
 ﻿using Api.Models.Core;
+using Common.Enums;
 
 namespace Api.Models.Booking.Payload;
 
@@ -6,4 +7,10 @@ namespace Api.Models.Booking.Payload;
 /// Represents the query string parameters used to filter and paginate booking results.
 /// Inherits common query parameters such as <c>PageNumber</c> and <c>PageSize</c> from <see cref="QueryStringParametersApi"/>.
 /// </summary>
-public class BookingApiParameters : QueryStringParametersApi { }
+public class BookingApiParameters : QueryStringParametersApi
+{
+    /// <summary>
+    /// The unique identifier of the customer to filter bookings by. Optional parameter.
+    /// </summary>
+    public StatusEnum? Status { get; set; }
+}

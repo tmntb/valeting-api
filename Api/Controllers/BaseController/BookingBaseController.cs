@@ -101,7 +101,7 @@ public abstract class BookingBaseController : ControllerBase
     public abstract Task<IActionResult> GetByIdAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id);
 
     /// <summary>
-    /// Retrieves a paginated list of bookings based on the provided query parameters.
+    /// Retrieves a paginated list of bookings for a customer based on the provided query parameters.
     /// </summary>
     /// <remarks>
     /// This endpoint returns a paginated collection of bookings with optional filters such as page number and page size.  
@@ -115,9 +115,23 @@ public abstract class BookingBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpGet]
     [Authorize]
-    [Route("/bookings")]
+    [Route("/bookings/customer")]
     [ProducesResponseType(statusCode: 200, type: typeof(BookingApiPaginatedResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> GetCustomerFilteredAsync([FromQuery] BookingApiParameters bookingApiParameters);
+
+    /// <summary>
+    /// Retrieves a paginated list of bookings based on the provided query parameters, with additional filters available to admin users.
+    /// </summary>
+    /// <response code="200">Returns a paginated list of bookings along with pagination metadata and links.</response>
+    /// <response code="400">Returned when query parameters are invalid or improperly formatted.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpGet]
+    [Authorize(Roles = "ADMIN")]
+    [Route("/bookings")]
+    [ProducesResponseType(statusCode: 200, type: typeof(BookingApiPaginatedResponse))]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> GetFilteredAsync([FromQuery] BookingApiParameters bookingApiParameters);
 }

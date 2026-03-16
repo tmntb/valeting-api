@@ -1,6 +1,4 @@
-﻿using Common.Cache;
-using Common.Cache.Interfaces;
-using Common.Enums;
+﻿using Common.Enums;
 using Common.Messages;
 using Service.Interfaces;
 using Service.Models.Booking;
@@ -10,7 +8,7 @@ using Service.Validators.Utils;
 
 namespace Service.Services;
 
-public class BookingService(IBookingRepository bookingRepository, IStatusRepository statusRepository, ICacheHandler cacheHandler) : IBookingService
+public class BookingService(IBookingRepository bookingRepository, IStatusRepository statusRepository) : IBookingService
 {
     /// <inheritdoc />
     public async Task<Guid> CreateAsync(BookingDto bookingDto)
@@ -28,8 +26,6 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
         bookingDto.RequiresApproval = true;
 
         await bookingRepository.CreateAsync(bookingDto);
-
-        cacheHandler.InvalidateCacheByListType(CacheListType.Booking);
 
         return id;
     }
@@ -51,10 +47,6 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
         bookingDtoToUpdate.Notes = bookingDto.Notes;
 
         await bookingRepository.UpdateAsync(bookingDtoToUpdate);
-
-        // Keep the cache up to date
-        cacheHandler.InvalidateCacheById(bookingDto.Id);
-        cacheHandler.InvalidateCacheByListType(CacheListType.Booking);
     }
 
     /// <inheritdoc />
@@ -78,62 +70,57 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
         }
 
         await bookingRepository.UpdateAsync(bookingDto);
-
-        // Keep the cache up to date
-        cacheHandler.InvalidateCacheById(bookingDto.Id);
-        cacheHandler.InvalidateCacheByListType(CacheListType.Booking);
     }
 
     /// <inheritdoc />
     public async Task<BookingDto> GetByIdAsync(Guid id)
     {
-        return await cacheHandler.GetOrCreateRecordAsync(
-            id,
-            async () =>
-            {
-                return await bookingRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(Messages.NotFound);
-            },
-            new()
-            {
-                Id = id,
-                AbsoluteExpireTime = TimeSpan.FromDays(1)
-            }
-        );
+        return await bookingRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(Messages.NotFound);
+    }
+
+    /// <inheritdoc />
+    public async Task<BookingPaginatedDtoResponse> GetCustomerFilteredAsync(BookingFilterDto bookingFilterDto)
+    {
+        bookingFilterDto.ValidateRequest(new PaginatedBookingCustomerValidator());
+
+        var bookingDtoList = await bookingRepository.GetFilteredAsync(bookingFilterDto);
+        return CreatePaginatedResponse(bookingDtoList, bookingFilterDto);
     }
 
     /// <inheritdoc />
     public async Task<BookingPaginatedDtoResponse> GetFilteredAsync(BookingFilterDto bookingFilterDto)
     {
-        var paginatedBookingDtoResponse = new BookingPaginatedDtoResponse();
-
         bookingFilterDto.ValidateRequest(new PaginatedBookingValidator());
 
-        return await cacheHandler.GetOrCreateRecordAsync(
-            bookingFilterDto,
-            async () =>
-            {
-                var bookingDtoList = await bookingRepository.GetFilteredAsync(bookingFilterDto);
-                if (bookingDtoList.Count == 0)
-                    throw new KeyNotFoundException(Messages.NotFound);
+        var bookingDtoList = await bookingRepository.GetFilteredAsync(bookingFilterDto);
+        return CreatePaginatedResponse(bookingDtoList, bookingFilterDto);
+    }
 
-                paginatedBookingDtoResponse.TotalItems = bookingDtoList.Count();
-                paginatedBookingDtoResponse.TotalPages = (int)Math.Ceiling((double)paginatedBookingDtoResponse.TotalItems / bookingFilterDto.PageSize);
+    /// <summary>
+    /// Creates a paginated response for a list of bookings based on the provided filter criteria.
+    /// </summary>
+    /// <param name="bookingDtoList">The list of <see cref="BookingDto"/> to paginate.</param>
+    /// <param name="bookingFilterDto">The filter criteria used for pagination, including page number and page size.</param>
+    /// <returns>A <see cref="BookingPaginatedDtoResponse"/> containing the paginated list of bookings and pagination metadata.</returns>
+    private static BookingPaginatedDtoResponse CreatePaginatedResponse(List<BookingDto> bookingDtoList, BookingFilterDto bookingFilterDto)
+    {
+        if (bookingDtoList.Count == 0)
+            throw new KeyNotFoundException(Messages.NotFound);
 
-                bookingDtoList = bookingDtoList
-                    .OrderBy(x => x.Id)
-                    .Skip((bookingFilterDto.PageNumber - 1) * bookingFilterDto.PageSize)
-                    .Take(bookingFilterDto.PageSize)
-                    .ToList();
+        var totalItems = bookingDtoList.Count;
+        var totalPages = (int)Math.Ceiling((double)totalItems / bookingFilterDto.PageSize);
 
-                paginatedBookingDtoResponse.Bookings = bookingDtoList;
+        var pagedBookings = bookingDtoList
+            .OrderBy(x => x.Id)
+            .Skip((bookingFilterDto.PageNumber - 1) * bookingFilterDto.PageSize)
+            .Take(bookingFilterDto.PageSize)
+            .ToList();
 
-                return paginatedBookingDtoResponse;
-            },
-            new()
-            {
-                ListType = CacheListType.Booking,
-                AbsoluteExpireTime = TimeSpan.FromMinutes(5)
-            }
-        );
+        return new()
+        {
+            TotalItems = totalItems,
+            TotalPages = totalPages,
+            Bookings = pagedBookings
+        };
     }
 }

@@ -100,48 +100,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
 
         var bookingDto = await bookingService.GetByIdAsync(Guid.Parse(id));
 
-        var bookingApi = new BookingApi
-        {
-            Id = bookingDto.Id,
-            Reference = bookingDto.Reference,
-            Customer = new()
-            {
-                Username = bookingDto.Customer.Username,
-                ContactNumber = bookingDto.Customer.ContactNumber,
-                Email = bookingDto.Customer.Email,
-                Role = new()
-                {
-                    Name = bookingDto.Customer.Role.Name
-                }
-            },
-            Flexibility = new()
-            {
-                Name = bookingDto.Flexibility.Name
-            },
-            VehicleSize = new()
-            {
-                Name = bookingDto.VehicleSize.Name
-            },
-            ScheduledAt = bookingDto.ScheduledAt,
-            Status = new()
-            {
-                Name = bookingDto.Status.Name
-            },
-            CreatedAt = bookingDto.CreatedAt,
-            UpdatedAt = bookingDto.UpdatedAt,
-            DecisionAt = bookingDto.DecisionAt,
-            DecisionBy = bookingDto.Decision != null ? new()
-            {
-                Username = bookingDto.Decision.Username,
-                Email = bookingDto.Decision.Email,
-                Role = new()
-                {
-                    Name = bookingDto.Decision.Role.Name
-                }
-            } : null,
-            RequiresApproval = bookingDto.RequiresApproval,
-            Notes = bookingDto.Notes
-        };
+        var bookingApi = BookingApi.MapToBookingApi(bookingDto);
 
         bookingApi.Link = new()
         {
@@ -170,8 +129,37 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
             PageSize = bookingApiParameters.PageSize
         };
 
-        var paginatedBookingDtoResponse = await bookingService.GetFilteredAsync(bookingFilterDto);
+        var paginatedBookingDtoResponse = await bookingService.GetCustomerFilteredAsync(bookingFilterDto);
+        return await CreatePaginatedBookingResponseAsync(paginatedBookingDtoResponse, bookingApiParameters, bookingFilterDto, false);
+    }
 
+    /// <inheritdoc />
+    public override async Task<IActionResult> GetFilteredAsync([FromQuery] BookingApiParameters bookingApiParameters)
+    {
+        ArgumentNullException.ThrowIfNull(bookingApiParameters, Messages.InvalidRequestQueryParameters);
+
+        var bookingFilterDto = new BookingFilterDto
+        {
+            Status = bookingApiParameters.Status,
+            PageNumber = bookingApiParameters.PageNumber,
+            PageSize = bookingApiParameters.PageSize
+        };
+
+        var paginatedBookingDtoResponse = await bookingService.GetFilteredAsync(bookingFilterDto);
+        return await CreatePaginatedBookingResponseAsync(paginatedBookingDtoResponse, bookingApiParameters, bookingFilterDto);
+    }
+
+    /// <summary>
+    /// Creates a paginated response for a list of bookings based on the provided filter and pagination criteria.
+    /// This method maps the booking DTOs to booking API models, generates HATEOAS links for pagination, and constructs a paginated response object to return to the client.
+    /// </summary>
+    /// <param name="paginatedBookingDtoResponse">The paginated response containing the list of booking DTOs and pagination metadata.</param>
+    /// <param name="bookingApiParameters">The API parameters containing pagination and filtering criteria.</param>
+    /// <param name="bookingFilterDto">The filter DTO used to generate pagination links.</param>
+    /// <param name="includeCustomer">A boolean flag indicating whether to include customer information in the booking API models.</param>
+    /// <returns>An IActionResult containing the paginated booking API response.</returns>
+    private async Task<IActionResult> CreatePaginatedBookingResponseAsync(BookingPaginatedDtoResponse paginatedBookingDtoResponse, BookingApiParameters bookingApiParameters, BookingFilterDto bookingFilterDto, bool includeCustomer = true)
+    {
         var bookingApiPaginatedResponse = new BookingApiPaginatedResponse
         {
             Bookings = [],
@@ -204,40 +192,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         };
         bookingApiPaginatedResponse.Links = links;
 
-        var bookingApis = paginatedBookingDtoResponse.Bookings.Select(x =>
-            new BookingApi
-            {
-                Id = x.Id,
-                Reference = x.Reference,
-                Flexibility = new()
-                {
-                    Name = x.Flexibility.Name
-                },
-                VehicleSize = new()
-                {
-                    Name = x.VehicleSize.Name
-                },
-                ScheduledAt = x.ScheduledAt,
-                Status = new()
-                {
-                    Name = x.Status.Name
-                },
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt,
-                DecisionAt = x.DecisionAt,
-                DecisionBy = x.Decision != null ? new()
-                {
-                    Username = x.Decision.Username,
-                    Email = x.Decision.Email,
-                    Role = new()
-                    {
-                        Name = x.Decision.Role.Name
-                    }
-                } : null,
-                RequiresApproval = x.RequiresApproval,
-                Notes = x.Notes
-            }
-        ).ToList();
+        var bookingApis = paginatedBookingDtoResponse.Bookings.Select(x => BookingApi.MapToBookingApi(x, includeCustomer)).ToList();
 
         bookingApis.ForEach(b =>
         {

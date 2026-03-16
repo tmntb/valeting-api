@@ -2,6 +2,7 @@
 using Api.Models.Status;
 using Api.Models.User;
 using Api.Models.VehicleSize;
+using Service.Models.Booking;
 using System.Text.Json.Serialization;
 
 namespace Api.Models.Booking;
@@ -81,4 +82,46 @@ public class BookingApi
     /// </summary>
     [JsonPropertyName("_link")]
     public BookingApiLink Link { get; set; }
+
+    internal static BookingApi MapToBookingApi(BookingDto bookingDto, bool includeCustomer = true)
+    {
+        return new BookingApi
+        {
+            Id = bookingDto.Id,
+            Reference = bookingDto.Reference,
+            Customer = includeCustomer ? new()
+            {
+                Username = bookingDto.Customer.Username,
+                ContactNumber = bookingDto.Customer.ContactNumber,
+                Email = bookingDto.Customer.Email
+            } : null,
+            Flexibility = new()
+            {
+                Name = bookingDto.Flexibility.Name
+            },
+            VehicleSize = new()
+            {
+                Name = bookingDto.VehicleSize.Name
+            },
+            ScheduledAt = bookingDto.ScheduledAt,
+            Status = new()
+            {
+                Name = bookingDto.Status.Name
+            },
+            CreatedAt = bookingDto.CreatedAt,
+            UpdatedAt = bookingDto.UpdatedAt,
+            DecisionAt = bookingDto.DecisionAt,
+            DecisionBy = bookingDto.Decision != null ? new()
+            {
+                Username = bookingDto.Decision.Username,
+                Email = bookingDto.Decision.Email,
+                Role = new()
+                {
+                    Name = bookingDto.Decision.Role.Name
+                }
+            } : null,
+            RequiresApproval = bookingDto.RequiresApproval,
+            Notes = bookingDto.Notes
+        };
+    }
 }
