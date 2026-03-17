@@ -1,27 +1,27 @@
-﻿using Common.Enums;
+using System;
 using Service.Models.Booking.Payload;
 using Service.Validators;
 
 namespace Service.Tests.Validators;
 
-public class PaginatedBookingValidatorTests
+public class PaginatedBookingCustomerValidatorTests
 {
-    private readonly PaginatedBookingValidator _validator;
+    private readonly PaginatedBookingCustomerValidator _validator;
 
-    public PaginatedBookingValidatorTests()
+    public PaginatedBookingCustomerValidatorTests()
     {
-        _validator = new PaginatedBookingValidator();
+        _validator = new PaginatedBookingCustomerValidator();
     }
 
     [Fact]
-    public void Status_InvalidEnumValue_ShouldFail()
+    public void CustomerId_Empty_ShouldFail()
     {
         // Arrange
         var request = new BookingFilterDto
         {
             PageNumber = 1,
             PageSize = 10,
-            Status = (StatusEnum)999 // Invalid enum value
+            CustomerId = Guid.Empty
         };
 
         // Act
@@ -29,18 +29,18 @@ public class PaginatedBookingValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains("Status", result.Errors.FirstOrDefault().ErrorMessage);
+        Assert.Contains("Customer Id", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
     [Fact]
-    public void PaginatedBookingDtoRequest_Valid()
+    public void PaginatedBookingCustomer_Valid()
     {
         // Arrange
         var request = new BookingFilterDto
         {
             PageNumber = 1,
-            PageSize = 1,
-            Status = StatusEnum.APPROVED
+            PageSize = 10,
+            CustomerId = Guid.Parse("00000000-0000-0000-0000-000000000006")
         };
 
         // Act

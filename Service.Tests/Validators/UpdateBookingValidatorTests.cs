@@ -115,6 +115,33 @@ public class UpdateBookingValidatorTests
     }
 
     [Fact]
+    public void Notes_TooLong_ShouldFail()
+    {
+        // Arrange
+        var request = new BookingDto
+        {
+            Id = _mockId,
+            ScheduledAt = DateTime.Now,
+            Flexibility = new()
+            {
+                Id = _mockId
+            },
+            VehicleSize = new()
+            {
+                Id = _mockId
+            },
+            Notes = new string('a', 501)
+        };
+
+        // Act
+        var result = _validator.Validate(request);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains("Notes", result.Errors.FirstOrDefault().ErrorMessage);
+    }
+
+    [Fact]
     public void BookingDto_Valid()
     {
         // Arrange

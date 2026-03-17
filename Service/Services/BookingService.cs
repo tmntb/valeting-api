@@ -63,12 +63,12 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
 
         bookingDto.Status = statusDto;
         bookingDto.UpdatedAt = now;
+        bookingDto.RequiresApproval = false;
 
-        if (updateBookingStatusDtoRequest.Status == StatusEnum.APPROVED || updateBookingStatusDtoRequest.Status == StatusEnum.REJECTED || updateBookingStatusDtoRequest.Status == StatusEnum.CANCELLED)
+        if (updateBookingStatusDtoRequest.Status == StatusEnum.APPROVED || updateBookingStatusDtoRequest.Status == StatusEnum.REJECTED)
         {
             bookingDto.DecisionAt = now;
             bookingDto.Decision = updateBookingStatusDtoRequest.UserDto;
-            bookingDto.RequiresApproval = false;
         }
 
         await bookingRepository.UpdateAsync(bookingDto);
@@ -86,8 +86,7 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
     {
         bookingFilterDto.ValidateRequest(new PaginatedBookingCustomerValidator());
 
-        var bookingDtoList = await bookingRepository.GetFilteredAsync(bookingFilterDto);
-        return await CreatePaginatedResponseAsync(bookingDtoList, bookingFilterDto);
+        return await CreatePaginatedResponseAsync(bookingFilterDto);
     }
 
     /// <inheritdoc />
@@ -95,12 +94,13 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
     {
         bookingFilterDto.ValidateRequest(new PaginatedBookingValidator());
 
-        var bookingDtoList = await bookingRepository.GetFilteredAsync(bookingFilterDto);
-        return await CreatePaginatedResponseAsync(bookingDtoList, bookingFilterDto);
+        return await CreatePaginatedResponseAsync(bookingFilterDto);
     }
 
-    private async Task<BookingPaginatedDtoResponse> CreatePaginatedResponseAsync(List<BookingDto> bookingDtoList, BookingFilterDto bookingFilterDto)
+    private async Task<BookingPaginatedDtoResponse> CreatePaginatedResponseAsync(BookingFilterDto bookingFilterDto)
     {
+        var bookingDtoList = await bookingRepository.GetFilteredAsync(bookingFilterDto);
+
         if (bookingDtoList.Count == 0)
             throw new KeyNotFoundException(Messages.NotFound);
 
@@ -144,7 +144,7 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
             await bookingRepository.UpdateAsync(bookingDto);
         }
 
-        if(bookingDto.ScheduledAt < now && bookingDto.Status.Code == StatusEnum.PENDING_APPROVAL)
+        if (bookingDto.ScheduledAt < now && bookingDto.Status.Code == StatusEnum.PENDING_APPROVAL)
         {
             var statusDto = await statusRepository.GetByCodeAsync(StatusEnum.EXPIRED) ?? throw new KeyNotFoundException(Messages.NotFound);
             bookingDto.Status = statusDto;

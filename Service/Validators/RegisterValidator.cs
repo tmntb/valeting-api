@@ -16,8 +16,7 @@ public class RegisterValidator : AbstractValidator<RegisterDtoRequest>
             .NotEmpty();
 
         RuleFor(x => x.ContactNumber)
-            .Must(x => x.ToString().Length == 9)
-            .NotNull();
+            .Must(x => x.ToString().Length == 9);
 
         RuleFor(x => x.Email)
             .NotNull()

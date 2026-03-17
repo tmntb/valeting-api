@@ -7,11 +7,8 @@ public class PaginatedBookingCustomerValidator : BaseFilterValidator<BookingFilt
 {
     public PaginatedBookingCustomerValidator()
     {
-        RuleFor(x => x)
-            .NotNull();
-
         RuleFor(x => x.CustomerId)
-            .NotEmpty()
+            .Must(id => id.Value != Guid.Empty)
             .When(x => x.CustomerId != null);
     }
 }

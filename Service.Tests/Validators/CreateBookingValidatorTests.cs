@@ -14,6 +14,27 @@ public class CreateBookingValidatorTests
     }
 
     [Fact]
+    public void CustomerId_Empty_ShouldFail()
+    {
+        // Arrange
+        var request = new BookingDto
+        {
+            ScheduledAt = DateTime.Now,
+            Customer = new()
+            {
+                Id = Guid.Empty
+            }
+        };
+
+        // Act
+        var result = _validator.Validate(request);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains("Customer", result.Errors.FirstOrDefault().ErrorMessage);
+    }
+
+    [Fact]
     public void ScheduledAt_MinValue_ShouldFail()
     {
         // Arrange
@@ -93,6 +114,32 @@ public class CreateBookingValidatorTests
         Assert.Contains("Vehicle Size", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
+    [Fact]
+    public void Notes_TooLong_ShouldFail()
+    {
+        // Arrange
+        var request = new BookingDto
+        {
+            ScheduledAt = DateTime.Now,
+            Flexibility = new()
+            {
+                Id = _mockId
+            },
+            VehicleSize = new()
+            {
+                Id = _mockId
+            },
+            Notes = new string('a', 501)
+        };
+
+        // Act
+        var result = _validator.Validate(request);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains("Notes", result.Errors.FirstOrDefault().ErrorMessage);
+    }
+    
     [Fact]
     public void CreateBookingRequest_Valid()
     {
