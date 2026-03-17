@@ -7,7 +7,6 @@ namespace Integration.Tests.Repository;
 public class VehicleSizeRepositoryTests : BaseRepositoryTest
 {
     private readonly VehicleSizeRepository _vehicleSizeRepository;
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000031");
 
     public VehicleSizeRepositoryTests()
     {
@@ -28,11 +27,11 @@ public class VehicleSizeRepositoryTests : BaseRepositoryTest
     public async Task GetByIdAsync_ShouldReturnVehicleSizeDtoWhenRdVehicleSizeExists()
     {
         // Act
-        var result = await _vehicleSizeRepository.GetByIdAsync(_mockId);
+        var result = await _vehicleSizeRepository.GetByIdAsync(DataFactory.VEHICLE_SIZE_ID);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(_mockId, result.Id);
+        Assert.Equal(DataFactory.VEHICLE_SIZE_ID, result.Id);
     }
 
     [Fact]

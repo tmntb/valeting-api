@@ -6,7 +6,6 @@ namespace Integration.Tests.Repository;
 public class RoleRepositoryTests : BaseRepositoryTest
 {
     private readonly RoleRepository _roleRepository;
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000051");
 
     public RoleRepositoryTests()
     {
@@ -31,6 +30,6 @@ public class RoleRepositoryTests : BaseRepositoryTest
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(_mockId, result.Id);
+        Assert.Equal(DataFactory.ROLE_ID, result.Id);
     }
 }

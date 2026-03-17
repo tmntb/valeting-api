@@ -63,10 +63,49 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
     /// <inheritdoc />
     public async Task<BookingDto> GetByIdAsync(Guid id)
     {
-        var booking = await valetingContext.Bookings.FindAsync(id);
+        var booking = await valetingContext.Bookings
+            .AsNoTracking()
+            .Include(b => b.Customer).ThenInclude(c => c.Role)
+            .Include(b => b.Flexibility)
+            .Include(b => b.VehicleSize)
+            .Include(b => b.Status)
+            .Include(b => b.DecisionBy).ThenInclude(d => d.Role)
+            .FirstOrDefaultAsync(b => b.Id == id);
         if (booking == null)
             return null;
 
+        return FromEntity(booking);
+    }
+    
+    /// <inheritdoc />
+    public async Task<List<BookingDto>> GetFilteredAsync(BookingFilterDto bookingFilterDto)
+    {
+        var query = valetingContext.Bookings
+            .AsNoTracking()
+            .Include(b => b.Customer).ThenInclude(c => c.Role)
+            .Include(b => b.Flexibility)
+            .Include(b => b.VehicleSize)
+            .Include(b => b.Status)
+            .Include(b => b.DecisionBy).ThenInclude(d => d.Role)
+            .AsQueryable();
+
+        if (bookingFilterDto.CustomerId.HasValue)
+            query = query.Where(b => b.CustomerId == bookingFilterDto.CustomerId.Value);
+
+        if (bookingFilterDto.Status.HasValue)
+            query = query.Where(b => b.Status.Code == bookingFilterDto.Status.Value);
+
+        var bookings = await query.ToListAsync();
+        return bookings.Select(FromEntity).ToList();
+    }
+
+    /// <summary>
+    /// Maps a Booking entity to a BookingDto.
+    /// </summary>
+    /// <param name="booking"></param>
+    /// <returns></returns>
+    private BookingDto FromEntity(Booking booking)
+    {
         return new()
         {
             Id = booking.Id,
@@ -117,67 +156,5 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
             RequiresApproval = booking.RequiresApproval,
             Notes = booking.Notes
         };
-    }
-    
-    /// <inheritdoc />
-    public async Task<List<BookingDto>> GetFilteredAsync(BookingFilterDto bookingFilterDto)
-    {
-        var initialList = await valetingContext.Bookings.ToListAsync();
-        var listBookings = from booking in initialList
-                            where (bookingFilterDto.CustomerId == null || booking.CustomerId == bookingFilterDto.CustomerId)
-                                    && (bookingFilterDto.Status == null || booking.Status.Code == bookingFilterDto.Status)
-                           select booking;
-
-        return listBookings.Select(x =>
-            new BookingDto
-            {
-                Id = x.Id,
-                Reference = x.Reference,
-                Customer = new()
-                {
-                    Id = x.Customer.Id,
-                    Username = x.Customer.Username,
-                    Email = x.Customer.Email,
-                    Role = new()
-                    {
-                        Id = x.Customer.Role.Id,
-                        Name = x.Customer.Role.Name
-                    }
-                },
-                Flexibility = new()
-                {
-                    Id = x.Flexibility.Id,
-                    Name = x.Flexibility.Name,
-                    NumberOfMinutes = x.Flexibility.NumberOfMinutes
-                },
-                VehicleSize = new()
-                {
-                    Id = x.VehicleSize.Id,
-                    Name = x.VehicleSize.Name
-                },
-                ScheduledAt = x.ScheduledAt,
-                Status = new()
-                {
-                    Id = x.Status.Id,
-                    Name = x.Status.Name
-                },
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt,
-                DecisionAt = x.DecisionAt,
-                Decision = x.DecisionById != null ? new()
-                {
-                    Id = x.DecisionBy.Id,
-                    Username = x.DecisionBy.Username,
-                    Email = x.DecisionBy.Email,
-                    Role = new()
-                    {
-                        Id = x.DecisionBy.Role.Id,
-                        Name = x.DecisionBy.Role.Name
-                    }
-                } : null,
-                RequiresApproval = x.RequiresApproval,
-                Notes = x.Notes
-            }
-        ).ToList();
     }
 }

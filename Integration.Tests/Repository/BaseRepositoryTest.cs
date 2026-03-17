@@ -35,28 +35,32 @@ public class BaseRepositoryTest : IAsyncLifetime
     {
         var flexibility = new RdFlexibility
         {
-            Id = Guid.Parse("00000000-0000-0000-0000-000000000021"),
+            Id = DataFactory.FLEXIBILITY_ID,
             Name = "1 day",
+            Code = FlexibilityEnum.FLEX_1D,
+            NumberOfMinutes = 1440,
             Active = true
         };
 
         var vehicleSize = new RdVehicleSize
         {
-            Id = Guid.Parse("00000000-0000-0000-0000-000000000031"),
-            Name = "Small",
+            Id = DataFactory.VEHICLE_SIZE_ID,
+            Code = VehicleSizeEnum.SUV,
+            Name = "SUV",
             Active = true
         };
 
         var role = new RdRole
         {
-            Id = Guid.Parse("00000000-0000-0000-0000-000000000051"),
+            Id = DataFactory.ROLE_ID,
             Name = "User",
-            Code = RoleEnum.USER
+            Code = RoleEnum.USER,
+            Active = true
         };
 
         var user = new ApplicationUser
         {
-            Id = Guid.Parse("00000000-0000-0000-0000-000000000041"),
+            Id = DataFactory.USER_ID,
             Username = "username",
             PasswordHash = "password",
             ContactNumber = 1234567890,
@@ -70,9 +74,10 @@ public class BaseRepositoryTest : IAsyncLifetime
 
         var status = new RdStatus
         {
-            Id = Guid.Parse("00000000-0000-0000-0000-000000000061"),
+            Id = DataFactory.STATUS_ID,
             Code = StatusEnum.PENDING_APPROVAL,
-            Name = "Pending"
+            Name = "Pending",
+            Active = true
         };
 
         var booking = new Booking

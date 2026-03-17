@@ -6,7 +6,6 @@ namespace Integration.Tests.Repository;
 public class FlexibilityRepositoryTests : BaseRepositoryTest
 {
     private readonly FlexibilityRepository _flexibilityRepository;
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000021");
 
     public FlexibilityRepositoryTests()
     {
@@ -27,11 +26,11 @@ public class FlexibilityRepositoryTests : BaseRepositoryTest
     public async Task GetByIdAsync_ShouldReturnFlexibilityDtoWhenRdFlexibilityExists()
     {
         // Act
-        var result = await _flexibilityRepository.GetByIdAsync(_mockId);
+        var result = await _flexibilityRepository.GetByIdAsync(DataFactory.FLEXIBILITY_ID);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(_mockId, result.Id);
+        Assert.Equal(DataFactory.FLEXIBILITY_ID, result.Id);
     }
 
     [Fact]

@@ -6,9 +6,7 @@ namespace Integration.Tests.Repository;
 
 public class UserRepositoryTests : BaseRepositoryTest
 {
-
     private readonly UserRepository _userRepository;
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000041");
 
     public UserRepositoryTests()
     {
@@ -33,7 +31,7 @@ public class UserRepositoryTests : BaseRepositoryTest
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(_mockId, result.Id);
+        Assert.Equal(DataFactory.USER_ID, result.Id);
     }
 
     [Fact]
@@ -83,7 +81,7 @@ public class UserRepositoryTests : BaseRepositoryTest
         // Arrange
         var userDto = new UserDto
         {
-            Id = _mockId,
+            Id = DataFactory.USER_ID,
             Username = "updatedUsername",
             PasswordHash = "updatedPassword",
             ContactNumber = 987654321,
@@ -99,7 +97,7 @@ public class UserRepositoryTests : BaseRepositoryTest
         await _userRepository.UpdateAsync(userDto);
 
         // Assert
-        var updatedUser = await Context.ApplicationUsers.FindAsync(_mockId);
+        var updatedUser = await Context.ApplicationUsers.FindAsync(DataFactory.USER_ID);
         Assert.NotNull(updatedUser);
         Assert.Equal("updatedUsername", updatedUser.Username);
         Assert.Equal("updatedPassword", updatedUser.PasswordHash);
