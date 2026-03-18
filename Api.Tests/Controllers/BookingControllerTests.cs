@@ -50,6 +50,10 @@ public class BookingControllerTests
             .Setup(s => s.CreateAsync(It.IsAny<BookingDto>()))
             .ReturnsAsync(_mockBookingId);
 
+        _mockLinkService
+            .Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
+            .Returns($"https://api.test.com/bookings/{_mockBookingId}");
+
         // Act
         var result = await _bookingController.CreateAsync(
             new()
@@ -57,6 +61,7 @@ public class BookingControllerTests
                 ScheduledAt = DateTime.Now.AddDays(1),
                 FlexibilityId = _mockFlexibilityId,
                 VehicleSizeId = _mockVehicleSizeId,
+                Notes = "Test notes"
             }
         ) as ObjectResult;
 
@@ -101,6 +106,7 @@ public class BookingControllerTests
                 ScheduledAt = DateTime.Now.AddDays(1),
                 FlexibilityId = _mockFlexibilityId,
                 VehicleSizeId = _mockVehicleSizeId,
+                Notes = "Updated test notes"
             }
         ) as StatusCodeResult;
 
@@ -169,31 +175,40 @@ public class BookingControllerTests
                         Email = "test@example.com",
                         Role = new()
                         {
-                            Name = "CUSTOMER"
+                            Name = RoleEnum.USER.ToString()
                         }
                     },
                     Flexibility = new()
                     {
-                        Name = "1 Day"
+                        Name = FlexibilityEnum.FLEX_2D.ToString()
                     },
                     VehicleSize = new()
                     {
-                        Name = "SUV"
+                        Name = VehicleSizeEnum.MOTORCYCLE.ToString()
                     },
                     ScheduledAt = DateTime.Now.AddDays(1),
                     Status = new()
                     {
-                        Name = "PENDING_APPROVAL"
+                        Name = StatusEnum.APPROVED.ToString()
                     },
                     CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    DecisionAt = DateTime.MinValue,
-                    Decision = null,
-                    RequiresApproval = true,
+                    UpdatedAt = DateTime.Now.AddHours(1),
+                    DecisionAt = DateTime.Now.AddHours(1),
+                    Decision = new()
+                    {
+                        Username = "admin",
+                        Email = "admin@example.com",
+                        Role = new()
+                        {
+                            Name = RoleEnum.ADMIN.ToString()
+                        }
+                    },
+                    RequiresApproval = false,
                     Notes = "Test notes"
                 });
 
-        _mockLinkService.SetupSequence(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
+        _mockLinkService
+            .Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
             .Returns($"https://api.test.com/bookings/{_mockBookingId}");
 
         // Act
@@ -209,7 +224,7 @@ public class BookingControllerTests
     }
 
     [Fact]
-    public async Task GetFilteredAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    public async Task GetCustomerFilteredAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
     {
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _bookingController.GetCustomerFilteredAsync(null));
@@ -242,21 +257,21 @@ public class BookingControllerTests
                                 Email = "test@example.com",
                                 Role = new()
                                 {
-                                    Name = "CUSTOMER"
+                                    Name = RoleEnum.USER.ToString()
                                 }
                             },
                             Flexibility = new()
                             {
-                                Name = "1 Day"
+                                Name = FlexibilityEnum.FLEX_1D.ToString()
                             },
                             VehicleSize = new()
                             {
-                                Name = "SUV"
+                                Name = VehicleSizeEnum.SUV.ToString()
                             },
                             ScheduledAt = DateTime.Now.AddDays(1),
                             Status = new()
                             {
-                                Name = "PENDING_APPROVAL"
+                                Name = StatusEnum.PENDING_APPROVAL.ToString()
                             },
                             CreatedAt = DateTime.Now,
                             UpdatedAt = DateTime.Now,
@@ -268,14 +283,98 @@ public class BookingControllerTests
                     ]
                 });
 
-        _mockLinkService.Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
+        _mockLinkService
+            .Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
             .Returns(new GeneratePaginatedLinksDtoResponse());
 
-        _mockLinkService.SetupSequence(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
+        _mockLinkService
+            .Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
             .Returns($"https://api.test.com/bookings/{_mockBookingId}");
 
         // Act
         var result = await _bookingController.GetCustomerFilteredAsync(new()) as ObjectResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
+
+        var responseApi = (BookingApiPaginatedResponse)result.Value;
+        Assert.Equal(1, responseApi.TotalItems);
+        Assert.Equal(1, responseApi.TotalPages);
+        Assert.Single(responseApi.Bookings);
+        Assert.Equal($"https://api.test.com/bookings/{_mockBookingId}", responseApi.Bookings[0].Link.Self.Href);
+    }
+
+    [Fact]
+    public async Task GetFilteredAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _bookingController.GetFilteredAsync(null));
+        Assert.Contains(Messages.InvalidRequestQueryParameters, exception.Message);
+    }
+
+    [Fact]
+    public async Task GetFilteredAsync_ShouldReturnPagedResponse_WhenValidRequest()
+    {
+        // Arrange
+        SetupUserClaims(_bookingController, Guid.Parse("00000000-0000-0000-0000-000000000099"));
+
+        _mockBookingService
+            .Setup(s => s.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
+            .ReturnsAsync(
+                new BookingPaginatedDtoResponse
+                {
+                    TotalItems = 1,
+                    TotalPages = 1,
+                    Bookings =
+                    [
+                        new()
+                        {
+                            Id = _mockBookingId,
+                            Reference = "REF123",
+                            Customer = new()
+                            {
+                                Username = "username",
+                                ContactNumber = 1234567890,
+                                Email = "test@example.com",
+                                Role = new()
+                                {
+                                    Name = RoleEnum.USER.ToString()
+                                }
+                            },
+                            Flexibility = new()
+                            {
+                                Name = FlexibilityEnum.FLEX_3D.ToString()
+                            },
+                            VehicleSize = new()
+                            {
+                                Name = VehicleSizeEnum.SEDAN.ToString()
+                            },
+                            ScheduledAt = DateTime.Now.AddDays(1),
+                            Status = new()
+                            {
+                                Name = StatusEnum.PENDING_APPROVAL.ToString()
+                            },
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now,
+                            DecisionAt = DateTime.MinValue,
+                            Decision = null,
+                            RequiresApproval = true,
+                            Notes = "Test notes"
+                        }
+                    ]
+                });
+
+        _mockLinkService
+            .Setup(x => x.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
+            .Returns(new GeneratePaginatedLinksDtoResponse());
+
+        _mockLinkService
+            .Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
+            .Returns($"https://api.test.com/bookings/{_mockBookingId}");
+
+        // Act
+        var result = await _bookingController.GetFilteredAsync(new()) as ObjectResult;
 
         // Assert
         Assert.NotNull(result);

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json.Serialization;
 using Api.Helpers;
@@ -111,3 +112,6 @@ app.UseSwaggerUI(c =>
 });
 
 app.Run();
+
+[ExcludeFromCodeCoverage]
+public partial class Program { }

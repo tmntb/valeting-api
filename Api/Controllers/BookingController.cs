@@ -13,7 +13,7 @@ using System.Security.Claims;
 
 namespace Api.Controllers;
 
-public class BookingController(IBookingService bookingService, ILinkService urlService) : BookingBaseController
+public class BookingController(IBookingService bookingService, ILinkService linkService) : BookingBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
@@ -44,7 +44,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         {
             Id = bookingId
         };
-        return Created(urlService.GenerateSelf(new() { Request = Request, Path = "bookings", Id = createBookingApiResponse.Id }), createBookingApiResponse);
+        return Created(linkService.GenerateSelf(new() { Request = Request, Path = "bookings", Id = createBookingApiResponse.Id }), createBookingApiResponse);
     }
 
     /// <inheritdoc />
@@ -106,7 +106,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         {
             Self = new()
             {
-                Href = urlService.GenerateSelf(new() { Request = Request, Path = "bookings", Id = bookingApi.Id })
+                Href = linkService.GenerateSelf(new() { Request = Request, Path = "bookings", Id = bookingApi.Id })
             }
         };
 
@@ -174,7 +174,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
             }
         };
 
-        var paginatedLinks = urlService.GeneratePaginatedLinks
+        var paginatedLinks = linkService.GeneratePaginatedLinks
         (
             new()
             {
@@ -200,7 +200,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new() { Request = Request, Id = b.Id })
+                    Href = linkService.GenerateSelf(new() { Request = Request, Id = b.Id })
                 }
             };
         });

@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using DotNetEnv;
 
 namespace Api.Helpers;
 
+[ExcludeFromCodeCoverage(Justification = "This class is responsible for loading environment variables and configuring the application at startup. It primarily consists of boilerplate code for handling configuration and does not contain business logic, so we can safely exclude it from code coverage metrics.")]
 internal static class EnvironmentConfiguration
 {
     /// <summary>
