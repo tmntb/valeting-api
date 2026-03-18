@@ -4,6 +4,9 @@ using Service.Models.Booking.Payload;
 
 namespace Service.Validators;
 
+/// <summary>
+/// Validator for updating booking status requests. This class defines the validation rules for the properties of the <see cref="UpdateBookingStatusDtoRequest"/> when updating the status of a booking. It ensures that the Id is a valid GUID, the Status is a valid enumeration value, and that the user's role allows them to set the specified booking status. Additionally, it validates that the CurrentStatus is a valid enumeration value and is not set to certain statuses that are not allowed for updates. This validation is essential for maintaining data integrity and enforcing business rules related to booking status updates based on user roles.
+/// </summary>
 public class UpdateBookingStatusValidator : AbstractValidator<UpdateBookingStatusDtoRequest>
 {
     public UpdateBookingStatusValidator()

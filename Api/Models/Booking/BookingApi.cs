@@ -83,6 +83,9 @@ public class BookingApi
     [JsonPropertyName("_link")]
     public BookingApiLink Link { get; set; }
 
+    /// <summary>
+    /// Maps a BookingDto to a BookingApi model.
+    /// </summary>
     internal static BookingApi MapToBookingApi(BookingDto bookingDto, bool includeCustomer = true)
     {
         return new BookingApi

@@ -8,6 +8,7 @@ namespace Repository.Repositories;
 
 public class StatusRepository(ValetingContext valetingContext) : IStatusRepository
 {
+    /// <inheritdoc />
     public async Task<StatusDto> GetByCodeAsync(StatusEnum statusCode)
     {
         var rdStatus = await valetingContext.RdStatus.FirstOrDefaultAsync(s => s.Code == statusCode);

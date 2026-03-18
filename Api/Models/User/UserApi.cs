@@ -2,6 +2,9 @@ using Api.Models.Role;
 
 namespace Api.Models.User;
 
+/// <summary>
+/// Represents a user resource in the API.
+/// </summary>
 public class UserApi
 {
     /// <summary>

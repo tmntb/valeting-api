@@ -2,6 +2,9 @@ using Common.Enums;
 
 namespace Service.Models.Role;
 
+/// <summary>
+/// Represents a data transfer object for a role record.
+/// </summary>
 public class RoleDto
 {
     /// <summary>

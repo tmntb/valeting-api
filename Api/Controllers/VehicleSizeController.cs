@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Service.Models.VehicleSize.Payload;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 
 namespace Api.Controllers;
 

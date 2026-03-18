@@ -2,6 +2,9 @@ using Common.Enums;
 
 namespace Service.Models.Status;
 
+/// <summary>
+/// Represents a data transfer object for a status record.
+/// </summary>
 public class StatusDto
 {
     /// <summary>

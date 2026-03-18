@@ -97,6 +97,11 @@ public class BookingService(IBookingRepository bookingRepository, IStatusReposit
         return await CreatePaginatedResponseAsync(bookingFilterDto);
     }
 
+    /// <summary>
+    /// Creates a paginated response for bookings based on the provided filter criteria. This method retrieves the filtered list of bookings from the repository, checks and updates their statuses if necessary, and constructs a paginated response object containing the bookings along with pagination details such as total items and total pages.
+    /// </summary>
+    /// <param name="bookingFilterDto">The filter criteria for retrieving bookings, including pagination parameters and optional status filter.</param>
+    /// <returns>A <see cref="BookingPaginatedDtoResponse"/> object containing the list of bookings and pagination metadata.</returns>
     private async Task<BookingPaginatedDtoResponse> CreatePaginatedResponseAsync(BookingFilterDto bookingFilterDto)
     {
         var bookingDtoList = await bookingRepository.GetFilteredAsync(bookingFilterDto);

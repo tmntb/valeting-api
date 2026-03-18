@@ -8,6 +8,7 @@ namespace Repository.Repositories;
 
 public class RoleRepository(ValetingContext valetingContext) : IRoleRepository
 {
+    /// <inheritdoc />
     public async Task<RoleDto> GetByCodeAsync(RoleEnum RoleCode)
     {
         var rdRole = await valetingContext.RdRoles.FirstOrDefaultAsync(r => r.Code == RoleCode);

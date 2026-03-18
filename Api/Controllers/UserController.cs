@@ -5,7 +5,6 @@ using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Service.Models.User.Payload;
-using System.Net;
 
 namespace Api.Controllers;
 

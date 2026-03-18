@@ -1,7 +1,4 @@
-﻿using Api.Models.Flexibility;
-using Api.Models.VehicleSize;
-
-namespace Api.Models.Booking.Payload;
+﻿namespace Api.Models.Booking.Payload;
 
 /// <summary>
 /// Represents the request body for updating an existing booking.

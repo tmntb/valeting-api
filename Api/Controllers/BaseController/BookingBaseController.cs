@@ -12,11 +12,6 @@ public abstract class BookingBaseController : ControllerBase
     /// <summary>
     /// Creates a new booking request.
     /// </summary>
-    /// <remarks>
-    /// This endpoint creates a booking with the specified details.  
-    /// Validation errors or missing required fields will result in a <c>400 Bad Request</c>.  
-    /// Unexpected server errors will result in a <c>500 Internal Server Error</c>.
-    /// </remarks>
     /// <param name="createBookingApiRequest">The booking information to be created.</param>
     /// <response code="201">Returns the identifier of the newly created booking.</response>
     /// <response code="400">Returned when the request body is invalid or fails validation.</response>
@@ -33,11 +28,6 @@ public abstract class BookingBaseController : ControllerBase
     /// <summary>
     /// Updates an existing booking.
     /// </summary>
-    /// <remarks>
-    /// This endpoint updates an existing booking with the provided details.  
-    /// If the booking ID is invalid or the request body is malformed, a <c>400 Bad Request</c> will be returned.  
-    /// Unexpected server errors will result in a <c>500 Internal Server Error</c>.
-    /// </remarks>
     /// <param name="id">The unique identifier of the booking to update.</param>
     /// <param name="updateBookingApiRequest">The updated booking information.</param>
     /// <response code="204">Returned when the booking is successfully updated.</response>
@@ -55,16 +45,11 @@ public abstract class BookingBaseController : ControllerBase
     public abstract Task<IActionResult> UpdateAsync([FromRoute(Name = "id")][Required][MinLength(1)] string id, [FromBody] UpdateBookingApiRequest updateBookingApiRequest);
 
     /// <summary>
-    /// Deletes an existing booking.
+    /// Updates the status of an existing booking.
     /// </summary>
-    /// <remarks>
-    /// This endpoint permanently removes a booking identified by its unique ID.  
-    /// If the provided ID is invalid, a <c>400 Bad Request</c> will be returned.  
-    /// If no booking is found with the specified ID, a <c>404 Not Found</c> will be returned.  
-    /// Unexpected server errors will result in a <c>500 Internal Server Error</c>.
-    /// </remarks>
-    /// <param name="id">The unique identifier of the booking to delete.</param>
-    /// <response code="204">Returned when the booking is successfully deleted.</response>
+    /// <param name="id">The unique identifier of the booking to update.</param>
+    /// <param name="updateBookingApiStatusRequest">The new status information for the booking.</param>
+    /// <response code="204">Returned when the booking is successfully updated.</response>
     /// <response code="400">Returned when the booking ID is invalid.</response>
     /// <response code="404">Returned when the booking does not exist.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
@@ -80,12 +65,6 @@ public abstract class BookingBaseController : ControllerBase
     /// <summary>
     /// Retrieves a specific booking by its unique identifier.
     /// </summary>
-    /// <remarks>
-    /// This endpoint returns detailed information about a booking, including its flexibility and vehicle size options.  
-    /// If the provided ID is invalid, a <c>400 Bad Request</c> will be returned.  
-    /// If no booking is found for the specified ID, a <c>404 Not Found</c> will be returned.  
-    /// Unexpected server errors will result in a <c>500 Internal Server Error</c>.
-    /// </remarks>
     /// <param name="id">The unique identifier of the booking to retrieve.</param>
     /// <response code="200">Returns the booking details matching the provided ID.</response>
     /// <response code="400">Returned when the booking ID is invalid or improperly formatted.</response>
@@ -103,13 +82,7 @@ public abstract class BookingBaseController : ControllerBase
     /// <summary>
     /// Retrieves a paginated list of bookings for a customer based on the provided query parameters.
     /// </summary>
-    /// <remarks>
-    /// This endpoint returns a paginated collection of bookings with optional filters such as page number and page size.  
-    /// Each booking includes details about its flexibility and vehicle size, along with pagination metadata and navigation links.  
-    /// If query parameters are invalid or missing, a <c>400 Bad Request</c> will be returned.  
-    /// Unexpected server errors will result in a <c>500 Internal Server Error</c>.
-    /// </remarks>
-    /// <param name="bookingApiParameters">The pagination and filter parameters for retrieving bookings.</param>
+    /// <param name="bookingApiParameters">The pagination and filter parameters for retrieving customer bookings.</param>
     /// <response code="200">Returns a paginated list of bookings along with pagination metadata and links.</response>
     /// <response code="400">Returned when query parameters are invalid or improperly formatted.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
