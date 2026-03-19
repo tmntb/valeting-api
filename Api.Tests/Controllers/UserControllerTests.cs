@@ -41,7 +41,7 @@ public class UserControllerTests
         var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _userController.Login(
             new()
             {
-                Username = "test@example.com",
+                Email = "test@example.com",
                 Password = "wrongpassword"
             }));
 
@@ -70,7 +70,7 @@ public class UserControllerTests
         (
             new()
             {
-                Username = "test@example.com",
+                Email = "test@example.com",
                 Password = "password"
             }
         ) as ObjectResult;
@@ -143,7 +143,8 @@ public class UserControllerTests
     public async Task Register_ShouldReturnOk_WhenSuccessful()
     {
         // Arrange
-        _mockUserService.Setup(s => s.RegisterAsync(It.IsAny<RegisterDtoRequest>()))
+        _mockUserService
+            .Setup(s => s.RegisterAsync(It.IsAny<RegisterDtoRequest>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -154,7 +155,7 @@ public class UserControllerTests
                 Username = "test@example.com",
                 Password = "password"
             }
-        ) as StatusCodeResult;
+        ) as ObjectResult;
 
         // Assert
         Assert.NotNull(result);

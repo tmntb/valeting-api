@@ -13,7 +13,7 @@ public class VehicleSizeDto
     /// <summary>
     /// The description of the vehicle size.
     /// </summary>
-    public string Description { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Indicates whether the vehicle size is active.

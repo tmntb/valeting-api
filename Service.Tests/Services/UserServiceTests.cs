@@ -47,7 +47,13 @@ public class UserServiceTests
             .ReturnsAsync(new UserDto
             {
                 Id = _mockId,
-                Username = "user@example.com"
+                Username = "username",
+                Email = "user@example.com",
+                Role = new RoleDto
+                {
+                    Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                    Code = RoleEnum.USER
+                }
             });
 
         _mockConfiguration.Setup(config => config["Jwt:Key"])
@@ -74,18 +80,21 @@ public class UserServiceTests
             .ReturnsAsync(new UserDto
             {
                 Id = _mockId,
-                Username = "user@example.com",
+                Email = "user@example.com"
             });
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(
                 new()
                 {
-                    Username = "user@example.com",
-                    Password = "password"
+                    Username = "username",
+                    Password = "password",
+                    Email = "user@example.com",
+                    ContactNumber = 123456789,
+                    RoleCode = RoleEnum.USER
                 }));
 
-        Assert.Equal(exception.Message, Messages.UsernameInUse);
+        Assert.Equal(exception.Message, Messages.EmailInUse);
     }
 
     [Fact]
@@ -95,19 +104,21 @@ public class UserServiceTests
         _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync((UserDto)null);
 
-        _mockRoleRepository.Setup(repo => repo.GetByNameAsync(It.IsAny<RoleEnum>()))
+        _mockRoleRepository.Setup(repo => repo.GetByCodeAsync(It.IsAny<RoleEnum>()))
             .ReturnsAsync(new RoleDto
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                Name = RoleEnum.User
+                Code = RoleEnum.USER
             });
 
         // Act
         await _userService.RegisterAsync(new()
         {
-            Username = "user@example.com",
+            Username = "username",
             Password = "password",
-            RoleName = RoleEnum.User
+            Email = "user@example.com",
+            ContactNumber = 123456789,
+            RoleCode = RoleEnum.USER
         });
 
         // Assert
@@ -125,7 +136,7 @@ public class UserServiceTests
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.ValidateLoginAsync(
                 new()
                 {
-                    Username = "user@example.com",
+                    Email = "user@example.com",
                     Password = "password123"
                 }));
     }
@@ -139,8 +150,8 @@ public class UserServiceTests
                 new UserDto
                 {
                     Id = _mockId,
-                    Username = "user@example.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("password123"),
+                    Email = "user@example.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
                     IsActive = true
                 });
 
@@ -148,7 +159,7 @@ public class UserServiceTests
         var response = await _userService.ValidateLoginAsync(
             new()
             {
-                Username = "user@example.com",
+                Email = "user@example.com",
                 Password = "password123"
             });
 
@@ -165,15 +176,15 @@ public class UserServiceTests
                 new UserDto
                 {
                     Id = _mockId,
-                    Username = "user@example.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("password123")
+                    Email = "user@example.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123")
                 });
 
         // Act
         var response = await _userService.ValidateLoginAsync(
             new()
             {
-                Username = "user@example.com",
+                Email = "user@example.com",
                 Password = "password"
             });
 
@@ -182,7 +193,7 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task ValidateToken_ShouldReturnUsername_WhenTokenIsValid()
+    public async Task ValidateToken_ShouldReturnEmail_WhenTokenIsValid()
     {
         // Arrange
         _mockConfiguration.Setup(config => config["Jwt:Key"])
@@ -196,16 +207,22 @@ public class UserServiceTests
             .ReturnsAsync(new UserDto
             {
                 Id = _mockId,
-                Username = "user@example.com"
+                Username = "username",
+                Email = "user@example.com",
+                Role = new RoleDto
+                {
+                    Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                    Code = RoleEnum.USER
+                }
             });
 
         var tokenResponse = await _userService.GenerateTokenJWTAsync("user@example.com");
         var validToken = tokenResponse.Token;
 
         // Act
-        var username = _userService.ValidateToken(validToken);
+        var email = _userService.ValidateToken(validToken);
 
         // Assert
-        Assert.Equal("user@example.com", username);
+        Assert.Equal("user@example.com", email);
     }
 }

@@ -6,7 +6,6 @@ namespace Integration.Tests.Repository;
 public class RoleRepositoryTests : BaseRepositoryTest
 {
     private readonly RoleRepository _roleRepository;
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000051");
 
     public RoleRepositoryTests()
     {
@@ -17,7 +16,7 @@ public class RoleRepositoryTests : BaseRepositoryTest
     public async Task GetByNameAsync_ShouldReturnNull_WhenRoleDoesNotExists()
     {
         // Act
-        var result = await _roleRepository.GetByNameAsync(RoleEnum.Admin);
+        var result = await _roleRepository.GetByCodeAsync(RoleEnum.ADMIN);
 
         // Assert
         Assert.Null(result);
@@ -27,10 +26,10 @@ public class RoleRepositoryTests : BaseRepositoryTest
     public async Task GetByNameAsync_ShouldReturnRoleDtoWhenRoleExists()
     {
         // Act
-        var result = await _roleRepository.GetByNameAsync(RoleEnum.User);
+        var result = await _roleRepository.GetByCodeAsync(RoleEnum.USER);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(_mockId, result.Id);
+        Assert.Equal(DataFactory.ROLE_ID, result.Id);
     }
 }

@@ -30,7 +30,8 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
             [
                 new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
                 new Claim(ClaimTypes.Name, userDto.Username),
-                new Claim(ClaimTypes.Role, userDto.Role.Name.ToString())
+                new Claim(ClaimTypes.Email, userDto.Email),
+                new Claim(ClaimTypes.Role, userDto.Role.Code.ToString())
             ]),
             Expires = DateTime.Now.AddMinutes(60),
             Issuer = issuer,
@@ -54,22 +55,25 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     {
         registerDtoRequest.ValidateRequest(new RegisterValidator());
 
-        var userDto = await userRepository.GetUserByEmailAsync(registerDtoRequest.Username);
+        var userDto = await userRepository.GetUserByEmailAsync(registerDtoRequest.Email);
         if (userDto != null)
         {
-            throw new InvalidOperationException(Messages.UsernameInUse);
+            throw new InvalidOperationException(Messages.EmailInUse);
         }
 
-        var roleDto = await roleRepository.GetByNameAsync(registerDtoRequest.RoleName) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var roleDto = await roleRepository.GetByCodeAsync(registerDtoRequest.RoleCode) ?? throw new KeyNotFoundException(Messages.NotFound);
         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDtoRequest.Password, workFactor: 12);
 
         var registerUserDto = new UserDto
         {
             Id = Guid.NewGuid(),
             Username = registerDtoRequest.Username,
-            Password = hashedPassword,
+            PasswordHash = hashedPassword,
+            ContactNumber = registerDtoRequest.ContactNumber,
+            Email = registerDtoRequest.Email,
             Role = new() { Id = roleDto.Id },
-            IsActive = true
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
         };
         await userRepository.RegisterAsync(registerUserDto);
     }
@@ -79,9 +83,16 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     {
         validateLoginDtoRequest.ValidateRequest(new ValidateLoginValidator());
 
-        var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Username) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        return userDto.IsActive && BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.Password);
+        var passwordValid = userDto.IsActive && BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.PasswordHash);
+        if (passwordValid)
+        {
+            userDto.LastLoginAt = DateTime.UtcNow;
+            await userRepository.UpdateAsync(userDto);
+        }
+
+        return passwordValid;
     }
 
     /// <inheritdoc />
@@ -104,7 +115,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
             RoleClaimType = ClaimTypes.Role
         }, out _);
 
-        return claims.FindFirst(ClaimTypes.Name)?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
+        return claims.FindFirst(ClaimTypes.Email)?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
     }
 
     /// <summary>

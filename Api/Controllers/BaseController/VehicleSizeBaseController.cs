@@ -12,12 +12,6 @@ public abstract class VehicleSizeBaseController : ControllerBase
     /// <summary>
     /// Retrieves a specific vehicle size by its identifier.
     /// </summary>
-    /// <remarks>
-    /// This endpoint fetches the details of a single vehicle size.  
-    /// If the requested vehicle size does not exist, a <c>404 Not Found</c> will be returned.  
-    /// Validation errors for the request ID will result in a <c>400 Bad Request</c>.  
-    /// Unexpected server errors will result in a <c>500 Internal Server Error</c>.
-    /// </remarks>
     /// <param name="id">The identifier of the vehicle size to retrieve.</param>
     /// <response code="200">Returns the requested vehicle size details.</response>
     /// <response code="400">Returned when the request ID is invalid or missing.</response>
@@ -35,12 +29,6 @@ public abstract class VehicleSizeBaseController : ControllerBase
     /// <summary>
     /// Retrieves a paginated list of vehicle sizes.
     /// </summary>
-    /// <remarks>
-    /// This endpoint fetches a list of vehicle sizes, optionally filtered by active status.  
-    /// Pagination parameters can be specified via query parameters.  
-    /// Validation errors will result in a <c>400 Bad Request</c>.  
-    /// Unexpected server errors will result in a <c>500 Internal Server Error</c>.
-    /// </remarks>
     /// <param name="vehicleSizeApiParameters">Pagination and filtering parameters.</param>
     /// <response code="200">Returns a paginated list of vehicle sizes with links for navigation.</response>
     /// <response code="400">Returned when the query parameters are invalid.</response>

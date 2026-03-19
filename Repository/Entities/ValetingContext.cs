@@ -20,6 +20,7 @@ public partial class ValetingContext : DbContext
     public virtual DbSet<RdFlexibility> RdFlexibilities { get; set; } = null!;
     public virtual DbSet<RdVehicleSize> RdVehicleSizes { get; set; } = null!;
     public virtual DbSet<RdRole> RdRoles { get; set; } = null!;
+    public virtual DbSet<RdStatus> RdStatus { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -30,7 +31,7 @@ public partial class ValetingContext : DbContext
     {
         modelBuilder.Entity<ApplicationUser>(entity =>
         {
-            entity.HasKey(e => e.Username);
+            entity.HasKey(e => e.Id);
 
             entity.ToTable("ApplicationUser");
 
@@ -38,13 +39,25 @@ public partial class ValetingContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnName("Id");
 
-            entity.Property(e => e.Username).HasMaxLength(50);
+            entity.Property(e => e.Username)
+                .IsRequired()
+                .HasMaxLength(50);
 
-            entity.Property(e => e.Password).IsRequired();
+            entity.Property(e => e.PasswordHash).IsRequired();
+
+            entity.Property(e => e.ContactNumber).IsRequired();
+
+            entity.Property(e => e.Email).IsRequired();
 
             entity.Property(e => e.RoleId).HasColumnName("Role_Id");
 
             entity.Property(e => e.IsActive);
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
+
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime2");
+
+            entity.Property(e => e.LastLoginAt).HasColumnType("datetime2");
 
             entity.HasOne(d => d.Role)
                 .WithMany(p => p.ApplicationUsers)
@@ -63,11 +76,37 @@ public partial class ValetingContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnName("Id");
 
-            entity.Property(e => e.BookingDate).HasColumnType("datetime");
+            entity.Property(e => e.Reference)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.CustomerId).HasColumnName("Customer_Id");
 
             entity.Property(e => e.FlexibilityId).HasColumnName("Flexibility_Id");
 
             entity.Property(e => e.VehicleSizeId).HasColumnName("VehicleSize_Id");
+
+            entity.Property(e => e.ScheduledAt).HasColumnType("datetime2");
+
+            entity.Property(e => e.StatusId).HasColumnName("Status_Id");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
+
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime2");
+
+            entity.Property(e => e.DecisionAt).HasColumnType("datetime2");
+
+            entity.Property(e => e.DecisionById).HasColumnName("DecisionBy_Id");
+
+            entity.Property(e => e.RequiresApproval);
+
+            entity.Property(e => e.Notes).HasMaxLength(500);
+
+            entity.HasOne(d => d.Customer)
+                .WithMany(p => p.CustomerBookings)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Booking_ApplicationUser");
 
             entity.HasOne(d => d.Flexibility)
                 .WithMany(p => p.Bookings)
@@ -80,6 +119,17 @@ public partial class ValetingContext : DbContext
                 .HasForeignKey(d => d.VehicleSizeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Booking_VehicleSize");
+
+            entity.HasOne(d => d.Status)
+                .WithMany(p => p.Bookings)
+                .HasForeignKey(d => d.StatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Booking_Status");
+
+            entity.HasOne(d => d.DecisionBy)
+                .WithMany(p => p.DecisionBookings)
+                .HasForeignKey(d => d.DecisionById)
+                .HasConstraintName("FK_Booking_DecisionByApplicationUser");
         });
 
         modelBuilder.Entity<RdFlexibility>(entity =>
@@ -91,6 +141,24 @@ public partial class ValetingContext : DbContext
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("Id");
+
+            entity.Property(e => e.Code)
+                .HasConversion<string>()
+                .HasMaxLength(50)
+                .HasColumnName("Code");
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100)
+                .HasColumnName("Name");
+
+            entity.Property(e => e.NumberOfMinutes)
+                .IsRequired()
+                .HasColumnName("NumberOfMinutes");
+
+            entity.Property(e => e.Active)
+                .IsRequired()
+                .HasColumnName("Active");
         });
 
         modelBuilder.Entity<RdVehicleSize>(entity =>
@@ -102,6 +170,20 @@ public partial class ValetingContext : DbContext
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("Id");
+
+            entity.Property(e => e.Code)
+                .HasConversion<string>()
+                .HasMaxLength(50)
+                .HasColumnName("Code");
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100)
+                .HasColumnName("Name");
+
+            entity.Property(e => e.Active)
+                .IsRequired()
+                .HasColumnName("Active");
         });
 
         modelBuilder.Entity<RdRole>(entity =>
@@ -114,9 +196,44 @@ public partial class ValetingContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnName("Id");
 
-            entity.Property(e => e.Name)
+            entity.Property(e => e.Code)
                 .HasConversion<string>()
+                .HasMaxLength(50)
+                .HasColumnName("Code");
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100)
                 .HasColumnName("Name");
+
+            entity.Property(e => e.Active)
+                .IsRequired()
+                .HasColumnName("Active");
+        });
+
+        modelBuilder.Entity<RdStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.ToTable("RD_Status");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("Id");
+
+            entity.Property(e => e.Code)
+                .HasConversion<string>()
+                .HasMaxLength(50)
+                .HasColumnName("Code");
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100)
+                .HasColumnName("Name");
+
+            entity.Property(e => e.Active)
+                .IsRequired()
+                .HasColumnName("Active");
         });
 
         OnModelCreatingPartial(modelBuilder);

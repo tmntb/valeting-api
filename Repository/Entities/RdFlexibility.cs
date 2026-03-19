@@ -1,4 +1,6 @@
-﻿namespace Repository.Entities;
+﻿using Common.Enums;
+
+namespace Repository.Entities;
 
 /// <summary>
 /// Represents a flexibility option that can be associated with bookings.
@@ -19,9 +21,19 @@ public partial class RdFlexibility
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Description of the flexibility option.
+    /// Code representing the flexibility option.
     /// </summary>
-    public string Description { get; set; } = null!;
+    public FlexibilityEnum Code { get; set; }
+
+    /// <summary>
+    /// Name of the flexibility option.
+    /// </summary>
+    public string Name { get; set; }
+
+    /// <summary>
+    /// Number of minutes that this flexibility option allows the booking to happen.
+    /// </summary>
+    public int NumberOfMinutes { get; set; }
 
     /// <summary>
     /// Indicates whether the flexibility option is active.

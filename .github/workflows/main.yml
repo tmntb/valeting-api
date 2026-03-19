@@ -33,7 +33,7 @@ jobs:
           pat-bot-token: ${{ secrets.PAT_BOT_TOKEN }}
           pat-token: ${{ secrets.PAT_TOKEN }} 
           swagger-path: "swagger/swagger.json"
-          target-dll-path: "Api/bin/Release/net9.0/Api.dll"
+          target-dll-path: "Api/bin/Release/net10.0/Api.dll"
           swagger-version: "v1"
           target-branch: "swagger-update"
     

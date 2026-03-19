@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Service.Models.VehicleSize.Payload;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 
 namespace Api.Controllers;
 
@@ -23,7 +22,7 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILink
         var vehicleSizeApi = new VehicleSizeApi
         {
             Id = vehicleSizeDto.Id,
-            Description = vehicleSizeDto.Description,
+            Name = vehicleSizeDto.Name,
             Active = vehicleSizeDto.Active,
             Link = new()
             {
@@ -38,7 +37,7 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILink
         {
             VehicleSize = vehicleSizeApi
         };
-        return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiResponse);
+        return Ok(vehicleSizeApiResponse);
     }
 
     /// <inheritdoc />
@@ -90,7 +89,7 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILink
             new VehicleSizeApi()
             {
                 Id = x.Id,
-                Description = x.Description,
+                Name = x.Name,
                 Active = x.Active
             }
         ).ToList();
@@ -106,6 +105,6 @@ public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILink
         );
 
         vehicleSizeApiPaginatedResponse.VehicleSizes = vehicleSizeApis;
-        return StatusCode((int)HttpStatusCode.OK, vehicleSizeApiPaginatedResponse);
+        return Ok(vehicleSizeApiPaginatedResponse);
     }
 }

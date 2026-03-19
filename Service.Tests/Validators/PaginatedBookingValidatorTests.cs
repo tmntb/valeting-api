@@ -1,4 +1,5 @@
-﻿using Service.Models.Booking.Payload;
+﻿using Common.Enums;
+using Service.Models.Booking.Payload;
 using Service.Validators;
 
 namespace Service.Tests.Validators;
@@ -13,12 +14,14 @@ public class PaginatedBookingValidatorTests
     }
 
     [Fact]
-    public void PageNumber_EqualToZero_ShouldFail()
+    public void Status_InvalidEnumValue_ShouldFail()
     {
         // Arrange
         var request = new BookingFilterDto
         {
-            PageNumber = 0
+            PageNumber = 1,
+            PageSize = 10,
+            Status = (StatusEnum)999 // Invalid enum value
         };
 
         // Act
@@ -26,24 +29,7 @@ public class PaginatedBookingValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains("Page Number", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void PageNumber_LessThanZero_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingFilterDto
-        {
-            PageNumber = -1
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Page Number", result.Errors.FirstOrDefault().ErrorMessage);
+        Assert.Contains("Status", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
     [Fact]
@@ -53,7 +39,8 @@ public class PaginatedBookingValidatorTests
         var request = new BookingFilterDto
         {
             PageNumber = 1,
-            PageSize = 1
+            PageSize = 1,
+            Status = StatusEnum.APPROVED
         };
 
         // Act

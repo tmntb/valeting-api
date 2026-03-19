@@ -2,17 +2,18 @@
 using Api.Models.Booking;
 using Api.Models.Booking.Payload;
 using Api.Models.Core;
+using Common.Enums;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Service.Models.Booking;
 using Service.Models.Booking.Payload;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
+using System.Security.Claims;
 
 namespace Api.Controllers;
 
-public class BookingController(IBookingService bookingService, ILinkService urlService) : BookingBaseController
+public class BookingController(IBookingService bookingService, ILinkService linkService) : BookingBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
@@ -21,18 +22,20 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
 
         var bookingDto = new BookingDto
         {
-            Name = createBookingApiRequest.Name,
-            BookingDate = createBookingApiRequest.BookingDate,
+            Customer = new()
+            {
+                Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value)
+            },
             Flexibility = new()
             {
-                Id = createBookingApiRequest.Flexibility.Id
+                Id = createBookingApiRequest.FlexibilityId
             },
             VehicleSize = new()
             {
-                Id = createBookingApiRequest.VehicleSize.Id
+                Id = createBookingApiRequest.VehicleSizeId
             },
-            ContactNumber = createBookingApiRequest.ContactNumber,
-            Email = createBookingApiRequest.Email
+            ScheduledAt = createBookingApiRequest.ScheduledAt,
+            Notes = createBookingApiRequest.Notes
         };
 
         var bookingId = await bookingService.CreateAsync(bookingDto);
@@ -41,7 +44,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         {
             Id = bookingId
         };
-        return StatusCode((int)HttpStatusCode.Created, createBookingApiResponse);
+        return Created(linkService.GenerateSelf(new() { Request = Request, Path = "bookings", Id = createBookingApiResponse.Id }), createBookingApiResponse);
     }
 
     /// <inheritdoc />
@@ -52,20 +55,42 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
 
         var bookingDto = new BookingDto
         {
-            Id = Guid.Parse(id)
+            Id = Guid.Parse(id),
+            Flexibility = new()
+            {
+                Id = updateBookingApiRequest.FlexibilityId
+            },
+            VehicleSize = new()
+            {
+                Id = updateBookingApiRequest.VehicleSizeId
+            },
+            ScheduledAt = updateBookingApiRequest.ScheduledAt,
+            Notes = updateBookingApiRequest.Notes
         };
 
         await bookingService.UpdateAsync(bookingDto);
-        return StatusCode((int)HttpStatusCode.NoContent);
+        return NoContent();
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> DeleteAsync([FromRoute(Name = "id"), MinLength(1), Required] string id)
+    public override async Task<IActionResult> UpdateStatusAsync([FromRoute(Name = "id"), MinLength(1), Required] string id, [FromBody] UpdateBookingApiStatusRequest updateBookingApiStatusRequest)
     {
         ArgumentNullException.ThrowIfNull(id, Messages.InvalidRequestId);
 
-        await bookingService.DeleteAsync(Guid.Parse(id));
-        return StatusCode((int)HttpStatusCode.NoContent);
+        await bookingService.UpdateStatusAsync(new()
+        {
+            Id = Guid.Parse(id),
+            Status = updateBookingApiStatusRequest.Status,
+            UserDto = new()
+            {
+                Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+                Role = new()
+                {
+                    Code = Enum.Parse<RoleEnum>(User.FindFirst(ClaimTypes.Role)?.Value)
+                }
+            }
+        });
+        return NoContent();
     }
 
     /// <inheritdoc />
@@ -75,44 +100,13 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
 
         var bookingDto = await bookingService.GetByIdAsync(Guid.Parse(id));
 
-        var bookingApi = new BookingApi
-        {
-            Id = bookingDto.Id,
-            Name = bookingDto.Name,
-            BookingDate = bookingDto.BookingDate,
-            Flexibility = new()
-            {
-                Id = bookingDto.Flexibility.Id,
-                Description = bookingDto.Flexibility.Description
-            },
-            VehicleSize = new()
-            {
-                Id = bookingDto.VehicleSize.Id,
-                Description = bookingDto.VehicleSize.Description
-            },
-            ContactNumber = bookingDto.ContactNumber.Value,
-            Approved = bookingDto.Approved
-        };
+        var bookingApi = BookingApi.MapToBookingApi(bookingDto);
 
-        bookingApi.Flexibility.Link = new()
-        {
-            Self = new()
-            {
-                Href = urlService.GenerateSelf(new() { Request = Request, Path = "flexibilities", Id = bookingApi.Flexibility.Id })
-            }
-        };
-        bookingApi.VehicleSize.Link = new()
-        {
-            Self = new()
-            {
-                Href = urlService.GenerateSelf(new() { Request = Request, Path = "vehicleSizes", Id = bookingApi.VehicleSize.Id })
-            }
-        };
         bookingApi.Link = new()
         {
             Self = new()
             {
-                Href = urlService.GenerateSelf(new() { Request = Request, Path = "bookings", Id = bookingApi.Id })
+                Href = linkService.GenerateSelf(new() { Request = Request, Path = "bookings", Id = bookingApi.Id })
             }
         };
 
@@ -120,7 +114,23 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         {
             Booking = bookingApi
         };
-        return StatusCode((int)HttpStatusCode.OK, bookingApiResponse);
+        return Ok(bookingApiResponse);
+    }
+
+    /// <inheritdoc />
+    public override async Task<IActionResult> GetCustomerFilteredAsync([FromQuery] BookingApiParameters bookingApiParameters)
+    {
+        ArgumentNullException.ThrowIfNull(bookingApiParameters, Messages.InvalidRequestQueryParameters);
+
+        var bookingFilterDto = new BookingFilterDto
+        {
+            CustomerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            PageNumber = bookingApiParameters.PageNumber,
+            PageSize = bookingApiParameters.PageSize
+        };
+
+        var paginatedBookingDtoResponse = await bookingService.GetCustomerFilteredAsync(bookingFilterDto);
+        return CreatePaginatedBookingResponseAsync(paginatedBookingDtoResponse, bookingApiParameters, bookingFilterDto, false);
     }
 
     /// <inheritdoc />
@@ -130,12 +140,26 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
 
         var bookingFilterDto = new BookingFilterDto
         {
+            Status = bookingApiParameters.Status,
             PageNumber = bookingApiParameters.PageNumber,
             PageSize = bookingApiParameters.PageSize
         };
 
         var paginatedBookingDtoResponse = await bookingService.GetFilteredAsync(bookingFilterDto);
+        return CreatePaginatedBookingResponseAsync(paginatedBookingDtoResponse, bookingApiParameters, bookingFilterDto);
+    }
 
+    /// <summary>
+    /// Creates a paginated response for a list of bookings based on the provided filter and pagination criteria.
+    /// This method maps the booking DTOs to booking API models, generates HATEOAS links for pagination, and constructs a paginated response object to return to the client.
+    /// </summary>
+    /// <param name="paginatedBookingDtoResponse">The paginated response containing the list of booking DTOs and pagination metadata.</param>
+    /// <param name="bookingApiParameters">The API parameters containing pagination and filtering criteria.</param>
+    /// <param name="bookingFilterDto">The filter DTO used to generate pagination links.</param>
+    /// <param name="includeCustomer">A boolean flag indicating whether to include customer information in the booking API models.</param>
+    /// <returns>An IActionResult containing the paginated booking API response.</returns>
+    private IActionResult CreatePaginatedBookingResponseAsync(BookingPaginatedDtoResponse paginatedBookingDtoResponse, BookingApiParameters bookingApiParameters, BookingFilterDto bookingFilterDto, bool includeCustomer = true)
+    {
         var bookingApiPaginatedResponse = new BookingApiPaginatedResponse
         {
             Bookings = [],
@@ -150,7 +174,7 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
             }
         };
 
-        var paginatedLinks = urlService.GeneratePaginatedLinks
+        var paginatedLinks = linkService.GeneratePaginatedLinks
         (
             new()
             {
@@ -168,53 +192,20 @@ public class BookingController(IBookingService bookingService, ILinkService urlS
         };
         bookingApiPaginatedResponse.Links = links;
 
-        var bookingApis = paginatedBookingDtoResponse.Bookings.Select(x =>
-            new BookingApi
-            {
-                Id = x.Id,
-                Name = x.Name,
-                BookingDate = x.BookingDate,
-                Flexibility = new()
-                {
-                    Id = x.Flexibility.Id,
-                    Description = x.Flexibility.Description
-                },
-                VehicleSize = new()
-                {
-                    Id = x.VehicleSize.Id,
-                    Description = x.VehicleSize.Description
-                },
-                ContactNumber = x.ContactNumber.Value,
-                Approved = x.Approved
-            }
-        ).ToList();
+        var bookingApis = paginatedBookingDtoResponse.Bookings.Select(x => BookingApi.MapToBookingApi(x, includeCustomer)).ToList();
 
         bookingApis.ForEach(b =>
         {
-            b.Flexibility.Link = new()
-            {
-                Self = new()
-                {
-                    Href = urlService.GenerateSelf(new() { Request = Request, Path = "flexibilities", Id = b.Flexibility.Id })
-                }
-            };
-            b.VehicleSize.Link = new()
-            {
-                Self = new()
-                {
-                    Href = urlService.GenerateSelf(new() { Request = Request, Path = "vehicleSizes", Id = b.VehicleSize.Id })
-                }
-            };
             b.Link = new()
             {
                 Self = new()
                 {
-                    Href = urlService.GenerateSelf(new() { Request = Request, Id = b.Id })
+                    Href = linkService.GenerateSelf(new() { Request = Request, Id = b.Id })
                 }
             };
         });
 
         bookingApiPaginatedResponse.Bookings = bookingApis;
-        return StatusCode((int)HttpStatusCode.OK, bookingApiPaginatedResponse);
+        return Ok(bookingApiPaginatedResponse);
     }
 }

@@ -54,7 +54,7 @@ public class VehicleSizeControllerTests
                         new()
                         {
                             Id = _mockVehicleSizeId,
-                            Description = "description",
+                            Name = "description",
                             Active = true
                         }
                     ]

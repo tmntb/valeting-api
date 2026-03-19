@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Api.SwaggerDocumentation.Document;
@@ -40,18 +40,18 @@ public class UserDocumentFilter : IDocumentFilter
         swaggerDoc.Tags.Add(new OpenApiTag() { Name = "User", Description = "User operations" });
 
         var userLoginPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserLoginEndpoint).Value;
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.OperationId = "post-login-user";
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Summary = "Validates user credentials";
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Description = "Returns an access token for the **User**";
+        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-login-user";
+        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Validates user credentials";
+        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Returns an access token for the **User**";
 
         var userRegisterPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserRegisterEndpoint).Value;
-        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.OperationId= "post-register-user";
-        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Summary = "Register a new user";
-        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Description = string.Empty;
+        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId= "post-register-user";
+        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Register a new user";
+        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = string.Empty;
 
         var userRefreshTokenPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserRefreshTokenEndpoint).Value;
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.OperationId= "post-refresh-token-user";
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Summary = "Refresh the token for valid user";
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == OperationType.Post).Value.Description = "Returns a refreshed access token for the **User**";
+        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId= "post-refresh-token-user";
+        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Refresh the token for valid user";
+        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Returns a refreshed access token for the **User**";
     }
 }

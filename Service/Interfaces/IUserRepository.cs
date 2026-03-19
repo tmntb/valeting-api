@@ -17,4 +17,11 @@ public interface IUserRepository
     /// <param name="userDto">The user data to be registered.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     Task RegisterAsync(UserDto userDto);
+
+    /// <summary>
+    /// Updates an existing user's information in the database.
+    /// </summary>
+    /// <param name="userDto">The user data to be updated.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task UpdateAsync(UserDto userDto);
 }

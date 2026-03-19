@@ -14,34 +14,48 @@ public partial class ReferenceData : Migration
     {
         migrationBuilder.InsertData(
             table: "RD_VehicleSize",
-            columns: ["Id", "Description", "Active"],
+            columns: ["Id", "Code", "Name", "Active"],
             values: new object[,]
             {
-                    { "7536b1e6-a5eb-4156-931f-2562f4917000", "Small", true },
-                    { "b1c0d62b-b422-4db2-a038-5d1048bd90c9", "Medium", true },
-                    { "995cc987-395e-40d9-a8c3-e9070c8fd1c8", "Large", true },
-                    { "e8220d6e-2aa6-4183-bd55-820e0e1635b3", "Van", true }
+                    { "7536b1e6-a5eb-4156-931f-2562f4917000", VehicleSizeEnum.MOTORCYCLE.ToString(), "Motorcycle", true },
+                    { "b1c0d62b-b422-4db2-a038-5d1048bd90c9", VehicleSizeEnum.SEDAN.ToString(), "Sedan", true },
+                    { "995cc987-395e-40d9-a8c3-e9070c8fd1c8", VehicleSizeEnum.SUV.ToString(), "Suv", true },
+                    { "e8220d6e-2aa6-4183-bd55-820e0e1635b3", VehicleSizeEnum.VAN.ToString(), "Van", true }
             }
         );
 
         migrationBuilder.InsertData(
             table: "RD_Flexibility",
-            columns: ["Id", "Description", "Active"],
+            columns: ["Id", "Code", "Name", "NumberOfMinutes", "Active"],
             values: new object[,]
             {
-                    { "5afb5192-45f3-418d-8a48-bbecdeedd9e9", "+/- 1 Day", true },
-                    { "e3cff703-3cd2-4253-999d-8230b8a550e2", "+/- 2 Days", true },
-                    { "2209acff-4bad-4e6e-9262-5d7ede5bef81", "+/- 3 Days", true },
+                    { "5afb5192-45f3-418d-8a48-bbecdeedd9e9", FlexibilityEnum.FLEX_1D.ToString(), "1 Day", 1440, true },
+                    { "e3cff703-3cd2-4253-999d-8230b8a550e2", FlexibilityEnum.FLEX_2D.ToString(), "2 Days", 2880, true },
+                    { "2209acff-4bad-4e6e-9262-5d7ede5bef81", FlexibilityEnum.FLEX_3D.ToString(), "3 Days", 4320, true },
             }
         );
 
         migrationBuilder.InsertData(
             table: "RD_Role",
-            columns: ["Id", "Name"],
+            columns: ["Id", "Code", "Name", "Active"],
             values: new object[,]
             {
-                    { "1e3f5c6d-8b6f-4d2a-9f4e-1c2b3a4d5e6f", RoleEnum.Admin.ToString() },
-                    { "2f4e6d7c-9a8b-4c3d-0e1f-2a3b4c5d6e7f", RoleEnum.User.ToString() }
+                    { "1e3f5c6d-8b6f-4d2a-9f4e-1c2b3a4d5e6f", RoleEnum.ADMIN.ToString(), "Admin", true },
+                    { "2f4e6d7c-9a8b-4c3d-0e1f-2a3b4c5d6e7f", RoleEnum.USER.ToString(), "User", true }
+            }
+        );
+
+        migrationBuilder.InsertData(
+            table: "RD_Status",
+            columns: ["Id", "Code", "Name", "Active"],
+            values: new object[,]
+            {
+                    { "b2c3d4e5-f678-4890-1234-567890abcdef", StatusEnum.APPROVED.ToString(), "Approved", true },
+                    { "35bcbbfa-98e2-444b-a337-09db4541913c", StatusEnum.CANCELLED.ToString(), "Cancelled", true },
+                    { "d4e5f678-9012-3456-7890-abcdef123456", StatusEnum.COMPLETED.ToString(), "Completed", true },
+                    { "a1b2c3d4-e5f6-4789-9012-34567890abcd", StatusEnum.PENDING_APPROVAL.ToString(), "Pending Approval", true },
+                    { "c3d4e5f6-7890-4901-2345-67890abcdef1", StatusEnum.REJECTED.ToString(), "Rejected", true },
+                    { "e5f67890-1234-5678-9012-34567890abc2", StatusEnum.EXPIRED.ToString(), "Expired", true }
             }
         );
     }
@@ -65,6 +79,12 @@ public partial class ReferenceData : Migration
             table: "RD_Role",
             keyColumn: "Id",
             keyValues: ["1e3f5c6d-8b6f-4d2a-9f4e-1c2b3a4d5e6f", "2f4e6d7c-9a8b-4c3d-0e1f-2a3b4c5d6e7f"]
+        );
+
+        migrationBuilder.DeleteData(
+            table: "RD_Status",
+            keyColumn: "Id",
+            keyValues: ["b2c3d4e5-f678-4890-1234-567890abcdef", "35bcbbfa-98e2-444b-a337-09db4541913c", "d4e5f678-9012-3456-7890-abcdef123456", "a1b2c3d4-e5f6-4789-9012-34567890abcd", "c3d4e5f6-7890-4901-2345-67890abcdef1", "e5f67890-1234-5678-9012-34567890abc2"]
         );
     }
 }

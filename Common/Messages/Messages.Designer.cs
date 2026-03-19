@@ -126,9 +126,18 @@ namespace Common.Messages {
         /// <summary>
         ///   Looks up a localized string similar to Username is already taken..
         /// </summary>
-        public static string UsernameInUse {
+        public static string EmailInUse {
             get {
-                return ResourceManager.GetString("UsernameInUse", resourceCulture);
+                return ResourceManager.GetString("EmailInUse", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The booking status provided is not valid for update details..
+        /// </summary>
+        public static string InvalidBookingStatusForUpdate {
+            get {
+                return ResourceManager.GetString("InvalidBookingStatusForUpdate", resourceCulture);
             }
         }
     }

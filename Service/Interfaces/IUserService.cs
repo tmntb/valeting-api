@@ -35,7 +35,7 @@ public interface IUserService
     /// Validates a JWT token and extracts the username claim.
     /// </summary>
     /// <param name="token">The JWT token to validate.</param>
-    /// <returns>The username extracted from the token's claims.</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown if the token is invalid, expired, or does not contain a username claim.</exception>
+    /// <returns>The email extracted from the token's claims.</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown if the token is invalid, expired, or does not contain a email claim.</exception>
     string ValidateToken(string token);
 }

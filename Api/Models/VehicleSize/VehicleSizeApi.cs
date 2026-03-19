@@ -15,7 +15,7 @@ public class VehicleSizeApi
     /// <summary>
     /// The description of the vehicle size (e.g., Small, Medium, Large).
     /// </summary>
-    public string Description { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Indicates whether the vehicle size is active.

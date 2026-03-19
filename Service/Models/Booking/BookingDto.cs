@@ -1,4 +1,6 @@
 ﻿using Service.Models.Flexibility;
+using Service.Models.Status;
+using Service.Models.User;
 using Service.Models.VehicleSize;
 
 namespace Service.Models.Booking;
@@ -14,37 +16,62 @@ public class BookingDto
     public Guid Id { get; set; }
 
     /// <summary>
-    /// The name of the person who made the booking.
+    /// The reference of the booking.
     /// </summary>
-    public string Name { get; set; }
+    public string Reference { get; set; }
 
     /// <summary>
-    /// The date and time of the booking.
+    /// The customer associated with the booking.
     /// </summary>
-    public DateTime BookingDate { get; set; }
+    public UserDto Customer { get; set; }
 
     /// <summary>
     /// The flexibility option associated with the booking.
     /// </summary>
-    public FlexibilityDto Flexibility { get; set; } = new();
+    public FlexibilityDto Flexibility { get; set; }
 
     /// <summary>
     /// The vehicle size associated with the booking.
     /// </summary>
-    public VehicleSizeDto VehicleSize { get; set; } = new();
+    public VehicleSizeDto VehicleSize { get; set; }
 
     /// <summary>
-    /// The contact number of the person who made the booking.
+    /// The date and time of the booking.
     /// </summary>
-    public int? ContactNumber { get; set; }
+    public DateTime ScheduledAt { get; set; }
 
     /// <summary>
-    /// The email of the person who made the booking.
+    /// The status of the booking.
     /// </summary>
-    public string Email { get; set; }
+    public StatusDto Status { get; set; }
+
+    /// <summary>
+    /// The date and time when the booking was created.
+    /// </summary>
+    public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// The date and time when the booking was last updated.
+    /// </summary>
+    public DateTime? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// The date and time when the booking decision was made.
+    /// </summary>
+    public DateTime? DecisionAt { get; set; }
+
+    /// <summary>
+    /// The user who made the decision on the booking.
+    /// </summary>
+    public UserDto? Decision { get; set; }
 
     /// <summary>
     /// Indicates whether the booking has been approved.
     /// </summary>
-    public bool? Approved { get; set; }
+    public bool RequiresApproval { get; set; }
+
+    /// <summary>
+    /// Any additional notes for the booking.
+    /// </summary>
+    public string Notes { get; set; }
 }

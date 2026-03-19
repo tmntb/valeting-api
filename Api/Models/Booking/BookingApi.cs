@@ -1,5 +1,8 @@
 ﻿using Api.Models.Flexibility;
+using Api.Models.Status;
+using Api.Models.User;
 using Api.Models.VehicleSize;
+using Service.Models.Booking;
 using System.Text.Json.Serialization;
 
 namespace Api.Models.Booking;
@@ -15,14 +18,14 @@ public class BookingApi
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Name associated with the booking.
+    /// Reference associated with the booking.
     /// </summary>
-    public string Name { get; set; }
+    public string Reference { get; set; }
 
     /// <summary>
-    /// Date and time of the booking.
+    /// Customer who made the booking.
     /// </summary>
-    public DateTime BookingDate { get; set; }
+    public UserApi Customer { get; set; }
 
     /// <summary>
     /// Flexibility option for the booking.
@@ -35,23 +38,93 @@ public class BookingApi
     public VehicleSizeApi VehicleSize { get; set; }
 
     /// <summary>
-    /// Contact number provided for the booking.
+    /// Date and time of the booking.
     /// </summary>
-    public int ContactNumber { get; set; }
+    public DateTime ScheduledAt { get; set; }
 
     /// <summary>
-    /// Email address provided for the booking.
+    /// Current status of the booking.
     /// </summary>
-    public string Email { get; set; }
+    public StatusApi Status { get; set; }
 
     /// <summary>
-    /// Indicating whether the booking has been approved.
+    /// Timestamp when the booking was created.
     /// </summary>
-    public bool? Approved { get; set; }
+    public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// Timestamp when the booking was last updated.
+    /// </summary>
+    public DateTime? UpdatedAt { get; set; }
+
+    /// <summary>
+    /// Indicates whether the booking has been decided.
+    /// </summary>
+    public DateTime? DecisionAt { get; set; }
+
+    /// <summary>
+    /// Foreign key referencing the user who decided the booking.
+    /// </summary>
+    public UserApi? DecisionBy { get; set; }
+
+    /// <summary>
+    /// Indicates whether the booking requires approval.
+    /// </summary>
+    public bool RequiresApproval { get; set; }
+
+    /// <summary>
+    /// Additional notes or comments related to the booking.
+    /// </summary>
+    public string? Notes { get; set; }
 
     /// <summary>
     /// HATEOAS link for the booking resource.
     /// </summary>
     [JsonPropertyName("_link")]
     public BookingApiLink Link { get; set; }
+
+    /// <summary>
+    /// Maps a BookingDto to a BookingApi model.
+    /// </summary>
+    internal static BookingApi MapToBookingApi(BookingDto bookingDto, bool includeCustomer = true)
+    {
+        return new BookingApi
+        {
+            Id = bookingDto.Id,
+            Reference = bookingDto.Reference,
+            Customer = includeCustomer ? new()
+            {
+                Username = bookingDto.Customer.Username,
+                ContactNumber = bookingDto.Customer.ContactNumber,
+                Email = bookingDto.Customer.Email
+            } : null,
+            Flexibility = new()
+            {
+                Name = bookingDto.Flexibility.Name
+            },
+            VehicleSize = new()
+            {
+                Name = bookingDto.VehicleSize.Name
+            },
+            ScheduledAt = bookingDto.ScheduledAt,
+            Status = new()
+            {
+                Name = bookingDto.Status.Name
+            },
+            CreatedAt = bookingDto.CreatedAt,
+            UpdatedAt = bookingDto.UpdatedAt,
+            DecisionAt = bookingDto.DecisionAt,
+            DecisionBy = bookingDto.Decision != null ? new()
+            {
+                Username = bookingDto.Decision.Username,
+                Email = bookingDto.Decision.Email,
+                Role = new()
+                {
+                    Name = bookingDto.Decision.Role.Name
+                }
+            } : null,
+            RequiresApproval = bookingDto.RequiresApproval,
+            Notes = bookingDto.Notes
+        };
+    }
 }

@@ -13,12 +13,12 @@ public class ValidateLoginValidatorTests
     }
 
     [Fact]
-    public void Username_Null_ShouldFail() 
+    public void Email_Null_ShouldFail() 
     {
         // Arrange
         var request = new ValidateLoginDtoRequest
         {
-            Username = null,
+            Email = null,
         };
 
         // Act
@@ -26,16 +26,16 @@ public class ValidateLoginValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains("Username", result.Errors.FirstOrDefault().ErrorMessage);
+        Assert.Contains("Email", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
     [Fact]
-    public void Username_Empty_ShouldFail() 
+    public void Email_Empty_ShouldFail() 
     {
         // Arrange
         var request = new ValidateLoginDtoRequest
         {
-            Username = string.Empty,
+            Email = string.Empty,
         };
 
         // Act
@@ -43,7 +43,7 @@ public class ValidateLoginValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains("Username", result.Errors.FirstOrDefault().ErrorMessage);
+        Assert.Contains("Email", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class ValidateLoginValidatorTests
         // Arrange
         var request = new ValidateLoginDtoRequest
         {
-            Username = "username",
+            Email = "user@example.com",
             Password = null
         };
 
@@ -70,7 +70,7 @@ public class ValidateLoginValidatorTests
         // Arrange
         var request = new ValidateLoginDtoRequest
         {
-            Username = "username",
+            Email = "user@example.com",
             Password = string.Empty
         };
 
@@ -88,7 +88,7 @@ public class ValidateLoginValidatorTests
         // Arrange
         var request = new ValidateLoginDtoRequest
         {
-            Username = "username",
+            Email = "user@example.com",
             Password = "password"
         };
 

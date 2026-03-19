@@ -10,13 +10,6 @@ public abstract class UserBaseController : ControllerBase
     /// <summary>
     /// Authenticates a user and generates a JWT access token.
     /// </summary>
-    /// <remarks>
-    /// This endpoint validates the provided user credentials and, if successful,  
-    /// returns a JSON Web Token (JWT) that can be used to authorize subsequent API requests.  
-    /// If the username or password is invalid, a <c>401 Unauthorized</c> is returned.  
-    /// Validation errors or missing required fields result in a <c>400 Bad Request</c>.  
-    /// Unexpected server errors result in a <c>500 Internal Server Error</c>.
-    /// </remarks>
     /// <param name="loginApiRequest">The login credentials (username and password) of the user.</param>
     /// <response code="200">Returns a JWT access token and related metadata.</response>
     /// <response code="400">Returned when the request body is invalid or missing required fields.</response>
@@ -33,12 +26,6 @@ public abstract class UserBaseController : ControllerBase
     /// <summary>
     /// Refreshes the user JWT access token.
     /// </summary>
-    /// <remarks>
-    /// This endpoint validates the provided JWT token and, if valid, issues a new one.  
-    /// If the token is expired beyond the allowed refresh window or invalid, a <c>401 Unauthorized</c> is returned.  
-    /// Missing or invalid fields result in a <c>400 Bad Request</c>.  
-    /// Unexpected server errors result in a <c>500 Internal Server Error</c>.
-    /// </remarks>
     /// <param name="refreshTokenApiRequest">The request containing the current JWT token.</param>
     /// <response code="200">Returns a newly generated JWT token.</response>
     /// <response code="400">Returned when the request body is invalid or missing required fields.</response>
@@ -56,12 +43,6 @@ public abstract class UserBaseController : ControllerBase
     /// <summary>
     /// Registers a new user account.
     /// </summary>
-    /// <remarks>
-    /// This endpoint creates a new user with the provided credentials.  
-    /// The username must be unique; if it already exists, a <c>409 Conflict</c> is returned.  
-    /// Validation errors or missing required fields result in a <c>400 Bad Request</c>.  
-    /// Unexpected server errors result in a <c>500 Internal Server Error</c>.
-    /// </remarks>
     /// <param name="registerApiRequest">The registration information, including username and password.</param>
     /// <response code="200">Indicates that the user was successfully registered.</response>
     /// <response code="400">Returned when the request body is invalid or fails validation.</response>

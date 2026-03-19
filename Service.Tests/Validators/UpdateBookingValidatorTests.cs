@@ -31,13 +31,13 @@ public class UpdateBookingValidatorTests
     }
 
     [Fact]
-    public void Name_Null_ShouldFail()
+    public void ScheduledAt_MinValue_ShouldFail()
     {
         // Arrange
         var request = new BookingDto
         {
             Id = _mockId,
-            Name = null
+            ScheduledAt = DateTime.MinValue
         };
 
         // Act
@@ -45,17 +45,17 @@ public class UpdateBookingValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains("Name", result.Errors.FirstOrDefault().ErrorMessage);
+        Assert.Contains("Scheduled At", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
     [Fact]
-    public void Name_Empty_ShouldFail()
+    public void ScheduledAt_LessThanNow_ShouldFail()
     {
         // Arrange
         var request = new BookingDto
         {
             Id = _mockId,
-            Name = string.Empty
+            ScheduledAt = DateTime.Now.AddDays(-1)
         };
 
         // Act
@@ -63,107 +63,7 @@ public class UpdateBookingValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains("Name", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void Email_Null_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Id = _mockId,
-            Name = "name",
-            Email = null
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Email", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void Email_Empty_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Id = _mockId,
-            Name = "name",
-            Email = string.Empty
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Email", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void ContactNumber_Null_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Id = _mockId,
-            Name = "name",
-            Email = "email",
-            ContactNumber = null
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Contact Number", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void BookingDate_MinValue_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Id = _mockId,
-            Name = "name",
-            Email = "email",
-            ContactNumber = 123,
-            BookingDate = DateTime.MinValue
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Booking Date", result.Errors.FirstOrDefault().ErrorMessage);
-    }
-
-    [Fact]
-    public void BookingDate_LessThanNow_ShouldFail()
-    {
-        // Arrange
-        var request = new BookingDto
-        {
-            Id = _mockId,
-            Name = "name",
-            Email = "email",
-            ContactNumber = 123,
-            BookingDate = DateTime.Now.AddDays(-1)
-        };
-
-        // Act
-        var result = _validator.Validate(request);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Booking Date", result.Errors.FirstOrDefault().ErrorMessage);
+        Assert.Contains("Scheduled At", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
     [Fact]
@@ -173,10 +73,7 @@ public class UpdateBookingValidatorTests
         var request = new BookingDto
         {
             Id = _mockId,
-            Name = "name",
-            Email = "email",
-            ContactNumber = 123,
-            BookingDate = DateTime.Now,
+            ScheduledAt = DateTime.Now,
             Flexibility = new()
             {
                 Id = Guid.Empty
@@ -198,10 +95,7 @@ public class UpdateBookingValidatorTests
         var request = new BookingDto
         {
             Id = _mockId,
-            Name = "name",
-            Email = "email",
-            ContactNumber = 123,
-            BookingDate = DateTime.Now,
+            ScheduledAt = DateTime.Now,
             Flexibility = new()
             {
                 Id = _mockId
@@ -221,16 +115,40 @@ public class UpdateBookingValidatorTests
     }
 
     [Fact]
+    public void Notes_TooLong_ShouldFail()
+    {
+        // Arrange
+        var request = new BookingDto
+        {
+            Id = _mockId,
+            ScheduledAt = DateTime.Now,
+            Flexibility = new()
+            {
+                Id = _mockId
+            },
+            VehicleSize = new()
+            {
+                Id = _mockId
+            },
+            Notes = new string('a', 501)
+        };
+
+        // Act
+        var result = _validator.Validate(request);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains("Notes", result.Errors.FirstOrDefault().ErrorMessage);
+    }
+
+    [Fact]
     public void BookingDto_Valid()
     {
         // Arrange
         var request = new BookingDto
         {
             Id = _mockId,
-            Name = "name",
-            Email = "email",
-            ContactNumber = 123,
-            BookingDate = DateTime.Now,
+            ScheduledAt = DateTime.Now,
             Flexibility = new()
             {
                 Id = _mockId

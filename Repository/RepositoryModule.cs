@@ -24,10 +24,12 @@ public static class RepositoryModule
             )
         );
 
-        services.AddScoped<IBookingRepository, BookingRepository>();
-        services.AddScoped<IFlexibilityRepository, FlexibilityRepository>();
-        services.AddScoped<IVehicleSizeRepository, VehicleSizeRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
+        services
+            .AddScoped<IBookingRepository, BookingRepository>()
+            .AddScoped<IFlexibilityRepository, FlexibilityRepository>()
+            .AddScoped<IVehicleSizeRepository, VehicleSizeRepository>()
+            .AddScoped<IUserRepository, UserRepository>()
+            .AddScoped<IRoleRepository, RoleRepository>()
+            .AddScoped<IStatusRepository, StatusRepository>();
     }
 }

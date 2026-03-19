@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Service.Models.Flexibility.Payload;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 
 namespace Api.Controllers;
 
@@ -23,7 +22,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, ILink
         var flexibilityApi = new FlexibilityApi
         {
             Id = flexibilityDto.Id,
-            Description = flexibilityDto.Description,
+            Name = flexibilityDto.Name,
             Active = flexibilityDto.Active,
             Link = new()
             {
@@ -38,7 +37,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, ILink
         {
             Flexibility = flexibilityApi
         };
-        return StatusCode((int)HttpStatusCode.OK, flexibilityApiResponse);
+        return Ok(flexibilityApiResponse);
     }
 
     /// <inheritdoc />
@@ -90,7 +89,7 @@ public class FlexibilityController(IFlexibilityService flexibilityService, ILink
             new FlexibilityApi()
             {
                 Id = x.Id,
-                Description = x.Description,
+                Name = x.Name,
                 Active = x.Active
             }
         ).ToList();
@@ -106,6 +105,6 @@ public class FlexibilityController(IFlexibilityService flexibilityService, ILink
         );
 
         flexibilityApiPaginatedResponse.Flexibilities = flexibilityApis;
-        return StatusCode((int)HttpStatusCode.OK, flexibilityApiPaginatedResponse);
+        return Ok(flexibilityApiPaginatedResponse);
     }
 }

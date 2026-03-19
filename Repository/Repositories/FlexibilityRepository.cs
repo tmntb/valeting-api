@@ -18,7 +18,8 @@ public class FlexibilityRepository(ValetingContext valetingContext) : IFlexibili
         return new()
         {
             Id = rdFlexibility.Id,
-            Description = rdFlexibility.Description,
+            Name = rdFlexibility.Name,
+            NumberOfMinutes = rdFlexibility.NumberOfMinutes,
             Active = rdFlexibility.Active
         };
     }
@@ -35,7 +36,8 @@ public class FlexibilityRepository(ValetingContext valetingContext) : IFlexibili
             new FlexibilityDto
             {
                 Id = x.Id,
-                Description = x.Description,
+                Name = x.Name,
+                NumberOfMinutes = x.NumberOfMinutes,
                 Active = x.Active
             }
         ).ToList();

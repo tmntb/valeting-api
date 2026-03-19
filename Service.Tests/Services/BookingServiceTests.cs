@@ -1,306 +1,426 @@
-﻿using Common.Cache;
-using Common.Cache.Interfaces;
+﻿using Common.Enums;
 using Common.Messages;
+using FluentValidation;
 using Moq;
 using Service.Interfaces;
 using Service.Models.Booking;
 using Service.Models.Booking.Payload;
+using Service.Models.Status;
+using Service.Models.User;
 using Service.Services;
 
 namespace Service.Tests.Services;
 
 public class BookingServiceTests
 {
-    private readonly Mock<IBookingRepository> _mockBookingRepository;
-    private readonly Mock<ICacheHandler> _mockCacheHandler;
+    private readonly BookingDto _bookingDto;
+    private readonly StatusDto _statusDto;
+    private readonly UserDto _userDto;
 
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    private readonly Mock<IBookingRepository> _mockBookingRepository;
+    private readonly Mock<IStatusRepository> _mockStatusRepository;
     private readonly BookingService _bookingService;
 
     public BookingServiceTests()
     {
-        _mockBookingRepository = new Mock<IBookingRepository>();
-        _mockCacheHandler = new Mock<ICacheHandler>();
+        _bookingDto = DataFactory.CreateBookingDto();
+        _statusDto = DataFactory.CreateStatusDto();
+        _userDto = DataFactory.CreateUserDto();
 
-        _bookingService = new BookingService(_mockBookingRepository.Object, _mockCacheHandler.Object);
+        _mockBookingRepository = new Mock<IBookingRepository>();
+        _mockStatusRepository = new Mock<IStatusRepository>();
+
+        _bookingService = new BookingService(_mockBookingRepository.Object, _mockStatusRepository.Object);
     }
 
     [Fact]
-    public async Task CreateAsync_ShouldCreateBookingAndInvalidateCache()
+    public async Task CreateAsync_ShouldThrowValidationException_WhenRequestIsInvalid()
     {
         // Arrange
-        _mockBookingRepository.Setup(r => r.CreateAsync(It.IsAny<BookingDto>()))
-            .Returns(Task.CompletedTask);
+        var bookingDto = new BookingDto();
 
-        _mockCacheHandler.Setup(c => c.InvalidateCacheByListType(It.IsAny<CacheListType>()));
+        // Act & Assert
+        await Assert.ThrowsAsync<ValidationException>(() => _bookingService.CreateAsync(bookingDto));
+    }
+
+    [Fact]
+    public async Task CreateAsync_ShouldThrowKeyNotFoundException_WhenStatusDoesNotExist()
+    {
+        _mockStatusRepository
+            .Setup(r => r.GetByCodeAsync(It.IsAny<StatusEnum>()))
+            .ReturnsAsync((StatusDto)null)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _bookingService.CreateAsync(_bookingDto));
+        _mockStatusRepository.Verify();
+    }
+
+    [Fact]
+    public async Task CreateAsync_ShouldCreateBooking()
+    {
+        // Arrange
+        _mockBookingRepository
+            .Setup(r => r.CreateAsync(It.IsAny<BookingDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
+
+        _mockStatusRepository
+            .Setup(r => r.GetByCodeAsync(It.IsAny<StatusEnum>()))
+            .ReturnsAsync(_statusDto)
+            .Verifiable(Times.Once);
 
         // Act
-        var result = await _bookingService.CreateAsync(
-            new()
-            {
-                Name = "name",
-                BookingDate = DateTime.Now.AddDays(1),
-                ContactNumber = 123,
-                Email = "email",
-                Flexibility = new()
-                {
-                    Id = _mockId
-                },
-                VehicleSize = new()
-                {
-                    Id = _mockId
-                }
-            });
+        var result = await _bookingService.CreateAsync(_bookingDto);
 
         // Assert
         Assert.NotEqual(Guid.Empty, result);
 
-        _mockBookingRepository.Verify(r => r.CreateAsync(It.IsAny<BookingDto>()), Times.Once);
-        _mockCacheHandler.Verify(c => c.InvalidateCacheByListType(CacheListType.Booking), Times.Once);
+        _mockBookingRepository.Verify();
+        _mockStatusRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldThrowValidationException_WhenRequestIsInvalid()
+    {
+        // Arrange
+        var bookingDto = new BookingDto();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ValidationException>(() => _bookingService.UpdateAsync(bookingDto));
     }
 
     [Fact]
     public async Task UpdateAsync_ShouldThrowKeyNotFoundException_WhenBookingNotFound()
     {
         // Arrange
-        _mockBookingRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync((BookingDto)null);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(async () => await _bookingService.UpdateAsync(
-             new()
-             {
-                 Id = _mockId,
-                 Name = "name",
-                 BookingDate = DateTime.Now.AddDays(1),
-                 ContactNumber = 123,
-                 Email = "email",
-                 Flexibility = new()
-                 {
-                     Id = _mockId
-                 },
-                 VehicleSize = new()
-                 {
-                     Id = _mockId
-                 }
-             }));
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(async () => await _bookingService.UpdateAsync(_bookingDto));
 
         Assert.Equal(Messages.NotFound, exception.Message);
     }
 
     [Fact]
-    public async Task UpdateAsync_ShouldUpdateBookingAndInvalidateCache()
+    public async Task UpdateAsync_ShouldThrowInvalidOperationException_WhenBookingStatusIsNotPendingApproval()
     {
         // Arrange
-        _mockBookingRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(new BookingDto());
-
-        _mockBookingRepository.Setup(r => r.UpdateAsync(It.IsAny<BookingDto>()))
-            .Returns(Task.CompletedTask);
-
-        _mockCacheHandler.Setup(c => c.InvalidateCacheById(It.IsAny<Guid>()));
-        _mockCacheHandler.Setup(c => c.InvalidateCacheByListType(It.IsAny<CacheListType>()));
-
-        // Act
-        await _bookingService.UpdateAsync(
-            new()
-            {
-                Id = _mockId,
-                Name = "name",
-                BookingDate = DateTime.Now.AddDays(1),
-                ContactNumber = 123,
-                Email = "email",
-                Flexibility = new()
-                {
-                    Id = _mockId
-                },
-                VehicleSize = new()
-                {
-                    Id = _mockId
-                }
-            });
-
-        // Assert
-        _mockBookingRepository.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
-        _mockBookingRepository.Verify(r => r.UpdateAsync(It.IsAny<BookingDto>()), Times.Once);
-        _mockCacheHandler.Verify(c => c.InvalidateCacheById(It.IsAny<Guid>()), Times.Once);
-        _mockCacheHandler.Verify(c => c.InvalidateCacheByListType(CacheListType.Booking), Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteAsync_ShouldThrowKeyNotFoundException_WhenBookingNotFound()
-    {
-        // Arrange
-        _mockBookingRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((BookingDto)null);
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(DataFactory.CreateBookingDto(statusEnum: StatusEnum.APPROVED))
+            .Verifiable(Times.Once);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(async () => await _bookingService.DeleteAsync(_mockId));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await _bookingService.UpdateAsync(_bookingDto));
+        _mockBookingRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldUpdateBooking()
+    {
+        // Arrange
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_bookingDto)
+            .Verifiable(Times.Once);
+
+        _mockBookingRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<BookingDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
+
+        // Act
+        await _bookingService.UpdateAsync(_bookingDto);
+
+        // Assert
+        _mockBookingRepository.Verify();
+        _mockBookingRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateStatusAsync_ShouldThrowKeyNotFoundException_WhenBookingNotFound()
+    {
+        // Arrange
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((BookingDto)null)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(async () => await _bookingService.UpdateStatusAsync(new()));
+        _mockBookingRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateStatusAsync_ShouldThrowKeyNotFoundException_WhenStatusNotFound()
+    {
+        // Arrange
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_bookingDto)
+            .Verifiable(Times.Once);
+
+        _mockStatusRepository
+            .Setup(r => r.GetByCodeAsync(It.IsAny<StatusEnum>()))
+            .ReturnsAsync((StatusDto)null)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(async () => await _bookingService.UpdateStatusAsync(new()));
 
         Assert.Equal(Messages.NotFound, exception.Message);
+        _mockBookingRepository.Verify();
+        _mockStatusRepository.Verify();
     }
 
     [Fact]
-    public async Task DeleteAsync_ShouldDeleteBookingAndInvalidateCache()
+    public async Task UpdateStatusAsync_ShouldThrowValidationException_WhenRequestIsInvalid()
     {
         // Arrange
-        _mockBookingRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(new BookingDto());
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_bookingDto)
+            .Verifiable(Times.Once);
 
-        _mockBookingRepository.Setup(r => r.DeleteAsync(It.IsAny<Guid>()))
-            .Returns(Task.CompletedTask);
+        _mockStatusRepository
+            .Setup(r => r.GetByCodeAsync(It.IsAny<StatusEnum>()))
+            .ReturnsAsync(_statusDto)
+            .Verifiable(Times.Once);
 
-        _mockCacheHandler.Setup(c => c.InvalidateCacheById(It.IsAny<Guid>()));
-        _mockCacheHandler.Setup(c => c.InvalidateCacheByListType(It.IsAny<CacheListType>()));
-
-        // Act
-        await _bookingService.DeleteAsync(_mockId);
-
-        // Assert
-        _mockBookingRepository.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
-        _mockBookingRepository.Verify(r => r.DeleteAsync(It.IsAny<Guid>()), Times.Once);
-        _mockCacheHandler.Verify(c => c.InvalidateCacheById(It.IsAny<Guid>()), Times.Once);
-        _mockCacheHandler.Verify(c => c.InvalidateCacheByListType(CacheListType.Booking), Times.Once);
+        // Act & Assert
+        await Assert.ThrowsAsync<ValidationException>(async () => await _bookingService.UpdateStatusAsync(new()
+        {
+            UserDto = _userDto
+        }));
+        _mockBookingRepository.Verify();
+        _mockStatusRepository.Verify();
     }
 
-    [Fact]
-    public async Task GetByIdAsync_ShouldReturnCachedData()
+    [Theory]
+    [InlineData(StatusEnum.APPROVED)]
+    [InlineData(StatusEnum.REJECTED)]
+    public async Task UpdateStatusAsync_ShouldUpdateStatus_And_UpdateDecison(StatusEnum statusEnum)
     {
         // Arrange
-        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<BookingDto>>>(), It.IsAny<CacheOptions>()))
-            .ReturnsAsync(
-                new BookingDto
-                {
-                    Id = _mockId
-                });
+        _mockBookingRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_bookingDto)
+            .Verifiable(Times.Once);
+
+        _mockStatusRepository
+            .Setup(r => r.GetByCodeAsync(It.IsAny<StatusEnum>()))
+            .ReturnsAsync(_statusDto)
+            .Verifiable(Times.Once);
+
+        _mockBookingRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<BookingDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
 
         // Act
-        var result = await _bookingService.GetByIdAsync(_mockId);
+        await _bookingService.UpdateStatusAsync(new()
+        {
+            Id = _bookingDto.Id,
+            Status = statusEnum,
+            UserDto = DataFactory.CreateUserDto(roleEnum: RoleEnum.ADMIN)
+        });
 
         // Assert
-        Assert.NotNull(result);
-        Assert.NotNull(result);
-        Assert.Equal(_mockId, result.Id);
+        _mockBookingRepository.Verify();
+        _mockStatusRepository.Verify();
     }
 
     [Fact]
     public async Task GetByIdAsync_ShouldThrowKeyNotFoundException_WhenNoBookingFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<BookingDto>>>(), It.IsAny<CacheOptions>()))
-            .Returns((Guid _, Func<Task<BookingDto>> factory, CacheOptions __) => factory());
-
-        _mockBookingRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((BookingDto)null);
+        _mockBookingRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((BookingDto)null)
+            .Verifiable(Times.Once);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _bookingService.GetByIdAsync(_mockId));
-
-        Assert.Equal(exception.Message, Messages.NotFound);
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _bookingService.GetByIdAsync(_bookingDto.Id));
+        _mockBookingRepository.Verify();
     }
 
     [Fact]
-    public async Task GetByIdAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
+    public async Task GetByIdAsync__ShouldReturnPaginatedData_WhenBookingIsNotCompletedOrExpired()
     {
         // Arrange
-        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<BookingDto>>>(), It.IsAny<CacheOptions>()))
-             .Returns((Guid _, Func<Task<BookingDto>> factory, CacheOptions __) => factory());
-
-        _mockBookingRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(
-                new BookingDto
-                {
-                    Id = _mockId
-                });
+        _mockBookingRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_bookingDto)
+            .Verifiable(Times.Once);
 
         // Act
-        var result = await _bookingService.GetByIdAsync(_mockId);
+        var result = await _bookingService.GetByIdAsync(_bookingDto.Id);
 
         // Assert
         Assert.NotNull(result);
-        Assert.NotNull(result);
-        Assert.Equal(_mockId, result.Id);
+        Assert.Equal(_bookingDto.Id, result.Id);
+        Assert.Equal(_bookingDto.Status.Code, result.Status.Code);
+        Assert.Null(result.UpdatedAt);
+        Assert.True(result.RequiresApproval);
+        _mockBookingRepository.Verify();
     }
 
     [Fact]
-    public async Task GetFilteredAsync_Should_ReturnPaginatedBookings()
+    public async Task GetByIdAsync__ShouldReturnPaginatedData_WhenBookingIsCompleted()
     {
         // Arrange
-        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<BookingFilterDto>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
-            .ReturnsAsync(
-                new BookingPaginatedDtoResponse
-                {
-                    Bookings =
-                    [
-                        new(),
-                        new()
-                    ],
-                    TotalItems = 2,
-                    TotalPages = 1
-                });
+        var bookingDto = DataFactory.CreateBookingDto(statusEnum: StatusEnum.APPROVED, scheduledAt: DateTime.UtcNow.AddDays(-2));
+
+        _mockBookingRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(bookingDto)
+            .Verifiable(Times.Once);
+
+        _mockStatusRepository
+            .Setup(repo => repo.GetByCodeAsync(It.IsAny<StatusEnum>()))
+            .ReturnsAsync(DataFactory.CreateStatusDto(statusEnum: StatusEnum.COMPLETED))
+            .Verifiable(Times.Once);
+
+        _mockBookingRepository
+            .Setup(repo => repo.UpdateAsync(It.IsAny<BookingDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
 
         // Act
-        var result = await _bookingService.GetFilteredAsync(
+        var result = await _bookingService.GetByIdAsync(bookingDto.Id);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(bookingDto.Id, result.Id);
+        Assert.Equal(StatusEnum.COMPLETED, result.Status.Code);
+        Assert.NotNull(result.UpdatedAt);
+        Assert.False(result.RequiresApproval);
+        _mockBookingRepository.Verify();
+        _mockStatusRepository.Verify();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync__ShouldReturnPaginatedData_WhenBookingIsExpired()
+    {
+        // Arrange
+        var bookingDto = DataFactory.CreateBookingDto(statusEnum: StatusEnum.PENDING_APPROVAL, scheduledAt: DateTime.UtcNow.AddDays(-1));
+
+        _mockBookingRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(bookingDto)
+            .Verifiable(Times.Once);
+
+        _mockStatusRepository
+            .Setup(repo => repo.GetByCodeAsync(It.IsAny<StatusEnum>()))
+            .ReturnsAsync(DataFactory.CreateStatusDto(statusEnum: StatusEnum.EXPIRED))
+            .Verifiable(Times.Once);
+
+        _mockBookingRepository
+            .Setup(repo => repo.UpdateAsync(It.IsAny<BookingDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
+
+        // Act
+        var result = await _bookingService.GetByIdAsync(bookingDto.Id);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(bookingDto.Id, result.Id);
+        Assert.Equal(StatusEnum.EXPIRED, result.Status.Code);
+        Assert.NotNull(result.UpdatedAt);
+        Assert.False(result.RequiresApproval);
+        _mockBookingRepository.Verify();
+        _mockStatusRepository.Verify();
+    }
+
+    [Fact]
+    public async Task GetCustomerFilteredAsync_ShouldThrowKeyNotFoundException_WhenNoBookingFound()
+    {
+        // Arrange
+        _mockBookingRepository
+            .Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
+            .ReturnsAsync([])
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _bookingService.GetCustomerFilteredAsync(new()
+        {
+            PageNumber = 1,
+            PageSize = 10
+        }));
+
+        _mockBookingRepository.Verify();
+    }
+
+    [Fact]
+    public async Task GetCustomerFilteredAsync_ShouldReturnPaginatedData_WhenBookingFound()
+    {
+        // Arrange
+        _mockBookingRepository
+            .Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
+            .ReturnsAsync([_bookingDto])
+            .Verifiable(Times.Once);
+
+        // Act
+        var result = await _bookingService.GetCustomerFilteredAsync(
             new()
             {
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
+                CustomerId = _userDto.Id
             });
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.TotalItems);
-        Assert.Equal(1, result.TotalPages);
-        _mockBookingRepository.Verify(x => x.GetFilteredAsync(It.IsAny<BookingFilterDto>()), Times.Never);
+        Assert.Single(result.Bookings);
+        Assert.Equal(_bookingDto.Id, result.Bookings.First().Id);
+        _mockBookingRepository.Verify();
     }
 
     [Fact]
     public async Task GetFilteredAsync_ShouldThrowKeyNotFoundException_WhenNoBookingFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<BookingFilterDto>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
-            .Returns((BookingFilterDto _, Func<Task<BookingPaginatedDtoResponse>> factory, CacheOptions __) => factory());
-
-        _mockBookingRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
-            .ReturnsAsync(new List<BookingDto>());
+        _mockBookingRepository
+            .Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
+            .ReturnsAsync([])
+            .Verifiable(Times.Once);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _bookingService.GetFilteredAsync(
-            new()
-            {
-                PageNumber = 1,
-                PageSize = 10
-            }));
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _bookingService.GetFilteredAsync(new()
+        {
+            PageNumber = 1,
+            PageSize = 10
+        }));
 
-        Assert.Equal(exception.Message, Messages.NotFound);
+        _mockBookingRepository.Verify();
     }
 
     [Fact]
-    public async Task GetFilteredAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
+    public async Task GetFilteredAsync_ShouldReturnPaginatedData_WhenBookingFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<BookingFilterDto>(), It.IsAny<Func<Task<BookingPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
-            .Returns((BookingFilterDto _, Func<Task<BookingPaginatedDtoResponse>> factory, CacheOptions __) => factory());
-
-        _mockBookingRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
-           .ReturnsAsync(
-                [
-                    new(),
-                    new(),
-                    new()
-                ]);
+        _mockBookingRepository
+            .Setup(repo => repo.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
+            .ReturnsAsync([_bookingDto])
+            .Verifiable(Times.Once);
 
         // Act
         var result = await _bookingService.GetFilteredAsync(
             new()
             {
                 PageNumber = 1,
-                PageSize = 2
+                PageSize = 10,
+                Status = StatusEnum.PENDING_APPROVAL
             });
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Bookings.Count);
-        Assert.Equal(3, result.TotalItems);
-        Assert.Equal(2, result.TotalPages);
+        Assert.Single(result.Bookings);
+        Assert.Equal(_bookingDto.Id, result.Bookings.First().Id);
+        _mockBookingRepository.Verify();
     }
 }

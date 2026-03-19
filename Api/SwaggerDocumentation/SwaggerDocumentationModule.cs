@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Api.SwaggerDocumentation.Document;
 using Api.SwaggerDocumentation.Parameter;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Api.SwaggerDocumentation;
 
@@ -36,7 +36,7 @@ public static class SwaggerDocumentationExtensions
             c.AddServer(new() { Description = "Local", Url = "https://localhost:44376/valeting" });
             c.AddServer(new() { Description = "Docker", Url = "https://localhost:8080/valeting" });
 
-            c.AddSecurityDefinition("Bearer", new()
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
             {
                 Name = "Authorization",
                 Type = SecuritySchemeType.ApiKey,
@@ -45,19 +45,10 @@ public static class SwaggerDocumentationExtensions
                 In = ParameterLocation.Header,
                 Description = "JWT Authorization header using the Bearer scheme.\r\n\r\nEnter 'Bearer' [space] and then your token.\r\nExample: \"Bearer 12345abcdef\""
             });
-            c.AddSecurityRequirement(new()
+
+            c.AddSecurityRequirement((document) => new OpenApiSecurityRequirement()
             {
-                {
-                    new()
-                    {
-                        Reference = new()
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
-                }
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
             });
 
             c.DocumentFilter<BookingDocumentFilter>();

@@ -35,43 +35,66 @@ public class BaseRepositoryTest : IAsyncLifetime
     {
         var flexibility = new RdFlexibility
         {
-            Id = Guid.Parse("00000000-0000-0000-0000-000000000021"),
-            Description = "1 day",
+            Id = DataFactory.FLEXIBILITY_ID,
+            Name = "1 day",
+            Code = FlexibilityEnum.FLEX_1D,
+            NumberOfMinutes = 1440,
             Active = true
         };
 
         var vehicleSize = new RdVehicleSize
         {
-            Id = Guid.Parse("00000000-0000-0000-0000-000000000031"),
-            Description = "Small",
+            Id = DataFactory.VEHICLE_SIZE_ID,
+            Code = VehicleSizeEnum.SUV,
+            Name = "SUV",
             Active = true
         };
 
         var role = new RdRole
         {
-            Id = Guid.Parse("00000000-0000-0000-0000-000000000051"),
-            Name = RoleEnum.User
+            Id = DataFactory.ROLE_ID,
+            Name = "User",
+            Code = RoleEnum.USER,
+            Active = true
         };
 
         var user = new ApplicationUser
         {
-            Id = Guid.Parse("00000000-0000-0000-0000-000000000041"),
+            Id = DataFactory.USER_ID,
             Username = "username",
-            Password = "password",
+            PasswordHash = "password",
+            ContactNumber = 1234567890,
+            Email = "test@example.com",
             Role = role,
-            IsActive = true
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.MinValue,
+            LastLoginAt = DateTime.MinValue
+        };
+
+        var status = new RdStatus
+        {
+            Id = DataFactory.STATUS_ID,
+            Code = StatusEnum.PENDING_APPROVAL,
+            Name = "Pending",
+            Active = true
         };
 
         var booking = new Booking
         {
             Id = Guid.Parse("00000000-0000-0000-0000-000000000011"),
-            Name = "name",
-            BookingDate = DateTime.UtcNow,
-            ContactNumber = 123,
-            Email = "email",
-            Approved = false,
+            Reference = "name",
+            Customer = user,
             Flexibility = flexibility,
-            VehicleSize = vehicleSize
+            VehicleSize = vehicleSize,
+            ScheduledAt = DateTime.UtcNow,
+            Status = status,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.MinValue,
+            DecisionAt = DateTime.MinValue,
+            DecisionBy = null,
+            RequiresApproval = false,
+            Notes = "notes"
         };
 
         Context.Bookings.Add(booking);
@@ -79,6 +102,7 @@ public class BaseRepositoryTest : IAsyncLifetime
         Context.RdVehicleSizes.Add(vehicleSize);
         Context.ApplicationUsers.Add(user);
         Context.RdRoles.Add(role);
+        Context.RdStatus.Add(status);
 
         await Context.SaveChangesAsync();
     }
