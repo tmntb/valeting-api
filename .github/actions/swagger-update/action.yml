@@ -57,8 +57,8 @@ runs:
     - name: Generate Swagger JSON
       shell: bash
       env:
-        SA_PASSWORD: ${{ inputs.SA_PASSWORD }}
-        JWT_KEY: ${{ inputs.JWT_KEY }}
+        SA_PASSWORD: ${{ inputs.sa-password }}
+        JWT_KEY: ${{ inputs.jwt-key }}
       run: |
         set -euo pipefail
         swagger tofile --output "${{ inputs.swagger-path }}" ${{ inputs.target-dll-path }} ${{ inputs.swagger-version }}
