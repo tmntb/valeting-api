@@ -19,6 +19,12 @@ inputs:
   target-branch:
     description: "Branch to push Swagger update"
     default: "swagger-update"
+  sa-password:
+    description: "SA password secret"
+    required: true
+  jwt-key:
+    description: "JWT key secret"
+    required: true
 runs:
   using: "composite"
   steps:
@@ -50,6 +56,9 @@ runs:
 
     - name: Generate Swagger JSON
       shell: bash
+      env:
+        SA_PASSWORD: ${{ inputs.SA_PASSWORD }}
+        JWT_KEY: ${{ inputs.JWT_KEY }}
       run: |
         set -euo pipefail
         swagger tofile --output "${{ inputs.swagger-path }}" ${{ inputs.target-dll-path }} ${{ inputs.swagger-version }}
