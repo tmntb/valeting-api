@@ -7,6 +7,7 @@ on:
       - main
     paths-ignore:
       - ReadMe.md
+      - .swagger/**
   
 permissions: write-all
 
@@ -57,5 +58,6 @@ jobs:
             @semantic-release/commit-analyzer
             @semantic-release/release-notes-generator
             @semantic-release/github
+          git_push: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
