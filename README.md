@@ -8,7 +8,7 @@ Valeting API is a .NET-based application designed to manage vehicle valeting ser
 
 ### Prerequisites
 
-- .NET SDK 9.0
+- .NET SDK 10.0
 - Docker & Docker Compose
 
 ### Setup

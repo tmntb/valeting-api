@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using System.Text.Json.Nodes;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Api.SwaggerDocumentation.Parameter;
@@ -21,14 +21,14 @@ public class ParameterFilter : IParameterFilter
     /// </summary>
     /// <param name="parameter">The OpenAPI parameter to modify.</param>
     /// <param name="context">The context of the parameter being processed.</param>
-    public void Apply(OpenApiParameter parameter, ParameterFilterContext context)
+    public void Apply(IOpenApiParameter parameter, ParameterFilterContext context)
     {
         if (context.PropertyInfo != null)
         {
             var attributes = context.PropertyInfo.GetCustomAttributes(true);
             IEnumerable<QueryParameterAttribute>? queryParameterAttributes = attributes.OfType<QueryParameterAttribute>();
             if (queryParameterAttributes != null && queryParameterAttributes.Any())
-                AddExample(parameter, queryParameterAttributes);
+                AddExample((OpenApiParameter)parameter, queryParameterAttributes);
         }
 
         if (context.ParameterInfo != null)
@@ -36,7 +36,7 @@ public class ParameterFilter : IParameterFilter
             var attributes = context.ParameterInfo.GetCustomAttributes(true);
             IEnumerable<PathParameterAttribute>? pathParameterAttributes = attributes.OfType<PathParameterAttribute>();
             if (pathParameterAttributes != null && pathParameterAttributes.Any())
-                AddExample(parameter, pathParameterAttributes);
+                AddExample((OpenApiParameter)parameter, pathParameterAttributes);
         }
     }
 
@@ -50,10 +50,12 @@ public class ParameterFilter : IParameterFilter
         foreach (var item in parameterAttributes)
         {
             parameter.Description = item.Description;
-            parameter.Schema.Example = new OpenApiString(item.Example);
-            parameter.Schema.Minimum = item.Minimum;
-            if (item.Maximum != 0)
-                parameter.Schema.Maximum = item.Maximum;
+            parameter.Schema = new OpenApiSchema
+            {
+                Example = JsonValue.Create(item.Example),
+                Minimum = item.Minimum,
+                Maximum = string.IsNullOrEmpty(item.Maximum) ? null : item.Maximum
+            };
         }
     }
 
@@ -67,8 +69,11 @@ public class ParameterFilter : IParameterFilter
         foreach (var item in parameterAttributes)
         {
             parameter.Description = item.Description;
-            parameter.Schema.Example = new OpenApiString(item.Example);
-            parameter.Schema.Format = item.Format;
+            parameter.Schema = new OpenApiSchema
+            {
+                Example = JsonValue.Create(item.Example),
+                Format = item.Format
+            };
         }
     }
 }

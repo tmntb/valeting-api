@@ -27,12 +27,12 @@ public class QueryParameterAttribute : Attribute
     /// <summary>
     /// Minimum allowed value for the query parameter.
     /// </summary>
-    public int Minimum { get; set; }
+    public string Minimum { get; set; }
 
     /// <summary>
     /// Maximum allowed value for the query parameter.
     /// </summary>
-    public int Maximum { get; set; }
+    public string Maximum { get; set; }
 
     /// <summary>
     /// Optional format for the query parameter (e.g., "int32", "date").
@@ -46,7 +46,7 @@ public class QueryParameterAttribute : Attribute
     /// <param name="example">Example value for the query parameter.</param>
     /// <param name="minimum">Minimum allowed value.</param>
     /// <param name="maximum">Maximum allowed value.</param>
-    public QueryParameterAttribute(string description, string example, int minimum, int maximum)
+    public QueryParameterAttribute(string description, string example, string minimum, string maximum)
     {
         Description = description;
         Example = example;
@@ -60,7 +60,7 @@ public class QueryParameterAttribute : Attribute
     /// <param name="description">Description of the query parameter.</param>
     /// <param name="example">Example value for the query parameter.</param>
     /// <param name="minimum">Minimum allowed value.</param>
-    public QueryParameterAttribute(string description, string example, int minimum)
+    public QueryParameterAttribute(string description, string example, string minimum)
     {
         Description = description;
         Example = example;
