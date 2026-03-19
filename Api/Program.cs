@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using Api.Helpers;
@@ -14,9 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Load .env ONLY in local development (outside of Docker)
 EnvironmentConfiguration.LoadDotEnvIfDevelopment(builder.Environment);
 
+var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+var appSettingsPath = Path.Combine(assemblyLocation, "appsettings.json");
 builder.Configuration
-    .SetBasePath(builder.Environment.ContentRootPath)
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile(appSettingsPath, optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
 // Apply overrides from environment variables (if present)
