@@ -1,5 +1,6 @@
 ﻿using Api.Models.Core;
 using Api.Models.User.Payload;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.BaseController;
@@ -21,7 +22,7 @@ public abstract class UserBaseController : ControllerBase
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> Login([FromBody] LoginApiRequest loginApiRequest);
+    public abstract Task<IActionResult> LoginAsync([FromBody] LoginApiRequest loginApiRequest);
 
     /// <summary>
     /// Refreshes the user JWT access token.
@@ -54,5 +55,21 @@ public abstract class UserBaseController : ControllerBase
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> Register([FromBody] RegisterApiRequest registerApiRequest);
+    public abstract Task<IActionResult> RegisterAsync([FromBody] RegisterApiRequest registerApiRequest);
+
+    /// <summary>
+    /// Resets the password of the currently authenticated user.
+    /// </summary>
+    /// <param name="resetApiRequest">The request containing the current and new password.</param>
+    /// <response code="204">Indicates that the password was successfully updated.</response>
+    /// <response code="400">Returned when the request body is invalid or fails validation.</response>
+    /// <response code="404">Returned when the user does not exist.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpPatch]
+    [Route("/user/reset")]
+    [ProducesResponseType(statusCode: 204)]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> ResetAsync([FromBody] ResetApiRequest resetApiRequest);
 }

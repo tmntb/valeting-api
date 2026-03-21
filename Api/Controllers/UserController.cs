@@ -1,9 +1,9 @@
-﻿using Api.Controllers.BaseController;
 using Api.Models.User.Payload;
 using Common.Enums;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using Service.Models.User;
 using Service.Models.User.Payload;
 
 namespace Api.Controllers;
@@ -11,17 +11,17 @@ namespace Api.Controllers;
 public class UserController(IUserService userService) : UserBaseController
 {
     /// <inheritdoc />
-    public override async Task<IActionResult> Login([FromBody] LoginApiRequest loginApiRequest)
+    public override async Task<IActionResult> LoginAsync([FromBody] LoginApiRequest loginApiRequest)
     {
         ArgumentNullException.ThrowIfNull(loginApiRequest, Messages.InvalidRequestBody);
 
-        var validateLoginDtoRequest = new ValidateLoginDtoRequest
+        var userDto = new UserDto
         {
             Email = loginApiRequest.Email,
             Password = loginApiRequest.Password
         };
-        
-        var validateLogin = await userService.ValidateLoginAsync(validateLoginDtoRequest);
+
+        var validateLogin = await userService.ValidateLoginAsync(userDto);
         if (!validateLogin)
         {
             throw new UnauthorizedAccessException(Messages.InvalidPassword);
@@ -58,20 +58,38 @@ public class UserController(IUserService userService) : UserBaseController
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> Register([FromBody] RegisterApiRequest registerApiRequest)
+    public override async Task<IActionResult> RegisterAsync([FromBody] RegisterApiRequest registerApiRequest)
     {
         ArgumentNullException.ThrowIfNull(registerApiRequest, Messages.InvalidRequestBody);
 
-        var registerDtoRequest = new RegisterDtoRequest
+        var registerDtoRequest = new UserDto
         {
             Username = registerApiRequest.Username,
             Password = registerApiRequest.Password,
             ContactNumber = registerApiRequest.ContactNumber,
             Email = registerApiRequest.Email,
-            RoleCode = RoleEnum.USER
+            Role = new()
+            {
+                Code = RoleEnum.USER
+            }
         };
         await userService.RegisterAsync(registerDtoRequest);
 
         return Created();
+    }
+
+    /// <inheritdoc />
+    public override async Task<IActionResult> ResetAsync([FromBody] ResetApiRequest resetApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(resetApiRequest, Messages.InvalidRequestBody);
+
+        var userDto = new UserDto
+        {
+            Email = resetApiRequest.Email,
+            Password = resetApiRequest.NewPassword
+        };
+        await userService.ResetAsync(userDto);
+        
+        return NoContent();
     }
 }

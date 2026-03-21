@@ -23,6 +23,12 @@ public class UserDto
     public string PasswordHash { get; set; }
 
     /// <summary>
+    /// Plain text password used for registration and login validation.
+    /// This property should not be stored in the database and is only used for input validation.
+    /// </summary>
+    public string Password { get; set; }
+    
+    /// <summary>
     /// Contact number of the user.
     /// </summary>
     public int ContactNumber { get; set; }

@@ -11,7 +11,8 @@ namespace Service.Tests.Services;
 
 public class UserServiceTests
 {
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    //private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    private readonly UserDto _userDto;
 
     private readonly Mock<IUserRepository> _mockUserRepository;
     private readonly Mock<IRoleRepository> _mockRoleRepository;
@@ -21,6 +22,8 @@ public class UserServiceTests
 
     public UserServiceTests()
     {
+        _userDto = DataFactory.CreateUserDto();
+
         _mockUserRepository = new Mock<IUserRepository>();
         _mockConfiguration = new Mock<IConfiguration>();
         _mockRoleRepository = new Mock<IRoleRepository>();
@@ -32,7 +35,8 @@ public class UserServiceTests
     public async Task GenerateTokenJWTAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
     {
         // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+        _mockUserRepository
+            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
@@ -43,24 +47,18 @@ public class UserServiceTests
     public async Task GenerateTokenJWTAsync_ShouldReturnValidToken_WhenUserExists()
     {
         // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(new UserDto
-            {
-                Id = _mockId,
-                Username = "username",
-                Email = "user@example.com",
-                Role = new RoleDto
-                {
-                    Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                    Code = RoleEnum.USER
-                }
-            });
+        _mockUserRepository
+            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto);
 
-        _mockConfiguration.Setup(config => config["Jwt:Key"])
+        _mockConfiguration
+            .Setup(config => config["Jwt:Key"])
             .Returns("this_is_a_secret_key_with_128bits");
-        _mockConfiguration.Setup(config => config["Jwt:Issuer"])
+        _mockConfiguration
+            .Setup(config => config["Jwt:Issuer"])
             .Returns("issuer");
-        _mockConfiguration.Setup(config => config["Jwt:Audience"])
+        _mockConfiguration
+            .Setup(config => config["Jwt:Audience"])
             .Returns("audience");
 
         // Act
@@ -76,12 +74,9 @@ public class UserServiceTests
     public async Task RegisterAsync_ShouldThrowInvalidOperationException_WhenUserExists()
     {
         // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(new UserDto
-            {
-                Id = _mockId,
-                Email = "user@example.com"
-            });
+        _mockUserRepository
+            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(
@@ -91,7 +86,10 @@ public class UserServiceTests
                     Password = "password",
                     Email = "user@example.com",
                     ContactNumber = 123456789,
-                    RoleCode = RoleEnum.USER
+                    Role = new()
+                    {
+                        Code = RoleEnum.USER
+                    }
                 }));
 
         Assert.Equal(exception.Message, Messages.EmailInUse);
@@ -101,10 +99,12 @@ public class UserServiceTests
     public async Task RegisterAsync_ShouldCreateUser_WhenValid()
     {
         // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+        _mockUserRepository
+            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync((UserDto)null);
 
-        _mockRoleRepository.Setup(repo => repo.GetByCodeAsync(It.IsAny<RoleEnum>()))
+        _mockRoleRepository
+            .Setup(repo => repo.GetByCodeAsync(It.IsAny<RoleEnum>()))
             .ReturnsAsync(new RoleDto
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
@@ -118,7 +118,10 @@ public class UserServiceTests
             Password = "password",
             Email = "user@example.com",
             ContactNumber = 123456789,
-            RoleCode = RoleEnum.USER
+            Role = new()
+            {
+                Code = RoleEnum.USER
+            }
         });
 
         // Assert
@@ -126,10 +129,49 @@ public class UserServiceTests
     }
 
     [Fact]
+    public async Task ResetAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync((UserDto)null);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.ResetAsync(
+                new()
+                {
+                    Email = "user@example.com",
+                    Password = "newpassword"
+                }));
+    }
+
+    [Fact]
+    public async Task ResetAsync_ShouldUpdatePassword_WhenUserExists()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto);
+
+        // Act
+        await _userService.ResetAsync(
+            new()
+            {
+                Email = "user@example.com",
+                Password = "newpassword"
+            });
+
+        // Assert
+        _mockUserRepository.Verify(x => x.UpdateAsync(It.IsAny<UserDto>()), Times.Once);
+    }
+
+
+    [Fact]
     public async Task ValidateLoginAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
     {
         // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+        _mockUserRepository
+        .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
@@ -145,15 +187,9 @@ public class UserServiceTests
     public async Task ValidateLoginAsync_ShouldReturnValid_WhenPasswordMatches()
     {
         // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(
-                new UserDto
-                {
-                    Id = _mockId,
-                    Email = "user@example.com",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
-                    IsActive = true
-                });
+        _mockUserRepository
+        .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto);
 
         // Act
         var response = await _userService.ValidateLoginAsync(
@@ -171,14 +207,9 @@ public class UserServiceTests
     public async Task ValidateLoginAsync_ShouldReturnInValid_WhenPasswordDoesNotMatches()
     {
         // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(
-                new UserDto
-                {
-                    Id = _mockId,
-                    Email = "user@example.com",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123")
-                });
+        _mockUserRepository
+            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto);
 
         // Act
         var response = await _userService.ValidateLoginAsync(
@@ -196,25 +227,19 @@ public class UserServiceTests
     public async Task ValidateToken_ShouldReturnEmail_WhenTokenIsValid()
     {
         // Arrange
-        _mockConfiguration.Setup(config => config["Jwt:Key"])
+        _mockConfiguration
+            .Setup(config => config["Jwt:Key"])
             .Returns("this_is_a_secret_key_with_128bits");
-        _mockConfiguration.Setup(config => config["Jwt:Issuer"])
+        _mockConfiguration
+            .Setup(config => config["Jwt:Issuer"])
             .Returns("issuer");
-        _mockConfiguration.Setup(config => config["Jwt:Audience"])
+        _mockConfiguration
+            .Setup(config => config["Jwt:Audience"])
             .Returns("audience");
 
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(new UserDto
-            {
-                Id = _mockId,
-                Username = "username",
-                Email = "user@example.com",
-                Role = new RoleDto
-                {
-                    Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                    Code = RoleEnum.USER
-                }
-            });
+        _mockUserRepository
+            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto);
 
         var tokenResponse = await _userService.GenerateTokenJWTAsync("user@example.com");
         var validToken = tokenResponse.Token;

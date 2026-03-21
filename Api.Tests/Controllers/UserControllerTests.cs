@@ -4,6 +4,7 @@ using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Service.Interfaces;
+using Service.Models.User;
 using Service.Models.User.Payload;
 using System.Net;
 
@@ -26,7 +27,7 @@ public class UserControllerTests
     public async Task Login_ShouldThrowArgumentNullException_WhenParamsAreNull()
     {
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.Login(null));
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.LoginAsync(null));
         Assert.Contains(Messages.InvalidRequestBody, exception.Message);
     }
 
@@ -34,11 +35,12 @@ public class UserControllerTests
     public async Task Login_ShouldThrowUnauthorizedAccessException_WhenInvalidCredentials()
     {
         // Arrange
-        _mockUserService.Setup(s => s.ValidateLoginAsync(It.IsAny<ValidateLoginDtoRequest>()))
+        _mockUserService
+            .Setup(s => s.ValidateLoginAsync(It.IsAny<UserDto>()))
             .ReturnsAsync(false);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _userController.Login(
+        var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _userController.LoginAsync(
             new()
             {
                 Email = "test@example.com",
@@ -52,11 +54,13 @@ public class UserControllerTests
     public async Task Login_ShouldReturnOk_WhenCredentialsAreValid()
     {
         // Arrange
-        _mockUserService.Setup(s => s.ValidateLoginAsync(It.IsAny<ValidateLoginDtoRequest>()))
+        _mockUserService
+            .Setup(s => s.ValidateLoginAsync(It.IsAny<UserDto>()))
             .ReturnsAsync(true);
 
         var expiryDate = DateTime.UtcNow;
-        _mockUserService.Setup(s => s.GenerateTokenJWTAsync(It.IsAny<string>()))
+        _mockUserService
+            .Setup(s => s.GenerateTokenJWTAsync(It.IsAny<string>()))
             .ReturnsAsync(
                 new GenerateTokenJWTDtoResponse
                 {
@@ -66,7 +70,7 @@ public class UserControllerTests
                 });
 
         // Act
-        var result = await _userController.Login
+        var result = await _userController.LoginAsync
         (
             new()
             {
@@ -105,10 +109,12 @@ public class UserControllerTests
     public async Task RefreshTokenAsync_ShouldReturnOk_WhenSuccessful()
     {
         // Arrange
-        _mockUserService.Setup(s => s.ValidateToken(It.IsAny<string>()))
+        _mockUserService
+            .Setup(s => s.ValidateToken(It.IsAny<string>()))
             .Returns("test@example.com");
 
-        _mockUserService.Setup(s => s.GenerateTokenJWTAsync(It.IsAny<string>()))
+        _mockUserService
+            .Setup(s => s.GenerateTokenJWTAsync(It.IsAny<string>()))
             .ReturnsAsync(
                 new GenerateTokenJWTDtoResponse
                 {
@@ -135,7 +141,7 @@ public class UserControllerTests
     public async Task Register_ShouldThrowArgumentNullException_WhenParamsAreNull()
     {
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.Register(null));
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.RegisterAsync(null));
         Assert.Contains(Messages.InvalidRequestBody, exception.Message);
     }
 
@@ -144,11 +150,11 @@ public class UserControllerTests
     {
         // Arrange
         _mockUserService
-            .Setup(s => s.RegisterAsync(It.IsAny<RegisterDtoRequest>()))
+            .Setup(s => s.RegisterAsync(It.IsAny<UserDto>()))
             .Returns(Task.CompletedTask);
 
         // Act
-        var result = await _userController.Register
+        var result = await _userController.RegisterAsync
         (
             new()
             {
@@ -160,5 +166,36 @@ public class UserControllerTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.Created, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task Reset_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.ResetAsync(null));
+        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
+    }
+
+     [Fact]
+    public async Task Reset_ShouldReturnNoContent_WhenSuccessful()
+    {
+        // Arrange
+        _mockUserService
+            .Setup(s => s.ResetAsync(It.IsAny<UserDto>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _userController.ResetAsync
+        (
+            new()
+            {
+                Email = "user@example.com",
+                NewPassword = "newpassword"
+            }
+        ) as NoContentResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.NoContent, result.StatusCode);
     }
 }

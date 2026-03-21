@@ -66,11 +66,15 @@ public static class DataFactory
         return new ()
         {
             Id = userId == default ? USER_ID : userId,
+            Username = "username",
+            Email = "user@example.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
             Role = new()
             {
                 Code = roleEnum,
                 Name = "name"
-            }
+            },
+            IsActive = true
         };
     }
 }

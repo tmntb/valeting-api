@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Service.Interfaces;
 using Service.Models.User;
 using Service.Models.User.Payload;
-using Service.Validators;
+using Service.Validators.User;
 using Service.Validators.Utils;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -51,26 +51,26 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     }
 
     /// <inheritdoc />
-    public async Task RegisterAsync(RegisterDtoRequest registerDtoRequest)
+    public async Task RegisterAsync(UserDto userDto)
     {
-        registerDtoRequest.ValidateRequest(new RegisterValidator());
+        userDto.ValidateRequest(new RegisterValidator());
 
-        var userDto = await userRepository.GetUserByEmailAsync(registerDtoRequest.Email);
-        if (userDto != null)
+        var userDtoCheck = await userRepository.GetUserByEmailAsync(userDto.Email);
+        if (userDtoCheck != null)
         {
             throw new InvalidOperationException(Messages.EmailInUse);
         }
 
-        var roleDto = await roleRepository.GetByCodeAsync(registerDtoRequest.RoleCode) ?? throw new KeyNotFoundException(Messages.NotFound);
-        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDtoRequest.Password, workFactor: 12);
+        var roleDto = await roleRepository.GetByCodeAsync(userDto.Role.Code) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var hashedPassword = GenerateHashPassword(userDto.Password);
 
         var registerUserDto = new UserDto
         {
             Id = Guid.NewGuid(),
-            Username = registerDtoRequest.Username,
+            Username = userDto.Username,
             PasswordHash = hashedPassword,
-            ContactNumber = registerDtoRequest.ContactNumber,
-            Email = registerDtoRequest.Email,
+            ContactNumber = userDto.ContactNumber,
+            Email = userDto.Email,
             Role = new() { Id = roleDto.Id },
             IsActive = true,
             CreatedAt = DateTime.UtcNow
@@ -79,17 +79,31 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     }
 
     /// <inheritdoc />
-    public async Task<bool> ValidateLoginAsync(ValidateLoginDtoRequest validateLoginDtoRequest)
+    public async Task ResetAsync(UserDto userDto)
     {
-        validateLoginDtoRequest.ValidateRequest(new ValidateLoginValidator());
+        userDto.ValidateRequest(new ResetValidator());
 
-        var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDtoReset = await userRepository.GetUserByEmailAsync(userDto.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        var passwordValid = userDto.IsActive && BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.PasswordHash);
+        var hashedPassword = GenerateHashPassword(userDto.Password);
+        userDtoReset.PasswordHash = hashedPassword;
+        userDtoReset.UpdatedAt = DateTime.UtcNow;
+
+        await userRepository.UpdateAsync(userDtoReset);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> ValidateLoginAsync(UserDto userDto)
+    {
+        userDto.ValidateRequest(new ValidateLoginValidator());
+
+        var userDtoCheck = await userRepository.GetUserByEmailAsync(userDto.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
+
+        var passwordValid = userDtoCheck.IsActive && BCrypt.Net.BCrypt.Verify(userDto.Password, userDtoCheck.PasswordHash);
         if (passwordValid)
         {
-            userDto.LastLoginAt = DateTime.UtcNow;
-            await userRepository.UpdateAsync(userDto);
+            userDtoCheck.LastLoginAt = DateTime.UtcNow;
+            await userRepository.UpdateAsync(userDtoCheck);
         }
 
         return passwordValid;
@@ -139,5 +153,15 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     {
         var secret = configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT secret not configured.");
         return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+    }
+
+    /// <summary>
+    /// Generates a hashed password using BCrypt with a specified work factor.
+    /// </summary>
+    /// <param name="password">The plain text password to hash.</param>
+    /// <returns>A hashed version of the password.</returns>
+    private string GenerateHashPassword(string password)
+    {
+        return BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
     }
 }

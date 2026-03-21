@@ -1,8 +1,8 @@
 ﻿using Common.Enums;
-using Service.Models.User.Payload;
-using Service.Validators;
+using Service.Models.User;
+using Service.Validators.User;
 
-namespace Service.Tests.Validators;
+namespace Service.Tests.Validators.User;
 
 public class RegisterValidatorTests
 {
@@ -19,9 +19,9 @@ public class RegisterValidatorTests
     public void Username_ShouldFail(string? username)
     {
         // Arrange
-        var request = new RegisterDtoRequest
+        var request = new UserDto
         {
-            Username = username,
+            Email = username
         };
 
         // Act
@@ -38,7 +38,7 @@ public class RegisterValidatorTests
     public void Password_ShouldFail(string? password)
     {
         // Arrange
-        var request = new RegisterDtoRequest
+        var request = new UserDto
         {
             Username = "username",
             Password = password
@@ -56,7 +56,7 @@ public class RegisterValidatorTests
     public void ContactNumber_LengthNot9_ShouldFail()
     {
         // Arrange
-        var request = new RegisterDtoRequest
+        var request = new UserDto
         {
             Username = "username",
             Password = "password",
@@ -78,7 +78,7 @@ public class RegisterValidatorTests
     public void Email_ShouldFail(string? email)
     {
         // Arrange
-        var request = new RegisterDtoRequest
+        var request = new UserDto
         {
             Username = "username",
             Password = "password",
@@ -98,13 +98,16 @@ public class RegisterValidatorTests
     public void RoleCode_IsDefault_ShouldFail()
     {
         // Arrange
-        var request = new RegisterDtoRequest
+        var request = new UserDto
         {
             Username = "username",
             Password = "password",
             ContactNumber = 123456789,
             Email = "username@username.com",
-            RoleCode =  (RoleEnum)999
+            Role = new()
+            {
+                Code = (RoleEnum)999
+            }
         };
 
         // Act
@@ -119,13 +122,16 @@ public class RegisterValidatorTests
     public void RegisterDtoRequest_Valid()
     {
         // Arrange
-        var request = new RegisterDtoRequest
+        var request = new UserDto
         {
             Username = "username",
             Password = "password",
             ContactNumber = 123456789,
             Email = "username@username.com",
-            RoleCode =  RoleEnum.USER
+             Role = new()
+            {
+                Code = RoleEnum.USER
+            }
         };
 
         // Act

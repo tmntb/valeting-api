@@ -1,4 +1,5 @@
-﻿using Service.Models.User.Payload;
+﻿using Service.Models.User;
+using Service.Models.User.Payload;
 
 namespace Service.Interfaces;
 
@@ -7,29 +8,37 @@ public interface IUserService
     /// <summary>
     /// Generates a JWT access token for the specified user.
     /// </summary>
-    /// <param name="username">The username of the user for whom the token is generated.</param>
+    /// <param name="email">The email of the user for whom the token is generated.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a <see cref="GenerateTokenJWTDtoResponse"/> 
     /// with the token, its type, and expiration date.
     /// </returns>
-    /// <exception cref="KeyNotFoundException">Thrown if the user with the given username does not exist.</exception>
-    Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string username);
+    /// <exception cref="KeyNotFoundException">Thrown if the user with the given email does not exist.</exception>
+    Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string email);
 
     /// <summary>
     /// Registers a new user with the provided username and password.
     /// </summary>
-    /// <param name="registerDtoRequest">The registration information including username and password.</param>
+    /// <param name="userDto">The user registration information.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the username is already in use.</exception>
-    Task RegisterAsync(RegisterDtoRequest registerDtoRequest);
+    Task RegisterAsync(UserDto userDto);
+
+    /// <summary>
+    /// Resets the password for the specified user.
+    /// </summary>
+    /// <param name="userDto">The user information including email and new password.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given email.</exception>
+    Task ResetAsync(UserDto userDto);
 
     /// <summary>
     /// Validates the user's credentials by checking the username and password.
     /// </summary>
-    /// <param name="validateLoginDtoRequest">The login information including username and password.</param>
+    /// <param name="userDto">The user information.</param>
     /// <returns>True if the username exists and the password matches; otherwise, false.</returns>
     /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given username.</exception>
-    Task<bool> ValidateLoginAsync(ValidateLoginDtoRequest validateLoginSVRequest);
+    Task<bool> ValidateLoginAsync(UserDto userDto);
 
     /// <summary>
     /// Validates a JWT token and extracts the username claim.
