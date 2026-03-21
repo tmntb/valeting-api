@@ -12,7 +12,6 @@ services:
         sqlserver:
           condition: service_healthy
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
       - SA_PASSWORD=${SA_PASSWORD}
       - JWT_KEY=${JWT_KEY}
 

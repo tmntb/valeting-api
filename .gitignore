@@ -107,6 +107,5 @@ StyleCopReport.xml
 # Others
 .vs/
 .env
-Api/appsettings.Development.json
 .DS_Store
 *.sql

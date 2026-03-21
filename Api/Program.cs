@@ -17,8 +17,10 @@ EnvironmentConfiguration.LoadDotEnvIfDevelopment(builder.Environment);
 
 var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 var appSettingsPath = Path.Combine(assemblyLocation, "appsettings.json");
+var appSettingsDevPath = Path.Combine(assemblyLocation, $"appsettings.{builder.Environment.EnvironmentName}.json");
 builder.Configuration
     .AddJsonFile(appSettingsPath, optional: true, reloadOnChange: true)
+    .AddJsonFile(appSettingsDevPath, optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
 // Apply overrides from environment variables (if present)

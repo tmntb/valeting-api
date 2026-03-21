@@ -1,12 +1,16 @@
 name: Docker Publish on Tag
 
-on:
-  workflow_run:
-    workflows: ["Merge to Main"]  # name of workflow where semantic-release runs
-    types:
-      - completed
+run-name: Docker publish ${{ github.ref_name }}
 
-permissions: write-all
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: read
+  packages: write
+
 
 jobs:
   docker-publish:
@@ -14,27 +18,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Get tag version
-        id: get_version
-        run: |
-          echo "VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
-
-      - name: Build Docker image
-        run: |
-          IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/valeting-api:${{ steps.get_version.outputs.VERSION }}"
-          echo "Building image $IMAGE"
-          docker build -f Api/Dockerfile -t $IMAGE .
-
-      - name: Push Docker image
-        run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/valeting-api:${{ steps.get_version.outputs.VERSION }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Api/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/valeting-api:${{ github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

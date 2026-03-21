@@ -59,4 +59,4 @@ jobs:
             @semantic-release/release-notes-generator
             @semantic-release/github
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
