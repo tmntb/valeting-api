@@ -61,10 +61,12 @@ public class BaseRepositoryTest : IAsyncLifetime
         var user = new ApplicationUser
         {
             Id = DataFactory.USER_ID,
-            Username = "username",
-            PasswordHash = "password",
-            ContactNumber = 1234567890,
             Email = "test@example.com",
+            PasswordHash = "password",
+            FirstName = "John",
+            LastName = "Doe",
+            DateOfBirth = new DateOnly(1957, 3, 25),
+            ContactNumber = 1234567890,
             Role = role,
             IsActive = true,
             CreatedAt = DateTime.UtcNow,

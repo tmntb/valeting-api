@@ -44,9 +44,11 @@ public class UserRepositoryTests : BaseRepositoryTest
             new()
             {
                 Id = id,
-                Username = "username42",
-                PasswordHash = "password42",
                 Email = "test1@example.com",
+                PasswordHash = "password42",
+                FirstName = "John",
+                LastName = "Doe",
+                DateOfBirth = new DateOnly(1957, 3, 25),
                 ContactNumber = 123456789,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.MinValue,
@@ -82,10 +84,12 @@ public class UserRepositoryTests : BaseRepositoryTest
         var userDto = new UserDto
         {
             Id = DataFactory.USER_ID,
-            Username = "updatedUsername",
-            PasswordHash = "updatedPassword",
-            ContactNumber = 987654321,
             Email = "test@example.com",
+            PasswordHash = "updatedPassword",
+            FirstName = "John",
+            LastName = "Doe",
+            DateOfBirth = new DateOnly(1957, 3, 25),
+            ContactNumber = 987654321,
             Role = new() { Id = Guid.Parse("00000000-0000-0000-0000-000000000051"), Code = RoleEnum.USER },
             IsActive = false,
             CreatedAt = DateTime.UtcNow,
@@ -99,7 +103,6 @@ public class UserRepositoryTests : BaseRepositoryTest
         // Assert
         var updatedUser = await Context.ApplicationUsers.FindAsync(DataFactory.USER_ID);
         Assert.NotNull(updatedUser);
-        Assert.Equal("updatedUsername", updatedUser.Username);
         Assert.Equal("updatedPassword", updatedUser.PasswordHash);
         Assert.Equal(987654321, updatedUser.ContactNumber);
         Assert.False(updatedUser.IsActive);

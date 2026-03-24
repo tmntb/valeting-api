@@ -13,9 +13,9 @@ public class UserDto
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Username used for login and identification.
+    /// Email address of the user.
     /// </summary>
-    public string Username { get; set; }
+    public string Email { get; set; }
 
     /// <summary>
     /// Hashed password hash of the user.
@@ -29,14 +29,24 @@ public class UserDto
     public string Password { get; set; }
     
     /// <summary>
+    /// First name of the user
+    /// </summary>
+    public string FirstName { get; set; }
+    
+    /// <summary>
+    /// Last name of the user
+    /// </summary>
+    public string LastName { get; set; }
+    
+    /// <summary>
+    /// Date of birth of the user
+    /// </summary>
+    public DateOnly DateOfBirth { get; set; }
+    
+    /// <summary>
     /// Contact number of the user.
     /// </summary>
     public int ContactNumber { get; set; }
-
-    /// <summary>
-    /// Email address of the user.
-    /// </summary>
-    public string Email { get; set; }
 
     /// <summary>
     /// Role assigned to the user.

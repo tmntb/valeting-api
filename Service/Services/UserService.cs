@@ -29,7 +29,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
             Subject = new ClaimsIdentity(
             [
                 new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
-                new Claim(ClaimTypes.Name, userDto.Username),
+                new Claim(ClaimTypes.Name, string.Format("{0} {1}", userDto.FirstName, userDto.LastName)),
                 new Claim(ClaimTypes.Email, userDto.Email),
                 new Claim(ClaimTypes.Role, userDto.Role.Code.ToString())
             ]),
@@ -67,10 +67,12 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         var registerUserDto = new UserDto
         {
             Id = Guid.NewGuid(),
-            Username = userDto.Username,
-            PasswordHash = hashedPassword,
-            ContactNumber = userDto.ContactNumber,
             Email = userDto.Email,
+            PasswordHash = hashedPassword,
+            FirstName = userDto.FirstName,
+            LastName = userDto.LastName,
+            DateOfBirth = userDto.DateOfBirth,
+            ContactNumber = userDto.ContactNumber,
             Role = new() { Id = roleDto.Id },
             IsActive = true,
             CreatedAt = DateTime.UtcNow

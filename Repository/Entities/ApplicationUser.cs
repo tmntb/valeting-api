@@ -16,10 +16,10 @@ public partial class ApplicationUser
     /// </summary>
     public Guid Id { get; set; }
 
-    /// <summary>
-    /// Username of the user.
+   /// <summary>
+    /// Email address of the user.
     /// </summary>
-    public string Username { get; set; }
+    public string Email { get; set; }
 
     /// <summary>
     /// Hashed password hash of the user.
@@ -27,14 +27,24 @@ public partial class ApplicationUser
     public string PasswordHash { get; set; }
 
     /// <summary>
+    /// First name of the user
+    /// </summary>
+    public string FirstName { get; set; }
+
+    /// <summary>
+    /// Last name of the user
+    /// </summary>
+    public string LastName { get; set; }
+
+    /// <summary>
+    /// Date of birth of the user
+    /// </summary>
+    public DateOnly DateOfBirth { get; set; }
+
+    /// <summary>
     /// Contact number of the user.
     /// </summary>
     public int ContactNumber { get; set; }
-
-    /// <summary>
-    /// Email address of the user.
-    /// </summary>
-    public string Email { get; set; }
 
     /// <summary>
     /// Foreign key referencing the role assigned to the user.

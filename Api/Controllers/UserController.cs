@@ -64,10 +64,12 @@ public class UserController(IUserService userService) : UserBaseController
 
         var registerDtoRequest = new UserDto
         {
-            Username = registerApiRequest.Username,
-            Password = registerApiRequest.Password,
-            ContactNumber = registerApiRequest.ContactNumber,
             Email = registerApiRequest.Email,
+            Password = registerApiRequest.Password,
+            FirstName = registerApiRequest.FirstName,
+            LastName = registerApiRequest.LastName,
+            DateOfBirth = registerApiRequest.DateOfBirth,
+            ContactNumber = registerApiRequest.ContactNumber,
             Role = new()
             {
                 Code = RoleEnum.USER

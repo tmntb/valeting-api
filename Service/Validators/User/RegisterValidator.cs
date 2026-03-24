@@ -10,21 +10,28 @@ public class RegisterValidator : AbstractValidator<UserDto>
 {
     public RegisterValidator()
     {
-        RuleFor(x => x.Username)
+        RuleFor(x => x.Email)
             .NotNull()
-            .NotEmpty();
+            .NotEmpty()
+            .EmailAddress();
 
         RuleFor(x => x.Password)
             .NotNull()
             .NotEmpty();
 
+        RuleFor(x => x.FirstName)
+            .NotNull()
+            .NotEmpty();
+
+        RuleFor(x => x.LastName)
+            .NotNull()
+            .NotEmpty();
+
+        RuleFor(x => x.DateOfBirth)
+            .NotEqual(DateOnly.MinValue);
+
         RuleFor(x => x.ContactNumber)
             .Must(x => x.ToString().Length == 9);
-
-        RuleFor(x => x.Email)
-            .NotNull()
-            .NotEmpty()
-            .EmailAddress();
 
         RuleFor(x => x.Role.Code)
             .IsInEnum();

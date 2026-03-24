@@ -35,14 +35,25 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uniqueidentifier")
                     .HasColumnName("Id");
 
-                b.Property<string>("Username")
+                b.Property<string>("Email")
                     .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnType("nvarchar(50)");
+                    .HasColumnType("nvarchar(max)");
 
                 b.Property<string>("PasswordHash")
                     .IsRequired()
                     .HasColumnType("nvarchar(max)");
+
+                b.Property<string>("FirstName")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(50)");
+
+                b.Property<string>("LastName")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(50)");
+
+                b.Property<DateOnly>("DateOfBirth")
+                    .IsRequired()
+                    .HasColumnType("date");
 
                 b.Property<int>("ContactNumber")
                     .HasColumnType("int");

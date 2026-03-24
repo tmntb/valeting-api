@@ -113,7 +113,6 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
             Customer = new()
             {
                 Id = booking.Customer.Id,
-                Username = booking.Customer.Username,
                 Email = booking.Customer.Email,
                 Role = new()
                 {
@@ -145,7 +144,6 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
             Decision = booking.DecisionById != null ? new()
             {
                 Id = booking.DecisionBy.Id,
-                Username = booking.DecisionBy.Username,
                 Email = booking.DecisionBy.Email,
                 Role = new()
                 {

@@ -8,9 +8,10 @@ namespace Api.Models.User.Payload;
 public class RegisterApiRequest
 {
     /// <summary>
-    /// Username of the user.
+    /// Email address of the user.
     /// </summary>
-    public string Username { get; set; }
+    [EmailAddress]
+    public string Email { get; set; }
 
     /// <summary>
     /// Password of the user.
@@ -18,12 +19,21 @@ public class RegisterApiRequest
     public string Password { get; set; }
 
     /// <summary>
-    /// Contact number of the user.
-    public int ContactNumber { get; set; }
+    /// First name of the user
+    /// </summary>
+    public string FirstName { get; set; }
 
     /// <summary>
-    /// Email address of the user.
+    /// Last name of the user
     /// </summary>
-    [EmailAddress]
-    public string Email { get; set; }
+    public string LastName { get; set; }
+
+    /// <summary>
+    /// Date of birth of the user
+    /// </summary>
+    public DateOnly DateOfBirth { get; set; }
+
+    /// <summary>
+    /// Contact number of the user.
+    public int ContactNumber { get; set; }
 }

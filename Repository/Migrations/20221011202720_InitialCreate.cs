@@ -72,10 +72,12 @@ public partial class InitialCreate : Migration
             columns: table => new
             {
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                ContactNumber = table.Column<int>(type: "int", nullable: false),
                 Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                FirstName = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                LastName = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
+                ContactNumber = table.Column<int>(type: "int", nullable: false),
                 Role_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 IsActive = table.Column<bool>(type: "bit", nullable: false),
                 CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),

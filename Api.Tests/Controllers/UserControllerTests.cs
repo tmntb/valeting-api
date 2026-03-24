@@ -158,7 +158,6 @@ public class UserControllerTests
         (
             new()
             {
-                Username = "test@example.com",
                 Password = "password"
             }
         ) as ObjectResult;

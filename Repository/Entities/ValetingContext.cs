@@ -39,21 +39,33 @@ public partial class ValetingContext : DbContext
                 .ValueGeneratedNever()
                 .HasColumnName("Id");
 
-            entity.Property(e => e.Username)
-                .IsRequired()
-                .HasMaxLength(50);
+            entity.Property(e => e.Email).IsRequired();
 
             entity.Property(e => e.PasswordHash).IsRequired();
 
+            entity.Property(e => e.FirstName)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.LastName)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.DateOfBirth)
+                .IsRequired()
+                .HasColumnType("date");
+
             entity.Property(e => e.ContactNumber).IsRequired();
 
-            entity.Property(e => e.Email).IsRequired();
+            entity.Property(e => e.RoleId)
+                .IsRequired()
+                .HasColumnName("Role_Id");
 
-            entity.Property(e => e.RoleId).HasColumnName("Role_Id");
+            entity.Property(e => e.IsActive).IsRequired();
 
-            entity.Property(e => e.IsActive);
-
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
+            entity.Property(e => e.CreatedAt)
+                .IsRequired()
+                .HasColumnType("datetime2");
 
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime2");
 
@@ -80,17 +92,29 @@ public partial class ValetingContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50);
 
-            entity.Property(e => e.CustomerId).HasColumnName("Customer_Id");
+            entity.Property(e => e.CustomerId)
+                .IsRequired()
+                .HasColumnName("Customer_Id");
 
-            entity.Property(e => e.FlexibilityId).HasColumnName("Flexibility_Id");
+            entity.Property(e => e.FlexibilityId)
+                .IsRequired()
+                .HasColumnName("Flexibility_Id");
 
-            entity.Property(e => e.VehicleSizeId).HasColumnName("VehicleSize_Id");
+            entity.Property(e => e.VehicleSizeId)
+                .IsRequired()
+                .HasColumnName("VehicleSize_Id");
 
-            entity.Property(e => e.ScheduledAt).HasColumnType("datetime2");
+            entity.Property(e => e.ScheduledAt)
+                .IsRequired()
+                .HasColumnType("datetime2");
 
-            entity.Property(e => e.StatusId).HasColumnName("Status_Id");
+            entity.Property(e => e.StatusId)
+                .IsRequired()
+                .HasColumnName("Status_Id");
 
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
+            entity.Property(e => e.CreatedAt)
+                .IsRequired()
+                .HasColumnType("datetime2");
 
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime2");
 
@@ -98,7 +122,7 @@ public partial class ValetingContext : DbContext
 
             entity.Property(e => e.DecisionById).HasColumnName("DecisionBy_Id");
 
-            entity.Property(e => e.RequiresApproval);
+            entity.Property(e => e.RequiresApproval).IsRequired();
 
             entity.Property(e => e.Notes).HasMaxLength(500);
 
@@ -149,16 +173,12 @@ public partial class ValetingContext : DbContext
 
             entity.Property(e => e.Name)
                 .IsRequired()
-                .HasMaxLength(100)
-                .HasColumnName("Name");
+                .HasMaxLength(100);
 
             entity.Property(e => e.NumberOfMinutes)
-                .IsRequired()
-                .HasColumnName("NumberOfMinutes");
+                .IsRequired();
 
-            entity.Property(e => e.Active)
-                .IsRequired()
-                .HasColumnName("Active");
+            entity.Property(e => e.Active).IsRequired();
         });
 
         modelBuilder.Entity<RdVehicleSize>(entity =>
@@ -172,18 +192,15 @@ public partial class ValetingContext : DbContext
                 .HasColumnName("Id");
 
             entity.Property(e => e.Code)
+                .IsRequired()
                 .HasConversion<string>()
-                .HasMaxLength(50)
-                .HasColumnName("Code");
+                .HasMaxLength(50);
 
             entity.Property(e => e.Name)
                 .IsRequired()
-                .HasMaxLength(100)
-                .HasColumnName("Name");
+                .HasMaxLength(100);
 
-            entity.Property(e => e.Active)
-                .IsRequired()
-                .HasColumnName("Active");
+            entity.Property(e => e.Active).IsRequired();
         });
 
         modelBuilder.Entity<RdRole>(entity =>
@@ -197,18 +214,15 @@ public partial class ValetingContext : DbContext
                 .HasColumnName("Id");
 
             entity.Property(e => e.Code)
+                .IsRequired()
                 .HasConversion<string>()
-                .HasMaxLength(50)
-                .HasColumnName("Code");
+                .HasMaxLength(50);
 
             entity.Property(e => e.Name)
                 .IsRequired()
-                .HasMaxLength(100)
-                .HasColumnName("Name");
+                .HasMaxLength(100);
 
-            entity.Property(e => e.Active)
-                .IsRequired()
-                .HasColumnName("Active");
+            entity.Property(e => e.Active).IsRequired();
         });
 
         modelBuilder.Entity<RdStatus>(entity =>
@@ -222,18 +236,15 @@ public partial class ValetingContext : DbContext
                 .HasColumnName("Id");
 
             entity.Property(e => e.Code)
+                .IsRequired()
                 .HasConversion<string>()
-                .HasMaxLength(50)
-                .HasColumnName("Code");
+                .HasMaxLength(50);
 
             entity.Property(e => e.Name)
                 .IsRequired()
-                .HasMaxLength(100)
-                .HasColumnName("Name");
+                .HasMaxLength(100);
 
-            entity.Property(e => e.Active)
-                .IsRequired()
-                .HasColumnName("Active");
+            entity.Property(e => e.Active).IsRequired();
         });
 
         OnModelCreatingPartial(modelBuilder);

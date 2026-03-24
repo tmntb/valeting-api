@@ -18,10 +18,12 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
         return new() 
         {
             Id = applicationUser.Id,
-            Username = applicationUser.Username,
-            PasswordHash = applicationUser.PasswordHash,
-            ContactNumber = applicationUser.ContactNumber,
             Email = applicationUser.Email,
+            PasswordHash = applicationUser.PasswordHash,
+            FirstName = applicationUser.FirstName,
+            LastName = applicationUser.LastName,
+            DateOfBirth = applicationUser.DateOfBirth,
+            ContactNumber = applicationUser.ContactNumber,
             Role = new()
             {
                 Id = applicationUser.Role.Id,
@@ -40,10 +42,12 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
         var applicationUser = new ApplicationUser
         {
             Id = userDto.Id,
-            Username = userDto.Username,
-            PasswordHash = userDto.PasswordHash,
-            ContactNumber = userDto.ContactNumber,
             Email = userDto.Email,
+            PasswordHash = userDto.PasswordHash,
+            FirstName = userDto.FirstName,
+            LastName = userDto.LastName,
+            DateOfBirth = userDto.DateOfBirth,
+            ContactNumber = userDto.ContactNumber,
             RoleId = userDto.Role.Id,
             IsActive = userDto.IsActive,
             CreatedAt = userDto.CreatedAt,
@@ -61,10 +65,12 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
         if (applicationUser == null)
             return;
 
-        applicationUser.Username = userDto.Username;
-        applicationUser.PasswordHash = userDto.PasswordHash;
-        applicationUser.ContactNumber = userDto.ContactNumber;
         applicationUser.Email = userDto.Email;
+        applicationUser.PasswordHash = userDto.PasswordHash;
+        applicationUser.FirstName = userDto.FirstName;
+        applicationUser.LastName = userDto.LastName;
+        applicationUser.DateOfBirth = userDto.DateOfBirth;
+        applicationUser.ContactNumber = userDto.ContactNumber;
         applicationUser.RoleId = userDto.Role.Id;
         applicationUser.IsActive = userDto.IsActive;
         applicationUser.UpdatedAt = userDto.UpdatedAt;

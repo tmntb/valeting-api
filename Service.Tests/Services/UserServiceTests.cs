@@ -11,7 +11,6 @@ namespace Service.Tests.Services;
 
 public class UserServiceTests
 {
-    //private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private readonly UserDto _userDto;
 
     private readonly Mock<IUserRepository> _mockUserRepository;
@@ -79,18 +78,7 @@ public class UserServiceTests
             .ReturnsAsync(_userDto);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(
-                new()
-                {
-                    Username = "username",
-                    Password = "password",
-                    Email = "user@example.com",
-                    ContactNumber = 123456789,
-                    Role = new()
-                    {
-                        Code = RoleEnum.USER
-                    }
-                }));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(_userDto));
 
         Assert.Equal(exception.Message, Messages.EmailInUse);
     }
@@ -114,9 +102,11 @@ public class UserServiceTests
         // Act
         await _userService.RegisterAsync(new()
         {
-            Username = "username",
-            Password = "password",
             Email = "user@example.com",
+            Password = "password",
+            FirstName = "John1",
+            LastName = "Doe",
+            DateOfBirth = new DateOnly(1930, 3, 7),
             ContactNumber = 123456789,
             Role = new()
             {

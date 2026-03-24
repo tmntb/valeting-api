@@ -94,9 +94,10 @@ public class BookingApi
             Reference = bookingDto.Reference,
             Customer = includeCustomer ? new()
             {
-                Username = bookingDto.Customer.Username,
+                Email = bookingDto.Customer.Email,
+                FirstName = bookingDto.Customer.FirstName,
+                LastName = bookingDto.Customer.LastName,
                 ContactNumber = bookingDto.Customer.ContactNumber,
-                Email = bookingDto.Customer.Email
             } : null,
             Flexibility = new()
             {
@@ -116,7 +117,6 @@ public class BookingApi
             DecisionAt = bookingDto.DecisionAt,
             DecisionBy = bookingDto.Decision != null ? new()
             {
-                Username = bookingDto.Decision.Username,
                 Email = bookingDto.Decision.Email,
                 Role = new()
                 {

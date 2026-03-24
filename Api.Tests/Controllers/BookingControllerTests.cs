@@ -170,7 +170,6 @@ public class BookingControllerTests
                     Reference = "REF123",
                     Customer = new()
                     {
-                        Username = "username",
                         ContactNumber = 1234567890,
                         Email = "test@example.com",
                         Role = new()
@@ -196,7 +195,6 @@ public class BookingControllerTests
                     DecisionAt = DateTime.Now.AddHours(1),
                     Decision = new()
                     {
-                        Username = "admin",
                         Email = "admin@example.com",
                         Role = new()
                         {
@@ -252,7 +250,6 @@ public class BookingControllerTests
                             Reference = "REF123",
                             Customer = new()
                             {
-                                Username = "username",
                                 ContactNumber = 1234567890,
                                 Email = "test@example.com",
                                 Role = new()
@@ -334,7 +331,6 @@ public class BookingControllerTests
                             Reference = "REF123",
                             Customer = new()
                             {
-                                Username = "username",
                                 ContactNumber = 1234567890,
                                 Email = "test@example.com",
                                 Role = new()
