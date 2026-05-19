@@ -12,8 +12,8 @@ namespace Api.Tests.Controllers;
 
 public class UserControllerTests
 {
+    private readonly ClaimsFixture _claimsFixture = new();
     private readonly Mock<IUserService> _mockUserService;
-
     private readonly UserController _userController;
 
     public UserControllerTests()
@@ -171,6 +171,40 @@ public class UserControllerTests
             {
                 Email = "user@example.com",
                 NewPassword = "newpassword"
+            }
+        ) as NoContentResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.NoContent, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateAdminSettingsAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.UpdateAdminSettingsAsync(null));
+        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
+    }
+
+     [Fact]
+    public async Task UpdateAdminSettingsAsync_ShouldReturnNoContent_WhenSuccessful()
+    {
+        // Arrange
+        _claimsFixture.SetupUserClaims(_userController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
+
+        _mockUserService
+            .Setup(s => s.UpdateAdminSettingsAsync(It.IsAny<UpdateAdminSettingsDtoRequest>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _userController.UpdateAdminSettingsAsync
+        (
+            new()
+            {
+                UserId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                IsActive = true,
+                RoleId = Guid.Parse("00000000-0000-0000-0000-000000000002")
             }
         ) as NoContentResult;
 

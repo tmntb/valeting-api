@@ -35,10 +35,10 @@ public interface IUserService
     /// <summary>
     /// Updates the administrative settings for the specified user.
     /// </summary>
-    /// <param name="userDto">The user information including new administrative settings.</param>
+    /// <param name="updateAdminSettingsDtoRequest">The request containing the updated administrative settings.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given email.</exception>
-    Task UpdateAdminSettingsAsync(UserDto userDto);
+    Task UpdateAdminSettingsAsync(UpdateAdminSettingsDtoRequest updateAdminSettingsDtoRequest);
 
     /// <summary>
     /// Updates the profile information for the specified user.

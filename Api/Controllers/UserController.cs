@@ -1,3 +1,5 @@
+﻿using System.Security.Claims;
+using Api.Controllers.BaseController;
 using Api.Models.User.Payload;
 using Common.Enums;
 using Common.Messages;
@@ -86,6 +88,23 @@ public class UserController(IUserService userService) : UserBaseController
             Password = resetApiRequest.NewPassword
         };
         await userService.ResetAsync(userDto);
+
+        return NoContent();
+    }
+
+    /// <inheritdoc />
+    public override async Task<IActionResult> UpdateAdminSettingsAsync([FromBody] UpdateAdminSettingsApiRequest updateAdminSettingsApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(updateAdminSettingsApiRequest, Messages.InvalidRequestBody);
+
+        var updateAdminSettingsDtoRequest = new UpdateAdminSettingsDtoRequest
+        {
+            AdminId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            UserId = updateAdminSettingsApiRequest.UserId,
+            IsActive = updateAdminSettingsApiRequest.IsActive,
+            RoleId = updateAdminSettingsApiRequest.RoleId
+        };
+        await userService.UpdateAdminSettingsAsync(updateAdminSettingsDtoRequest);
         
         return NoContent();
     }

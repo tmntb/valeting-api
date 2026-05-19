@@ -155,6 +155,46 @@ public class UserServiceTests
         _mockUserRepository.Verify(x => x.UpdatePasswordAsync(It.IsAny<UserDto>()), Times.Once);
     }
 
+    [Fact]
+    public async Task UpdateAdminSettingsAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((UserDto)null);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.UpdateAdminSettingsAsync(
+                new()
+                {
+                    UserId = _userDto.Id,
+                    IsActive = true,
+                    RoleId = _userDto.Role.Id
+                }));
+    }
+
+    [Fact]
+    public async Task UpdateAdminSettingsAsync_ShouldUpdateAdminSettings_WhenUserExists()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        // Act
+        await _userService.UpdateAdminSettingsAsync(
+            new()
+            {
+                UserId = _userDto.Id,
+                IsActive = true,
+                RoleId = _userDto.Role.Id
+            });
+
+        // Assert
+        _mockUserRepository.Verify();
+        _mockUserRepository.Verify(x => x.UpdateAdminSettingsAsync(It.IsAny<UserDto>()), Times.Once);
+    }
 
     [Fact]
     public async Task ValidateLoginAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
@@ -172,7 +212,7 @@ public class UserServiceTests
                     Email = "user@example.com",
                     Password = "password123"
                 }));
-                
+
         _mockUserRepository.Verify();
     }
 

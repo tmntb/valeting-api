@@ -93,14 +93,14 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     }
 
     /// <inheritdoc />
-    public async Task UpdateAdminSettingsAsync(UserDto userDto)
+    public async Task UpdateAdminSettingsAsync(UpdateAdminSettingsDtoRequest updateAdminSettingsDtoRequest)
     {
-        userDto.ValidateRequest(new UpdateAdminSettingsValidator());
+        updateAdminSettingsDtoRequest.ValidateRequest(new UpdateAdminSettingsValidator());
 
-        var userDtoUpdate = userRepository.GetByIdAsync(userDto.Id).Result ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDtoUpdate = await userRepository.GetByIdAsync(updateAdminSettingsDtoRequest.UserId) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        userDtoUpdate.IsActive = userDto.IsActive;
-        userDtoUpdate.Role.Id = userDto.Role.Id;
+        userDtoUpdate.IsActive = updateAdminSettingsDtoRequest.IsActive ?? userDtoUpdate.IsActive;
+        userDtoUpdate.Role.Id = updateAdminSettingsDtoRequest.RoleId ?? userDtoUpdate.Role.Id;
         await userRepository.UpdateAdminSettingsAsync(userDtoUpdate);
     }
 

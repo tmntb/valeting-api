@@ -72,4 +72,21 @@ public abstract class UserBaseController : ControllerBase
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> ResetAsync([FromBody] ResetApiRequest resetApiRequest);
+
+    /// <summary>
+    /// Updates the active status of a user. Only accessible by users with the ADMIN role.
+    /// </summary>
+    /// <param name="updateUserApiActiveRequest">The request containing the user ID and the new active status.</param>
+    /// <response code="204">Indicates that the user's active status was successfully updated.</response>
+    /// <response code="400">Returned when the request body is invalid or fails validation.</response>
+    /// <response code="404">Returned when the user to be updated does not exist.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpPatch]
+    [Authorize(Roles = "ADMIN")]
+    [Route("/users/adminSettings")]
+    [ProducesResponseType(statusCode: 204)]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> UpdateAdminSettingsAsync([FromBody] UpdateAdminSettingsApiRequest updateAdminSettingsApiRequest);
 }

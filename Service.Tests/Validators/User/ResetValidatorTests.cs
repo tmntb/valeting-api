@@ -50,5 +50,4 @@ public class ResetValidatorTests
         Assert.False(result.IsValid);
         Assert.Contains("Password", result.Errors.FirstOrDefault().ErrorMessage);
     }
-
 }
