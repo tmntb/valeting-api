@@ -17,7 +17,7 @@ public abstract class UserBaseController : ControllerBase
     /// <response code="401">Returned when authentication fails due to invalid credentials.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPost]
-    [Route("/user/login")]
+    [Route("/users/login")]
     [ProducesResponseType(statusCode: 200, type: typeof(LoginApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
@@ -33,7 +33,7 @@ public abstract class UserBaseController : ControllerBase
     /// <response code="401">Returned when the token is invalid or expired beyond the refresh window.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPost]
-    [Route("/user/refreshToken")]
+    [Route("/users/refreshToken")]
     [Consumes("application/json")]
     [ProducesResponseType(statusCode: 200, type: typeof(RefreshTokenApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
@@ -50,7 +50,7 @@ public abstract class UserBaseController : ControllerBase
     /// <response code="409">Returned when a user with the same username already exists.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPost]
-    [Route("/user/register")]
+    [Route("/users/register")]
     [ProducesResponseType(statusCode: 201)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
@@ -66,7 +66,7 @@ public abstract class UserBaseController : ControllerBase
     /// <response code="404">Returned when the user does not exist.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPatch]
-    [Route("/user/reset")]
+    [Route("/users/reset")]
     [ProducesResponseType(statusCode: 204)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]

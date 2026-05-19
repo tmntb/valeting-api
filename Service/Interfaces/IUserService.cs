@@ -27,10 +27,26 @@ public interface IUserService
     /// <summary>
     /// Resets the password for the specified user.
     /// </summary>
-    /// <param name="userDto">The user information including email and new password.</param>
+    /// <param name="userDto">The user information.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given email.</exception>
     Task ResetAsync(UserDto userDto);
+
+    /// <summary>
+    /// Updates the administrative settings for the specified user.
+    /// </summary>
+    /// <param name="userDto">The user information including new administrative settings.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given email.</exception>
+    Task UpdateAdminSettingsAsync(UserDto userDto);
+
+    /// <summary>
+    /// Updates the profile information for the specified user.
+    /// </summary>
+    /// <param name="userDto">The user information to be updated.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given id.</exception>
+    Task UpdateProfileAsync(UserDto userDto);
 
     /// <summary>
     /// Validates the user's credentials by checking the username and password.
@@ -38,7 +54,7 @@ public interface IUserService
     /// <param name="userDto">The user information.</param>
     /// <returns>True if the username exists and the password matches; otherwise, false.</returns>
     /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given username.</exception>
-    Task<bool> ValidateLoginAsync(UserDto userDto);
+    Task ValidateLoginAsync(UserDto userDto);
 
     /// <summary>
     /// Validates a JWT token and extracts the username claim.

@@ -35,7 +35,7 @@ public class UserServiceTests
     {
         // Arrange
         _mockUserRepository
-            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
@@ -47,7 +47,7 @@ public class UserServiceTests
     {
         // Arrange
         _mockUserRepository
-            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(_userDto);
 
         _mockConfiguration
@@ -74,7 +74,7 @@ public class UserServiceTests
     {
         // Arrange
         _mockUserRepository
-            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(_userDto);
 
         // Act & Assert
@@ -88,7 +88,7 @@ public class UserServiceTests
     {
         // Arrange
         _mockUserRepository
-            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync((UserDto)null);
 
         _mockRoleRepository
@@ -123,7 +123,7 @@ public class UserServiceTests
     {
         // Arrange
         _mockUserRepository
-            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
@@ -140,7 +140,7 @@ public class UserServiceTests
     {
         // Arrange
         _mockUserRepository
-            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(_userDto);
 
         // Act
@@ -152,7 +152,7 @@ public class UserServiceTests
             });
 
         // Assert
-        _mockUserRepository.Verify(x => x.UpdateAsync(It.IsAny<UserDto>()), Times.Once);
+        _mockUserRepository.Verify(x => x.UpdatePasswordAsync(It.IsAny<UserDto>()), Times.Once);
     }
 
 
@@ -161,8 +161,9 @@ public class UserServiceTests
     {
         // Arrange
         _mockUserRepository
-        .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync((UserDto)null);
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync((UserDto)null)
+            .Verifiable(Times.Once);
 
         // Act & Assert
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.ValidateLoginAsync(
@@ -171,26 +172,8 @@ public class UserServiceTests
                     Email = "user@example.com",
                     Password = "password123"
                 }));
-    }
-
-    [Fact]
-    public async Task ValidateLoginAsync_ShouldReturnValid_WhenPasswordMatches()
-    {
-        // Arrange
-        _mockUserRepository
-        .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(_userDto);
-
-        // Act
-        var response = await _userService.ValidateLoginAsync(
-            new()
-            {
-                Email = "user@example.com",
-                Password = "password123"
-            });
-
-        // Assert
-        Assert.True(response);
+                
+        _mockUserRepository.Verify();
     }
 
     [Fact]
@@ -198,19 +181,40 @@ public class UserServiceTests
     {
         // Arrange
         _mockUserRepository
-            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(_userDto);
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
 
-        // Act
-        var response = await _userService.ValidateLoginAsync(
+        // Act & Assert
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _userService.ValidateLoginAsync(
             new()
             {
                 Email = "user@example.com",
                 Password = "password"
+            }));
+
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task ValidateLoginAsync_ShouldReturnValid_WhenPasswordMatches()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        // Act
+        await _userService.ValidateLoginAsync(
+            new()
+            {
+                Email = "user@example.com",
+                Password = "password123"
             });
 
         // Assert
-        Assert.False(response);
+        _mockUserRepository.Verify();
     }
 
     [Fact]
@@ -228,7 +232,7 @@ public class UserServiceTests
             .Returns("audience");
 
         _mockUserRepository
-            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(_userDto);
 
         var tokenResponse = await _userService.GenerateTokenJWTAsync("user@example.com");

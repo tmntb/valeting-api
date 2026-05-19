@@ -8,34 +8,20 @@ namespace Repository.Repositories;
 public class UserRepository(ValetingContext valetingContext) : IUserRepository
 {
     /// <inheritdoc />
-    public async Task<UserDto> GetUserByEmailAsync(string email)
+    public async Task<UserDto> GetByEmailAsync(string email)
     {
         var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Email == email);
 
-        if (applicationUser == null)
-            return null;
-
-        return new() 
-        {
-            Id = applicationUser.Id,
-            Email = applicationUser.Email,
-            PasswordHash = applicationUser.PasswordHash,
-            FirstName = applicationUser.FirstName,
-            LastName = applicationUser.LastName,
-            DateOfBirth = applicationUser.DateOfBirth,
-            ContactNumber = applicationUser.ContactNumber,
-            Role = new()
-            {
-                Id = applicationUser.Role.Id,
-                Code = applicationUser.Role.Code
-            },
-            IsActive = applicationUser.IsActive,
-            CreatedAt = applicationUser.CreatedAt,
-            UpdatedAt = applicationUser.UpdatedAt,
-            LastLoginAt = applicationUser.LastLoginAt
-        };
+        return CreateUserDto(applicationUser);
     }
 
+    /// <inheritdoc />
+    public async Task<UserDto> GetByIdAsync(Guid id)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == id);
+
+        return CreateUserDto(applicationUser);
+    }
     /// <inheritdoc />
     public async Task RegisterAsync(UserDto userDto)
     {
@@ -59,23 +45,93 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
     }
 
     /// <inheritdoc />
-    public async Task UpdateAsync(UserDto userDto)
+    public async Task UpdateAdminSettingsAsync(UserDto userDto)
     {
         var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id);
         if (applicationUser == null)
             return;
 
-        applicationUser.Email = userDto.Email;
-        applicationUser.PasswordHash = userDto.PasswordHash;
-        applicationUser.FirstName = userDto.FirstName;
-        applicationUser.LastName = userDto.LastName;
-        applicationUser.DateOfBirth = userDto.DateOfBirth;
-        applicationUser.ContactNumber = userDto.ContactNumber;
-        applicationUser.RoleId = userDto.Role.Id;
-        applicationUser.IsActive = userDto.IsActive;
-        applicationUser.UpdatedAt = userDto.UpdatedAt;
-        applicationUser.LastLoginAt = userDto.LastLoginAt;
+        applicationUser.UpdateAdminSettings(userDto.Role.Id, userDto.IsActive);
 
-        await valetingContext.SaveChangesAsync();   
+        await valetingContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateEmailAsync(UserDto userDto)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdateEmail(userDto.Email);
+
+        await valetingContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateLastLoginAsync(Guid id)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == id);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdateLastLogin();
+
+        await valetingContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task UpdatePasswordAsync(UserDto userDto)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdatePassword(userDto.PasswordHash);
+
+        await valetingContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateProfileAsync(UserDto userDto)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdateProfile(userDto.FirstName, userDto.LastName, userDto.DateOfBirth, userDto.ContactNumber);
+
+        await valetingContext.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Creates a <see cref="UserDto"/> from an <see cref="ApplicationUser"/>.
+    /// </summary>
+    /// <param name="applicationUser">The application user entity.</param>
+    /// <returns>A <see cref="UserDto"/> representing the application user.</returns>
+    private static UserDto CreateUserDto(ApplicationUser? applicationUser)
+    {
+        if (applicationUser == null)
+            return null;
+
+        return new()
+        {
+            Id = applicationUser.Id,
+            Email = applicationUser.Email,
+            PasswordHash = applicationUser.PasswordHash,
+            FirstName = applicationUser.FirstName,
+            LastName = applicationUser.LastName,
+            DateOfBirth = applicationUser.DateOfBirth,
+            ContactNumber = applicationUser.ContactNumber,
+            Role = new()
+            {
+                Id = applicationUser.Role.Id,
+                Code = applicationUser.Role.Code
+            },
+            IsActive = applicationUser.IsActive,
+            CreatedAt = applicationUser.CreatedAt,
+            UpdatedAt = applicationUser.UpdatedAt,
+            LastLoginAt = applicationUser.LastLoginAt
+        };
     }
 }

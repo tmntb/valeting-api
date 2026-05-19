@@ -21,11 +21,7 @@ public class UserController(IUserService userService) : UserBaseController
             Password = loginApiRequest.Password
         };
 
-        var validateLogin = await userService.ValidateLoginAsync(userDto);
-        if (!validateLogin)
-        {
-            throw new UnauthorizedAccessException(Messages.InvalidPassword);
-        }
+        await userService.ValidateLoginAsync(userDto);
 
         var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(loginApiRequest.Email);
 
@@ -53,7 +49,6 @@ public class UserController(IUserService userService) : UserBaseController
             TokenType = generateTokenJwtDtoResponse.TokenType,
             ExpiryDate = generateTokenJwtDtoResponse.ExpiryDate
         };
-
         return Ok(refreshTokenApiResponse);
     }
 

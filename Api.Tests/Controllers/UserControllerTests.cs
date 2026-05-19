@@ -32,31 +32,12 @@ public class UserControllerTests
     }
 
     [Fact]
-    public async Task Login_ShouldThrowUnauthorizedAccessException_WhenInvalidCredentials()
-    {
-        // Arrange
-        _mockUserService
-            .Setup(s => s.ValidateLoginAsync(It.IsAny<UserDto>()))
-            .ReturnsAsync(false);
-
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _userController.LoginAsync(
-            new()
-            {
-                Email = "test@example.com",
-                Password = "wrongpassword"
-            }));
-
-        Assert.Equal(Messages.InvalidPassword, exception.Message);
-    }
-
-    [Fact]
     public async Task Login_ShouldReturnOk_WhenCredentialsAreValid()
     {
         // Arrange
         _mockUserService
             .Setup(s => s.ValidateLoginAsync(It.IsAny<UserDto>()))
-            .ReturnsAsync(true);
+            .Returns(Task.CompletedTask);
 
         var expiryDate = DateTime.UtcNow;
         _mockUserService

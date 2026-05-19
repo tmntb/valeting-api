@@ -15,9 +15,9 @@ namespace Service.Services;
 public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, IConfiguration configuration) : IUserService
 {
     /// <inheritdoc />
-    public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string username)
+    public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string email)
     {
-        var userDto = await userRepository.GetUserByEmailAsync(username) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDto = await userRepository.GetByEmailAsync(email) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         var (issuer, audience) = GetJwtSettings();
 
@@ -55,7 +55,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     {
         userDto.ValidateRequest(new RegisterValidator());
 
-        var userDtoCheck = await userRepository.GetUserByEmailAsync(userDto.Email);
+        var userDtoCheck = await userRepository.GetByEmailAsync(userDto.Email);
         if (userDtoCheck != null)
         {
             throw new InvalidOperationException(Messages.EmailInUse);
@@ -85,30 +85,52 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     {
         userDto.ValidateRequest(new ResetValidator());
 
-        var userDtoReset = await userRepository.GetUserByEmailAsync(userDto.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDtoReset = await userRepository.GetByEmailAsync(userDto.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        var hashedPassword = GenerateHashPassword(userDto.Password);
-        userDtoReset.PasswordHash = hashedPassword;
-        userDtoReset.UpdatedAt = DateTime.UtcNow;
+        userDtoReset.PasswordHash = GenerateHashPassword(userDto.Password); ;
 
-        await userRepository.UpdateAsync(userDtoReset);
+        await userRepository.UpdatePasswordAsync(userDtoReset);
     }
 
     /// <inheritdoc />
-    public async Task<bool> ValidateLoginAsync(UserDto userDto)
+    public async Task UpdateAdminSettingsAsync(UserDto userDto)
+    {
+        userDto.ValidateRequest(new UpdateAdminSettingsValidator());
+
+        var userDtoUpdate = userRepository.GetByIdAsync(userDto.Id).Result ?? throw new KeyNotFoundException(Messages.NotFound);
+
+        userDtoUpdate.IsActive = userDto.IsActive;
+        userDtoUpdate.Role.Id = userDto.Role.Id;
+        await userRepository.UpdateAdminSettingsAsync(userDtoUpdate);
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateProfileAsync(UserDto userDto)
+    {
+        userDto.ValidateRequest(new UpdateProfileValidator());
+
+        var userDtoUpdate = await userRepository.GetByIdAsync(userDto.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
+
+        userDtoUpdate.FirstName = userDto.FirstName;
+        userDtoUpdate.LastName = userDto.LastName;
+        userDtoUpdate.DateOfBirth = userDto.DateOfBirth;
+        userDtoUpdate.ContactNumber = userDto.ContactNumber;
+
+        await userRepository.UpdateProfileAsync(userDtoUpdate);
+    }
+
+    /// <inheritdoc />
+    public async Task ValidateLoginAsync(UserDto userDto)
     {
         userDto.ValidateRequest(new ValidateLoginValidator());
 
-        var userDtoCheck = await userRepository.GetUserByEmailAsync(userDto.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDtoCheck = await userRepository.GetByEmailAsync(userDto.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         var passwordValid = userDtoCheck.IsActive && BCrypt.Net.BCrypt.Verify(userDto.Password, userDtoCheck.PasswordHash);
-        if (passwordValid)
-        {
-            userDtoCheck.LastLoginAt = DateTime.UtcNow;
-            await userRepository.UpdateAsync(userDtoCheck);
-        }
+        if (!passwordValid)
+            throw new UnauthorizedAccessException(Messages.InvalidPassword);
 
-        return passwordValid;
+        await userRepository.UpdateLastLoginAsync(userDtoCheck.Id);
     }
 
     /// <inheritdoc />
