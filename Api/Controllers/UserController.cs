@@ -122,4 +122,18 @@ public class UserController(IUserService userService) : UserBaseController
         
         return NoContent();
     }
+
+    public override async Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordApiRequest updatePasswordApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(updatePasswordApiRequest, Messages.InvalidRequestBody);
+
+        var userDto = new UserDto
+        {
+            Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            Password = updatePasswordApiRequest.Password
+        };
+        await userService.UpdatePasswordAsync(userDto);
+
+        return NoContent();
+    }
 }

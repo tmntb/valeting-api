@@ -23,11 +23,13 @@ public class RegisterValidator : AbstractValidator<UserDto>
 
         RuleFor(x => x.FirstName)
             .NotNull()
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(50);
 
         RuleFor(x => x.LastName)
             .NotNull()
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(50);
 
         RuleFor(x => x.DateOfBirth)
             .NotEqual(DateOnly.MinValue);

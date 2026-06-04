@@ -87,8 +87,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
         var userDtoReset = await userRepository.GetByEmailAsync(userDto.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        userDtoReset.PasswordHash = GenerateHashPassword(userDto.Password); ;
-
+        userDtoReset.PasswordHash = GenerateHashPassword(userDto.Password);
         await userRepository.UpdatePasswordAsync(userDtoReset);
     }
 
@@ -127,6 +126,15 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
     /// <inheritdoc />
     public async Task UpdateProfileAsync(UserDto userDto)
+    public async Task UpdatePasswordAsync(UserDto userDto)
+    {
+        userDto.ValidateRequest(new UpdatePasswordValidator());
+
+        var userDtoToUpdate = await userRepository.GetByIdAsync(userDto.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
+
+        userDtoToUpdate.PasswordHash = GenerateHashPassword(userDto.Password);
+        await userRepository.UpdatePasswordAsync(userDtoToUpdate);
+    }
     {
         userDto.ValidateRequest(new UpdateProfileValidator());
 

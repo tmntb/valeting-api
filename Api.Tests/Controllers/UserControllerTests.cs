@@ -156,7 +156,7 @@ public class UserControllerTests
         Assert.Contains(Messages.InvalidRequestBody, exception.Message);
     }
 
-     [Fact]
+    [Fact]
     public async Task Reset_ShouldReturnNoContent_WhenSuccessful()
     {
         // Arrange
@@ -187,7 +187,7 @@ public class UserControllerTests
         Assert.Contains(Messages.InvalidRequestBody, exception.Message);
     }
 
-     [Fact]
+    [Fact]
     public async Task UpdateAdminSettingsAsync_ShouldReturnNoContent_WhenSuccessful()
     {
         // Arrange
@@ -221,7 +221,7 @@ public class UserControllerTests
         Assert.Contains(Messages.InvalidRequestBody, exception.Message);
     }
 
-     [Fact]
+    [Fact]
     public async Task UpdateEmailAsync_ShouldReturnNoContent_WhenSuccessful()
     {
         // Arrange
@@ -237,6 +237,73 @@ public class UserControllerTests
             new()
             {
                 Email = "test@example.com"
+            }
+        ) as NoContentResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.NoContent, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.UpdatePasswordAsync(null));
+        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_ShouldReturnNoContent_WhenSuccessful()
+    {
+        // Arrange
+        _claimsFixture.SetupUserClaims(_userController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
+
+        _mockUserService
+            .Setup(s => s.UpdatePasswordAsync(It.IsAny<UserDto>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _userController.UpdatePasswordAsync
+        (
+            new()
+            {
+                Password = "1234"
+            }
+        ) as NoContentResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.NoContent, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateProfileAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.UpdateProfileAsync(null));
+        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
+    }
+
+    [Fact]
+    public async Task UpdateProfileAsync_ShouldReturnNoContent_WhenSuccessful()
+    {
+        // Arrange
+        _claimsFixture.SetupUserClaims(_userController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
+
+        _mockUserService
+            .Setup(s => s.UpdateProfileAsync(It.IsAny<UpdateProfileDtoRequest>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _userController.UpdateProfileAsync
+        (
+            new()
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                DateOfBirth = DateOnly.FromDateTime(DateTime.Parse("1990-01-01")),
+                ContactNumber = 123456789
             }
         ) as NoContentResult;
 

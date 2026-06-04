@@ -236,7 +236,7 @@ public class UserServiceTests
                     Id = _userDto.Id,
                     Email = _userDto.Email
                 }));
-     
+
         Assert.Equal(Messages.SameEmailInUse, exception.Message);
         _mockUserRepository.Verify();
     }
@@ -266,7 +266,7 @@ public class UserServiceTests
                     Id = _userDto.Id,
                     Email = "existing@example.com"
                 }));
-     
+
         Assert.Equal(Messages.EmailInUse, exception.Message);
         _mockUserRepository.Verify();
     }
@@ -296,6 +296,52 @@ public class UserServiceTests
             {
                 Id = _userDto.Id,
                 Email = "test1@example.com"
+            });
+
+        // Assert
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((UserDto)null)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.UpdatePasswordAsync(
+                new()
+                {
+                    Id = _userDto.Id,
+                    Password = _userDto.Password
+                }));
+
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_ShouldUpdatePassword_WhenUserExists()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        _mockUserRepository
+            .Setup(repo => repo.UpdatePasswordAsync(It.IsAny<UserDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
+
+        // Act
+        await _userService.UpdatePasswordAsync(
+            new()
+            {
+                Id = _userDto.Id,
+                Password = "newpassword"
             });
 
         // Assert

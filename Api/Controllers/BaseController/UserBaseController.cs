@@ -108,4 +108,21 @@ public abstract class UserBaseController : ControllerBase
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> UpdateEmailAsync([FromBody] UpdateEmailApiRequest updateEmailApiRequest);
+
+    /// <summary>
+    /// Updates the password of the currently authenticated user.
+    /// </summary>
+    /// <param name="updatePasswordApiRequest">The request containing the current and new password.</param>
+    /// <response code="204">Indicates that the password was successfully updated.</response>
+    /// <response code="400">Returned when the request body is invalid or fails validation.</response>
+    /// <response code="404">Returned when the user does not exist.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpPatch]
+    [Authorize]
+    [Route("/users/password")]
+    [ProducesResponseType(statusCode: 204)]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordApiRequest updatePasswordApiRequest);
 }
