@@ -42,7 +42,7 @@ public class UserController(IUserService userService) : UserBaseController
         ArgumentNullException.ThrowIfNull(refreshTokenApiRequest, Messages.InvalidRequestBody);
         ArgumentException.ThrowIfNullOrEmpty(refreshTokenApiRequest.Token, Messages.InvalidRequestBody);
 
-        var email = userService.ValidateToken(refreshTokenApiRequest.Token);
+        var email = userService.ValidateToken(refreshTokenApiRequest.Token); // TODO: Remove when middleware is implemented
         var generateTokenJwtDtoResponse = await userService.GenerateTokenJWTAsync(email);
 
         var refreshTokenApiResponse = new RefreshTokenApiResponse
