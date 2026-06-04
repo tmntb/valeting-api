@@ -59,10 +59,10 @@ public interface IUserService
     /// <summary>
     /// Updates the profile information for the specified user.
     /// </summary>
-    /// <param name="userDto">The user information to be updated.</param>
+    /// <param name="updateProfileDtoRequest">The request containing the updated profile information.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given id.</exception>
-    Task UpdateProfileAsync(UserDto userDto);
+    Task UpdateProfileAsync(UpdateProfileDtoRequest updateProfileDtoRequest);
 
     /// <summary>
     /// Validates the user's credentials by checking the username and password.

@@ -125,7 +125,6 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     }
 
     /// <inheritdoc />
-    public async Task UpdateProfileAsync(UserDto userDto)
     public async Task UpdatePasswordAsync(UserDto userDto)
     {
         userDto.ValidateRequest(new UpdatePasswordValidator());
@@ -135,15 +134,18 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         userDtoToUpdate.PasswordHash = GenerateHashPassword(userDto.Password);
         await userRepository.UpdatePasswordAsync(userDtoToUpdate);
     }
+
+    /// <inheritdoc />
+    public async Task UpdateProfileAsync(UpdateProfileDtoRequest updateProfileDtoRequest)
     {
-        userDto.ValidateRequest(new UpdateProfileValidator());
+        updateProfileDtoRequest.ValidateRequest(new UpdateProfileValidator());
 
-        var userDtoUpdate = await userRepository.GetByIdAsync(userDto.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDtoUpdate = await userRepository.GetByIdAsync(updateProfileDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        userDtoUpdate.FirstName = userDto.FirstName;
-        userDtoUpdate.LastName = userDto.LastName;
-        userDtoUpdate.DateOfBirth = userDto.DateOfBirth;
-        userDtoUpdate.ContactNumber = userDto.ContactNumber;
+        userDtoUpdate.FirstName = updateProfileDtoRequest.FirstName ?? userDtoUpdate.FirstName;
+        userDtoUpdate.LastName = updateProfileDtoRequest.LastName ?? userDtoUpdate.LastName;
+        userDtoUpdate.DateOfBirth = updateProfileDtoRequest.DateOfBirth ?? userDtoUpdate.DateOfBirth;
+        userDtoUpdate.ContactNumber = updateProfileDtoRequest.ContactNumber ?? userDtoUpdate.ContactNumber;
 
         await userRepository.UpdateProfileAsync(userDtoUpdate);
     }

@@ -35,6 +35,27 @@ public class UserRepositoryTests : BaseRepositoryTest
     }
 
     [Fact]
+    public async Task GetUserByIdAsync_ShouldReturnNull_WhenApplicationUsersDoesNotExists()
+    {
+        // Act
+        var result = await _userRepository.GetByIdAsync(Guid.Parse("00000000-0000-0000-0000-000000000042"));
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetUserByIdAsync_ShouldReturnUserDtoWhenApplicationUserExists()
+    {
+        // Act
+        var result = await _userRepository.GetByIdAsync(DataFactory.USER_ID);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(DataFactory.USER_ID, result.Id);
+    }
+
+    [Fact]
     public async Task RegisterAsync_ShouldAddUserToDatabase()
     {
         // Arrange
@@ -97,4 +118,129 @@ public class UserRepositoryTests : BaseRepositoryTest
         Assert.False(updatedUser.IsActive);
         Assert.Equal(Guid.Parse("00000000-0000-0000-0000-000000000051"), updatedUser.RoleId);
     }
+
+    [Fact]
+    public async Task UpdateEmailAsync_ShouldReturnNull_WhenNoUserForGivenIdExists()
+    {
+        // Arrange
+        var userDto = new UserDto
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000043")
+        };
+
+        // Act & Assert
+        await _userRepository.UpdateEmailAsync(userDto);
+    }
+
+    [Fact]
+    public async Task UpdateEmailAsync_ShouldUpdateExistingUserInDatabase()
+    {
+        // Arrange
+        var userDto = new UserDto
+        {
+            Id = DataFactory.USER_ID,
+            Email = "updated@example.com"
+        };
+
+        // Act
+        await _userRepository.UpdateEmailAsync(userDto);
+
+        // Assert
+        var updatedUser = await Context.ApplicationUsers.FindAsync(DataFactory.USER_ID);
+        Assert.NotNull(updatedUser);
+        Assert.Equal("updated@example.com", updatedUser.Email);
+    }
+
+    [Fact]
+    public async Task UpdateLastLoginAsync_ShouldReturnNull_WhenNoUserForGivenIdExists()
+    {
+        // Arrange
+        var id = Guid.Parse("00000000-0000-0000-0000-000000000043");
+
+        // Act & Assert
+        await _userRepository.UpdateLastLoginAsync(id);
+    }
+
+    [Fact]
+    public async Task UpdateLastLoginAsync_ShouldUpdateExistingUserInDatabase()
+    {
+        // Act
+        await _userRepository.UpdateLastLoginAsync(DataFactory.USER_ID);
+
+        // Assert
+        var updatedUser = await Context.ApplicationUsers.FindAsync(DataFactory.USER_ID);
+        Assert.NotNull(updatedUser);
+        Assert.True(updatedUser.LastLoginAt > DateTime.MinValue);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_ShouldReturnNull_WhenNoUserForGivenIdExists()
+    {
+        // Arrange
+        var userDto = new UserDto
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000043")
+        }; 
+
+        // Act & Assert
+        await _userRepository.UpdatePasswordAsync(userDto);
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_ShouldUpdateExistingUserInDatabase()
+    {
+        // Arrange
+        var userDto = new UserDto
+        {
+            Id = DataFactory.USER_ID,
+            PasswordHash = "newpasswordhash"
+        };
+
+        // Act
+        await _userRepository.UpdatePasswordAsync(userDto);
+
+        // Assert
+        var updatedUser = await Context.ApplicationUsers.FindAsync(DataFactory.USER_ID);
+        Assert.NotNull(updatedUser);
+        Assert.Equal("newpasswordhash", updatedUser.PasswordHash);
+    }
+
+    [Fact]
+    public async Task UpdateProfileAsync_ShouldReturnNull_WhenNoUserForGivenIdExists()
+    {
+        // Arrange
+        var userDto = new UserDto
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000043")
+        };
+
+        // Act & Assert
+        await _userRepository.UpdateProfileAsync(userDto);
+    }
+
+    [Fact]
+    public async Task UpdateProfileAsync_ShouldUpdateExistingUserInDatabase()
+    {
+        // Arrange
+        var userDto = new UserDto
+        {
+            Id = DataFactory.USER_ID,
+            FirstName = "UpdatedFirstName",
+            LastName = "UpdatedLastName",
+            DateOfBirth = new DateOnly(1990, 1, 1),
+            ContactNumber = 987654321
+        };
+
+        // Act
+        await _userRepository.UpdateProfileAsync(userDto);
+
+        // Assert
+        var updatedUser = await Context.ApplicationUsers.FindAsync(DataFactory.USER_ID);
+        Assert.NotNull(updatedUser);
+        Assert.Equal("UpdatedFirstName", updatedUser.FirstName);
+        Assert.Equal("UpdatedLastName", updatedUser.LastName);
+        Assert.Equal(new DateOnly(1990, 1, 1), updatedUser.DateOfBirth);
+        Assert.Equal(987654321, updatedUser.ContactNumber);
+    }
 }
+

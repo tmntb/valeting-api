@@ -56,6 +56,7 @@ public class RegisterValidatorTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
+    [InlineData("ThisFirstNameIsTooWayLongAndMustShouldFailValidation")]
     public void FirstName_ShouldFail(string? firstName)
     {
         // Arrange
@@ -77,6 +78,7 @@ public class RegisterValidatorTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
+    [InlineData("ThisLastNameIsTooWayLongAndMustShouldFailValidation")]
     public void LastName_ShouldFail(string? lastName)
     {
         // Arrange

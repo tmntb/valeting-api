@@ -136,4 +136,22 @@ public class UserController(IUserService userService) : UserBaseController
 
         return NoContent();
     }
+
+    /// <inheritdoc />
+    public override async Task<IActionResult> UpdateProfileAsync([FromBody] UpdateProfileApiRequest updateUserApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(updateUserApiRequest, Messages.InvalidRequestBody);
+
+        var updateProfileDtoRequest = new UpdateProfileDtoRequest
+        {
+            Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            FirstName = updateUserApiRequest.FirstName,
+            LastName = updateUserApiRequest.LastName,
+            DateOfBirth = updateUserApiRequest.DateOfBirth,
+            ContactNumber = updateUserApiRequest.ContactNumber,
+        };
+        await userService.UpdateProfileAsync(updateProfileDtoRequest);
+
+        return NoContent();
+    }
 }

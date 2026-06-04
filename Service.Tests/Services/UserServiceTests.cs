@@ -349,6 +349,58 @@ public class UserServiceTests
     }
 
     [Fact]
+    public async Task UpdateProfileAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((UserDto)null)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.UpdateProfileAsync(
+                new()
+                {
+                    Id = _userDto.Id,
+                    FirstName = "John",
+                    LastName = "Doe",
+                    DateOfBirth = new DateOnly(1990, 1, 1),
+                    ContactNumber = 123456789
+                }));
+
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateProfileAsync_ShouldUpdateProfile_WhenUserExists()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        _mockUserRepository
+            .Setup(repo => repo.UpdateProfileAsync(It.IsAny<UserDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
+
+        // Act
+        await _userService.UpdateProfileAsync(
+            new()
+            {
+                Id = _userDto.Id,
+                FirstName = "John",
+                LastName = "Doe",
+                DateOfBirth = new DateOnly(1990, 1, 1),
+                ContactNumber = 123456789
+            });
+
+        // Assert
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
     public async Task ValidateLoginAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
     {
         // Arrange
