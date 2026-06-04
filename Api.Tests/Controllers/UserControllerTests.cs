@@ -212,4 +212,36 @@ public class UserControllerTests
         Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.NoContent, result.StatusCode);
     }
+
+    [Fact]
+    public async Task UpdateEmailAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.UpdateEmailAsync(null));
+        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
+    }
+
+     [Fact]
+    public async Task UpdateEmailAsync_ShouldReturnNoContent_WhenSuccessful()
+    {
+        // Arrange
+        _claimsFixture.SetupUserClaims(_userController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
+
+        _mockUserService
+            .Setup(s => s.UpdateEmailAsync(It.IsAny<UserDto>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _userController.UpdateEmailAsync
+        (
+            new()
+            {
+                Email = "test@example.com"
+            }
+        ) as NoContentResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.NoContent, result.StatusCode);
+    }
 }

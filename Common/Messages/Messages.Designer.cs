@@ -140,5 +140,14 @@ namespace Common.Messages {
                 return ResourceManager.GetString("InvalidBookingStatusForUpdate", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The email is the same as the current email..
+        /// </summary>
+        public static string SameEmailInUse {
+            get {
+                return ResourceManager.GetString("SameEmailInUse", resourceCulture);
+            }
+        }
     }
 }

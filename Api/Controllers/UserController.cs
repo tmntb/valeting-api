@@ -108,4 +108,18 @@ public class UserController(IUserService userService) : UserBaseController
         
         return NoContent();
     }
+
+    public override async Task<IActionResult> UpdateEmailAsync([FromBody] UpdateEmailApiRequest updateEmailApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(updateEmailApiRequest, Messages.InvalidRequestBody);
+
+        var userDto = new UserDto
+        {
+            Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            Email = updateEmailApiRequest.Email
+        };
+        await userService.UpdateEmailAsync(userDto);
+        
+        return NoContent();
+    }
 }

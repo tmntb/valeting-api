@@ -182,6 +182,11 @@ public class UserServiceTests
             .ReturnsAsync(_userDto)
             .Verifiable(Times.Once);
 
+        _mockUserRepository
+            .Setup(repo => repo.UpdateAdminSettingsAsync(It.IsAny<UserDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
+
         // Act
         await _userService.UpdateAdminSettingsAsync(
             new()
@@ -193,7 +198,108 @@ public class UserServiceTests
 
         // Assert
         _mockUserRepository.Verify();
-        _mockUserRepository.Verify(x => x.UpdateAdminSettingsAsync(It.IsAny<UserDto>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateEmailAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((UserDto)null)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.UpdateEmailAsync(
+                new()
+                {
+                    Id = _userDto.Id,
+                    Email = _userDto.Email
+                }));
+
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateEmailAsync_ShouldThrowInvalidOperationException_WhenSameEmailInUse()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.UpdateEmailAsync(
+                new()
+                {
+                    Id = _userDto.Id,
+                    Email = _userDto.Email
+                }));
+     
+        Assert.Equal(Messages.SameEmailInUse, exception.Message);
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateEmailAsync_ShouldThrowInvalidOperationException_WhenEmailInUse()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(new UserDto
+            {
+                Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
+                Email = "existing@example.com"
+            })
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.UpdateEmailAsync(
+                new()
+                {
+                    Id = _userDto.Id,
+                    Email = "existing@example.com"
+                }));
+     
+        Assert.Equal(Messages.EmailInUse, exception.Message);
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateEmailAsync_ShouldUpdateEmail_WhenValid()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync((UserDto)null)
+            .Verifiable(Times.Once);
+
+        _mockUserRepository
+            .Setup(repo => repo.UpdateEmailAsync(It.IsAny<UserDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
+
+        // Act
+        await _userService.UpdateEmailAsync(
+            new()
+            {
+                Id = _userDto.Id,
+                Email = "test1@example.com"
+            });
+
+        // Assert
+        _mockUserRepository.Verify();
     }
 
     [Fact]

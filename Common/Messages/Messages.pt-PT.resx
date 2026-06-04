@@ -144,4 +144,7 @@
   <data name="InvalidBookingStatusForUpdate" xml:space="preserve">
     <value>O estado da reserva não é válido para actualização de detalhes.</value>
   </data>
+  <data name="SameEmailInUse" xml:space="preserve">
+    <value>O email é o mesmo que o email atual.</value>
+  </data>
 </root>

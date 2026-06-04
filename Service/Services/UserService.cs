@@ -105,6 +105,27 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     }
 
     /// <inheritdoc />
+    public async Task UpdateEmailAsync(UserDto userDto)
+    {
+        userDto.ValidateRequest(new UpdateEmailValidator());
+
+        var userDtoCheck = await userRepository.GetByIdAsync(userDto.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
+        if (userDtoCheck.Email.Equals(userDto.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(Messages.SameEmailInUse);
+        }
+
+        var userDtoEmailCheck = await userRepository.GetByEmailAsync(userDto.Email);
+        if (userDtoEmailCheck != null)
+        {
+            throw new InvalidOperationException(Messages.EmailInUse);
+        }
+
+        userDtoCheck.Email = userDto.Email;
+        await userRepository.UpdateEmailAsync(userDtoCheck);
+    }
+
+    /// <inheritdoc />
     public async Task UpdateProfileAsync(UserDto userDto)
     {
         userDto.ValidateRequest(new UpdateProfileValidator());

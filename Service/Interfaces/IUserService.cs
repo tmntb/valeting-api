@@ -41,6 +41,14 @@ public interface IUserService
     Task UpdateAdminSettingsAsync(UpdateAdminSettingsDtoRequest updateAdminSettingsDtoRequest);
 
     /// <summary>
+    /// Updates the email for the specified user.
+    /// </summary>
+    /// <param name="userDto">The user information to be updated.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given id.</exception>
+    Task UpdateEmailAsync(UserDto userDto);
+
+    /// <summary>
     /// Updates the profile information for the specified user.
     /// </summary>
     /// <param name="userDto">The user information to be updated.</param>
