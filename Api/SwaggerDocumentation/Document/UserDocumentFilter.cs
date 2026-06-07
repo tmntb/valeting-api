@@ -7,11 +7,6 @@ namespace Api.SwaggerDocumentation.Document;
 /// <summary>
 /// Custom Swagger/OpenAPI document filter for the User endpoints.
 /// </summary>
-/// <remarks>
-/// This filter adds descriptive metadata for user-related operations,
-/// specifically the login endpoint. It sets operation IDs, summaries,
-/// and descriptions to improve API documentation and clarity for consumers.
-/// </remarks>
 [ExcludeFromCodeCoverage]
 public class UserDocumentFilter : IDocumentFilter
 {
@@ -19,11 +14,6 @@ public class UserDocumentFilter : IDocumentFilter
     /// Endpoint for user login.
     /// </summary>
     public const string UserLoginEndpoint = "/users/login";
-
-    /// <summary>
-    /// Endpoint for user register.
-    /// </summary>
-    public const string UserRegisterEndpoint = "/users/register";
 
     /// <summary>
     /// Endpoint to refresh user token
@@ -68,11 +58,6 @@ public class UserDocumentFilter : IDocumentFilter
         userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-login-user";
         userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Validates user credentials";
         userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Returns an access token for the **User**";
-
-        var userRegisterPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserRegisterEndpoint).Value;
-        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-register-user";
-        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Register a new user";
-        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = string.Empty;
 
         var userRefreshTokenPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserRefreshTokenEndpoint).Value;
         userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-refresh-token-user";

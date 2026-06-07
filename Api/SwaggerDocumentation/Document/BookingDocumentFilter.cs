@@ -8,11 +8,6 @@ namespace Api.SwaggerDocumentation.Document;
 /// <summary>
 /// Custom Swagger/OpenAPI document filter for the Booking endpoints.
 /// </summary>
-/// <remarks>
-/// This filter adds descriptive metadata for all booking-related operations,
-/// including listing, creating, retrieving by id, updating, and deleting bookings.
-/// It sets operation IDs, summaries, and descriptions for better API documentation.
-/// </remarks>
 [ExcludeFromCodeCoverage]
 public class BookingDocumentFilter : IDocumentFilter
 {

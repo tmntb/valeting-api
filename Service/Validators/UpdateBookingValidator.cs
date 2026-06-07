@@ -23,7 +23,7 @@ public class UpdateBookingValidator : AbstractValidator<BookingDto>
 
         RuleFor(x => x.ScheduledAt)
             .NotEqual(DateTime.MinValue)
-            .GreaterThan(DateTime.Now);
+            .GreaterThan(DateTime.UtcNow);
 
         RuleFor(x => x.Notes)
             .MaximumLength(500)

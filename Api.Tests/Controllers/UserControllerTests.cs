@@ -119,36 +119,6 @@ public class UserControllerTests
     }
 
     [Fact]
-    public async Task Register_ShouldThrowArgumentNullException_WhenParamsAreNull()
-    {
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.RegisterAsync(null));
-        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
-    }
-
-    [Fact]
-    public async Task Register_ShouldReturnOk_WhenSuccessful()
-    {
-        // Arrange
-        _mockUserService
-            .Setup(s => s.RegisterAsync(It.IsAny<UserDto>()))
-            .Returns(Task.CompletedTask);
-
-        // Act
-        var result = await _userController.RegisterAsync
-        (
-            new()
-            {
-                Password = "password"
-            }
-        ) as ObjectResult;
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal((int)HttpStatusCode.Created, result.StatusCode);
-    }
-
-    [Fact]
     public async Task Reset_ShouldThrowArgumentNullException_WhenParamsAreNull()
     {
         // Act & Assert
@@ -161,7 +131,7 @@ public class UserControllerTests
     {
         // Arrange
         _mockUserService
-            .Setup(s => s.ResetAsync(It.IsAny<UserDto>()))
+            .Setup(s => s.ResetAsync(It.IsAny<ResetPasswordDtoRequest>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -170,7 +140,8 @@ public class UserControllerTests
             new()
             {
                 Email = "user@example.com",
-                NewPassword = "newpassword"
+                NewPassword = "newpassword",
+                Code = "resetcode"
             }
         ) as NoContentResult;
 

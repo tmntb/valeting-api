@@ -11,7 +11,7 @@ internal static class EnvironmentConfiguration
     /// This allows for local development overrides without affecting production deployments.
     /// </summary>
     /// <param name="environment">The hosting environment.</param>
-    public static void LoadDotEnvIfDevelopment(IHostEnvironment environment)
+    internal static void LoadDotEnvIfDevelopment(IHostEnvironment environment)
     {
         if (!environment.IsDevelopment())
         {
@@ -37,7 +37,7 @@ internal static class EnvironmentConfiguration
     /// If the SA_PASSWORD environment variable is not set, this method will also do nothing, allowing the application to fall back to any existing connection string value in configuration (if present).
     /// </summary> <param name="config"></param>
     /// <exception cref="InvalidOperationException"></exception>
-    public static void ConfigureConnectionString(IConfiguration config)
+    internal static void ConfigureConnectionString(IConfiguration config)
     {
         var saPassword = GetEnvVar("SA_PASSWORD");
         var connectionString = config.GetConnectionString("ValetingConnection") ?? throw new InvalidOperationException("ValetingConnection not configured");
@@ -59,7 +59,7 @@ internal static class EnvironmentConfiguration
     /// </summary>
     /// <param name="config"></param>
     /// <exception cref="InvalidOperationException"></exception>
-    public static void ConfigureJwtKey(IConfiguration config)
+    internal static void ConfigureJwtKey(IConfiguration config)
     {
         var jwtKey = GetEnvVar("JWT_KEY");
         var jwtKeyString = config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key not configured");

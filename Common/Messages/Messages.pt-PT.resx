@@ -147,4 +147,7 @@
   <data name="SameEmailInUse" xml:space="preserve">
     <value>O email é o mesmo que o email atual.</value>
   </data>
+  <data name="InvalidOrExpiredCode" xml:space="preserve">
+    <value>Código inválido ou expirado.</value>
+  </data>
 </root>

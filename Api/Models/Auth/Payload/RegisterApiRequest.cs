@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Api.Models.User.Payload;
+namespace Api.Models.Auth.Payload;
 
 /// <summary>
 /// Represents the request body for user registration.

@@ -17,14 +17,6 @@ public interface IUserService
     Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string email);
 
     /// <summary>
-    /// Registers a new user with the provided username and password.
-    /// </summary>
-    /// <param name="userDto">The user registration information.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the username is already in use.</exception>
-    Task RegisterAsync(UserDto userDto);
-
-    /// <summary>
     /// Resets the password for the specified user.
     /// </summary>
     /// <param name="userDto">The user information.</param>

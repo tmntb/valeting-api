@@ -149,5 +149,14 @@ namespace Common.Messages {
                 return ResourceManager.GetString("SameEmailInUse", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid or expired code..
+        /// </summary>
+        public static string InvalidOrExpiredCode {
+            get {
+                return ResourceManager.GetString("InvalidOrExpiredCode", resourceCulture);
+            }
+        }
     }
 }

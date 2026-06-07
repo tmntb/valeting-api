@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Service.Services;
 
-public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, IConfiguration configuration) : IUserService
+public class UserService(IUserRepository userRepository, IConfiguration configuration) : IUserService
 {
     /// <inheritdoc />
     public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string email)
@@ -51,34 +51,9 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     }
 
     /// <inheritdoc />
-    public async Task RegisterAsync(UserDto userDto)
     {
         userDto.ValidateRequest(new RegisterValidator());
 
-        var userDtoCheck = await userRepository.GetByEmailAsync(userDto.Email);
-        if (userDtoCheck != null)
-        {
-            throw new InvalidOperationException(Messages.EmailInUse);
-        }
-
-        var roleDto = await roleRepository.GetByCodeAsync(userDto.Role.Code) ?? throw new KeyNotFoundException(Messages.NotFound);
-        var hashedPassword = GenerateHashPassword(userDto.Password);
-
-        var registerUserDto = new UserDto
-        {
-            Id = Guid.NewGuid(),
-            Email = userDto.Email,
-            PasswordHash = hashedPassword,
-            FirstName = userDto.FirstName,
-            LastName = userDto.LastName,
-            DateOfBirth = userDto.DateOfBirth,
-            ContactNumber = userDto.ContactNumber,
-            Role = new() { Id = roleDto.Id },
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-        await userRepository.RegisterAsync(registerUserDto);
-    }
 
     /// <inheritdoc />
     public async Task ResetAsync(UserDto userDto)

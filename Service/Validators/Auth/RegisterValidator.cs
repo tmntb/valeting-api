@@ -1,7 +1,7 @@
 using FluentValidation;
 using Service.Models.User;
 
-namespace Service.Validators.User;
+namespace Service.Validators.Auth;
 
 /// <summary>
 /// Validator for user registration requests. This class defines the validation rules for the properties of the <see cref="UserDto"/> when a new user is registering. 

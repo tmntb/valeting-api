@@ -26,8 +26,7 @@ public class UserServiceTests
         _mockUserRepository = new Mock<IUserRepository>();
         _mockConfiguration = new Mock<IConfiguration>();
         _mockRoleRepository = new Mock<IRoleRepository>();
-
-        _userService = new UserService(_mockUserRepository.Object, _mockRoleRepository.Object, _mockConfiguration.Object);
+        _userService = new UserService(_mockUserRepository.Object, _mockConfiguration.Object);
     }
 
     [Fact]
@@ -70,55 +69,6 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task RegisterAsync_ShouldThrowInvalidOperationException_WhenUserExists()
-    {
-        // Arrange
-        _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(_userDto);
-
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(_userDto));
-
-        Assert.Equal(exception.Message, Messages.EmailInUse);
-    }
-
-    [Fact]
-    public async Task RegisterAsync_ShouldCreateUser_WhenValid()
-    {
-        // Arrange
-        _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync((UserDto)null);
-
-        _mockRoleRepository
-            .Setup(repo => repo.GetByCodeAsync(It.IsAny<RoleEnum>()))
-            .ReturnsAsync(new RoleDto
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                Code = RoleEnum.USER
-            });
-
-        // Act
-        await _userService.RegisterAsync(new()
-        {
-            Email = "user@example.com",
-            Password = "password",
-            FirstName = "John1",
-            LastName = "Doe",
-            DateOfBirth = new DateOnly(1930, 3, 7),
-            ContactNumber = 123456789,
-            Role = new()
-            {
-                Code = RoleEnum.USER
-            }
-        });
-
-        // Assert
-        _mockUserRepository.Verify(repo => repo.RegisterAsync(It.IsAny<UserDto>()), Times.Once);
-    }
-
-    [Fact]
     public async Task ResetAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
     {
         // Arrange
@@ -130,8 +80,9 @@ public class UserServiceTests
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.ResetAsync(
                 new()
                 {
+                    Code = "resetcode",
                     Email = "user@example.com",
-                    Password = "newpassword"
+                    NewPassword = "newpassword"
                 }));
     }
 
@@ -147,8 +98,9 @@ public class UserServiceTests
         await _userService.ResetAsync(
             new()
             {
+                Code = "resetcode",
                 Email = "user@example.com",
-                Password = "newpassword"
+                NewPassword = "newpassword"
             });
 
         // Assert

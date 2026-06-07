@@ -1,6 +1,6 @@
 ﻿using Common.Enums;
 using Service.Models.User;
-using Service.Validators.User;
+using Service.Validators.Auth;
 
 namespace Service.Tests.Validators.User;
 

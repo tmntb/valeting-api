@@ -55,29 +55,6 @@ public class UserController(IUserService userService) : UserBaseController
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> RegisterAsync([FromBody] RegisterApiRequest registerApiRequest)
-    {
-        ArgumentNullException.ThrowIfNull(registerApiRequest, Messages.InvalidRequestBody);
-
-        var registerDtoRequest = new UserDto
-        {
-            Email = registerApiRequest.Email,
-            Password = registerApiRequest.Password,
-            FirstName = registerApiRequest.FirstName,
-            LastName = registerApiRequest.LastName,
-            DateOfBirth = registerApiRequest.DateOfBirth,
-            ContactNumber = registerApiRequest.ContactNumber,
-            Role = new()
-            {
-                Code = RoleEnum.USER
-            }
-        };
-        await userService.RegisterAsync(registerDtoRequest);
-
-        return Created();
-    }
-
-    /// <inheritdoc />
     public override async Task<IActionResult> ResetAsync([FromBody] ResetApiRequest resetApiRequest)
     {
         ArgumentNullException.ThrowIfNull(resetApiRequest, Messages.InvalidRequestBody);

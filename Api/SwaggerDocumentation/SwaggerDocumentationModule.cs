@@ -51,10 +51,11 @@ public static class SwaggerDocumentationExtensions
                 [new OpenApiSecuritySchemeReference("Bearer", document)] = []
             });
 
+            c.DocumentFilter<AuthDocumentFilter>();
             c.DocumentFilter<BookingDocumentFilter>();
             c.DocumentFilter<FlexibilityDocumentFilter>();
-            c.DocumentFilter<VehicleSizeDocumentFilter>();
             c.DocumentFilter<UserDocumentFilter>();
+            c.DocumentFilter<VehicleSizeDocumentFilter>();
 
             c.ParameterFilter<ParameterFilter>();
         });

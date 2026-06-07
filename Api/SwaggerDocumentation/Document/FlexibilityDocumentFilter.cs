@@ -7,11 +7,6 @@ namespace Api.SwaggerDocumentation.Document;
 /// <summary>
 /// Custom Swagger/OpenAPI document filter for the Flexibility endpoints.
 /// </summary>
-/// <remarks>
-/// This filter adds descriptive metadata for all flexibility-related operations,
-/// including listing all flexibilities and retrieving a flexibility by ID.
-/// It sets operation IDs, summaries, and descriptions for improved API documentation.
-/// </remarks>
 [ExcludeFromCodeCoverage]
 public class FlexibilityDocumentFilter : IDocumentFilter
 {
