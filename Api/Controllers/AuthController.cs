@@ -11,6 +11,20 @@ namespace Api.Controllers;
 public class AuthController(IAuthService authService) : AuthBaseController
 {
     /// <inheritdoc />
+    public override async Task<IActionResult> MfaSetupAsync([FromBody] MfaSetupApiRequest mfaSetupApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(mfaSetupApiRequest, Messages.InvalidRequestBody);
+
+        var mfaSetupDtoResponse = await authService.MfaSetupAsync(mfaSetupApiRequest.Email);
+
+        return Ok(new MfaSetupApiResponse
+        {
+            MfaQrCodeUri = mfaSetupDtoResponse.MfaQrCodeUri,
+            RecoveryCodes = mfaSetupDtoResponse.RecoveryCodes
+        });
+    }
+
+    /// <inheritdoc />
     public override async Task<IActionResult> RegisterAsync([FromBody] RegisterApiRequest registerApiRequest)
     {
         ArgumentNullException.ThrowIfNull(registerApiRequest, Messages.InvalidRequestBody);

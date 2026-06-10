@@ -18,7 +18,7 @@ public class UserDocumentFilter : IDocumentFilter
     /// <summary>
     /// Endpoint to refresh user token
     /// </summary>
-    public const string UserRefreshTokenEndpoint = "/users/refreshToken";
+    public const string UserRefreshTokenEndpoint = "/users/refresh-token";
 
     /// <summary>
     /// Endpoint for user reset password.
@@ -28,7 +28,7 @@ public class UserDocumentFilter : IDocumentFilter
     /// <summary>
     /// Endpoint to update user admin settings.
     /// </summary>
-    public const string UserAdminSettingsEndpoint = "/users/adminSettings";
+    public const string UserAdminSettingsEndpoint = "/users/admin-settings";
 
     /// <summary>
     /// Endpoint to update user email.

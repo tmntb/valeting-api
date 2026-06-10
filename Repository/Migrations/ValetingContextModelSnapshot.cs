@@ -45,10 +45,12 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
 
                 b.Property<string>("FirstName")
                     .IsRequired()
+                    .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
 
                 b.Property<string>("LastName")
                     .IsRequired()
+                    .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
 
                 b.Property<DateOnly>("DateOfBirth")
@@ -70,6 +72,13 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                 b.Property<bool>("IsActive")
                     .HasColumnType("bit");
 
+                b.Property<bool>("MfaEnabled")
+                    .HasColumnType("bit");
+
+                b.Property<string>("MfaSecret")
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
                 b.Property<DateTime>("CreatedAt")
                     .HasColumnType("datetime2");
 
@@ -77,6 +86,9 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                     .HasColumnType("datetime2");
 
                 b.Property<DateTime>("LastLoginAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<DateTime>("PasswordResetExpiresAt")
                     .HasColumnType("datetime2");
 
                 b.HasKey("Id");
@@ -150,34 +162,34 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                 b.ToTable("Booking", (string)null);
             });
 
-         modelBuilder.Entity("Repository.Entities.RdFlexibility", b =>
-            {
-                b.Property<Guid>("Id")
-                    .HasColumnType("uniqueidentifier")
-                    .HasColumnName("Id");
+        modelBuilder.Entity("Repository.Entities.RdFlexibility", b =>
+           {
+               b.Property<Guid>("Id")
+                   .HasColumnType("uniqueidentifier")
+                   .HasColumnName("Id");
 
-                b.Property<string>("Code")
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnType("nvarchar(50)");
+               b.Property<string>("Code")
+                   .IsRequired()
+                   .HasMaxLength(50)
+                   .HasColumnType("nvarchar(50)");
 
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .HasColumnType("nvarchar(100)");
+               b.Property<string>("Name")
+                   .IsRequired()
+                   .HasMaxLength(100)
+                   .HasColumnType("nvarchar(100)");
 
-                b.Property<int>("NumberOfMinutes")
-                    .IsRequired()
-                    .HasColumnType("int");
+               b.Property<int>("NumberOfMinutes")
+                   .IsRequired()
+                   .HasColumnType("int");
 
-                b.Property<bool>("Active")
-                    .IsRequired()
-                    .HasColumnType("bit");
+               b.Property<bool>("Active")
+                   .IsRequired()
+                   .HasColumnType("bit");
 
-                b.HasKey("Id");
+               b.HasKey("Id");
 
-                b.ToTable("RD_Flexibility", (string)null);
-            });
+               b.ToTable("RD_Flexibility", (string)null);
+           });
 
         modelBuilder.Entity("Repository.Entities.RdVehicleSize", b =>
             {
@@ -254,6 +266,34 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                 b.ToTable("RD_Status", (string)null);
             });
 
+        modelBuilder.Entity("Repository.Entities.RecoveryCode", b =>
+            {
+                b.Property<Guid>("Id")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("Id");
+
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("User_Id");
+
+                b.Property<string>("CodeHash")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<DateTime?>("UsedAt")
+                    .HasColumnType("datetime2");
+
+                b.HasKey("Id");
+
+                b.HasIndex("UserId");
+
+                b.ToTable("RecoveryCode", (string)null);
+            });
+
         modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
            {
                b.HasOne("Repository.Entities.RdRole", "Role")
@@ -265,6 +305,17 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                b.Navigation("Role");
            });
 
+        modelBuilder.Entity("Repository.Entities.RecoveryCode", b =>
+            {
+                b.HasOne("Repository.Entities.ApplicationUser", "User")
+                    .WithMany("RecoveryCodes")
+                    .HasForeignKey("UserId")
+                    .IsRequired()
+                    .HasConstraintName("FK_RecoveryCode_ApplicationUser_User");
+
+                b.Navigation("User");
+            });
+            
         modelBuilder.Entity("Repository.Entities.Booking", b =>
             {
                 b.HasOne("Repository.Entities.ApplicationUser", "Customer")

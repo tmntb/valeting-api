@@ -150,4 +150,7 @@
   <data name="InvalidOrExpiredCode" xml:space="preserve">
     <value>Código inválido ou expirado.</value>
   </data>
+  <data name="MfaActivated" xml:space="preserve">
+    <value>MFA já está activado</value>
+  </data>
 </root>

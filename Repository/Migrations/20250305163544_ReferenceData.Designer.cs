@@ -12,7 +12,6 @@ using Repository.Entities;
 
 namespace Repository.Migrations;
 
-[ExcludeFromCodeCoverage]
 [DbContext(typeof(ValetingContext))]
 [Migration("20250305163544_ReferenceData")]
 partial class ReferenceData
@@ -22,13 +21,10 @@ partial class ReferenceData
     {
 #pragma warning disable 612, 618
         modelBuilder
-            .HasAnnotation("ProductVersion", "9.0.2")
-            .HasAnnotation("Proxies:ChangeTracking", false)
-            .HasAnnotation("Proxies:CheckEquality", false)
-            .HasAnnotation("Proxies:LazyLoading", true)
+            .HasAnnotation("ProductVersion", "6.0.10")
             .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
         modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
             {
@@ -47,10 +43,12 @@ partial class ReferenceData
 
                 b.Property<string>("FirstName")
                     .IsRequired()
+                    .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
 
                 b.Property<string>("LastName")
                     .IsRequired()
+                    .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
 
                 b.Property<DateOnly>("DateOfBirth")
@@ -72,6 +70,13 @@ partial class ReferenceData
                 b.Property<bool>("IsActive")
                     .HasColumnType("bit");
 
+                b.Property<bool>("MfaEnabled")
+                    .HasColumnType("bit");
+
+                b.Property<string>("MfaSecret")
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
                 b.Property<DateTime>("CreatedAt")
                     .HasColumnType("datetime2");
 
@@ -79,6 +84,9 @@ partial class ReferenceData
                     .HasColumnType("datetime2");
 
                 b.Property<DateTime>("LastLoginAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<DateTime>("PasswordResetExpiresAt")
                     .HasColumnType("datetime2");
 
                 b.HasKey("Id");
@@ -167,7 +175,7 @@ partial class ReferenceData
                     .IsRequired()
                     .HasMaxLength(100)
                     .HasColumnType("nvarchar(100)");
-                
+
                 b.Property<int>("NumberOfMinutes")
                     .IsRequired()
                     .HasColumnType("int");
@@ -256,6 +264,34 @@ partial class ReferenceData
                 b.ToTable("RD_Status", (string)null);
             });
 
+        modelBuilder.Entity("Repository.Entities.RecoveryCode", b =>
+            {
+                b.Property<Guid>("Id")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("Id");
+
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("User_Id");
+
+                b.Property<string>("CodeHash")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<DateTime?>("UsedAt")
+                    .HasColumnType("datetime2");
+
+                b.HasKey("Id");
+
+                b.HasIndex("UserId");
+
+                b.ToTable("RecoveryCode", (string)null);
+            });
+
         modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
            {
                b.HasOne("Repository.Entities.RdRole", "Role")
@@ -266,6 +302,17 @@ partial class ReferenceData
 
                b.Navigation("Role");
            });
+
+        modelBuilder.Entity("Repository.Entities.RecoveryCode", b =>
+            {
+                b.HasOne("Repository.Entities.ApplicationUser", "User")
+                    .WithMany("RecoveryCodes")
+                    .HasForeignKey("UserId")
+                    .IsRequired()
+                    .HasConstraintName("FK_RecoveryCode_ApplicationUser_User");
+
+                b.Navigation("User");
+            });
 
         modelBuilder.Entity("Repository.Entities.Booking", b =>
             {
@@ -327,6 +374,7 @@ partial class ReferenceData
             {
                 b.Navigation("Bookings");
             });
+
 #pragma warning restore 612, 618
     }
 }

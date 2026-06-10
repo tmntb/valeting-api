@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Api.Controllers.BaseController;
+using Api.Models.Auth.Payload;
 using Api.Models.User.Payload;
 using Common.Enums;
 using Common.Messages;
@@ -82,10 +83,11 @@ public class UserController(IUserService userService) : UserBaseController
             RoleId = updateAdminSettingsApiRequest.RoleId
         };
         await userService.UpdateAdminSettingsAsync(updateAdminSettingsDtoRequest);
-        
+
         return NoContent();
     }
 
+    /// <inheritdoc />
     public override async Task<IActionResult> UpdateEmailAsync([FromBody] UpdateEmailApiRequest updateEmailApiRequest)
     {
         ArgumentNullException.ThrowIfNull(updateEmailApiRequest, Messages.InvalidRequestBody);
@@ -96,10 +98,11 @@ public class UserController(IUserService userService) : UserBaseController
             Email = updateEmailApiRequest.Email
         };
         await userService.UpdateEmailAsync(userDto);
-        
+
         return NoContent();
     }
 
+    /// <inheritdoc />
     public override async Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordApiRequest updatePasswordApiRequest)
     {
         ArgumentNullException.ThrowIfNull(updatePasswordApiRequest, Messages.InvalidRequestBody);

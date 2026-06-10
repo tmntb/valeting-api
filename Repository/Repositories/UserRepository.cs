@@ -36,6 +36,8 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
             ContactNumber = userDto.ContactNumber,
             RoleId = userDto.Role.Id,
             IsActive = userDto.IsActive,
+            MfaEnabled = userDto.MfaEnabled,
+            MfaSecret = userDto.MfaSecret,
             CreatedAt = userDto.CreatedAt,
             UpdatedAt = userDto.UpdatedAt,
             LastLoginAt = userDto.LastLoginAt
@@ -76,6 +78,18 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
             return;
 
         applicationUser.UpdateLastLogin();
+
+        await valetingContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateMfaSecretAsync(UserDto userDto)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdateMfaSecret(userDto.MfaSecret);
 
         await valetingContext.SaveChangesAsync();
     }
@@ -129,6 +143,8 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
                 Code = applicationUser.Role.Code
             },
             IsActive = applicationUser.IsActive,
+            MfaEnabled = applicationUser.MfaEnabled,
+            MfaSecret = applicationUser.MfaSecret,
             CreatedAt = applicationUser.CreatedAt,
             UpdatedAt = applicationUser.UpdatedAt,
             LastLoginAt = applicationUser.LastLoginAt

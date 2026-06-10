@@ -62,7 +62,7 @@ public static class DataFactory
         };
     }
 
-    public static UserDto CreateUserDto(Guid userId = default, RoleEnum roleEnum = RoleEnum.USER)
+    public static UserDto CreateUserDto(Guid userId = default, RoleEnum roleEnum = RoleEnum.USER, bool mfaEnable = true, string mfaSecret = "mfaSecret")
     {
         return new()
         {
@@ -80,7 +80,9 @@ public static class DataFactory
                 Code = roleEnum,
                 Name = "name"
             },
-            IsActive = true
+            IsActive = true,
+            MfaEnabled = mfaEnable,
+            MfaSecret = mfaSecret
         };
     }
 }

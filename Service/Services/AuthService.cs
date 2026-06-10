@@ -12,6 +12,48 @@ namespace Service.Services;
 public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository recoveryCodeRepository, IRoleRepository roleRepository) : IAuthService
 {
     /// <inheritdoc />
+    public async Task<MfaSetupDtoResponse> MfaSetupAsync(string email)
+    {
+        var userDto = await userRepository.GetByEmailAsync(email) ?? throw new KeyNotFoundException(Messages.NotFound);
+        if (userDto.MfaEnabled)
+        {
+            throw new InvalidOperationException(Messages.MfaActivated);
+        }
+
+        if (userDto.MfaSecret != null && !userDto.MfaEnabled)
+        {
+            return new()
+            {
+                MfaQrCodeUri = $"otpauth://totp/Valeting:{Uri.EscapeDataString(userDto.Email)}?secret={userDto.MfaSecret}&issuer=Valeting"
+            };
+        }
+
+        var createDate = DateTime.UtcNow;
+
+        var mfaSecret = GenerateMfaSecret();
+        userDto.MfaSecret = mfaSecret;
+        await userRepository.UpdateMfaSecretAsync(userDto);
+
+        var recoveryCodes = GenerateRecoveryCodes();
+
+        var recoveryCodeDtos = recoveryCodes.Select(code => new RecoveryCodeDto
+        {
+            Id = Guid.NewGuid(),
+            User = new() { Id = userDto.Id },
+            CodeHash = GenerateHash(code),
+            CreatedAt = createDate
+        });
+
+        await recoveryCodeRepository.CreateManyAsync(recoveryCodeDtos);
+
+        return new()
+        {
+            MfaQrCodeUri = $"otpauth://totp/Valeting:{Uri.EscapeDataString(userDto.Email)}?secret={mfaSecret}&issuer=Valeting",
+            RecoveryCodes = recoveryCodes
+        };
+    }
+
+    /// <inheritdoc />
     public async Task RegisterAsync(UserDto userDto)
     {
         userDto.ValidateRequest(new RegisterValidator());
@@ -34,31 +76,6 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
         userDto.CreatedAt = DateTime.UtcNow;
 
         await userRepository.RegisterAsync(userDto);
-    }
-
-    public async Task<MfaSetupDtoResponse> MfaSetupAsync()
-    {
-        var createDate = DateTime.UtcNow;
-
-        var mfaSecret = GenerateMfaSecret();
-        var recoveryCodes = GenerateRecoveryCodes();
-
-        recoveryCodes.ForEach(async x => await recoveryCodeRepository.CreateAsync(new RecoveryCodeDto
-        {
-            Id = Guid.NewGuid(),
-            CodeHash = GenerateHash(x),
-            CreatedAt = createDate,
-            User = new UserDto
-            {
-                //Id = userId
-            }
-        }));
-
-        return new()
-        {
-            //MfaQrCodeUri = $"otpauth://totp/Valeting:{Uri.EscapeDataString(userDto.Email)}?secret={mfaSecret}&issuer=Valeting",
-            RecoveryCodes = recoveryCodes
-        };
     }
 
     /// <summary>
@@ -100,6 +117,4 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
     {
         return $"{Random.Shared.Next(1000, 9999)}-{Random.Shared.Next(1000, 9999)}";
     }
-
-
 }

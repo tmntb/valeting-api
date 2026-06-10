@@ -33,7 +33,7 @@ public abstract class UserBaseController : ControllerBase
     /// <response code="401">Returned when the token is invalid or expired beyond the refresh window.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPost]
-    [Route("/users/refreshToken")]
+    [Route("/users/refresh-token")]
     [Consumes("application/json")]
     [ProducesResponseType(statusCode: 200, type: typeof(RefreshTokenApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
@@ -69,7 +69,7 @@ public abstract class UserBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPatch]
     [Authorize(Roles = "ADMIN")]
-    [Route("/users/adminSettings")]
+    [Route("/users/admin-settings")]
     [ProducesResponseType(statusCode: 204)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]

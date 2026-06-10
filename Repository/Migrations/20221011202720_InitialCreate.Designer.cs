@@ -42,10 +42,12 @@ partial class InitialCreate
 
                 b.Property<string>("FirstName")
                     .IsRequired()
+                    .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
 
                 b.Property<string>("LastName")
                     .IsRequired()
+                    .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
 
                 b.Property<DateOnly>("DateOfBirth")
@@ -67,6 +69,13 @@ partial class InitialCreate
                 b.Property<bool>("IsActive")
                     .HasColumnType("bit");
 
+                b.Property<bool>("MfaEnabled")
+                    .HasColumnType("bit");
+
+                b.Property<string>("MfaSecret")
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
                 b.Property<DateTime>("CreatedAt")
                     .HasColumnType("datetime2");
 
@@ -74,6 +83,9 @@ partial class InitialCreate
                     .HasColumnType("datetime2");
 
                 b.Property<DateTime>("LastLoginAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<DateTime>("PasswordResetExpiresAt")
                     .HasColumnType("datetime2");
 
                 b.HasKey("Id");
@@ -225,7 +237,7 @@ partial class InitialCreate
 
                 b.ToTable("RD_Role", (string)null);
             });
-        
+
         modelBuilder.Entity("Repository.Entities.RdStatus", b =>
             {
                 b.Property<Guid>("Id")
@@ -251,6 +263,34 @@ partial class InitialCreate
                 b.ToTable("RD_Status", (string)null);
             });
 
+        modelBuilder.Entity("Repository.Entities.RecoveryCode", b =>
+            {
+                b.Property<Guid>("Id")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("Id");
+
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("User_Id");
+
+                b.Property<string>("CodeHash")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<DateTime?>("UsedAt")
+                    .HasColumnType("datetime2");
+
+                b.HasKey("Id");
+
+                b.HasIndex("UserId");
+
+                b.ToTable("RecoveryCode", (string)null);
+            });
+
         modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
            {
                b.HasOne("Repository.Entities.RdRole", "Role")
@@ -261,6 +301,17 @@ partial class InitialCreate
 
                b.Navigation("Role");
            });
+
+        modelBuilder.Entity("Repository.Entities.RecoveryCode", b =>
+            {
+                b.HasOne("Repository.Entities.ApplicationUser", "User")
+                    .WithMany("RecoveryCodes")
+                    .HasForeignKey("UserId")
+                    .IsRequired()
+                    .HasConstraintName("FK_RecoveryCode_ApplicationUser_User");
+
+                b.Navigation("User");
+            });
 
         modelBuilder.Entity("Repository.Entities.Booking", b =>
             {

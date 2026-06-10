@@ -158,5 +158,14 @@ namespace Common.Messages {
                 return ResourceManager.GetString("InvalidOrExpiredCode", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Mfa activated..
+        /// </summary>
+        public static string MfaActivated {
+            get {
+                return ResourceManager.GetString("MfaActivated", resourceCulture);
+            }
+        }
     }
 }

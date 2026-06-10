@@ -80,6 +80,8 @@ public partial class InitialCreate : Migration
                 ContactNumber = table.Column<int>(type: "int", nullable: false),
                 Role_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 IsActive = table.Column<bool>(type: "bit", nullable: false),
+                MfaEnabled = table.Column<bool>(type: "bit", nullable: false),
+                MfaSecret = table.Column<string>(type: "nvarchar(200)", nullable: true),
                 CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                 UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                 LastLoginAt = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -142,6 +144,26 @@ public partial class InitialCreate : Migration
                     principalColumn: "Id");
             });
 
+        migrationBuilder.CreateTable(
+            name: "RecoveryCode",
+            columns: table => new
+            {
+                Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                User_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                CodeHash = table.Column<string>(type: "nvarchar(200)", nullable: false),
+                CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                UsedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_RecoveryCode", x => x.Id);
+                table.ForeignKey(
+                    name: "FK_RecoveryCode_ApplicationUser_User",
+                    column: x => x.User_Id,
+                    principalTable: "ApplicationUser",
+                    principalColumn: "Id");
+            });
+
         migrationBuilder.CreateIndex(
             name: "IX_ApplicationUser_Role_Id",
             table: "ApplicationUser",
@@ -171,6 +193,11 @@ public partial class InitialCreate : Migration
             name: "IX_Booking_DecisionBy_Id",
             table: "Booking",
             column: "DecisionBy_Id");
+
+        migrationBuilder.CreateIndex(
+            name: "IX_RecoveryCode_UserId",
+            table: "RecoveryCode",
+            column: "User_Id");
     }
 
     protected override void Down(MigrationBuilder migrationBuilder)
@@ -186,5 +213,7 @@ public partial class InitialCreate : Migration
         migrationBuilder.DropTable(name: "RD_Role");
 
         migrationBuilder.DropTable(name: "RD_Status");
+
+        migrationBuilder.DropTable(name: "RecoveryCode");
     }
 }

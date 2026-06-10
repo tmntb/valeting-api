@@ -4,6 +4,7 @@ using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Service.Interfaces;
+using Service.Models.Auth.Payload;
 using Service.Models.User;
 
 namespace Api.Tests.Controllers;
@@ -21,7 +22,41 @@ public class AuthControllerTests
     }
 
     [Fact]
-    public async Task Register_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    public async Task MfaSetupAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _authController.MfaSetupAsync(null));
+        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
+    }
+
+    [Fact]
+    public async Task MfaSetupAsync_ShouldReturnOk_WhenSuccessful()
+    {
+        // Arrange
+        _mockAuthService
+            .Setup(s => s.MfaSetupAsync(It.IsAny<string>()))
+            .ReturnsAsync(new MfaSetupDtoResponse
+            {
+                MfaQrCodeUri = "",
+                RecoveryCodes = []
+            });
+
+        // Act
+        var result = await _authController.MfaSetupAsync
+        (
+            new()
+            {
+                Email = "user@example.com"
+            }
+        ) as ObjectResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task RegisterAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
     {
         // Act & Assert
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _authController.RegisterAsync(null));
@@ -29,7 +64,7 @@ public class AuthControllerTests
     }
 
     [Fact]
-    public async Task Register_ShouldReturnOk_WhenSuccessful()
+    public async Task RegisterAsync_ShouldReturnCreated_WhenSuccessful()
     {
         // Arrange
         _mockAuthService

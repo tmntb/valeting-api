@@ -27,9 +27,10 @@ public static class RepositoryModule
         services
             .AddScoped<IBookingRepository, BookingRepository>()
             .AddScoped<IFlexibilityRepository, FlexibilityRepository>()
-            .AddScoped<IVehicleSizeRepository, VehicleSizeRepository>()
-            .AddScoped<IUserRepository, UserRepository>()
+            .AddScoped<IRecoveryCodeRepository, RecoveryCodeRepository>()
             .AddScoped<IRoleRepository, RoleRepository>()
-            .AddScoped<IStatusRepository, StatusRepository>();
+            .AddScoped<IStatusRepository, StatusRepository>()
+            .AddScoped<IUserRepository, UserRepository>()
+            .AddScoped<IVehicleSizeRepository, VehicleSizeRepository>();
     }
 }

@@ -25,7 +25,7 @@ public interface IUserRepository
     /// <returns>A task representing the asynchronous operation.</returns>
     Task RegisterAsync(UserDto userDto);
 
-     /// <summary>
+    /// <summary>
     /// Updates an existing user's administrative settings in the database.
     /// </summary>
     /// <param name="userDto">The user data containing the updated administrative settings.</param>
@@ -45,6 +45,13 @@ public interface IUserRepository
     /// <param name="userId">The unique identifier of the user to update.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     Task UpdateLastLoginAsync(Guid userId);
+
+    /// <summary>
+    /// Updates an existing user's mfa secret in the database.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user to update.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task UpdateMfaSecretAsync(UserDto userDto);
 
     /// <summary>
     /// Updates an existing user's password in the database.

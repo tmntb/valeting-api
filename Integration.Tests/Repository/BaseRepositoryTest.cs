@@ -99,6 +99,16 @@ public class BaseRepositoryTest : IAsyncLifetime
             Notes = "notes"
         };
 
+        var recoveryCode = new RecoveryCode
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000071"),
+            CodeHash = "codeHash",
+            CreatedAt = DateTime.UtcNow,
+            UsedAt = DateTime.MinValue,
+            User = user
+        };
+
+        Context.RecoveryCodes.Add(recoveryCode);
         Context.Bookings.Add(booking);
         Context.RdFlexibilities.Add(flexibility);
         Context.RdVehicleSizes.Add(vehicleSize);
@@ -111,6 +121,7 @@ public class BaseRepositoryTest : IAsyncLifetime
 
     protected async Task ClearDatabaseAsync()
     {
+        Context.RecoveryCodes.RemoveRange(Context.RecoveryCodes);
         Context.Bookings.RemoveRange(Context.Bookings);
         Context.RdFlexibilities.RemoveRange(Context.RdFlexibilities);
         Context.RdVehicleSizes.RemoveRange(Context.RdVehicleSizes);

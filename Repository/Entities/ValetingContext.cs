@@ -21,6 +21,7 @@ public partial class ValetingContext : DbContext
     public virtual DbSet<RdVehicleSize> RdVehicleSizes { get; set; } = null!;
     public virtual DbSet<RdRole> RdRoles { get; set; } = null!;
     public virtual DbSet<RdStatus> RdStatus { get; set; } = null!;
+    public virtual DbSet<RecoveryCode> RecoveryCodes { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -62,6 +63,10 @@ public partial class ValetingContext : DbContext
                 .HasColumnName("Role_Id");
 
             entity.Property(e => e.IsActive).IsRequired();
+
+            entity.Property(e => e.MfaEnabled).IsRequired();
+
+            entity.Property(e => e.MfaSecret).HasMaxLength(200);
 
             entity.Property(e => e.CreatedAt)
                 .IsRequired()
@@ -245,6 +250,39 @@ public partial class ValetingContext : DbContext
                 .HasMaxLength(100);
 
             entity.Property(e => e.Active).IsRequired();
+        });
+
+        modelBuilder.Entity<RecoveryCode>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.ToTable("RecoveryCode");
+
+            entity.Property(e => e.Id)
+                 .ValueGeneratedNever()
+                 .HasColumnName("Id");
+
+            entity.Property(e => e.UserId)
+                .IsRequired()
+                .HasColumnName("User_Id");
+
+            entity.Property(e => e.CodeHash)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(e => e.CreatedAt)
+                .IsRequired()
+                .HasColumnType("datetime2");
+
+            entity.Property(e => e.UsedAt)
+                .IsRequired()
+                .HasColumnType("datetime2");
+
+            entity.HasOne(d => d.User)
+                .WithMany(p => p.RecoveryCodes)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RecoveryCode_ApplicationUser_User");
         });
 
         OnModelCreatingPartial(modelBuilder);

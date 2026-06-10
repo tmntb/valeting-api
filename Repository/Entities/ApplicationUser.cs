@@ -9,6 +9,7 @@ public partial class ApplicationUser
     {
         CustomerBookings = new HashSet<Booking>();
         DecisionBookings = new HashSet<Booking>();
+        RecoveryCodes = new HashSet<RecoveryCode>();
     }
 
     /// <summary>
@@ -16,7 +17,7 @@ public partial class ApplicationUser
     /// </summary>
     public Guid Id { get; set; }
 
-   /// <summary>
+    /// <summary>
     /// Email address of the user.
     /// </summary>
     public string Email { get; set; }
@@ -57,6 +58,16 @@ public partial class ApplicationUser
     public bool IsActive { get; set; }
 
     /// <summary>
+    /// Indicates whether multi-factor authentication (MFA) is enabled for the user.
+    /// </summary>
+    public bool MfaEnabled { get; set; }
+
+    /// <summary>
+    /// Secret key used for generating MFA codes, if MFA is enabled.
+    /// </summary>
+    public string? MfaSecret { get; set; }
+
+    /// <summary>
     /// Timestamp when the user account was created.
     /// </summary>
     public DateTime CreatedAt { get; set; }
@@ -85,4 +96,9 @@ public partial class ApplicationUser
     /// Collection of bookings associated with this user admin.
     /// </summary>
     public virtual ICollection<Booking> DecisionBookings { get; set; }
+
+    /// <summary>
+    /// Collection of recovery codes associated with this user for MFA.
+    /// </summary>
+    public virtual ICollection<RecoveryCode> RecoveryCodes { get; set; }
 }
