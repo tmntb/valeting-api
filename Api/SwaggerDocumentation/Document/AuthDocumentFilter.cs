@@ -17,7 +17,7 @@ public class AuthDocumentFilter : IDocumentFilter
 
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
-        var userRegisterPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == AuthRegisterEndpoint).Value;
+        var userRegisterPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key.Contains(AuthRegisterEndpoint)).Value;
         userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-register-user";
         userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Register a new user";
         userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = string.Empty;

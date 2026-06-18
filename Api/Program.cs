@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 using Api.Helpers;
 using Api.Middleware;
 using Api.SwaggerDocumentation;
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Repository;
@@ -70,6 +72,20 @@ builder.Services
         opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1);
+    options.ReportApiVersions = true;
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+})
+.AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 
 builder.Services.AddSwaggerDocumentation();
@@ -109,10 +125,18 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.MapControllers();
 
 app.UseSwagger();
-app.UseSwaggerUI(c =>
+app.UseSwaggerUI(options =>
 {
-    c.RoutePrefix = "swagger";
-    c.SwaggerEndpoint("v1/swagger.json", "Valeting v1");
+    options.RoutePrefix = "swagger";
+
+    var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+    foreach (var description in provider.ApiVersionDescriptions)
+    {
+        options.SwaggerEndpoint(
+            $"/swagger/{description.GroupName}/swagger.json",
+            $"Valeting {description.GroupName.ToUpper()}");
+    }
 });
 
 app.Run();

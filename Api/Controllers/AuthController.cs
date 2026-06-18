@@ -1,5 +1,6 @@
 using Api.Controllers.BaseController;
 using Api.Models.Auth.Payload;
+using Asp.Versioning;
 using Common.Enums;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ using Service.Models.User;
 
 namespace Api.Controllers;
 
+[ApiVersion("1")]
 public class AuthController(IAuthService authService) : AuthBaseController
 {
     /// <inheritdoc />

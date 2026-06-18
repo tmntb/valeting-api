@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Api.SwaggerDocumentation.Document;
 using Api.SwaggerDocumentation.Parameter;
+using Asp.Versioning.ApiExplorer;
 using Microsoft.OpenApi;
 
 namespace Api.SwaggerDocumentation;
@@ -11,6 +12,9 @@ namespace Api.SwaggerDocumentation;
 [ExcludeFromCodeCoverage]
 public static class SwaggerDocumentationExtensions
 {
+    private const string DEPRECATED_API_DESCRIPTION = "This API version has been deprecated.";
+    private const string API_DESCRIPTION = "This is an API to manage car bookings.";
+
     /// <summary>
     /// Adds and configures Swagger documentation, including API info, servers, security, and custom filters.
     /// </summary>
@@ -19,19 +23,24 @@ public static class SwaggerDocumentationExtensions
     {
         services.AddSwaggerGen(c =>
         {
+            var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
+
             c.SupportNonNullableReferenceTypes();
 
-            c.SwaggerDoc("v1", new()
+            foreach (var description in provider.ApiVersionDescriptions)
             {
-                Title = "Valeting",
-                Version = "v1",
-                Description = "This is an API to manage car bookings.",
-                Contact = new()
+                c.SwaggerDoc(description.GroupName, new()
                 {
-                    Name = "Tiago Baeta",
-                    Email = "tmntb.work@gmail.com"
-                }
-            });
+                    Title = "Valeting",
+                    Version = description.ApiVersion.ToString(),
+                    Description = description.IsDeprecated ? DEPRECATED_API_DESCRIPTION : API_DESCRIPTION,
+                    Contact = new()
+                    {
+                        Name = "Tiago Baeta",
+                        Email = "tmntb.work@gmail.com"
+                    }
+                });
+            }
 
             c.AddServer(new() { Description = "Local", Url = "https://localhost:44376/valeting" });
             c.AddServer(new() { Description = "Docker", Url = "https://localhost:8080/valeting" });
