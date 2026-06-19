@@ -1,28 +1,25 @@
-using System;
 using Service.Models.Auth.Payload;
 using Service.Validators.Auth;
 
 namespace Service.Tests.Validators.Auth;
 
-public class MfaEnableValidatorTests
+public class MfaCodeValidatorTests
 {
-    private readonly MfaEnableValidator _validator;
+    private readonly MfaCodeValidator _validator;
 
-    public MfaEnableValidatorTests()
+    public MfaCodeValidatorTests()
     {
-        _validator = new MfaEnableValidator();
+        _validator = new MfaCodeValidator();
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("invalid-email")]
-    public void Email_ShouldFail(string? email)
+    [InlineData("00000000-0000-0000-0000-000000000000")]
+    public void Email_ShouldFail(Guid userId)
     {
         // Arrange
-        var request = new MfaEnableDtoRequest
+        var request = new MfaCodeDtoRequest
         {
-            Email = email
+            UserId = userId
         };
 
         // Act
@@ -30,7 +27,7 @@ public class MfaEnableValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains("Email", result.Errors.FirstOrDefault().ErrorMessage);
+        Assert.Contains("User Id", result.Errors.FirstOrDefault().ErrorMessage);
     }
 
     [Theory]
@@ -40,9 +37,9 @@ public class MfaEnableValidatorTests
     public void MfaCode_ShouldFail(string? mfaCode)
     {
         // Arrange
-        var request = new MfaEnableDtoRequest
+        var request = new MfaCodeDtoRequest
         {
-            Email = "user@example.com",
+            UserId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
             MfaCode = mfaCode
         };
 

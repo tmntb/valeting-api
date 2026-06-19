@@ -3,7 +3,6 @@ using Common.Messages;
 using Moq;
 using OtpNet;
 using Service.Interfaces;
-using Service.Models.Auth;
 using Service.Models.Role;
 using Service.Models.User;
 using Service.Services;
@@ -35,13 +34,13 @@ public class AuthServiceTests
     {
         // Arrange        
         _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _authService.MfaEnableAsync(new()
         {
-            Email = "user1@example.com",
+            UserId = _userDto.Id,
             MfaCode = "123456"
         }));
 
@@ -53,13 +52,13 @@ public class AuthServiceTests
     {
         // Arrange        
         _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(_userDto);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaEnableAsync(new()
         {
-            Email = "user1@example.com",
+            UserId = _userDto.Id,
             MfaCode = "123456"
         }));
 
@@ -72,13 +71,13 @@ public class AuthServiceTests
         // Arrange    
         _userDto.MfaEnabled = false;            
         _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(_userDto);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaEnableAsync(new()
         {
-            Email = "user1@example.com",
+            UserId = _userDto.Id,
             MfaCode = "123456"
         }));
 
@@ -96,13 +95,13 @@ public class AuthServiceTests
         var validCode = totp.ComputeTotp();
 
         _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(_userDto);
 
         // Act & Assert
         await _authService.MfaEnableAsync(new()
         {
-            Email = "user1@example.com",
+            UserId = _userDto.Id,
             MfaCode = validCode
         });
 
@@ -114,11 +113,11 @@ public class AuthServiceTests
     {
         // Arrange        
         _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _authService.MfaSetupAsync("user1@example.com"));
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _authService.MfaSetupAsync(Guid.Parse("00000000-0000-0000-0000-000000000001")));
 
         Assert.Equal(exception.Message, Messages.NotFound);
     }
@@ -128,11 +127,11 @@ public class AuthServiceTests
     {
         // Arrange
         _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(_userDto);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaSetupAsync(_userDto.Email));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaSetupAsync(_userDto.Id));
 
         Assert.Equal(exception.Message, Messages.MfaActivated);
     }
@@ -144,11 +143,11 @@ public class AuthServiceTests
         _userDto.MfaEnabled = false;
 
         _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(_userDto);
 
         // Act
-        var response = await _authService.MfaSetupAsync(_userDto.Email);
+        var response = await _authService.MfaSetupAsync(_userDto.Id);
 
         // Assert
         Assert.Equal(response.MfaQrCodeUri, $"otpauth://totp/Valeting:{Uri.EscapeDataString(_userDto.Email)}?secret={_userDto.MfaSecret}&issuer=Valeting");
@@ -163,7 +162,7 @@ public class AuthServiceTests
         _userDto.MfaSecret = null;
 
         _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(_userDto)
             .Verifiable(Times.Once);
 
@@ -173,7 +172,7 @@ public class AuthServiceTests
             .Verifiable(Times.Once);
 
         // Act
-        var response = await _authService.MfaSetupAsync(_userDto.Email);
+        var response = await _authService.MfaSetupAsync(_userDto.Id);
 
         // Assert
         Assert.Equal(response.MfaQrCodeUri, $"otpauth://totp/Valeting:{Uri.EscapeDataString(_userDto.Email)}?secret={_userDto.MfaSecret}&issuer=Valeting");

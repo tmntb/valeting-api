@@ -13,14 +13,14 @@ namespace Api.Controllers;
 public class AuthController(IAuthService authService) : AuthBaseController
 {
     /// <inheritdoc />
-    public override async Task<IActionResult> MfaEnableAsync([FromBody] MfaEnableApiRequest mfaEnableApiRequest)
+    public override async Task<IActionResult> MfaEnableAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest)
     {
-        ArgumentNullException.ThrowIfNull(mfaEnableApiRequest, Messages.InvalidRequestBody);
+        ArgumentNullException.ThrowIfNull(mfaCodeApiRequest, Messages.InvalidRequestBody);
 
         await authService.MfaEnableAsync(new()
         {
-            Email = mfaEnableApiRequest.Email,
-            MfaCode = mfaEnableApiRequest.MfaCode
+            UserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            MfaCode = mfaCodeApiRequest.MfaCode
         });
 
         return NoContent();
@@ -33,11 +33,9 @@ public class AuthController(IAuthService authService) : AuthBaseController
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> MfaSetupAsync([FromBody] MfaSetupApiRequest mfaSetupApiRequest)
+    public override async Task<IActionResult> MfaSetupAsync()
     {
-        ArgumentNullException.ThrowIfNull(mfaSetupApiRequest, Messages.InvalidRequestBody);
-
-        var mfaSetupDtoResponse = await authService.MfaSetupAsync(mfaSetupApiRequest.Email);
+        var mfaSetupDtoResponse = await authService.MfaSetupAsync(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
 
         return Ok(new MfaSetupApiResponse
         {

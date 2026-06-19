@@ -1,11 +1,11 @@
 namespace Service.Models.Auth.Payload;
 
-public class MfaEnableDtoRequest
+public class MfaCodeDtoRequest
 {
     /// <summary>
-    /// User's email
+    /// User id
     /// </summary>
-    public string Email { get; set; }
+    public Guid UserId { get; set; }
 
     /// <summary>
     /// Mfa code

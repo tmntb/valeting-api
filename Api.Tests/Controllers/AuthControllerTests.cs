@@ -11,6 +11,7 @@ namespace Api.Tests.Controllers;
 
 public class AuthControllerTests
 {
+    private readonly ClaimsFixture _claimsFixture = new();
     private readonly Mock<IAuthService> _mockAuthService;
     private readonly AuthController _authController;
 
@@ -33,8 +34,10 @@ public class AuthControllerTests
     public async Task MfaEnableAsync_ShouldReturnOk_WhenSuccessful()
     {
         // Arrange
+        _claimsFixture.SetupUserClaims(_authController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
+
         _mockAuthService
-            .Setup(s => s.MfaEnableAsync(It.IsAny<MfaEnableDtoRequest>()))
+            .Setup(s => s.MfaEnableAsync(It.IsAny<MfaCodeDtoRequest>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -42,7 +45,6 @@ public class AuthControllerTests
         (
             new()
             {
-                Email = "user@example.com",
                 MfaCode = "123456"
             }
         ) as StatusCodeResult;
@@ -53,19 +55,13 @@ public class AuthControllerTests
     }
 
     [Fact]
-    public async Task MfaSetupAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
-    {
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _authController.MfaSetupAsync(null));
-        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
-    }
-
-    [Fact]
     public async Task MfaSetupAsync_ShouldReturnOk_WhenSuccessful()
     {
         // Arrange
+        _claimsFixture.SetupUserClaims(_authController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
+        
         _mockAuthService
-            .Setup(s => s.MfaSetupAsync(It.IsAny<string>()))
+            .Setup(s => s.MfaSetupAsync(It.IsAny<Guid>()))
             .ReturnsAsync(new MfaSetupDtoResponse
             {
                 MfaQrCodeUri = "",
@@ -73,13 +69,7 @@ public class AuthControllerTests
             });
 
         // Act
-        var result = await _authController.MfaSetupAsync
-        (
-            new()
-            {
-                Email = "user@example.com"
-            }
-        ) as ObjectResult;
+        var result = await _authController.MfaSetupAsync() as ObjectResult;
 
         // Assert
         Assert.NotNull(result);

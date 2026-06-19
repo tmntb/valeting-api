@@ -12,32 +12,28 @@ namespace Service.Services;
 public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository recoveryCodeRepository, IRoleRepository roleRepository) : IAuthService
 {
     /// <inheritdoc />
-    public async Task MfaEnableAsync(MfaEnableDtoRequest mfaEnableDtoRequest)
+    public async Task MfaEnableAsync(MfaCodeDtoRequest mfaCodeDtoRequest)
     {
-        mfaEnableDtoRequest.ValidateRequest(new MfaEnableValidator());
+        mfaCodeDtoRequest.ValidateRequest(new MfaCodeValidator());
 
-        var userDto = await userRepository.GetByEmailAsync(mfaEnableDtoRequest.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDto = await userRepository.GetByIdAsync(mfaCodeDtoRequest.UserId) ?? throw new KeyNotFoundException(Messages.NotFound);
         if (userDto.MfaEnabled)
         {
             throw new InvalidOperationException(Messages.MfaActivated);
         }
 
-        var secretBytes = Base32Encoding.ToBytes(userDto.MfaSecret);
-        var totp = new Totp(secretBytes);
-        var isValid = totp.VerifyTotp(mfaEnableDtoRequest.MfaCode, out _, new VerificationWindow(previous: 1, future: 1));
-        if (!isValid)
-        {
-            throw new InvalidOperationException(Messages.InvalidMfaCode);
-        }
+        ValidateMfaCode(userDto, mfaCodeDtoRequest.MfaCode);
 
         userDto.MfaEnabled = true;
         await userRepository.UpdateMfaEnableAsync(userDto);
     }
 
     /// <inheritdoc />
-    public async Task<MfaSetupDtoResponse> MfaSetupAsync(string email)
     {
         var userDto = await userRepository.GetByEmailAsync(email) ?? throw new KeyNotFoundException(Messages.NotFound);
+    public async Task<MfaSetupDtoResponse> MfaSetupAsync(Guid userId)
+    {
+        var userDto = await userRepository.GetByIdAsync(userId) ?? throw new KeyNotFoundException(Messages.NotFound);
         if (userDto.MfaEnabled)
         {
             throw new InvalidOperationException(Messages.MfaActivated);
@@ -51,23 +47,11 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
             };
         }
 
-        var createDate = DateTime.UtcNow;
-
         var mfaSecret = GenerateMfaSecret();
         userDto.MfaSecret = mfaSecret;
         await userRepository.UpdateMfaSecretAsync(userDto);
 
-        var recoveryCodes = GenerateRecoveryCodes();
-
-        var recoveryCodeDtos = recoveryCodes.Select(code => new RecoveryCodeDto
-        {
-            Id = Guid.NewGuid(),
-            User = new() { Id = userDto.Id },
-            CodeHash = GenerateHash(code),
-            CreatedAt = createDate
-        });
-
-        await recoveryCodeRepository.CreateManyAsync(recoveryCodeDtos);
+        var recoveryCodes = await GenerateRecoveryCodes(userDto.Id);
 
         return new()
         {
@@ -102,6 +86,15 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
     }
 
     /// <summary>
+    /// Generates a single recovery code consisting of two sets of four digits separated by a hyphen (e.g., "1234-5678").
+    /// </summary>
+    /// <returns>A recovery code.</returns>
+    private string GenerateCode()
+    {
+        return $"{Random.Shared.Next(1000, 9999)}-{Random.Shared.Next(1000, 9999)}";
+    }
+
+    /// <summary>
     /// Generates a hashed string using BCrypt with a specified work factor.
     /// </summary>
     /// <param name="strToHash">The plain text string to hash.</param>
@@ -125,19 +118,39 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
     /// Generates a list of recovery codes for multi-factor authentication, each consisting of two sets of four digits separated by a hyphen.
     /// </summary>
     /// <returns>A list of 8 recovery codes.</returns>
-    private List<string> GenerateRecoveryCodes()
+    private async Task<List<string>> GenerateRecoveryCodes(Guid userId)
     {
-        return Enumerable.Range(0, 8)
+        var createDate = DateTime.UtcNow;
+
+        var recoveryCodes = Enumerable.Range(0, 8)
                 .Select(_ => GenerateCode())
                 .ToList();
+                
+        var recoveryCodeDtos = recoveryCodes.Select(code => new RecoveryCodeDto
+        {
+            Id = Guid.NewGuid(),
+            User = new() { Id = userId },
+            CodeHash = GenerateHash(code),
+            CreatedAt = createDate
+        });
+
+        await recoveryCodeRepository.CreateManyAsync(recoveryCodeDtos);
+
+        return recoveryCodes;
     }
 
     /// <summary>
-    /// Generates a single recovery code consisting of two sets of four digits separated by a hyphen (e.g., "1234-5678").
+    /// Validates the mfa code sent in the request
     /// </summary>
-    /// <returns>A recovery code.</returns>
-    private string GenerateCode()
+    /// <exception cref="InvalidOperationException">Thrown if the user mfa code is invalid.</exception>
+    private void ValidateMfaCode(UserDto userDto, string mfaCode)
     {
-        return $"{Random.Shared.Next(1000, 9999)}-{Random.Shared.Next(1000, 9999)}";
+        var secretBytes = Base32Encoding.ToBytes(userDto.MfaSecret);
+        var totp = new Totp(secretBytes);
+        var isValid = totp.VerifyTotp(mfaCode, out _, new VerificationWindow(previous: 1, future: 1));
+        if (!isValid)
+        {
+            throw new InvalidOperationException(Messages.InvalidMfaCode);
+        }
     }
 }
