@@ -34,6 +34,12 @@ builder.Services.AddService();
 builder.Services.AddRepository(builder.Configuration);
 
 builder.Services
+    .Configure<RouteOptions>(options =>
+    {
+        options.LowercaseUrls = true;
+    });
+
+builder.Services
     .AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -72,18 +78,19 @@ builder.Services
         opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-builder.Services.AddApiVersioning(options =>
-{
-    options.DefaultApiVersion = new ApiVersion(1);
-    options.ReportApiVersions = true;
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ApiVersionReader = new UrlSegmentApiVersionReader();
-})
-.AddApiExplorer(options =>
-{
-    options.GroupNameFormat = "'v'VVV";
-    options.SubstituteApiVersionInUrl = true;
-});
+builder.Services
+    .AddApiVersioning(options =>
+    {
+        options.DefaultApiVersion = new ApiVersion(1);
+        options.ReportApiVersions = true;
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ApiVersionReader = new UrlSegmentApiVersionReader();
+    })
+    .AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'VVV";
+        options.SubstituteApiVersionInUrl = true;
+    });
 
 
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
@@ -103,7 +110,24 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
+{
     app.UseDeveloperExceptionPage();
+
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.RoutePrefix = "swagger";
+
+        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                $"Valeting {description.GroupName.ToUpper()}");
+        }
+    });
+}
 
 app.UsePathBase("/valeting");
 
@@ -123,21 +147,6 @@ app.UseAuthorization();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
-
-app.UseSwagger();
-app.UseSwaggerUI(options =>
-{
-    options.RoutePrefix = "swagger";
-
-    var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-
-    foreach (var description in provider.ApiVersionDescriptions)
-    {
-        options.SwaggerEndpoint(
-            $"/swagger/{description.GroupName}/swagger.json",
-            $"Valeting {description.GroupName.ToUpper()}");
-    }
-});
 
 app.Run();
 

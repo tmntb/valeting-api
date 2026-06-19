@@ -27,16 +27,16 @@ public class VehicleSizeDocumentFilter : IDocumentFilter
     /// <param name="context">The document filter context.</param>
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
-        swaggerDoc.Tags.Add(new OpenApiTag() { Name = "VehicleSize", Description = "Vehicle size operations" });
+        // swaggerDoc.Tags.Add(new OpenApiTag() { Name = "VehicleSize", Description = "Vehicle size operations" });
 
-        var flexibilitiesPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == VehicleSizesEndpoint).Value;
-        flexibilitiesPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.OperationId = "get-vehiclesizes";
-        flexibilitiesPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Summary = "List vehicle sizes";
-        flexibilitiesPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Description = "Return a list of all **Vehicle Sizes**, it can be filter by the page number, page size and/or active";
+        // var flexibilitiesPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == VehicleSizesEndpoint).Value;
+        // flexibilitiesPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.OperationId = "get-vehiclesizes";
+        // flexibilitiesPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Summary = "List vehicle sizes";
+        // flexibilitiesPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Description = "Return a list of all **Vehicle Sizes**, it can be filter by the page number, page size and/or active";
 
-        var flexibilitiesIdPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == VehicleSizesIdEndpoint).Value;
-        flexibilitiesIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.OperationId = "get-vehiclesizes-id";
-        flexibilitiesIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Summary = "List vehicle sizes by id";
-        flexibilitiesIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Description = "Returns a **Vehicle Size** by the given id";
+        // var flexibilitiesIdPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == VehicleSizesIdEndpoint).Value;
+        // flexibilitiesIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.OperationId = "get-vehiclesizes-id";
+        // flexibilitiesIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Summary = "List vehicle sizes by id";
+        // flexibilitiesIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Description = "Returns a **Vehicle Size** by the given id";
     }
 }
