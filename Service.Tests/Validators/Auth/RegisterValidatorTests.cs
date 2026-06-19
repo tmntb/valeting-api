@@ -2,7 +2,7 @@
 using Service.Models.User;
 using Service.Validators.Auth;
 
-namespace Service.Tests.Validators.User;
+namespace Service.Tests.Validators.Auth;
 
 public class RegisterValidatorTests
 {

@@ -153,4 +153,7 @@
   <data name="MfaActivated" xml:space="preserve">
     <value>MFA já está activado</value>
   </data>
+  <data name="InvalidMfaCode" xml:space="preserve">
+    <value>Código de MFA inválido</value>
+  </data>
 </root>

@@ -9,6 +9,28 @@ namespace Api.Controllers.BaseController;
 public abstract class AuthBaseController : ControllerBase
 {
     /// <summary>
+    /// Enables the mfa for a given user
+    /// </summary>
+    /// <param name="mfaSetupApiRequest">The email and mfa code information</param>
+    /// <response code="400">Returned when the request body is invalid or fails validation.</response>
+    /// <response code="409">Returned when the user mfa is already activated.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpPost]
+    [Route("auth/mfa/enable")]
+    [ProducesResponseType(statusCode: 204)]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> MfaEnableAsync([FromBody] MfaEnableApiRequest mfaEnableApiRequest);
+
+    [HttpPost]
+    [Route("auth/mfa/regenerate-recovery-codes")]
+    [ProducesResponseType(statusCode: 200)]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> MfaRegenerateRecoveryCodesAsync();
+
+    /// <summary>
     /// Setups the mfa and recovery codes
     /// </summary>
     /// <param name="mfaSetupApiRequest">The email information for the setup</param>

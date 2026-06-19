@@ -167,5 +167,14 @@ namespace Common.Messages {
                 return ResourceManager.GetString("MfaActivated", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid mfa code..
+        /// </summary>
+        public static string InvalidMfaCode {
+            get {
+                return ResourceManager.GetString("InvalidMfaCode", resourceCulture);
+            }
+        }
     }
 }

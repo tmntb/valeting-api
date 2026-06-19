@@ -34,6 +34,15 @@ public partial class ApplicationUser
     }
 
     /// <summary>
+    /// Updates the user's mfa enabled
+    /// </summary>
+    internal void UpdateMfaEnable(bool mfaEnable)
+    {
+        MfaEnabled = mfaEnable;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
     /// Updates the user's mfa secret
     /// </summary>
     internal void UpdateMfaSecret(string mfaSecret)

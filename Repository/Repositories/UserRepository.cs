@@ -83,6 +83,18 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
     }
 
     /// <inheritdoc />
+    public async Task UpdateMfaEnableAsync(UserDto userDto)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdateMfaEnable(userDto.MfaEnabled);
+
+        await valetingContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc />
     public async Task UpdateMfaSecretAsync(UserDto userDto)
     {
         var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id);

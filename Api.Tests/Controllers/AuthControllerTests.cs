@@ -22,6 +22,37 @@ public class AuthControllerTests
     }
 
     [Fact]
+    public async Task MfaEnableAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _authController.MfaEnableAsync(null));
+        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
+    }
+
+    [Fact]
+    public async Task MfaEnableAsync_ShouldReturnOk_WhenSuccessful()
+    {
+        // Arrange
+        _mockAuthService
+            .Setup(s => s.MfaEnableAsync(It.IsAny<MfaEnableDtoRequest>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _authController.MfaEnableAsync
+        (
+            new()
+            {
+                Email = "user@example.com",
+                MfaCode = "123456"
+            }
+        ) as StatusCodeResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.NoContent, result.StatusCode);
+    }
+
+    [Fact]
     public async Task MfaSetupAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
     {
         // Act & Assert

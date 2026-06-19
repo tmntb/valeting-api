@@ -1,6 +1,7 @@
 using Common.Enums;
 using Common.Messages;
 using Moq;
+using OtpNet;
 using Service.Interfaces;
 using Service.Models.Auth;
 using Service.Models.Role;
@@ -30,7 +31,86 @@ public class AuthServiceTests
     }
 
     [Fact]
-    public async Task MfaSetupAsync_ShouldThrowInvalidOperationException_WhenUserNotFound()
+    public async Task MfaEnableAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    {
+        // Arrange        
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync((UserDto)null);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _authService.MfaEnableAsync(new()
+        {
+            Email = "user1@example.com",
+            MfaCode = "123456"
+        }));
+
+        Assert.Equal(exception.Message, Messages.NotFound);
+    }
+
+    [Fact]
+    public async Task MfaEnableAsync_ShouldThrowInvalidOperationException_WhenUserMfaEnabled()
+    {
+        // Arrange        
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaEnableAsync(new()
+        {
+            Email = "user1@example.com",
+            MfaCode = "123456"
+        }));
+
+        Assert.Equal(exception.Message, Messages.MfaActivated);
+    }
+
+    [Fact]
+    public async Task MfaEnableAsync_ShouldThrowInvalidOperationException_WhenInvalidMfaCode()
+    {
+        // Arrange    
+        _userDto.MfaEnabled = false;            
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaEnableAsync(new()
+        {
+            Email = "user1@example.com",
+            MfaCode = "123456"
+        }));
+
+        Assert.Equal(exception.Message, Messages.InvalidMfaCode);
+    }
+
+     [Fact]
+    public async Task MfaEnableAsync_ShouldEnableMfa_WhenInvalidMfaCode()
+    {
+        // Arrange 
+        _userDto.MfaEnabled = false;
+
+        var secretBytes = Base32Encoding.ToBytes(_userDto.MfaSecret);
+        var totp = new Totp(secretBytes);
+        var validCode = totp.ComputeTotp();
+
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto);
+
+        // Act & Assert
+        await _authService.MfaEnableAsync(new()
+        {
+            Email = "user1@example.com",
+            MfaCode = validCode
+        });
+
+        Assert.True(_userDto.MfaEnabled);
+    }
+
+    [Fact]
+    public async Task MfaSetupAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
     {
         // Arrange        
         _mockUserRepository

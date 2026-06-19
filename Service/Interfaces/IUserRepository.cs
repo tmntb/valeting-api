@@ -47,6 +47,13 @@ public interface IUserRepository
     Task UpdateLastLoginAsync(Guid userId);
 
     /// <summary>
+    /// Updates an existing user's mfa enable in the database.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user to update.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task UpdateMfaEnableAsync(UserDto userDto);
+
+    /// <summary>
     /// Updates an existing user's mfa secret in the database.
     /// </summary>
     /// <param name="userId">The unique identifier of the user to update.</param>

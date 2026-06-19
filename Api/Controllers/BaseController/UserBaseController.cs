@@ -41,8 +41,6 @@ public abstract class UserBaseController : ControllerBase
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenApiRequest refreshTokenApiRequest);
 
-    
-
     /// <summary>
     /// Resets the password of the currently authenticated user.
     /// </summary>

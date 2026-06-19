@@ -1,24 +1,26 @@
-using Service.Models.User;
-using Service.Validators.User;
+using System;
+using Service.Models.Auth.Payload;
+using Service.Validators.Auth;
 
-namespace Service.Tests.Validators.User;
+namespace Service.Tests.Validators.Auth;
 
-public class ResetValidatorTests
+public class MfaEnableValidatorTests
 {
-    private readonly ResetValidator _validator;
+    private readonly MfaEnableValidator _validator;
 
-    public ResetValidatorTests()
+    public MfaEnableValidatorTests()
     {
-        _validator = new ResetValidator();
+        _validator = new MfaEnableValidator();
     }
 
     [Theory]
     [InlineData(null)]
     [InlineData("")]
+    [InlineData("invalid-email")]
     public void Email_ShouldFail(string? email)
     {
         // Arrange
-        var request = new UserDto
+        var request = new MfaEnableDtoRequest
         {
             Email = email
         };
@@ -34,13 +36,14 @@ public class ResetValidatorTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    public void Password_ShouldFail(string? password)
+    [InlineData("invalid-mfa-code")]
+    public void MfaCode_ShouldFail(string? mfaCode)
     {
         // Arrange
-        var request = new UserDto
+        var request = new MfaEnableDtoRequest
         {
             Email = "user@example.com",
-            Password = password
+            MfaCode = mfaCode
         };
 
         // Act
@@ -48,6 +51,6 @@ public class ResetValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains("Password", result.Errors.FirstOrDefault().ErrorMessage);
+        Assert.Contains("Mfa Code", result.Errors.FirstOrDefault().ErrorMessage);
     }
 }

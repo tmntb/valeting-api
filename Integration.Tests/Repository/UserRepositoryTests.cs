@@ -174,6 +174,38 @@ public class UserRepositoryTests : BaseRepositoryTest
     }
 
     [Fact]
+    public async Task UpdateMfaEnableAsync_ShouldReturnNull_WhenNoUserForGivenIdExists()
+    {
+        // Arrange
+        var userDto = new UserDto
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000043")
+        };
+
+        // Act & Assert
+        await _userRepository.UpdateMfaEnableAsync(userDto);
+    }
+
+    [Fact]
+    public async Task UpdateMfaEnableAsync_ShouldUpdateExistingUserInDatabase()
+    {
+        // Arrange
+        var userDto = new UserDto
+        {
+            Id = DataFactory.USER_ID,
+            MfaEnabled = true
+        };
+
+        // Act
+        await _userRepository.UpdateMfaEnableAsync(userDto);
+
+        // Assert
+        var updatedUser = await Context.ApplicationUsers.FindAsync(DataFactory.USER_ID);
+        Assert.NotNull(updatedUser);
+        Assert.True(updatedUser.MfaEnabled);
+    }
+
+    [Fact]
     public async Task UpdateMfaSecretAsync_ShouldReturnNull_WhenNoUserForGivenIdExists()
     {
         // Arrange

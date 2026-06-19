@@ -12,6 +12,29 @@ namespace Service.Services;
 public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository recoveryCodeRepository, IRoleRepository roleRepository) : IAuthService
 {
     /// <inheritdoc />
+    public async Task MfaEnableAsync(MfaEnableDtoRequest mfaEnableDtoRequest)
+    {
+        mfaEnableDtoRequest.ValidateRequest(new MfaEnableValidator());
+
+        var userDto = await userRepository.GetByEmailAsync(mfaEnableDtoRequest.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
+        if (userDto.MfaEnabled)
+        {
+            throw new InvalidOperationException(Messages.MfaActivated);
+        }
+
+        var secretBytes = Base32Encoding.ToBytes(userDto.MfaSecret);
+        var totp = new Totp(secretBytes);
+        var isValid = totp.VerifyTotp(mfaEnableDtoRequest.MfaCode, out _, new VerificationWindow(previous: 1, future: 1));
+        if (!isValid)
+        {
+            throw new InvalidOperationException(Messages.InvalidMfaCode);
+        }
+
+        userDto.MfaEnabled = true;
+        await userRepository.UpdateMfaEnableAsync(userDto);
+    }
+
+    /// <inheritdoc />
     public async Task<MfaSetupDtoResponse> MfaSetupAsync(string email)
     {
         var userDto = await userRepository.GetByEmailAsync(email) ?? throw new KeyNotFoundException(Messages.NotFound);
