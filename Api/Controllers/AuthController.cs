@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Api.Controllers.BaseController;
 using Api.Models.Auth.Payload;
 using Asp.Versioning;
@@ -27,9 +28,20 @@ public class AuthController(IAuthService authService) : AuthBaseController
     }
 
     /// <inheritdoc />
-    public override Task<IActionResult> MfaRegenerateRecoveryCodesAsync()
+    public override async Task<IActionResult> MfaRegenerateRecoveryCodesAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(mfaCodeApiRequest, Messages.InvalidRequestBody);
+
+        var mfaRegenerateRecoveryCodes = await authService.MfaRegenerateRecoveryCodesAsync(new()
+        {
+            UserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            MfaCode = mfaCodeApiRequest.MfaCode
+        });
+
+        return Ok(new MfaRegenerateRecoveryCodesApiResponse
+        {
+            RecoveryCodes = mfaRegenerateRecoveryCodes
+        });
     }
 
     /// <inheritdoc />

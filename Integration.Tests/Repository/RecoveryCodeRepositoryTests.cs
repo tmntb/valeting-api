@@ -26,4 +26,19 @@ public class RecoveryCodeRepositoryTests  : BaseRepositoryTest
         // Assert
         Assert.NotNull(result);
     }
+
+    [Fact]
+    public async Task DeleteManyAsync_ShouldRemoveRecoveryCodeFromDatabase()
+    {
+        // Arrange
+        await _recoveryCodeRepository.CreateManyAsync([_recoveryCodeDto]);
+
+        // Act
+        await _recoveryCodeRepository.DeleteManyAsync(_recoveryCodeDto.User.Id);
+
+        var result = await Context.RecoveryCodes.FindAsync(_recoveryCodeDto.User.Id);
+
+        // Assert
+        Assert.Null(result);
+    }
 }

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
 using Service.Interfaces;
 using Service.Models.Auth;
@@ -19,6 +20,14 @@ public class RecoveryCodeRepository(ValetingContext valetingContext) : IRecovery
         });
 
         await valetingContext.RecoveryCodes.AddRangeAsync(recoveryCodes);
+        await valetingContext.SaveChangesAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task DeleteManyAsync(Guid userId)
+    {
+        var userRecoveryCodes = await valetingContext.RecoveryCodes.Where(x => x.UserId == userId).ToListAsync();
+        valetingContext.RecoveryCodes.RemoveRange(userRecoveryCodes);
         await valetingContext.SaveChangesAsync();
     }
 }

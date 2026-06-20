@@ -1,5 +1,6 @@
 using Api.Models.Auth.Payload;
 using Api.Models.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.BaseController;
@@ -24,19 +25,28 @@ public abstract class AuthBaseController : ControllerBase
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> MfaEnableAsync([FromBody] MfaEnableApiRequest mfaEnableApiRequest);
+    public abstract Task<IActionResult> MfaEnableAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest);
 
+    /// <summary>
+    /// Regenerates the recovery codes
+    /// </summary>
+    /// <param name="mfaCodeApiRequest">The information of mfa code to allow the recovery codes to be regenerated</param>
+    /// <response code="200">Returns the list of recovery codes.</response>
+    /// <response code="400">Returned when the request body is invalid or fails validation.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPost]
-    [Route("auth/mfa/regenerate-recovery-codes")]
-    [ProducesResponseType(statusCode: 200)]
+    [Authorize]
+    [Route("mfa/recovery-codes/regenerate")]
+    [ProducesResponseType(statusCode: 200, type: typeof(MfaRegenerateRecoveryCodesApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> MfaRegenerateRecoveryCodesAsync();
+    public abstract Task<IActionResult> MfaRegenerateRecoveryCodesAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest);
 
     /// <summary>
     /// Setups the mfa and recovery codes
     /// </summary>
     /// <param name="mfaSetupApiRequest">The email information for the setup</param>
+    /// <response code="200">Return the mfa info required for the setup.</response>
     /// <response code="400">Returned when the request body is invalid or fails validation.</response>
     /// <response code="409">Returned when the user mfa is already activated.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>

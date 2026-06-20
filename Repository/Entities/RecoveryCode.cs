@@ -27,5 +27,8 @@ public class RecoveryCode
     /// </summary>
     public DateTime? UsedAt { get; set; }
 
+    /// <summary>
+    /// Navigation property for the user created the recovery code.
+    /// </summary>
     public virtual ApplicationUser User { get; set; } = null!;
 }

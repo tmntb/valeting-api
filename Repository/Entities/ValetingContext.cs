@@ -274,9 +274,7 @@ public partial class ValetingContext : DbContext
                 .IsRequired()
                 .HasColumnType("datetime2");
 
-            entity.Property(e => e.UsedAt)
-                .IsRequired()
-                .HasColumnType("datetime2");
+            entity.Property(e => e.UsedAt).HasColumnType("datetime2");
 
             entity.HasOne(d => d.User)
                 .WithMany(p => p.RecoveryCodes)

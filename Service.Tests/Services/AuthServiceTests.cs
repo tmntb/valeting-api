@@ -3,6 +3,7 @@ using Common.Messages;
 using Moq;
 using OtpNet;
 using Service.Interfaces;
+using Service.Models.Auth;
 using Service.Models.Role;
 using Service.Models.User;
 using Service.Services;
@@ -85,7 +86,7 @@ public class AuthServiceTests
     }
 
      [Fact]
-    public async Task MfaEnableAsync_ShouldEnableMfa_WhenInvalidMfaCode()
+    public async Task MfaEnableAsync_ShouldEnableMfa_WhenValidMfaCode()
     {
         // Arrange 
         _userDto.MfaEnabled = false;
@@ -106,6 +107,113 @@ public class AuthServiceTests
         });
 
         Assert.True(_userDto.MfaEnabled);
+    }
+
+    [Fact]
+    public async Task MfaRegenerateRecoveryCodesAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    {
+        // Arrange        
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((UserDto)null);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _authService.MfaRegenerateRecoveryCodesAsync(new()
+        {
+            UserId = _userDto.Id,
+            MfaCode = "123456"
+        }));
+
+        Assert.Equal(exception.Message, Messages.NotFound);
+    }
+
+    [Fact]
+    public async Task MfaRegenerateRecoveryCodesAsync_ShouldThrowInvalidOperationException_WhenUserMfaSecretIsNull()
+    {
+        // Arrange        
+        _userDto.MfaSecret = null;
+
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaRegenerateRecoveryCodesAsync(new()
+        {
+            UserId = _userDto.Id,
+            MfaCode = "123456"
+        }));
+
+        Assert.Equal(exception.Message, Messages.MfaDisabled);
+    }
+
+    [Fact]
+    public async Task MfaRegenerateRecoveryCodesAsync_ShouldThrowInvalidOperationException_WhenUserMfaDisabled()
+    {
+        // Arrange        
+        _userDto.MfaEnabled = false;
+
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaRegenerateRecoveryCodesAsync(new()
+        {
+            UserId = _userDto.Id,
+            MfaCode = "123456"
+        }));
+
+        Assert.Equal(exception.Message, Messages.MfaDisabled);
+    }
+
+    [Fact]
+    public async Task MfaRegenerateRecoveryCodesAsync_ShouldThrowInvalidOperationException_WhenInvalidMfaCode()
+    {
+        // Arrange    
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaRegenerateRecoveryCodesAsync(new()
+        {
+            UserId = _userDto.Id,
+            MfaCode = "123456"
+        }));
+
+        Assert.Equal(exception.Message, Messages.InvalidMfaCode);
+    }
+
+    [Fact]
+    public async Task MfaRegenerateRecoveryCodesAsync_ShouldGenerateRecoveryCodes_WhenValidMfaCode()
+    {
+        // Arrange    
+        var secretBytes = Base32Encoding.ToBytes(_userDto.MfaSecret);
+        var totp = new Totp(secretBytes);
+        var validCode = totp.ComputeTotp();
+
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto);
+
+        _mockRecoveryCodeRepository
+            .Setup(x => x.DeleteManyAsync(It.IsAny<Guid>()))
+            .Returns(Task.CompletedTask);
+
+        _mockRecoveryCodeRepository
+            .Setup(x => x.CreateManyAsync(It.IsAny<List<RecoveryCodeDto>>()))
+            .Returns(Task.CompletedTask);
+
+        // Act & Assert
+        var result = await  _authService.MfaRegenerateRecoveryCodesAsync(new()
+        {
+            UserId = _userDto.Id,
+            MfaCode = validCode
+        });
+
+        Assert.NotNull(result);
+        Assert.Equal(8, result.Count);
     }
 
     [Fact]

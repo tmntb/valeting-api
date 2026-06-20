@@ -151,9 +151,12 @@
     <value>Código inválido ou expirado.</value>
   </data>
   <data name="MfaActivated" xml:space="preserve">
-    <value>MFA já está activado</value>
+    <value>MFA já está activado.</value>
+  </data>
+   <data name="MfaDisabled" xml:space="preserve">
+    <value>MFA está desactivo.</value>
   </data>
   <data name="InvalidMfaCode" xml:space="preserve">
-    <value>Código de MFA inválido</value>
+    <value>Código de MFA inválido.</value>
   </data>
 </root>

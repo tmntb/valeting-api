@@ -29,8 +29,25 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
     }
 
     /// <inheritdoc />
+    public async Task<List<string>> MfaRegenerateRecoveryCodesAsync(MfaCodeDtoRequest mfaCodeDtoRequest)
     {
-        var userDto = await userRepository.GetByEmailAsync(email) ?? throw new KeyNotFoundException(Messages.NotFound);
+        mfaCodeDtoRequest.ValidateRequest(new MfaCodeValidator());
+
+        var userDto = await userRepository.GetByIdAsync(mfaCodeDtoRequest.UserId) ?? throw new KeyNotFoundException(Messages.NotFound);
+        if (userDto.MfaSecret == null || !userDto.MfaEnabled)
+        {
+            throw new InvalidOperationException(Messages.MfaDisabled);
+        }
+
+        ValidateMfaCode(userDto, mfaCodeDtoRequest.MfaCode);
+
+        await recoveryCodeRepository.DeleteManyAsync(userDto.Id);
+        var recoveryCodes = await GenerateRecoveryCodes(userDto.Id);
+
+        return recoveryCodes;
+    }
+
+    /// <inheritdoc />
     public async Task<MfaSetupDtoResponse> MfaSetupAsync(Guid userId)
     {
         var userDto = await userRepository.GetByIdAsync(userId) ?? throw new KeyNotFoundException(Messages.NotFound);
