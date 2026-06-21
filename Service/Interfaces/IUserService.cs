@@ -6,15 +6,11 @@ namespace Service.Interfaces;
 public interface IUserService
 {
     /// <summary>
-    /// Generates a JWT access token for the specified user.
+    /// Initiates the forgot password process for a user by their email.
     /// </summary>
-    /// <param name="email">The email of the user for whom the token is generated.</param>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="GenerateTokenJWTDtoResponse"/> 
-    /// with the token, its type, and expiration date.
-    /// </returns>
-    /// <exception cref="KeyNotFoundException">Thrown if the user with the given email does not exist.</exception>
-    Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string email);
+    /// <param name="email">The email of the user who forgot their password.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task ForgotPasswordAsync(string email);
 
     /// <summary>
     /// Resets the password for the specified user.
@@ -55,20 +51,4 @@ public interface IUserService
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given id.</exception>
     Task UpdateProfileAsync(UpdateProfileDtoRequest updateProfileDtoRequest);
-
-    /// <summary>
-    /// Validates the user's credentials by checking the username and password.
-    /// </summary>
-    /// <param name="userDto">The user information.</param>
-    /// <returns>True if the username exists and the password matches; otherwise, false.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given username.</exception>
-    Task ValidateLoginAsync(UserDto userDto);
-
-    /// <summary>
-    /// Validates a JWT token and extracts the username claim.
-    /// </summary>
-    /// <param name="token">The JWT token to validate.</param>
-    /// <returns>The email extracted from the token's claims.</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown if the token is invalid, expired, or does not contain a email claim.</exception>
-    string ValidateToken(string token);
 }

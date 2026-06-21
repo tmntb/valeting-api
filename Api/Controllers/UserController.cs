@@ -2,7 +2,6 @@
 using Api.Controllers.BaseController;
 using Api.Models.Auth.Payload;
 using Api.Models.User.Payload;
-using Common.Enums;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
@@ -14,45 +13,13 @@ namespace Api.Controllers;
 public class UserController(IUserService userService) : UserBaseController
 {
     /// <inheritdoc />
-    public override async Task<IActionResult> LoginAsync([FromBody] LoginApiRequest loginApiRequest)
+    public override async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordApiRequest forgotPasswordApiRequest)
     {
-        ArgumentNullException.ThrowIfNull(loginApiRequest, Messages.InvalidRequestBody);
+        ArgumentNullException.ThrowIfNull(forgotPasswordApiRequest, Messages.InvalidRequestBody);
 
-        var userDto = new UserDto
-        {
-            Email = loginApiRequest.Email,
-            Password = loginApiRequest.Password
-        };
+        await userService.ForgotPasswordAsync(forgotPasswordApiRequest.Email);
 
-        await userService.ValidateLoginAsync(userDto);
-
-        var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(loginApiRequest.Email);
-
-        var validateLoginApiResponse = new LoginApiResponse
-        {
-            Token = generateTokenJWTDtoResponse.Token,
-            TokenType = generateTokenJWTDtoResponse.TokenType,
-            ExpiryDate = generateTokenJWTDtoResponse.ExpiryDate
-        };
-        return Ok(validateLoginApiResponse);
-    }
-
-    /// <inheritdoc />
-    public override async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenApiRequest refreshTokenApiRequest)
-    {
-        ArgumentNullException.ThrowIfNull(refreshTokenApiRequest, Messages.InvalidRequestBody);
-        ArgumentException.ThrowIfNullOrEmpty(refreshTokenApiRequest.Token, Messages.InvalidRequestBody);
-
-        var email = userService.ValidateToken(refreshTokenApiRequest.Token); // TODO: Remove when middleware is implemented
-        var generateTokenJwtDtoResponse = await userService.GenerateTokenJWTAsync(email);
-
-        var refreshTokenApiResponse = new RefreshTokenApiResponse
-        {
-            Token = generateTokenJwtDtoResponse.Token,
-            TokenType = generateTokenJwtDtoResponse.TokenType,
-            ExpiryDate = generateTokenJwtDtoResponse.ExpiryDate
-        };
-        return Ok(refreshTokenApiResponse);
+        return Ok();
     }
 
     /// <inheritdoc />

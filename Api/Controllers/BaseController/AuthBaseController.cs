@@ -11,6 +11,22 @@ namespace Api.Controllers.BaseController;
 public abstract class AuthBaseController : ControllerBase
 {
     /// <summary>
+    /// Authenticates a user and generates a JWT access token.
+    /// </summary>
+    /// <param name="loginApiRequest">The login credentials (username and password) of the user.</param>
+    /// <response code="200">Returns a JWT access token and related metadata.</response>
+    /// <response code="400">Returned when the request body is invalid or missing required fields.</response>
+    /// <response code="401">Returned when authentication fails due to invalid credentials.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpPost]
+    [Route("login")]
+    [ProducesResponseType(statusCode: 200, type: typeof(LoginApiResponse))]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> LoginAsync([FromBody] LoginApiRequest loginApiRequest);
+
+    /// <summary>
     /// Enables the mfa for a given user
     /// </summary>
     /// <param name="mfaCodeApiRequest">The mfa code information</param>
@@ -58,6 +74,23 @@ public abstract class AuthBaseController : ControllerBase
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> MfaSetupAsync();
+
+    /// <summary>
+    /// Refreshes the user JWT access token.
+    /// </summary>
+    /// <param name="refreshTokenApiRequest">The request containing the current JWT token.</param>
+    /// <response code="200">Returns a newly generated JWT token.</response>
+    /// <response code="400">Returned when the request body is invalid or missing required fields.</response>
+    /// <response code="401">Returned when the token is invalid or expired beyond the refresh window.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpPost]
+    [Route("refresh-token")]
+    [Consumes("application/json")]
+    [ProducesResponseType(statusCode: 200, type: typeof(RefreshTokenApiResponse))]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenApiRequest refreshTokenApiRequest);
 
     /// <summary>
     /// Registers a new user account.

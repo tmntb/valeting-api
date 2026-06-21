@@ -1,4 +1,4 @@
-﻿namespace Api.Models.User.Payload;
+﻿namespace Api.Models.Auth.Payload;
 
 /// <summary>
 /// Represents the response body for a successful user login, containing the authentication token and its expiry information.

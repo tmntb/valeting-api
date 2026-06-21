@@ -11,19 +11,9 @@ namespace Api.SwaggerDocumentation.Document;
 public class UserDocumentFilter : IDocumentFilter
 {
     /// <summary>
-    /// Endpoint for user login.
-    /// </summary>
-    public const string UserLoginEndpoint = "/users/login";
-
-    /// <summary>
-    /// Endpoint to refresh user token
-    /// </summary>
-    public const string UserRefreshTokenEndpoint = "/users/refresh-token";
-
-    /// <summary>
     /// Endpoint for user reset password.
     /// </summary>
-    public const string UserResetEndpoint = "/users/reset";
+    public const string UserResetEndpoint = "/users/reset-password";
 
     /// <summary>
     /// Endpoint to update user admin settings.
@@ -54,15 +44,7 @@ public class UserDocumentFilter : IDocumentFilter
     {
         swaggerDoc.Tags.Add(new OpenApiTag() { Name = "User", Description = "User operations" });
 
-        var userLoginPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserLoginEndpoint).Value;
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-login-user";
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Validates user credentials";
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Returns an access token for the **User**";
-
-        var userRefreshTokenPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserRefreshTokenEndpoint).Value;
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-refresh-token-user";
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Refresh the token for valid user";
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Returns a refreshed access token for the **User**";
+        
 
         var userResetPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserResetEndpoint).Value;
         userResetPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.OperationId = "post-reset-password-user";

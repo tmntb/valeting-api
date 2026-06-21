@@ -1,59 +1,36 @@
 ﻿using Common.Messages;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using Service.Interfaces;
 using Service.Models.User;
 using Service.Models.User.Payload;
 using Service.Validators.User;
 using Service.Validators.Utils;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace Service.Services;
 
-public class UserService(IUserRepository userRepository, IConfiguration configuration) : IUserService
+public class UserService(IUserRepository userRepository) : IUserService
 {
     /// <inheritdoc />
-    public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string email)
+    public async Task ForgotPasswordAsync(string email)
     {
-        var userDto = await userRepository.GetByEmailAsync(email) ?? throw new KeyNotFoundException(Messages.NotFound);
-
-        var (issuer, audience) = GetJwtSettings();
-
-        var securityKey = GetSecurityKey();
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var tokenDescriptor = new SecurityTokenDescriptor
+        var userDto = await userRepository.GetByEmailAsync(email);
+        if (userDto == null)
         {
-            Subject = new ClaimsIdentity(
-            [
-                new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
-                new Claim(ClaimTypes.Name, string.Format("{0} {1}", userDto.FirstName, userDto.LastName)),
-                new Claim(ClaimTypes.Email, userDto.Email),
-                new Claim(ClaimTypes.Role, userDto.Role.Code.ToString())
-            ]),
-            Expires = DateTime.Now.AddMinutes(60),
-            Issuer = issuer,
-            Audience = audience,
-            SigningCredentials = credentials
-        };
+            // To prevent user enumeration, we return a success response even if the email does not exist.
+            return;
+        }
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var code = Random.Shared.Next(100000, 999999).ToString();
 
-        return new()
-        {
-            Token = tokenHandler.WriteToken(token),
-            ExpiryDate = token.ValidTo.ToLocalTime(),
-            TokenType = tokenHandler.TokenType.Name
-        };
+        var hash = GenerateHash(code);
+        // userDto.PasswordResetTokenHash = hash;
+        // userDto.PasswordResetExpiresAt = DateTime.UtcNow.AddMinutes(10);
+
+        await userRepository.UpdateResetPasswordTokenAsync(userDto);
+
+        // await emailService.SendResetPasswordCodeAsync(email, code);
     }
 
-    /// <inheritdoc />
-    {
-        userDto.ValidateRequest(new RegisterValidator());
-
+    
 
     /// <inheritdoc />
     public async Task ResetAsync(UserDto userDto)
@@ -125,73 +102,13 @@ public class UserService(IUserRepository userRepository, IConfiguration configur
         await userRepository.UpdateProfileAsync(userDtoUpdate);
     }
 
-    /// <inheritdoc />
-    public async Task ValidateLoginAsync(UserDto userDto)
-    {
-        userDto.ValidateRequest(new ValidateLoginValidator());
-
-        var userDtoCheck = await userRepository.GetByEmailAsync(userDto.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
-
-        var passwordValid = userDtoCheck.IsActive && BCrypt.Net.BCrypt.Verify(userDto.Password, userDtoCheck.PasswordHash);
-        if (!passwordValid)
-            throw new UnauthorizedAccessException(Messages.InvalidPassword);
-
-        await userRepository.UpdateLastLoginAsync(userDtoCheck.Id);
-    }
-
-    /// <inheritdoc />
-    public string ValidateToken(string token)
-    {
-        var (issuer, audience) = GetJwtSettings();
-        var securityKey = GetSecurityKey();
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var claims = tokenHandler.ValidateToken(token, new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateIssuerSigningKey = true,
-            ValidateLifetime = false,
-            ValidIssuer = issuer,
-            ValidAudience = audience,
-            IssuerSigningKey = securityKey,
-            ClockSkew = TimeSpan.Zero,
-            RoleClaimType = ClaimTypes.Role
-        }, out _);
-
-        return claims.FindFirst(ClaimTypes.Email)?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
-    }
-
     /// <summary>
-    /// Retrieves the JWT issuer and audience from configuration.
+    /// Generates a hashed string using BCrypt with a specified work factor.
     /// </summary>
-    /// <returns>A tuple containing the issuer and audience values.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the issuer or audience is not configured.</exception>
-    private (string Issuer, string Audience) GetJwtSettings()
+    /// <param name="strToHash">The plain text string to hash.</param>
+    /// <returns>A hashed version of the string.</returns>
+    private string GenerateHash(string strToHash)
     {
-        var issuer = configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT issuer not configured.");
-        var audience = configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT audience not configured.");
-        return (issuer, audience);
-    }
-
-    /// <summary>
-    /// Retrieves the symmetric security key used for JWT signing from configuration.
-    /// </summary>
-    /// <returns>A <see cref="SymmetricSecurityKey"/> constructed from the configured JWT secret.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the JWT secret is not configured.</exception>
-    private SymmetricSecurityKey GetSecurityKey()
-    {
-        var secret = configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT secret not configured.");
-        return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
-    }
-
-    /// <summary>
-    /// Generates a hashed password using BCrypt with a specified work factor.
-    /// </summary>
-    /// <param name="password">The plain text password to hash.</param>
-    /// <returns>A hashed version of the password.</returns>
-    private string GenerateHashPassword(string password)
-    {
-        return BCrypt.Net.BCrypt.HashPassword(password, workFactor: 12);
+        return BCrypt.Net.BCrypt.HashPassword(strToHash, workFactor: 12);
     }
 }

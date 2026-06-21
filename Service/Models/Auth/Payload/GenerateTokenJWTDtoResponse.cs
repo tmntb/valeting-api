@@ -1,4 +1,4 @@
-﻿namespace Service.Models.User.Payload;
+﻿namespace Service.Models.Auth.Payload;
 
 /// <summary>
 /// Represents the response returned when a JWT token is generated.

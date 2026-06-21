@@ -14,6 +14,30 @@ namespace Api.Controllers;
 public class AuthController(IAuthService authService) : AuthBaseController
 {
     /// <inheritdoc />
+    public override async Task<IActionResult> LoginAsync([FromBody] LoginApiRequest loginApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(loginApiRequest, Messages.InvalidRequestBody);
+
+        var userDto = new UserDto
+        {
+            Email = loginApiRequest.Email,
+            Password = loginApiRequest.Password
+        };
+
+        await authService.ValidateLoginAsync(userDto);
+
+        var generateTokenJWTDtoResponse = await authService.GenerateTokenJWTAsync(loginApiRequest.Email);
+
+        var validateLoginApiResponse = new LoginApiResponse
+        {
+            Token = generateTokenJWTDtoResponse.Token,
+            TokenType = generateTokenJWTDtoResponse.TokenType,
+            ExpiryDate = generateTokenJWTDtoResponse.ExpiryDate
+        };
+        return Ok(validateLoginApiResponse);
+    }
+
+    /// <inheritdoc />
     public override async Task<IActionResult> MfaEnableAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest)
     {
         ArgumentNullException.ThrowIfNull(mfaCodeApiRequest, Messages.InvalidRequestBody);
@@ -54,6 +78,24 @@ public class AuthController(IAuthService authService) : AuthBaseController
             MfaQrCodeUri = mfaSetupDtoResponse.MfaQrCodeUri,
             RecoveryCodes = mfaSetupDtoResponse.RecoveryCodes
         });
+    }
+
+    /// <inheritdoc />
+    public override async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenApiRequest refreshTokenApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(refreshTokenApiRequest, Messages.InvalidRequestBody);
+        ArgumentException.ThrowIfNullOrEmpty(refreshTokenApiRequest.Token, Messages.InvalidRequestBody);
+
+        var email = authService.ValidateToken(refreshTokenApiRequest.Token); // TODO: Remove when middleware is implemented
+        var generateTokenJwtDtoResponse = await authService.GenerateTokenJWTAsync(email);
+
+        var refreshTokenApiResponse = new RefreshTokenApiResponse
+        {
+            Token = generateTokenJwtDtoResponse.Token,
+            TokenType = generateTokenJwtDtoResponse.TokenType,
+            ExpiryDate = generateTokenJwtDtoResponse.ExpiryDate
+        };
+        return Ok(refreshTokenApiResponse);
     }
 
     /// <inheritdoc />
