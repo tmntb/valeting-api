@@ -81,7 +81,6 @@ builder.Services
 builder.Services
     .AddApiVersioning(options =>
     {
-        options.DefaultApiVersion = new ApiVersion(1);
         options.ReportApiVersions = true;
         options.AssumeDefaultVersionWhenUnspecified = true;
         options.ApiVersionReader = new UrlSegmentApiVersionReader();
@@ -90,7 +89,8 @@ builder.Services
     {
         options.GroupNameFormat = "'v'VVV";
         options.SubstituteApiVersionInUrl = true;
-    });
+    })
+    .AddMvc();
 
 
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
@@ -148,7 +148,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
 
 [ExcludeFromCodeCoverage]
 public partial class Program { }

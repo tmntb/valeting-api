@@ -13,6 +13,7 @@ using System.Security.Claims;
 
 namespace Api.Controllers;
 
+[ApiController]
 public class BookingController(IBookingService bookingService, ILinkService linkService) : BookingBaseController
 {
     /// <inheritdoc />

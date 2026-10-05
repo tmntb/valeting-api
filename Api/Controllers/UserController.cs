@@ -10,6 +10,7 @@ using Service.Models.User.Payload;
 
 namespace Api.Controllers;
 
+[ApiController]
 public class UserController(IUserService userService) : UserBaseController
 {
     /// <inheritdoc />

@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Api.Controllers;
 
+[ApiController]
 public class FlexibilityController(IFlexibilityService flexibilityService, ILinkService urlService) : FlexibilityBaseController
 {
     /// <inheritdoc />

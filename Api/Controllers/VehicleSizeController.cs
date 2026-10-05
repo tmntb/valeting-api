@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Api.Controllers;
 
+[ApiController]
 public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILinkService urlService) : VehicleSizeBaseController
 {
     /// <inheritdoc />
