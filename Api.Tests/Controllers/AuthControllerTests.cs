@@ -24,6 +24,39 @@ public class AuthControllerTests
     }
 
     [Fact]
+    public async Task ForgotPassword_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _authController.ForgotPasswordAsync(null));
+        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
+    }
+
+    [Fact]
+    public async Task ForgotPassword_ShouldReturnOk_WhenCredentialsAreValid()
+    {
+        // Arrange
+        _mockAuthService
+            .Setup(s => s.ForgotPasswordAsync(It.IsAny<ForgotPasswordDtoRequest>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _authController.ForgotPasswordAsync
+        (
+            new()
+            {
+                Email = "test@example.com",
+                MfaCode = "123456",
+                NewPassword = "newPassword"
+            }
+        ) as StatusCodeResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
+    }
+
+
+    [Fact]
     public async Task Login_ShouldThrowArgumentNullException_WhenParamsAreNull()
     {
         // Act & Assert

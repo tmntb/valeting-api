@@ -223,5 +223,27 @@ namespace Common.Messages
                 return ResourceManager.GetString("InvalidMfaCode", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No recovery codes for the user..
+        /// </summary>
+        public static string NoRecoveryCodesForUser
+        {
+            get
+            {
+                return ResourceManager.GetString("NoRecoveryCodesForUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid recovery code..
+        /// </summary>
+        public static string InvalidRecoveryCode
+        {
+            get
+            {
+                return ResourceManager.GetString("InvalidRecoveryCode", resourceCulture);
+            }
+        }
     }
 }

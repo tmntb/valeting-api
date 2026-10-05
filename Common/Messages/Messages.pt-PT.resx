@@ -159,4 +159,10 @@
   <data name="InvalidMfaCode" xml:space="preserve">
     <value>Código de MFA inválido.</value>
   </data>
+  <data name="NoRecoveryCodesForUser" xml:space="preserve">
+   <value>Não existem códigos de recuperação para o utilizador.</value>
+  </data>
+  <data name="InvalidRecoveryCode" xml:space="preserve">
+   <value>Código de recuperação inválido.</value>
+  </data>
 </root>

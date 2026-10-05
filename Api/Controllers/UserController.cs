@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using Api.Controllers.BaseController;
-using Api.Models.Auth.Payload;
 using Api.Models.User.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
@@ -13,31 +12,6 @@ namespace Api.Controllers;
 [ApiController]
 public class UserController(IUserService userService) : UserBaseController
 {
-    /// <inheritdoc />
-    public override async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordApiRequest forgotPasswordApiRequest)
-    {
-        ArgumentNullException.ThrowIfNull(forgotPasswordApiRequest, Messages.InvalidRequestBody);
-
-        await userService.ForgotPasswordAsync(forgotPasswordApiRequest.Email);
-
-        return Ok();
-    }
-
-    /// <inheritdoc />
-    public override async Task<IActionResult> ResetAsync([FromBody] ResetApiRequest resetApiRequest)
-    {
-        ArgumentNullException.ThrowIfNull(resetApiRequest, Messages.InvalidRequestBody);
-
-        var userDto = new UserDto
-        {
-            Email = resetApiRequest.Email,
-            Password = resetApiRequest.NewPassword
-        };
-        await userService.ResetAsync(userDto);
-
-        return NoContent();
-    }
-
     /// <inheritdoc />
     public override async Task<IActionResult> UpdateAdminSettingsAsync([FromBody] UpdateAdminSettingsApiRequest updateAdminSettingsApiRequest)
     {

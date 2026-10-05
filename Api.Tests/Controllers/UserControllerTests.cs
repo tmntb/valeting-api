@@ -23,42 +23,6 @@ public class UserControllerTests
         _userController = new UserController(_mockUserService.Object);
     }
 
-    
-
-    
-
-    [Fact]
-    public async Task Reset_ShouldThrowArgumentNullException_WhenParamsAreNull()
-    {
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _userController.ResetAsync(null));
-        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
-    }
-
-    [Fact]
-    public async Task Reset_ShouldReturnNoContent_WhenSuccessful()
-    {
-        // Arrange
-        _mockUserService
-            .Setup(s => s.ResetAsync(It.IsAny<ResetPasswordDtoRequest>()))
-            .Returns(Task.CompletedTask);
-
-        // Act
-        var result = await _userController.ResetAsync
-        (
-            new()
-            {
-                Email = "user@example.com",
-                NewPassword = "newpassword",
-                Code = "resetcode"
-            }
-        ) as NoContentResult;
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal((int)HttpStatusCode.NoContent, result.StatusCode);
-    }
-
     [Fact]
     public async Task UpdateAdminSettingsAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
     {

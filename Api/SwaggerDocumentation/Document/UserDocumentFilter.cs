@@ -11,11 +11,6 @@ namespace Api.SwaggerDocumentation.Document;
 public class UserDocumentFilter : IDocumentFilter
 {
     /// <summary>
-    /// Endpoint for user reset password.
-    /// </summary>
-    public const string UserResetEndpoint = "/users/reset-password";
-
-    /// <summary>
     /// Endpoint to update user admin settings.
     /// </summary>
     public const string UserAdminSettingsEndpoint = "/users/admin-settings";
@@ -43,13 +38,6 @@ public class UserDocumentFilter : IDocumentFilter
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
         swaggerDoc.Tags.Add(new OpenApiTag() { Name = "User", Description = "User operations" });
-
-        
-
-        var userResetPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserResetEndpoint).Value;
-        userResetPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.OperationId = "post-reset-password-user";
-        userResetPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Summary = "Request a password reset";
-        userResetPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Description = "Sends email with code to reset password for the **User**";
 
         var userAdminSettingsPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserAdminSettingsEndpoint).Value;
         userAdminSettingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.OperationId = "patch-admin-settings-user";

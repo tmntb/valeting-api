@@ -6,6 +6,13 @@ namespace Service.Interfaces;
 public interface IAuthService
 {
     /// <summary>
+    /// Initiates the forgot password process for a user by their email.
+    /// </summary>
+    /// <param name="email">The email of the user who forgot their password.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task ForgotPasswordAsync(ForgotPasswordDtoRequest forgotPasswordDtoRequest);
+    
+    /// <summary>
     /// Generates a JWT access token for the specified user.
     /// </summary>
     /// <param name="email">The email of the user for whom the token is generated.</param>

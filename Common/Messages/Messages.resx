@@ -159,4 +159,10 @@
   <data name="InvalidMfaCode" xml:space="preserve">
     <value>Invalid MFA code.</value>
   </data>
+  <data name="NoRecoveryCodesForUser" xml:space="preserve">
+   <value>No recovery codes for the user.</value>
+  </data>
+  <data name="InvalidRecoveryCode" xml:space="preserve">
+   <value>Invalid recovery code.</value>
+  </data>
 </root>

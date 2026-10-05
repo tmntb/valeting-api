@@ -11,6 +11,22 @@ namespace Api.Controllers.BaseController;
 public abstract class AuthBaseController : ControllerBase
 {
     /// <summary>
+    /// Restore the password for a given user.
+    /// </summary>
+    /// <param name="forgotPasswordApiRequest">The request containing the user's email.</param>
+    /// <response code="200">Indicates that the forgot password process was successfully initiated.</response>
+    /// <response code="400">Returned when the request body is invalid or missing required fields.</response>
+    /// <response code="409">Returned when the user mfa or recovery code in the request is invalid.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpPost]
+    [Route("forgot-password")]
+    [ProducesResponseType(statusCode: 200)]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordApiRequest forgotPasswordApiRequest);
+
+    /// <summary>
     /// Authenticates a user and generates a JWT access token.
     /// </summary>
     /// <param name="loginApiRequest">The login credentials (username and password) of the user.</param>

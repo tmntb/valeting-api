@@ -10,7 +10,7 @@ namespace Integration.Tests;
 
 internal static class DataFactory
 {
-    private static readonly Guid BOOKING_ID = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    public static readonly Guid BOOKING_ID = Guid.Parse("00000000-0000-0000-0000-000000000001");
     public static readonly Guid FLEXIBILITY_ID = Guid.Parse("00000000-0000-0000-0000-000000000002");
     public static readonly Guid VEHICLE_SIZE_ID = Guid.Parse("00000000-0000-0000-0000-000000000003"); 
     public static readonly Guid STATUS_ID = Guid.Parse("00000000-0000-0000-0000-000000000004");
@@ -80,14 +80,14 @@ internal static class DataFactory
         };
     }
 
-    public static RecoveryCodeDto CreateRecoveryCodeDto(Guid recoveryCodeId = default)
+    public static RecoveryCodeDto CreateRecoveryCodeDto(Guid recoveryCodeId = default, Guid userId = default)
     {
         return new()
         {
             Id = recoveryCodeId == default ? RECOVERY_CODE_ID : recoveryCodeId,
             CodeHash = "codeHash",
             CreatedAt = DateTime.UtcNow,
-            User = CreateUserDto(),
+            User = CreateUserDto(userId),
             UsedAt = DateTime.MinValue
         };
     }

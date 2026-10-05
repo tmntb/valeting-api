@@ -14,7 +14,7 @@ public class MfaCodeValidatorTests
 
     [Theory]
     [InlineData("00000000-0000-0000-0000-000000000000")]
-    public void Email_ShouldFail(Guid userId)
+    public void UserId_ShouldFail(Guid userId)
     {
         // Arrange
         var request = new MfaCodeDtoRequest

@@ -34,7 +34,237 @@ public class AuthServiceTests
         _authService = new AuthService(_mockUserRepository.Object, _mockRecoveryCodeRepository.Object, _mockRoleRepository.Object, _mockConfiguration.Object);
     }
 
-     [Fact]
+    [Fact]
+    public async Task ForgotPasswordAsync_ShouldReturn_WhenUserDoesNotExist()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync((UserDto)null)
+            .Verifiable(Times.Once);
+
+        // Act
+        await _authService.ForgotPasswordAsync(new()
+        {
+            Email = "user@example.com.pt",
+            MfaCode = "123456",
+            NewPassword = "newpassword123"
+        });
+
+        // Assert
+        _mockUserRepository.Verify();
+        _mockRecoveryCodeRepository.Verify(r => r.GetUserRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockRecoveryCodeRepository.Verify(r => r.UpdateUsedAtAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockUserRepository.Verify(r => r.UpdatePasswordAsync(It.IsAny<UserDto>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ForgotPasswordAsync_ShouldThrowInvalidOperationException_WhenMfaCodeIsInvalid()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.ForgotPasswordAsync(new()
+        {
+            Email = "user@example.com.pt",
+            MfaCode = "123456",
+            NewPassword = "newpassword123"
+        }));
+
+        Assert.Equal(exception.Message, Messages.InvalidMfaCode);
+
+        _mockUserRepository.Verify();
+        _mockRecoveryCodeRepository.Verify(r => r.GetUserRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockRecoveryCodeRepository.Verify(r => r.UpdateUsedAtAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockUserRepository.Verify(r => r.UpdatePasswordAsync(It.IsAny<UserDto>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ForgotPasswordAsync_ShouldUpdatePassword_WhenMfaCodeIsValid()
+    {
+        // Arrange
+        var secretBytes = Base32Encoding.ToBytes(_userDto.MfaSecret);
+        var totp = new Totp(secretBytes);
+        var validCode = totp.ComputeTotp();
+
+        _mockUserRepository
+           .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+           .ReturnsAsync(_userDto)
+           .Verifiable(Times.Once);
+
+        // Act
+        await _authService.ForgotPasswordAsync(new()
+        {
+            Email = "user@example.com.pt",
+            MfaCode = validCode,
+            NewPassword = "newpassword123"
+        });
+
+        // Assert
+        _mockUserRepository.Verify();
+        _mockRecoveryCodeRepository.Verify(r => r.GetUserRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockRecoveryCodeRepository.Verify(r => r.UpdateUsedAtAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockUserRepository.Verify(r => r.UpdatePasswordAsync(It.IsAny<UserDto>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ForgotPasswordAsync_ShouldThrowInvalidOperationException_WhenRecoveryCodesIsNull()
+    {
+        // Arrange
+        _mockUserRepository
+           .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+           .ReturnsAsync(_userDto)
+           .Verifiable(Times.Once);
+
+        _mockRecoveryCodeRepository
+            .Setup(r => r.GetUserRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((List<RecoveryCodeDto>)null)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.ForgotPasswordAsync(new()
+        {
+            Email = "user@example.com.pt",
+            RecoveryCode = "1234-5678",
+            NewPassword = "newpassword123"
+        }));
+
+        Assert.Equal(exception.Message, Messages.NoRecoveryCodesForUser);
+
+        _mockUserRepository.Verify();
+        _mockRecoveryCodeRepository.Verify();
+        _mockRecoveryCodeRepository.Verify(r => r.UpdateUsedAtAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockUserRepository.Verify(r => r.UpdatePasswordAsync(It.IsAny<UserDto>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ForgotPasswordAsync_ShouldThrowInvalidOperationException_WhenRecoveryCodesIsEmpty()
+    {
+        // Arrange
+        _mockUserRepository
+           .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+           .ReturnsAsync(_userDto)
+           .Verifiable(Times.Once);
+
+        _mockRecoveryCodeRepository
+            .Setup(r => r.GetUserRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([])
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.ForgotPasswordAsync(new()
+        {
+            Email = "user@example.com.pt",
+            RecoveryCode = "1234-5678",
+            NewPassword = "newpassword123"
+        }));
+
+        Assert.Equal(exception.Message, Messages.NoRecoveryCodesForUser);
+
+        _mockUserRepository.Verify();
+        _mockRecoveryCodeRepository.Verify();
+        _mockRecoveryCodeRepository.Verify(r => r.UpdateUsedAtAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockUserRepository.Verify(r => r.UpdatePasswordAsync(It.IsAny<UserDto>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ForgotPasswordAsync_ShouldThrowInvalidOperationException_WhenRecoveryCodeIsUsed()
+    {
+        // Arrange
+        _mockUserRepository
+           .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+           .ReturnsAsync(_userDto)
+           .Verifiable(Times.Once);
+
+        _mockRecoveryCodeRepository
+            .Setup(r => r.GetUserRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([DataFactory.CreateRecoveryCodeDto(usedAt: DateTime.UtcNow)])
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.ForgotPasswordAsync(new()
+        {
+            Email = "user@example.com.pt",
+            RecoveryCode = "1234-5678",
+            NewPassword = "newpassword123"
+        }));
+
+        Assert.Equal(exception.Message, Messages.InvalidRecoveryCode);
+
+        _mockUserRepository.Verify();
+        _mockRecoveryCodeRepository.Verify();
+        _mockRecoveryCodeRepository.Verify(r => r.UpdateUsedAtAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockUserRepository.Verify(r => r.UpdatePasswordAsync(It.IsAny<UserDto>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ForgotPasswordAsync_ShouldThrowInvalidOperationException_WhenRecoveryCodeIsInvalid()
+    {
+        // Arrange
+        _mockUserRepository
+           .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+           .ReturnsAsync(_userDto)
+           .Verifiable(Times.Once);
+
+        _mockRecoveryCodeRepository
+            .Setup(r => r.GetUserRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([DataFactory.CreateRecoveryCodeDto()])
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.ForgotPasswordAsync(new()
+        {
+            Email = "user@example.com.pt",
+            RecoveryCode = "1234-8765",
+            NewPassword = "newpassword123"
+        }));
+
+        Assert.Equal(exception.Message, Messages.InvalidRecoveryCode);
+
+        _mockUserRepository.Verify();
+        _mockRecoveryCodeRepository.Verify();
+        _mockRecoveryCodeRepository.Verify(r => r.UpdateUsedAtAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockUserRepository.Verify(r => r.UpdatePasswordAsync(It.IsAny<UserDto>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ForgotPasswordAsync_ShouldUpdatePassword_WhenRecoveryCodeIsValid()
+    {
+        // Arrange
+        _mockUserRepository
+           .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+           .ReturnsAsync(_userDto)
+           .Verifiable(Times.Once);
+
+        _mockRecoveryCodeRepository
+            .Setup(r => r.GetUserRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([DataFactory.CreateRecoveryCodeDto()])
+            .Verifiable(Times.Once);
+
+        _mockRecoveryCodeRepository
+            .Setup(r => r.UpdateUsedAtAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
+
+        // Act
+        await _authService.ForgotPasswordAsync(new()
+        {
+            Email = "user@example.com.pt",
+            RecoveryCode = "1234-5678",
+            NewPassword = "newpassword123"
+        });
+
+        // Assert
+        _mockUserRepository.Verify();
+        _mockRecoveryCodeRepository.Verify();
+        _mockUserRepository.Verify(r => r.UpdatePasswordAsync(It.IsAny<UserDto>()), Times.Once);
+    }
+
+    [Fact]
     public async Task GenerateTokenJWTAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
     {
         // Arrange
@@ -113,7 +343,7 @@ public class AuthServiceTests
     public async Task MfaEnableAsync_ShouldThrowInvalidOperationException_WhenInvalidMfaCode()
     {
         // Arrange    
-        _userDto.MfaEnabled = false;            
+        _userDto.MfaEnabled = false;
         _mockUserRepository
             .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(_userDto);
@@ -128,7 +358,7 @@ public class AuthServiceTests
         Assert.Equal(exception.Message, Messages.InvalidMfaCode);
     }
 
-     [Fact]
+    [Fact]
     public async Task MfaEnableAsync_ShouldEnableMfa_WhenValidMfaCode()
     {
         // Arrange 
@@ -249,7 +479,7 @@ public class AuthServiceTests
             .Returns(Task.CompletedTask);
 
         // Act & Assert
-        var result = await  _authService.MfaRegenerateRecoveryCodesAsync(new()
+        var result = await _authService.MfaRegenerateRecoveryCodesAsync(new()
         {
             UserId = _userDto.Id,
             MfaCode = validCode

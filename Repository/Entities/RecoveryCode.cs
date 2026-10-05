@@ -1,6 +1,6 @@
 namespace Repository.Entities;
 
-public class RecoveryCode
+public partial class RecoveryCode
 {
     /// <summary>
     /// Unique identifier for the recovery code.

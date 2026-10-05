@@ -1,5 +1,4 @@
 using Common.Messages;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Service.Interfaces;
 using Service.Models.User;
@@ -21,45 +20,6 @@ public class UserServiceTests
 
         _mockUserRepository = new Mock<IUserRepository>();
         _userService = new UserService(_mockUserRepository.Object);
-    }
-
-    [Fact]
-    public async Task ResetAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
-    {
-        // Arrange
-        _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync((UserDto)null);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.ResetAsync(
-                new()
-                {
-                    Code = "resetcode",
-                    Email = "user@example.com",
-                    NewPassword = "newpassword"
-                }));
-    }
-
-    [Fact]
-    public async Task ResetAsync_ShouldUpdatePassword_WhenUserExists()
-    {
-        // Arrange
-        _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(_userDto);
-
-        // Act
-        await _userService.ResetAsync(
-            new()
-            {
-                Code = "resetcode",
-                Email = "user@example.com",
-                NewPassword = "newpassword"
-            });
-
-        // Assert
-        _mockUserRepository.Verify(x => x.UpdatePasswordAsync(It.IsAny<UserDto>()), Times.Once);
     }
 
     [Fact]

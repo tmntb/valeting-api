@@ -9,32 +9,6 @@ namespace Api.Controllers.BaseController;
 public abstract class UserBaseController : ControllerBase
 {
     /// <summary>
-    /// Initiates the forgot password process for a user.
-    /// </summary>
-    /// <param name="forgotPasswordApiRequest">The request containing the user's email.</param>
-    /// <response code="200">Indicates that the forgot password process was successfully initiated.</response>
-    [HttpPost]
-    [Route("/users/forgot-password")]
-    [ProducesResponseType(statusCode: 200)]
-    public abstract Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordApiRequest forgotPasswordApiRequest);
-
-    /// <summary>
-    /// Resets the password of the currently authenticated user.
-    /// </summary>
-    /// <param name="resetApiRequest">The request containing the current and new password.</param>
-    /// <response code="204">Indicates that the password was successfully updated.</response>
-    /// <response code="400">Returned when the request body is invalid or fails validation.</response>
-    /// <response code="404">Returned when the user does not exist.</response>
-    /// <response code="500">Returned when an unexpected error occurs.</response>
-    [HttpPatch]
-    [Route("/users/reset")]
-    [ProducesResponseType(statusCode: 204)]
-    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
-    [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
-    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> ResetAsync([FromBody] ResetApiRequest resetApiRequest);
-
-    /// <summary>
     /// Updates the active status of a user. Only accessible by users with the ADMIN role.
     /// </summary>
     /// <param name="updateUserApiActiveRequest">The request containing the user ID and the new active status.</param>

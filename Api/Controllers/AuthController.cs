@@ -14,6 +14,22 @@ namespace Api.Controllers;
 public class AuthController(IAuthService authService) : AuthBaseController
 {
     /// <inheritdoc />
+    public override async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordApiRequest forgotPasswordApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(forgotPasswordApiRequest, Messages.InvalidRequestBody);
+
+        await authService.ForgotPasswordAsync(new()
+        {
+            Email = forgotPasswordApiRequest.Email,
+            MfaCode = forgotPasswordApiRequest.MfaCode,
+            RecoveryCode = forgotPasswordApiRequest.RecoveryCode,
+            NewPassword = forgotPasswordApiRequest.NewPassword
+        });
+
+        return Ok();
+    }
+
+    /// <inheritdoc />
     public override async Task<IActionResult> LoginAsync([FromBody] LoginApiRequest loginApiRequest)
     {
         ArgumentNullException.ThrowIfNull(loginApiRequest, Messages.InvalidRequestBody);

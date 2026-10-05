@@ -5,6 +5,7 @@ using Common.Messages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OtpNet;
+using Service.Helpers;
 using Service.Interfaces;
 using Service.Models.Auth;
 using Service.Models.Auth.Payload;
@@ -16,6 +17,41 @@ namespace Service.Services;
 
 public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository recoveryCodeRepository, IRoleRepository roleRepository, IConfiguration configuration) : IAuthService
 {
+    /// <inheritdoc />
+    public async Task ForgotPasswordAsync(ForgotPasswordDtoRequest forgotPasswordDtoRequest)
+    {
+        forgotPasswordDtoRequest.ValidateRequest(new ForgotPasswordValidator());
+
+        var userDto = await userRepository.GetByEmailAsync(forgotPasswordDtoRequest.Email);
+        if (userDto == null)
+        {
+            // Avoid password reset probing.
+            return;
+        }
+
+        if (forgotPasswordDtoRequest.MfaCode != null)
+        {
+            ValidateMfaCode(userDto, forgotPasswordDtoRequest.MfaCode);
+        }
+
+        if (forgotPasswordDtoRequest.RecoveryCode != null)
+        {
+            var userRecoveryCodes = await recoveryCodeRepository.GetUserRecoveryCodesAsync(userDto.Id);
+            if (userRecoveryCodes == null || !userRecoveryCodes.Any())
+            {
+                throw new InvalidOperationException(Messages.NoRecoveryCodesForUser);
+            }
+
+            var recoveryCode = userRecoveryCodes.SingleOrDefault(rc => rc.UsedAt == null && BCrypt.Net.BCrypt.Verify(forgotPasswordDtoRequest.RecoveryCode, rc.CodeHash)) 
+                ?? throw new InvalidOperationException(Messages.InvalidRecoveryCode);
+
+            await recoveryCodeRepository.UpdateUsedAtAsync(recoveryCode.Id);
+        }
+
+        userDto.PasswordHash = HashHelper.GenerateHash(forgotPasswordDtoRequest.NewPassword);
+        await userRepository.UpdatePasswordAsync(userDto);
+    }
+
     /// <inheritdoc />
     public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string email)
     {
@@ -130,7 +166,7 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
         }
 
         var roleDto = await roleRepository.GetByCodeAsync(userDto.Role.Code) ?? throw new KeyNotFoundException(Messages.NotFound);
-        var hashedPassword = GenerateHash(userDto.Password);
+        var hashedPassword = HashHelper.GenerateHash(userDto.Password);
 
         userDto.Id = Guid.NewGuid();
         userDto.PasswordHash = hashedPassword;
@@ -190,16 +226,6 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
     }
 
     /// <summary>
-    /// Generates a hashed string using BCrypt with a specified work factor.
-    /// </summary>
-    /// <param name="strToHash">The plain text string to hash.</param>
-    /// <returns>A hashed version of the string.</returns>
-    private string GenerateHash(string strToHash)
-    {
-        return BCrypt.Net.BCrypt.HashPassword(strToHash, workFactor: 12);
-    }
-
-    /// <summary>
     /// Generates a secret for multi-factor authentication.
     /// </summary>
     /// <returns>A base32-encoded secret.</returns>
@@ -225,7 +251,7 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
         {
             Id = Guid.NewGuid(),
             User = new() { Id = userId },
-            CodeHash = GenerateHash(code),
+            CodeHash = HashHelper.GenerateHash(code),
             CreatedAt = createDate
         });
 

@@ -6,21 +6,6 @@ namespace Service.Interfaces;
 public interface IUserService
 {
     /// <summary>
-    /// Initiates the forgot password process for a user by their email.
-    /// </summary>
-    /// <param name="email">The email of the user who forgot their password.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task ForgotPasswordAsync(string email);
-
-    /// <summary>
-    /// Resets the password for the specified user.
-    /// </summary>
-    /// <param name="userDto">The user information.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given email.</exception>
-    Task ResetAsync(UserDto userDto);
-
-    /// <summary>
     /// Updates the administrative settings for the specified user.
     /// </summary>
     /// <param name="updateAdminSettingsDtoRequest">The request containing the updated administrative settings.</param>
