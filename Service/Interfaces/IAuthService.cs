@@ -32,22 +32,21 @@ public interface IAuthService
     Task MfaEnableAsync(MfaCodeDtoRequest mfaCodeDtoRequest);
 
     /// <summary>
-    /// Generate new recovery codes for a give user
-    /// </summary>
-    /// <param name="mfaCodeDtoRequest">The user mfa information.</param>
-    /// <returns>The mfa qr uri for user to setup and recovery codes.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown if the user doesn't exists.</exception>
-    /// <exception cref="InvalidOperationException">Thrown if the user mfa is already enabled.</exception>
-    Task<List<string>> MfaRegenerateRecoveryCodesAsync(MfaCodeDtoRequest mfaCodeDtoRequest);
-
-    /// <summary>
-    /// Setups the user mfa secret and recovery codes
+    /// Setups the user mfa secret
     /// </summary>
     /// <param name="userId">The user id</param>
-    /// <returns>The mfa qr uri for user to setup and recovery codes.</returns>
+    /// <returns>The mfa qr uri for user to setup.</returns>
     /// <exception cref="KeyNotFoundException">Thrown if the user doesn't exists.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the user mfa is already enabled.</exception>
     Task<MfaSetupDtoResponse> MfaSetupAsync(Guid userId);
+
+    /// <summary>
+    /// Generate new recovery codes for a give user
+    /// </summary>
+    /// <param name="userId">The user id</param>
+    /// <returns>The user recovery codes.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown if the user doesn't exists.</exception>
+    Task<List<string>> RecoveryCodesGenerateAsync(Guid userId);
 
     /// <summary>
     /// Registers a new user with the provided username and password.

@@ -42,7 +42,7 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
                 throw new InvalidOperationException(Messages.NoRecoveryCodesForUser);
             }
 
-            var recoveryCode = userRecoveryCodes.SingleOrDefault(rc => rc.UsedAt == null && BCrypt.Net.BCrypt.Verify(forgotPasswordDtoRequest.RecoveryCode, rc.CodeHash)) 
+            var recoveryCode = userRecoveryCodes.SingleOrDefault(rc => rc.UsedAt == null && BCrypt.Net.BCrypt.Verify(forgotPasswordDtoRequest.RecoveryCode, rc.CodeHash))
                 ?? throw new InvalidOperationException(Messages.InvalidRecoveryCode);
 
             await recoveryCodeRepository.UpdateUsedAtAsync(recoveryCode.Id);
@@ -106,25 +106,6 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
     }
 
     /// <inheritdoc />
-    public async Task<List<string>> MfaRegenerateRecoveryCodesAsync(MfaCodeDtoRequest mfaCodeDtoRequest)
-    {
-        mfaCodeDtoRequest.ValidateRequest(new MfaCodeValidator());
-
-        var userDto = await userRepository.GetByIdAsync(mfaCodeDtoRequest.UserId) ?? throw new KeyNotFoundException(Messages.NotFound);
-        if (userDto.MfaSecret == null || !userDto.MfaEnabled)
-        {
-            throw new InvalidOperationException(Messages.MfaDisabled);
-        }
-
-        ValidateMfaCode(userDto, mfaCodeDtoRequest.MfaCode);
-
-        await recoveryCodeRepository.DeleteManyAsync(userDto.Id);
-        var recoveryCodes = await GenerateRecoveryCodes(userDto.Id);
-
-        return recoveryCodes;
-    }
-
-    /// <inheritdoc />
     public async Task<MfaSetupDtoResponse> MfaSetupAsync(Guid userId)
     {
         var userDto = await userRepository.GetByIdAsync(userId) ?? throw new KeyNotFoundException(Messages.NotFound);
@@ -145,13 +126,40 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
         userDto.MfaSecret = mfaSecret;
         await userRepository.UpdateMfaSecretAsync(userDto);
 
-        var recoveryCodes = await GenerateRecoveryCodes(userDto.Id);
-
         return new()
         {
-            MfaQrCodeUri = $"otpauth://totp/Valeting:{Uri.EscapeDataString(userDto.Email)}?secret={mfaSecret}&issuer=Valeting",
-            RecoveryCodes = recoveryCodes
+            MfaQrCodeUri = $"otpauth://totp/Valeting:{Uri.EscapeDataString(userDto.Email)}?secret={mfaSecret}&issuer=Valeting"
         };
+    }
+
+    /// <inheritdoc />
+    public async Task<List<string>> RecoveryCodesGenerateAsync(Guid userId)
+    {
+        var userDto = await userRepository.GetByIdAsync(userId) ?? throw new KeyNotFoundException(Messages.NotFound);
+        if (userDto.MfaSecret == null || !userDto.MfaEnabled)
+        {
+            throw new InvalidOperationException(Messages.MfaDisabled);
+        }
+
+        await recoveryCodeRepository.DeleteManyAsync(userDto.Id);
+
+        var createDate = DateTime.UtcNow;
+
+        var recoveryCodes = Enumerable.Range(0, 8)
+                .Select(_ => GenerateCode())
+                .ToList();
+
+        var recoveryCodeDtos = recoveryCodes.Select(code => new RecoveryCodeDto
+        {
+            Id = Guid.NewGuid(),
+            User = new() { Id = userDto.Id },
+            CodeHash = HashHelper.GenerateHash(code),
+            CreatedAt = createDate
+        });
+
+        await recoveryCodeRepository.CreateManyAsync(recoveryCodeDtos);
+
+        return recoveryCodes;
     }
 
     /// <inheritdoc />
@@ -233,31 +241,6 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
     {
         var key = KeyGeneration.GenerateRandomKey(20);
         return Base32Encoding.ToString(key);
-    }
-
-    /// <summary>
-    /// Generates a list of recovery codes for multi-factor authentication, each consisting of two sets of four digits separated by a hyphen.
-    /// </summary>
-    /// <returns>A list of 8 recovery codes.</returns>
-    private async Task<List<string>> GenerateRecoveryCodes(Guid userId)
-    {
-        var createDate = DateTime.UtcNow;
-
-        var recoveryCodes = Enumerable.Range(0, 8)
-                .Select(_ => GenerateCode())
-                .ToList();
-
-        var recoveryCodeDtos = recoveryCodes.Select(code => new RecoveryCodeDto
-        {
-            Id = Guid.NewGuid(),
-            User = new() { Id = userId },
-            CodeHash = HashHelper.GenerateHash(code),
-            CreatedAt = createDate
-        });
-
-        await recoveryCodeRepository.CreateManyAsync(recoveryCodeDtos);
-
-        return recoveryCodes;
     }
 
     /// <summary>

@@ -1,6 +1,6 @@
 namespace Api.Models.Auth.Payload;
 
-public class MfaRegenerateRecoveryCodesApiResponse
+public class RecoveryCodesGenerateApiResponse
 {
     /// <summary>
     /// The list of recovery codes for MFA account recovery.

@@ -136,21 +136,13 @@ public class AuthControllerTests
     }
 
     [Fact]
-    public async Task MfaRegenerateRecoveryCodesAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
-    {
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _authController.MfaRegenerateRecoveryCodesAsync(null));
-        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
-    }
-
-    [Fact]
-    public async Task MfaRegenerateRecoveryCodesAsync_ShouldReturnOk_WhenSuccessful()
+    public async Task RecoveryCodesGenerateAsync_ShouldReturnOk_WhenSuccessful()
     {
         // Arrange
         _claimsFixture.SetupUserClaims(_authController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
 
         _mockAuthService
-            .Setup(s => s.MfaRegenerateRecoveryCodesAsync(It.IsAny<MfaCodeDtoRequest>()))
+            .Setup(s => s.RecoveryCodesGenerateAsync(It.IsAny<Guid>()))
             .ReturnsAsync(
                 [
                     "123"
@@ -158,13 +150,7 @@ public class AuthControllerTests
             );
 
         // Act
-        var result = await _authController.MfaRegenerateRecoveryCodesAsync
-        (
-            new()
-            {
-                MfaCode = "123456"
-            }
-        ) as ObjectResult;
+        var result = await _authController.RecoveryCodesGenerateAsync() as ObjectResult;
 
         // Assert
         Assert.NotNull(result);
@@ -181,8 +167,7 @@ public class AuthControllerTests
             .Setup(s => s.MfaSetupAsync(It.IsAny<Guid>()))
             .ReturnsAsync(new MfaSetupDtoResponse
             {
-                MfaQrCodeUri = "",
-                RecoveryCodes = []
+                MfaQrCodeUri = ""
             });
 
         // Act
