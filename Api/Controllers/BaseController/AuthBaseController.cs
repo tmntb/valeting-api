@@ -1,5 +1,6 @@
 using Api.Models.Auth.Payload;
 using Api.Models.Core;
+using Api.Models.Passkey.Payload;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -123,10 +124,20 @@ public abstract class AuthBaseController : ControllerBase
     public abstract Task<IActionResult> RegisterAsync([FromBody] RegisterApiRequest registerApiRequest);
 
     [HttpPost]
-    [Route("passkey/register")]
-    public abstract Task<IActionResult> PassKeyRegisterAsync();
+    [Route("passkey/authenticate/options")]
+    public abstract Task<IActionResult> PasskeyAuthenticateOptionsAsync([FromBody] PasskeyAuthenticateOptionsApiRequest request);
 
     [HttpPost]
-    [Route("passkey/verify")]
-    public abstract Task<IActionResult> PassKeyVerifyAsync();
+    [Route("passkey/authenticate/verify")]
+    public abstract Task<IActionResult> PasskeyAuthenticateVerifyAsync([FromBody] PasskeyAuthenticateVerifyApiRequest request);
+
+    [HttpPost]
+    [Authorize]
+    [Route("passkey/register/options")]
+    public abstract Task<IActionResult> PasskeyRegisterOptionsAsync();
+
+    [HttpPost]
+    [Authorize]
+    [Route("passkey/register/verify")]
+    public abstract Task<IActionResult> PasskeyRegisterVerifyAsync([FromBody] PasskeyRegisterVerifyApiRequest request);
 }

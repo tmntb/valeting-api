@@ -151,15 +151,14 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
         mfaCodeDtoRequest.ValidateRequest(new MfaCodeValidator());
 
         var userDto = await userRepository.GetByIdAsync(mfaCodeDtoRequest.UserId) ?? throw new KeyNotFoundException(Messages.NotFound);
-        if (userDto.MfaEnabled)
-        {
-            throw new InvalidOperationException(Messages.MfaActivated);
-        }
 
         VerifyMfaCode(userDto, mfaCodeDtoRequest.MfaCode);
 
-        userDto.MfaEnabled = true;
-        await userRepository.UpdateMfaEnableAsync(userDto);
+        if (!userDto.MfaEnabled)
+        {
+            userDto.MfaEnabled = true;
+            await userRepository.UpdateMfaEnableAsync(userDto);
+        }
     }
 
     /// <inheritdoc />

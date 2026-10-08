@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Api.Controllers.BaseController;
 using Api.Models.Auth.Payload;
+using Api.Models.Passkey.Payload;
 using Asp.Versioning;
 using Common.Enums;
 using Common.Messages;
@@ -130,12 +131,22 @@ public class AuthController(IAuthService authService) : AuthBaseController
         return Created();
     }
 
-    public override Task<IActionResult> PassKeyRegisterAsync()
+    public override Task<IActionResult> PasskeyAuthenticateOptionsAsync([FromBody] PasskeyAuthenticateOptionsApiRequest request)
     {
         throw new NotImplementedException();
     }
 
-    public override Task<IActionResult> PassKeyVerifyAsync()
+    public override Task<IActionResult> PasskeyAuthenticateVerifyAsync([FromBody] PasskeyAuthenticateVerifyApiRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Task<IActionResult> PasskeyRegisterOptionsAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Task<IActionResult> PasskeyRegisterVerifyAsync([FromBody] PasskeyRegisterVerifyApiRequest request)
     {
         throw new NotImplementedException();
     }
