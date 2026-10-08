@@ -312,7 +312,7 @@ public class AuthServiceTests
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _authService.MfaEnableAsync(new()
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _authService.MfaVerifyAsync(new()
         {
             UserId = _userDto.Id,
             MfaCode = "123456"
@@ -330,7 +330,7 @@ public class AuthServiceTests
             .ReturnsAsync(_userDto);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaEnableAsync(new()
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaVerifyAsync(new()
         {
             UserId = _userDto.Id,
             MfaCode = "123456"
@@ -349,7 +349,7 @@ public class AuthServiceTests
             .ReturnsAsync(_userDto);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaEnableAsync(new()
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.MfaVerifyAsync(new()
         {
             UserId = _userDto.Id,
             MfaCode = "123456"
@@ -373,7 +373,7 @@ public class AuthServiceTests
             .ReturnsAsync(_userDto);
 
         // Act & Assert
-        await _authService.MfaEnableAsync(new()
+        await _authService.MfaVerifyAsync(new()
         {
             UserId = _userDto.Id,
             MfaCode = validCode
@@ -462,7 +462,7 @@ public class AuthServiceTests
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _authService.RecoveryCodesGenerateAsync(_userDto.Id));
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(() => _authService.GenerateRecoveryCodesAsync(_userDto.Id));
 
         Assert.Equal(exception.Message, Messages.NotFound);
     }
@@ -478,7 +478,7 @@ public class AuthServiceTests
             .ReturnsAsync(_userDto);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.RecoveryCodesGenerateAsync(_userDto.Id));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.GenerateRecoveryCodesAsync(_userDto.Id));
 
         Assert.Equal(exception.Message, Messages.MfaDisabled);
     }
@@ -494,7 +494,7 @@ public class AuthServiceTests
             .ReturnsAsync(_userDto);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.RecoveryCodesGenerateAsync(_userDto.Id));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _authService.GenerateRecoveryCodesAsync(_userDto.Id));
 
         Assert.Equal(exception.Message, Messages.MfaDisabled);
     }
@@ -520,7 +520,7 @@ public class AuthServiceTests
             .Returns(Task.CompletedTask);
 
         // Act & Assert
-        var result = await _authService.RecoveryCodesGenerateAsync(_userDto.Id);
+        var result = await _authService.GenerateRecoveryCodesAsync(_userDto.Id);
 
         Assert.NotNull(result);
         Assert.Equal(8, result.Count);

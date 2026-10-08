@@ -54,11 +54,11 @@ public class AuthController(IAuthService authService) : AuthBaseController
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> MfaEnableAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest)
+    public override async Task<IActionResult> MfaVerifyAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest)
     {
         ArgumentNullException.ThrowIfNull(mfaCodeApiRequest, Messages.InvalidRequestBody);
 
-        await authService.MfaEnableAsync(new()
+        await authService.MfaVerifyAsync(new()
         {
             UserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
             MfaCode = mfaCodeApiRequest.MfaCode
@@ -79,13 +79,13 @@ public class AuthController(IAuthService authService) : AuthBaseController
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> RecoveryCodesGenerateAsync()
+    public override async Task<IActionResult> RecoveryCodesAsync()
     {
-        var mfaRegenerateRecoveryCodes = await authService.RecoveryCodesGenerateAsync(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
+        var recoveryCodes = await authService.GenerateRecoveryCodesAsync(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
 
-        return Ok(new RecoveryCodesGenerateApiResponse
+        return Ok(new GenerateRecoveryCodesApiResponse
         {
-            RecoveryCodes = mfaRegenerateRecoveryCodes
+            RecoveryCodes = recoveryCodes
         });
     }
 
@@ -128,5 +128,15 @@ public class AuthController(IAuthService authService) : AuthBaseController
         await authService.RegisterAsync(registerDtoRequest);
 
         return Created();
+    }
+
+    public override Task<IActionResult> PassKeyRegisterAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Task<IActionResult> PassKeyVerifyAsync()
+    {
+        throw new NotImplementedException();
     }
 }

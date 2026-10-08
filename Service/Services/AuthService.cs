@@ -31,7 +31,7 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
 
         if (forgotPasswordDtoRequest.MfaCode != null)
         {
-            ValidateMfaCode(userDto, forgotPasswordDtoRequest.MfaCode);
+            VerifyMfaCode(userDto, forgotPasswordDtoRequest.MfaCode);
         }
 
         if (forgotPasswordDtoRequest.RecoveryCode != null)
@@ -50,6 +50,36 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
 
         userDto.PasswordHash = HashHelper.GenerateHash(forgotPasswordDtoRequest.NewPassword);
         await userRepository.UpdatePasswordAsync(userDto);
+    }
+
+    /// <inheritdoc />
+    public async Task<List<string>> GenerateRecoveryCodesAsync(Guid userId)
+    {
+        var userDto = await userRepository.GetByIdAsync(userId) ?? throw new KeyNotFoundException(Messages.NotFound);
+        if (userDto.MfaSecret == null || !userDto.MfaEnabled)
+        {
+            throw new InvalidOperationException(Messages.MfaDisabled);
+        }
+
+        await recoveryCodeRepository.DeleteManyAsync(userDto.Id);
+
+        var createDate = DateTime.UtcNow;
+
+        var recoveryCodes = Enumerable.Range(0, 8)
+                .Select(_ => GenerateCode())
+                .ToList();
+
+        var recoveryCodeDtos = recoveryCodes.Select(code => new RecoveryCodeDto
+        {
+            Id = Guid.NewGuid(),
+            User = new() { Id = userDto.Id },
+            CodeHash = HashHelper.GenerateHash(code),
+            CreatedAt = createDate
+        });
+
+        await recoveryCodeRepository.CreateManyAsync(recoveryCodeDtos);
+
+        return recoveryCodes;
     }
 
     /// <inheritdoc />
@@ -89,23 +119,6 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
     }
 
     /// <inheritdoc />
-    public async Task MfaEnableAsync(MfaCodeDtoRequest mfaCodeDtoRequest)
-    {
-        mfaCodeDtoRequest.ValidateRequest(new MfaCodeValidator());
-
-        var userDto = await userRepository.GetByIdAsync(mfaCodeDtoRequest.UserId) ?? throw new KeyNotFoundException(Messages.NotFound);
-        if (userDto.MfaEnabled)
-        {
-            throw new InvalidOperationException(Messages.MfaActivated);
-        }
-
-        ValidateMfaCode(userDto, mfaCodeDtoRequest.MfaCode);
-
-        userDto.MfaEnabled = true;
-        await userRepository.UpdateMfaEnableAsync(userDto);
-    }
-
-    /// <inheritdoc />
     public async Task<MfaSetupDtoResponse> MfaSetupAsync(Guid userId)
     {
         var userDto = await userRepository.GetByIdAsync(userId) ?? throw new KeyNotFoundException(Messages.NotFound);
@@ -133,33 +146,20 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
     }
 
     /// <inheritdoc />
-    public async Task<List<string>> RecoveryCodesGenerateAsync(Guid userId)
+    public async Task MfaVerifyAsync(MfaCodeDtoRequest mfaCodeDtoRequest)
     {
-        var userDto = await userRepository.GetByIdAsync(userId) ?? throw new KeyNotFoundException(Messages.NotFound);
-        if (userDto.MfaSecret == null || !userDto.MfaEnabled)
+        mfaCodeDtoRequest.ValidateRequest(new MfaCodeValidator());
+
+        var userDto = await userRepository.GetByIdAsync(mfaCodeDtoRequest.UserId) ?? throw new KeyNotFoundException(Messages.NotFound);
+        if (userDto.MfaEnabled)
         {
-            throw new InvalidOperationException(Messages.MfaDisabled);
+            throw new InvalidOperationException(Messages.MfaActivated);
         }
 
-        await recoveryCodeRepository.DeleteManyAsync(userDto.Id);
+        VerifyMfaCode(userDto, mfaCodeDtoRequest.MfaCode);
 
-        var createDate = DateTime.UtcNow;
-
-        var recoveryCodes = Enumerable.Range(0, 8)
-                .Select(_ => GenerateCode())
-                .ToList();
-
-        var recoveryCodeDtos = recoveryCodes.Select(code => new RecoveryCodeDto
-        {
-            Id = Guid.NewGuid(),
-            User = new() { Id = userDto.Id },
-            CodeHash = HashHelper.GenerateHash(code),
-            CreatedAt = createDate
-        });
-
-        await recoveryCodeRepository.CreateManyAsync(recoveryCodeDtos);
-
-        return recoveryCodes;
+        userDto.MfaEnabled = true;
+        await userRepository.UpdateMfaEnableAsync(userDto);
     }
 
     /// <inheritdoc />
@@ -267,10 +267,10 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
     }
 
     /// <summary>
-    /// Validates the mfa code sent in the request
+    /// Verifies the mfa code sent in the request
     /// </summary>
     /// <exception cref="InvalidOperationException">Thrown if the user mfa code is invalid.</exception>
-    private void ValidateMfaCode(UserDto userDto, string mfaCode)
+    private void VerifyMfaCode(UserDto userDto, string mfaCode)
     {
         var secretBytes = Base32Encoding.ToBytes(userDto.MfaSecret);
         var totp = new Totp(secretBytes);

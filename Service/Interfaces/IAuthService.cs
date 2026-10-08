@@ -11,7 +11,15 @@ public interface IAuthService
     /// <param name="email">The email of the user who forgot their password.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     Task ForgotPasswordAsync(ForgotPasswordDtoRequest forgotPasswordDtoRequest);
-    
+
+    /// <summary>
+    /// Generate new recovery codes for a give user
+    /// </summary>
+    /// <param name="userId">The user id</param>
+    /// <returns>The user recovery codes.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown if the user doesn't exists.</exception>
+    Task<List<string>> GenerateRecoveryCodesAsync(Guid userId);
+
     /// <summary>
     /// Generates a JWT access token for the specified user.
     /// </summary>
@@ -24,14 +32,6 @@ public interface IAuthService
     Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string email);
 
     /// <summary>
-    /// Enables mfa for a given user
-    /// </summary>
-    /// <param name="mfaCodeDtoRequest">The user mfa information.</param>
-    /// <returns>A task representing the asynchronous operation</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the user mfa is already enabled.</exception>
-    Task MfaEnableAsync(MfaCodeDtoRequest mfaCodeDtoRequest);
-
-    /// <summary>
     /// Setups the user mfa secret
     /// </summary>
     /// <param name="userId">The user id</param>
@@ -41,12 +41,12 @@ public interface IAuthService
     Task<MfaSetupDtoResponse> MfaSetupAsync(Guid userId);
 
     /// <summary>
-    /// Generate new recovery codes for a give user
+    /// Verifies mfa for a given user and enables it if the code is valid.
     /// </summary>
-    /// <param name="userId">The user id</param>
-    /// <returns>The user recovery codes.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown if the user doesn't exists.</exception>
-    Task<List<string>> RecoveryCodesGenerateAsync(Guid userId);
+    /// <param name="mfaCodeDtoRequest">The user mfa information.</param>
+    /// <returns>A task representing the asynchronous operation</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the user mfa is already enabled.</exception>
+    Task MfaVerifyAsync(MfaCodeDtoRequest mfaCodeDtoRequest);
 
     /// <summary>
     /// Registers a new user with the provided username and password.

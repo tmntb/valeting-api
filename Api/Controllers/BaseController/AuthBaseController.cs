@@ -43,26 +43,8 @@ public abstract class AuthBaseController : ControllerBase
     public abstract Task<IActionResult> LoginAsync([FromBody] LoginApiRequest loginApiRequest);
 
     /// <summary>
-    /// Enables the mfa for a given user
-    /// </summary>
-    /// <param name="mfaCodeApiRequest">The mfa code information</param>
-    /// <response code="204">Indicates that the mfa is enabled.</response>
-    /// <response code="400">Returned when the request body is invalid or fails validation.</response>
-    /// <response code="409">Returned when the user mfa is already activated.</response>
-    /// <response code="500">Returned when an unexpected error occurs.</response>
-    [HttpPost]
-    [Authorize]
-    [Route("mfa/enable")]
-    [ProducesResponseType(statusCode: 204)]
-    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
-    [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
-    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> MfaEnableAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest);
-
-    /// <summary>
     /// Setups the mfa for a given user
     /// </summary>
-    /// <param name="mfaSetupApiRequest">The email information for the setup</param>
     /// <response code="200">Return the mfa info required for the setup.</response>
     /// <response code="400">Returned when the request body is invalid or fails validation.</response>
     /// <response code="409">Returned when the user mfa is already activated.</response>
@@ -77,6 +59,23 @@ public abstract class AuthBaseController : ControllerBase
     public abstract Task<IActionResult> MfaSetupAsync();
 
     /// <summary>
+    /// Enables the mfa for a given user
+    /// </summary>
+    /// <param name="mfaCodeApiRequest">The mfa code information</param>
+    /// <response code="204">Indicates that the mfa is enabled.</response>
+    /// <response code="400">Returned when the request body is invalid or fails validation.</response>
+    /// <response code="409">Returned when the user mfa is already activated.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpPost]
+    [Authorize]
+    [Route("mfa/verify")]
+    [ProducesResponseType(statusCode: 204)]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> MfaVerifyAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest);
+
+    /// <summary>
     /// Generates the recovery codes
     /// </summary>
     /// <response code="200">Returns the list of recovery codes.</response>
@@ -85,10 +84,10 @@ public abstract class AuthBaseController : ControllerBase
     [HttpPost]
     [Authorize]
     [Route("recovery-codes")]
-    [ProducesResponseType(statusCode: 200, type: typeof(RecoveryCodesGenerateApiResponse))]
+    [ProducesResponseType(statusCode: 200, type: typeof(GenerateRecoveryCodesApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> RecoveryCodesGenerateAsync();
+    public abstract Task<IActionResult> RecoveryCodesAsync();
 
     /// <summary>
     /// Refreshes the user JWT access token.
@@ -122,4 +121,12 @@ public abstract class AuthBaseController : ControllerBase
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> RegisterAsync([FromBody] RegisterApiRequest registerApiRequest);
+
+    [HttpPost]
+    [Route("passkey/register")]
+    public abstract Task<IActionResult> PassKeyRegisterAsync();
+
+    [HttpPost]
+    [Route("passkey/verify")]
+    public abstract Task<IActionResult> PassKeyVerifyAsync();
 }
