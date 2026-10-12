@@ -12,7 +12,7 @@ using Service.Models.User;
 namespace Api.Controllers;
 
 [ApiVersion("1")]
-public class AuthController(IAuthService authService) : AuthBaseController
+public class AuthController(IAuthService authService, IMfaService mfaService, IRecoveryCodeService recoveryCodeService, ITokenService tokenService) : AuthBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordApiRequest forgotPasswordApiRequest)
@@ -43,7 +43,7 @@ public class AuthController(IAuthService authService) : AuthBaseController
 
         await authService.ValidateLoginAsync(userDto);
 
-        var generateTokenJWTDtoResponse = await authService.GenerateTokenJWTAsync(loginApiRequest.Email);
+        var generateTokenJWTDtoResponse = await tokenService.GenerateTokenJWTAsync(loginApiRequest.Email);
 
         var validateLoginApiResponse = new LoginApiResponse
         {
@@ -59,7 +59,7 @@ public class AuthController(IAuthService authService) : AuthBaseController
     {
         ArgumentNullException.ThrowIfNull(mfaCodeApiRequest, Messages.InvalidRequestBody);
 
-        await authService.MfaVerifyAsync(new()
+        await mfaService.MfaVerifyAsync(new()
         {
             UserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
             MfaCode = mfaCodeApiRequest.MfaCode
@@ -71,7 +71,7 @@ public class AuthController(IAuthService authService) : AuthBaseController
     /// <inheritdoc />
     public override async Task<IActionResult> MfaSetupAsync()
     {
-        var mfaSetupDtoResponse = await authService.MfaSetupAsync(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
+        var mfaSetupDtoResponse = await mfaService.MfaSetupAsync(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
 
         return Ok(new MfaSetupApiResponse
         {
@@ -82,7 +82,7 @@ public class AuthController(IAuthService authService) : AuthBaseController
     /// <inheritdoc />
     public override async Task<IActionResult> RecoveryCodesAsync()
     {
-        var recoveryCodes = await authService.GenerateRecoveryCodesAsync(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
+        var recoveryCodes = await recoveryCodeService.GenerateRecoveryCodesAsync(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
 
         return Ok(new GenerateRecoveryCodesApiResponse
         {
@@ -96,8 +96,8 @@ public class AuthController(IAuthService authService) : AuthBaseController
         ArgumentNullException.ThrowIfNull(refreshTokenApiRequest, Messages.InvalidRequestBody);
         ArgumentException.ThrowIfNullOrEmpty(refreshTokenApiRequest.Token, Messages.InvalidRequestBody);
 
-        var email = authService.ValidateToken(refreshTokenApiRequest.Token); // TODO: Remove when middleware is implemented
-        var generateTokenJwtDtoResponse = await authService.GenerateTokenJWTAsync(email);
+        var email = tokenService.ValidateToken(refreshTokenApiRequest.Token); // TODO: Remove when middleware is implemented
+        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJWTAsync(email);
 
         var refreshTokenApiResponse = new RefreshTokenApiResponse
         {

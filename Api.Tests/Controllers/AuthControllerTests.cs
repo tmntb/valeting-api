@@ -14,13 +14,19 @@ public class AuthControllerTests
 {
     private readonly ClaimsFixture _claimsFixture = new();
     private readonly Mock<IAuthService> _mockAuthService;
+    private readonly Mock<IMfaService> _mockMfaService;
+    private readonly Mock<IRecoveryCodeService> _mockRecoveryCodeService;
+    private readonly Mock<ITokenService> _mockTokenService;
     private readonly AuthController _authController;
 
     public AuthControllerTests()
     {
         _mockAuthService = new Mock<IAuthService>();
+        _mockMfaService = new Mock<IMfaService>();
+        _mockRecoveryCodeService = new Mock<IRecoveryCodeService>();
+        _mockTokenService = new Mock<ITokenService>();
 
-        _authController = new AuthController(_mockAuthService.Object);
+        _authController = new AuthController(_mockAuthService.Object, _mockMfaService.Object, _mockRecoveryCodeService.Object, _mockTokenService.Object);
     }
 
     [Fact]
@@ -73,7 +79,7 @@ public class AuthControllerTests
             .Returns(Task.CompletedTask);
 
         var expiryDate = DateTime.UtcNow;
-        _mockAuthService
+        _mockTokenService
             .Setup(s => s.GenerateTokenJWTAsync(It.IsAny<string>()))
             .ReturnsAsync(
                 new GenerateTokenJWTDtoResponse
@@ -117,7 +123,7 @@ public class AuthControllerTests
         // Arrange
         _claimsFixture.SetupUserClaims(_authController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
 
-        _mockAuthService
+        _mockMfaService
             .Setup(s => s.MfaVerifyAsync(It.IsAny<MfaCodeDtoRequest>()))
             .Returns(Task.CompletedTask);
 
@@ -141,7 +147,7 @@ public class AuthControllerTests
         // Arrange
         _claimsFixture.SetupUserClaims(_authController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
 
-        _mockAuthService
+        _mockRecoveryCodeService
             .Setup(s => s.GenerateRecoveryCodesAsync(It.IsAny<Guid>()))
             .ReturnsAsync(
                 [
@@ -163,7 +169,7 @@ public class AuthControllerTests
         // Arrange
         _claimsFixture.SetupUserClaims(_authController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
         
-        _mockAuthService
+        _mockMfaService
             .Setup(s => s.MfaSetupAsync(It.IsAny<Guid>()))
             .ReturnsAsync(new MfaSetupDtoResponse
             {
@@ -198,11 +204,11 @@ public class AuthControllerTests
     public async Task RefreshTokenAsync_ShouldReturnOk_WhenSuccessful()
     {
         // Arrange
-        _mockAuthService
+        _mockTokenService
             .Setup(s => s.ValidateToken(It.IsAny<string>()))
             .Returns("test@example.com");
 
-        _mockAuthService
+        _mockTokenService
             .Setup(s => s.GenerateTokenJWTAsync(It.IsAny<string>()))
             .ReturnsAsync(
                 new GenerateTokenJWTDtoResponse
