@@ -7,9 +7,9 @@ public interface IPasskeyRepository
     /// <summary>
     /// Stores a newly registered passkey for a user.
     /// </summary>
-    /// <param name="passkey">The passkey data to persist.</param>
+    /// <param name="passkeyDto">The passkey data to persist.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    Task AddAsync(PasskeyDto passkey, CancellationToken cancellationToken = default);
+    Task CreateAsync(PasskeyDto passkeyDto, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all passkeys registered to a specific user.
@@ -30,9 +30,9 @@ public interface IPasskeyRepository
     /// <summary>
     /// Updates the metadata of an existing passkey.
     /// </summary>
-    /// <param name="passkey">The updated passkey record.</param>
+    /// <param name="passkeyDto">The updated passkey record.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    Task UpdateAsync(PasskeyDto passkey, CancellationToken cancellationToken = default);
+    Task UpdateAsync(PasskeyDto passkeyDto, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes a passkey owned by the specified user.

@@ -26,11 +26,12 @@ public interface IPasskeyService
     /// <returns>The WebAuthn creation options and single-use ceremony identifier.</returns>
     Task<PasskeyRegistrationOptionsDtoResponse> CreateRegistrationOptionsAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    /// <summary>Validates and stores a WebAuthn attestation for a user.</summary>
-    /// <param name="userId">The authenticated user identifier.</param>
-    /// <param name="request">The ceremony identifier, attestation response, and optional friendly name.</param>
+    /// <summary>
+    /// Validates and stores a WebAuthn attestation for a user.
+    /// </summary>
+    /// <param name="passkeyRegistrationsVerifyDtoRequest">The user identifier, ceremony identifier, attestation response, and optional friendly name.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    Task RegisterCredentialAsync(Guid userId, PasskeyRegistrationVerifyRequest request, CancellationToken cancellationToken = default);
+    Task RegisterCredentialAsync(PasskeyRegistrationVerifyDtoRequest passkeyRegistrationVerifyDtoRequest, CancellationToken cancellationToken = default);
 
     /// <summary>Lists a user's passkey records for API-safe mapping.</summary>
     /// <param name="userId">The authenticated user identifier.</param>

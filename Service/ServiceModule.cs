@@ -16,7 +16,7 @@ public static class ServiceModule
         // Caching
         services.AddMemoryCache();
         services.AddScoped<ICacheHandler, MemoryCacheHandler>();
-        services.AddScoped<IPasskeyChallengeStore, InMemoryPasskeyChallengeStore>();
+        services.AddScoped<IPasskeyChallengeStore, PasskeyChallengeStore>();
 
         services.AddScoped<ValidationHelpers>();
 

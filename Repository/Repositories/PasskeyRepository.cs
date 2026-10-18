@@ -8,7 +8,7 @@ namespace Repository.Repositories;
 public class PasskeyRepository(ValetingContext valetingContext) : IPasskeyRepository
 {
     /// <inheritdoc />
-    public async Task AddAsync(PasskeyDto passkeyDto, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(PasskeyDto passkeyDto, CancellationToken cancellationToken = default)
     {
         var passkey = new Passkey
         {

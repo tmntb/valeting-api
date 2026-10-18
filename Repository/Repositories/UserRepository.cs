@@ -12,7 +12,7 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
     {
         var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Email == email);
 
-        return CreateUserDto(applicationUser);
+        return FromEntity(applicationUser);
     }
 
     /// <inheritdoc />
@@ -20,7 +20,7 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
     {
         var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == id);
 
-        return CreateUserDto(applicationUser);
+        return FromEntity(applicationUser);
     }
     /// <inheritdoc />
     public async Task RegisterAsync(UserDto userDto)
@@ -135,7 +135,7 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
     /// </summary>
     /// <param name="applicationUser">The application user entity.</param>
     /// <returns>A <see cref="UserDto"/> representing the application user.</returns>
-    private static UserDto CreateUserDto(ApplicationUser? applicationUser)
+    private static UserDto FromEntity(ApplicationUser? applicationUser)
     {
         if (applicationUser == null)
             return null;

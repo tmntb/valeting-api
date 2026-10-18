@@ -7,6 +7,8 @@ using Service.Interfaces;
 using Service.Models.Auth;
 using Service.Models.Passkey;
 using Service.Models.Passkey.Payload;
+using Service.Validators.Passkey;
+using Service.Validators.Utils;
 
 namespace Service.Services;
 
@@ -161,28 +163,19 @@ public class PasskeyService(IFido2 fido2, IUserRepository userRepository, IPassk
         };
     }
 
-    public async Task RegisterCredentialAsync(Guid userId, PasskeyRegistrationVerifyRequest request, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task RegisterCredentialAsync(PasskeyRegistrationVerifyDtoRequest passkeyRegistrationVerifyDtoRequest, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        passkeyRegistrationVerifyDtoRequest.ValidateRequest(new PasskeyRegistrationVerifyValidator());
 
-        if (request.CeremonyId == Guid.Empty || request.Credential == null)
-        {
-            throw new ArgumentException("The passkey ceremony and registration response are required.", nameof(request));
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.Name) && request.Name.Trim().Length > 200)
-        {
-            throw new ArgumentException("Passkey name must not exceed 200 characters.", nameof(request));
-        }
-
-        if (!challengeStore.TryConsume(request.CeremonyId, PasskeyCeremony.Registration, out var state)
-            || state!.UserId != userId)
+        if (!challengeStore.TryConsume(passkeyRegistrationVerifyDtoRequest.CeremonyId, PasskeyCeremony.Registration, out var state)
+            || state!.UserId != passkeyRegistrationVerifyDtoRequest.UserId)
         {
             throw new UnauthorizedAccessException("The passkey registration ceremony is invalid, expired, or already used.");
         }
 
         var originalOptions = CredentialCreateOptions.FromJson(state.OptionsJson);
-        if (await passkeyRepository.GetByCredentialIdAsync(request.Credential.Id, cancellationToken) != null)
+        if (await passkeyRepository.GetByCredentialIdAsync(passkeyRegistrationVerifyDtoRequest.Credential.Id, cancellationToken) != null)
         {
             throw new InvalidOperationException("This passkey is already registered.");
         }
@@ -190,26 +183,29 @@ public class PasskeyService(IFido2 fido2, IUserRepository userRepository, IPassk
         RegisteredPublicKeyCredential credential;
         try
         {
-            credential = await fido2.MakeNewCredentialAsync(new MakeNewCredentialParams
-            {
-                AttestationResponse = request.Credential,
-                OriginalOptions = originalOptions,
-                IsCredentialIdUniqueToUserCallback = async (args, token) =>
-                    await passkeyRepository.GetByCredentialIdAsync(EncodeBase64Url(args.CredentialId), token) == null
-            }, cancellationToken);
+            credential = await fido2.MakeNewCredentialAsync(
+                new MakeNewCredentialParams
+                {
+                    AttestationResponse = passkeyRegistrationVerifyDtoRequest.Credential,
+                    OriginalOptions = originalOptions,
+                    IsCredentialIdUniqueToUserCallback = async (args, token) => 
+                        await passkeyRepository.GetByCredentialIdAsync(EncodeBase64Url(args.CredentialId), token) == null
+                }, 
+                cancellationToken
+            );
         }
         catch (Fido2VerificationException)
         {
-            throw new ArgumentException("The passkey registration response could not be verified.", nameof(request));
+            throw new ArgumentException("The passkey registration response could not be verified.", nameof(passkeyRegistrationVerifyDtoRequest));
         }
 
-        var passkey = new PasskeyDto
+        var passkeyDto = new PasskeyDto
         {
             Id = Guid.NewGuid(),
-            UserId = userId,
+            UserId = passkeyRegistrationVerifyDtoRequest.UserId,
             CredentialId = EncodeBase64Url(credential.Id),
             PublicKey = EncodeBase64Url(credential.PublicKey),
-            FriendlyName = string.IsNullOrWhiteSpace(request.Name) ? "Passkey" : request.Name.Trim(),
+            FriendlyName = string.IsNullOrWhiteSpace(passkeyRegistrationVerifyDtoRequest.Name) ? "Passkey" : passkeyRegistrationVerifyDtoRequest.Name.Trim(),
             Aaguid = credential.AaGuid.ToString(),
             Transports = JsonSerializer.Serialize(credential.Transports),
             CreatedAt = DateTime.UtcNow,
@@ -217,7 +213,7 @@ public class PasskeyService(IFido2 fido2, IUserRepository userRepository, IPassk
             SignatureCounter = credential.SignCount
         };
 
-        await passkeyRepository.AddAsync(passkey, cancellationToken);
+        await passkeyRepository.CreateAsync(passkeyDto, cancellationToken);
     }
 
     public async Task<IEnumerable<PasskeyDto>> GetUserPasskeysAsync(Guid userId, CancellationToken cancellationToken = default)
