@@ -10,6 +10,7 @@ public partial class ApplicationUser
         CustomerBookings = new HashSet<Booking>();
         DecisionBookings = new HashSet<Booking>();
         RecoveryCodes = new HashSet<RecoveryCode>();
+        Passkeys = new HashSet<Passkey>();
     }
 
     /// <summary>
@@ -101,4 +102,9 @@ public partial class ApplicationUser
     /// Collection of recovery codes associated with this user for MFA.
     /// </summary>
     public virtual ICollection<RecoveryCode> RecoveryCodes { get; set; }
+
+    /// <summary>
+    /// Collection of passkeys associated with this user.
+    /// </summary>
+    public virtual ICollection<Passkey> Passkeys { get; set; }
 }

@@ -22,6 +22,7 @@ public partial class ValetingContext : DbContext
     public virtual DbSet<RdRole> RdRoles { get; set; } = null!;
     public virtual DbSet<RdStatus> RdStatus { get; set; } = null!;
     public virtual DbSet<RecoveryCode> RecoveryCodes { get; set; } = null!;
+    public virtual DbSet<Passkey> Passkeys { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -281,6 +282,53 @@ public partial class ValetingContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RecoveryCode_ApplicationUser_User");
+        });
+
+        modelBuilder.Entity<Passkey>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.ToTable("Passkey");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("Id");
+
+            entity.Property(e => e.UserId)
+                .IsRequired()
+                .HasColumnName("User_Id");
+
+            entity.Property(e => e.CredentialId)
+                .IsRequired()
+                .HasMaxLength(500)
+                .UseCollation("Latin1_General_100_BIN2");
+
+            entity.HasIndex(e => e.CredentialId)
+                .IsUnique();
+
+            entity.Property(e => e.PublicKey)
+                .IsRequired()
+                .HasMaxLength(2000);
+
+            entity.Property(e => e.FriendlyName)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(e => e.Aaguid).HasMaxLength(200);
+            entity.Property(e => e.Transports).HasMaxLength(200);
+
+            entity.Property(e => e.CreatedAt)
+                .IsRequired()
+                .HasColumnType("datetime2");
+
+            entity.Property(e => e.LastUsedAt)
+                .HasColumnType("datetime2");
+
+            entity.HasOne(d => d.User)
+                .WithMany(p => p.Passkeys)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Passkey_ApplicationUser_User");
         });
 
         OnModelCreatingPartial(modelBuilder);

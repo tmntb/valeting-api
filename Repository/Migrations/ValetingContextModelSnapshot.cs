@@ -16,11 +16,13 @@ namespace Repository.Migrations;
 [DbContext(typeof(ValetingContext))]
 partial class ValetingContextModelSnapshot : ModelSnapshot
 {
+    internal void BuildModelForMigration(ModelBuilder modelBuilder) => BuildModel(modelBuilder);
+
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
 #pragma warning disable 612, 618
         modelBuilder
-            .HasAnnotation("ProductVersion", "9.0.2")
+            .HasAnnotation("ProductVersion", "10.0.12")
             .HasAnnotation("Proxies:ChangeTracking", false)
             .HasAnnotation("Proxies:CheckEquality", false)
             .HasAnnotation("Proxies:LazyLoading", true)
@@ -294,6 +296,59 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                 b.ToTable("RecoveryCode", (string)null);
             });
 
+        modelBuilder.Entity("Repository.Entities.Passkey", b =>
+            {
+                b.Property<Guid>("Id")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("Id");
+
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("User_Id");
+
+                b.Property<string>("CredentialId")
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .UseCollation("Latin1_General_100_BIN2")
+                    .HasColumnType("nvarchar(500)");
+
+                b.Property<string>("PublicKey")
+                    .IsRequired()
+                    .HasMaxLength(2000)
+                    .HasColumnType("nvarchar(2000)");
+
+                b.Property<string>("FriendlyName")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
+                b.Property<string>("Aaguid")
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
+                b.Property<string>("Transports")
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<DateTime?>("LastUsedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<long?>("SignatureCounter")
+                    .HasColumnType("bigint");
+
+                b.HasKey("Id");
+
+                b.HasIndex("CredentialId")
+                    .IsUnique();
+
+                b.HasIndex("UserId");
+
+                b.ToTable("Passkey", (string)null);
+            });
+
         modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
            {
                b.HasOne("Repository.Entities.RdRole", "Role")
@@ -312,6 +367,17 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("UserId")
                     .IsRequired()
                     .HasConstraintName("FK_RecoveryCode_ApplicationUser_User");
+
+                b.Navigation("User");
+            });
+
+        modelBuilder.Entity("Repository.Entities.Passkey", b =>
+            {
+                b.HasOne("Repository.Entities.ApplicationUser", "User")
+                    .WithMany("Passkeys")
+                    .HasForeignKey("UserId")
+                    .IsRequired()
+                    .HasConstraintName("FK_Passkey_ApplicationUser_User");
 
                 b.Navigation("User");
             });
@@ -336,7 +402,7 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                     .HasConstraintName("FK_Booking_VehicleSize");
 
                 b.HasOne("Repository.Entities.RdStatus", "Status")
-                    .WithMany()
+                    .WithMany("Bookings")
                     .HasForeignKey("StatusId")
                     .IsRequired()
                     .HasConstraintName("FK_Booking_Status");
@@ -370,6 +436,11 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
         modelBuilder.Entity("Repository.Entities.RdRole", b =>
             {
                 b.Navigation("ApplicationUsers");
+            });
+
+        modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
+            {
+                b.Navigation("Passkeys");
             });
 
         modelBuilder.Entity("Repository.Entities.RdStatus", b =>
