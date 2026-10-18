@@ -66,7 +66,6 @@ internal static class EnvironmentConfiguration
 
         if (!string.IsNullOrEmpty(jwtKeyString) && !string.IsNullOrEmpty(jwtKey))
         {
-            // Replace placeholder with the real JWT key
             jwtKeyString = jwtKeyString.Replace("{JWT_KEY}", jwtKey);
             config["Jwt:Key"] = jwtKeyString;
 
@@ -74,12 +73,43 @@ internal static class EnvironmentConfiguration
         }
     }
 
+    internal static void ConfigurePasskeySettings(IConfiguration config)
+    {
+        var rpId = GetEnvVar("PK_RPID");
+        var rpName = GetEnvVar("PK_RPNAME");
+        var allowedOrigins = GetEnvVar("PK_ORIGINS");
+
+        var rpIdString = config["Passkey:RpId"] ?? throw new InvalidOperationException("Passkey:RpId not configured");
+        var rpNameString = config["Passkey:RpName"] ?? throw new InvalidOperationException("Passkey:RpName not configured");
+        var allowedOriginsString = config["Passkey:Origins"] ?? throw new InvalidOperationException("Passkey:Origins not configured");
+
+        if ((!string.IsNullOrEmpty(rpId) && !string.IsNullOrEmpty(rpIdString)) ||
+             (!string.IsNullOrEmpty(rpName) && !string.IsNullOrEmpty(rpNameString)) ||
+             (!string.IsNullOrEmpty(allowedOrigins) && !string.IsNullOrEmpty(allowedOriginsString)))
+        {
+            rpIdString = rpIdString.Replace("{PK_RPID}", rpId);
+            config["Passkey:RpId"] = rpIdString;
+
+            Console.WriteLine("✅ Replaced {PK_RPID} placeholder in Passkey:RpId.");
+
+            rpNameString = rpNameString.Replace("{PK_RPNAME}", rpName);
+            config["Passkey:RpName"] = rpNameString;
+
+            Console.WriteLine("✅ Replaced {PK_RPNAME} placeholder in Passkey:RpName.");
+
+            allowedOriginsString = allowedOriginsString.Replace("{PK_ORIGINS}", allowedOrigins);
+            config["Passkey:RpOrigins"] = allowedOriginsString;
+
+            Console.WriteLine("✅ Replaced {PK_ORIGINS} placeholder in Passkey:RpOrigins.");
+        }
+    }
+
     /// <summary>
-    /// Helper method to read an environment variable and optionally enforce that it is set (non-empty). If the variable is required but not set, an exception will be thrown. If it is not required and not set, an empty string will be returned.
+    /// Helper method to read an environment variable and optionally enforce that it is set (non-empty). 
     /// This centralizes the logic for reading environment variables and provides consistent error handling and logging for missing variables.
     /// </summary>
     /// <param name="name">The name of the environment variable to read.</param>
-    /// <returns>The value of the environment variable, or an empty string if it is not required and not set.</returns>
+    /// <returns>The value of the environment variable, or an empty string if it is not set.</returns>
     private static string GetEnvVar(string name)
     {
         var value = Environment.GetEnvironmentVariable(name);
