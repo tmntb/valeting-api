@@ -16,6 +16,7 @@ public static class ServiceModule
         // Caching
         services.AddMemoryCache();
         services.AddScoped<ICacheHandler, MemoryCacheHandler>();
+        services.AddScoped<IPasskeyChallengeStore, InMemoryPasskeyChallengeStore>();
 
         services.AddScoped<ValidationHelpers>();
 
@@ -24,8 +25,12 @@ public static class ServiceModule
             .AddScoped<IAuthService, AuthService>()
             .AddScoped<IBookingService, BookingService>()
             .AddScoped<IFlexibilityService, FlexibilityService>()
+            .AddScoped<ILinkService, LinkService>()
+            .AddScoped<IMfaService, MfaService>()
+            .AddScoped<IPasskeyService, PasskeyService>()
+            .AddScoped<IRecoveryCodeService, RecoveryCodeService>()
+            .AddScoped<ITokenService, TokenService>()
             .AddScoped<IUserService, UserService>()
-            .AddScoped<IVehicleSizeService, VehicleSizeService>()
-            .AddScoped<ILinkService, LinkService>();
+            .AddScoped<IVehicleSizeService, VehicleSizeService>();
     }
 }

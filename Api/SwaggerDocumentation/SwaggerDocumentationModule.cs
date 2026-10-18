@@ -65,6 +65,7 @@ public static class SwaggerDocumentationExtensions
             c.DocumentFilter<FlexibilityDocumentFilter>();
             c.DocumentFilter<UserDocumentFilter>();
             c.DocumentFilter<VehicleSizeDocumentFilter>();
+            c.DocumentFilter<PasskeyDocumentFilter>();
 
             c.ParameterFilter<ParameterFilter>();
         });
