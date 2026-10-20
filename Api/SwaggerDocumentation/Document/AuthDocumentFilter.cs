@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Api.Extensions;
 using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -23,12 +24,12 @@ public class AuthDocumentFilter : IDocumentFilter
     /// <summary>
     /// Endpoint for auth mfa enable.
     /// </summary>
-    public const string AuthMfaEnable = "/auth/mfa/enable";
+    public const string AuthMfaEnable = "/auth/mfa/verify";
 
     /// <summary>
     /// Endpoint for auth mfa regenerate recovery codes.
     /// </summary>
-    public const string AuthMfaRecoveryCodeRegenerate = "/auth/mfa/recovery-codes/regenerate";
+    public const string AuthMfaRecoveryCodeRegenerate = "/auth/recovery-codes";
 
     /// <summary>
     /// Endpoint for auth mfa setup.
@@ -45,43 +46,47 @@ public class AuthDocumentFilter : IDocumentFilter
     /// </summary>
     public const string AuthRegisterEndpoint = "/auth/register";
 
+    private const string PasskeyAuthenticateOptions = "/auth/passkey/authenticate/options";
+    private const string PasskeyAuthenticateVerify = "/auth/passkey/authenticate/verify";
+
+    private const string PasskeysEndpoint = "/auth/passkeys";
+    private const string PasskeyByIdEndpoint = "/auth/passkeys/{id}";
+
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
         swaggerDoc.Tags.Add(new OpenApiTag() { Name = "Auth", Description = "Auth operations" });
 
-        var userForgotPasswordPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key.Contains(AuthForgotPasswordEndpoint)).Value;
-        userForgotPasswordPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-auth-forgot-password";
-        userForgotPasswordPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Restores the user password.";
-        userForgotPasswordPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = string.Empty;
+        swaggerDoc.ConfigureOperation(AuthForgotPasswordEndpoint, HttpMethod.Post,
+            "post-auth-forgot-password", "Restores the user password.", string.Empty, false);
+        swaggerDoc.ConfigureOperation(AuthLoginEndpoint, HttpMethod.Post,
+            "post-auth-login", "Validates user credentials.", "Returns an access token for the **User**.", false);
+        swaggerDoc.ConfigureOperation(AuthMfaEnable, HttpMethod.Post,
+            "post-auth-mfa-verify", "Verifies an MFA code.", string.Empty);
+        swaggerDoc.ConfigureOperation(AuthMfaRecoveryCodeRegenerate, HttpMethod.Post,
+            "post-auth-recovery-codes", "Generates recovery codes.", "Returns a new list of **Recovery codes**.");
+        swaggerDoc.ConfigureOperation(AuthMfaSetup, HttpMethod.Post,
+            "post-auth-mfa-setup", "Sets up MFA.", "Returns the MFA information required for setup.");
+        swaggerDoc.ConfigureOperation(AuthRefreshTokenEndpoint, HttpMethod.Post,
+            "post-auth-refresh-token", "Refreshes an access token.", "Returns a refreshed **access token**.");
+        swaggerDoc.ConfigureOperation(AuthRegisterEndpoint, HttpMethod.Post,
+            "post-auth-register", "Registers a new user.", string.Empty, false);
 
-        var userLoginPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key.Contains(AuthLoginEndpoint)).Value;
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-auth-login";
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Validates user credentials.";
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Returns an access token for the **User**.";
+        swaggerDoc.ConfigureOperation(PasskeyAuthenticateOptions, HttpMethod.Post,
+            "post-auth-passkey-authenticate-options", "Create passkey sign-in options.",
+            "Returns browser WebAuthn assertion options and a short-lived, single-use ceremony ID.", false);
+        swaggerDoc.ConfigureOperation(PasskeyAuthenticateVerify, HttpMethod.Post,
+            "post-auth-passkey-authenticate-verify", "Verify passkey sign-in.",
+            "Validates the WebAuthn assertion before issuing an access token.", false);
 
-        var mfaEnablePaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key.Contains(AuthMfaEnable)).Value;
-        mfaEnablePaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-auth-mfa-enable";
-        mfaEnablePaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Enables mfa";
-        mfaEnablePaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = string.Empty;
-
-        var mfaRecoveryCodeRegeneratePaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key.Contains(AuthMfaRecoveryCodeRegenerate)).Value;
-        mfaRecoveryCodeRegeneratePaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-auth-mfa-recovery-codes-regenerates";
-        mfaRecoveryCodeRegeneratePaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Regenerates recovery codes.";
-        mfaRecoveryCodeRegeneratePaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Returns a new list of **Recovery codes**.";
-
-        var mfaSetupPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key.Contains(AuthMfaSetup)).Value;
-        mfaSetupPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-auth-mfa-setup";
-        mfaSetupPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Setup mfa.";
-        mfaSetupPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Returns the **mfa** info required for the setup.";
-
-        var userRefreshTokenPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key.Contains(AuthRefreshTokenEndpoint)).Value;
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-auth-refresh-token";
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Refresh the token for valid use.r";
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Returns a refreshed **access token**.";
-
-        var registerPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key.Contains(AuthRegisterEndpoint)).Value;
-        registerPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-auth-register";
-        registerPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Register a new user.";
-        registerPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = string.Empty;
+        
+        swaggerDoc.ConfigureOperation(PasskeysEndpoint, HttpMethod.Get,
+            "get-auth-passkeys", "List the current user's passkeys.",
+            "Returns passkey names and lifecycle timestamps without credential material.");
+        swaggerDoc.ConfigureOperation(PasskeyByIdEndpoint, HttpMethod.Put,
+            "put-auth-passkeys-id", "Rename a passkey.",
+            "Updates the friendly name of a passkey belonging to the authenticated user.");
+        swaggerDoc.ConfigureOperation(PasskeyByIdEndpoint, HttpMethod.Delete,
+            "delete-auth-passkeys-id", "Remove a passkey.",
+            "Removes a passkey belonging to the authenticated user.");
     }
 }

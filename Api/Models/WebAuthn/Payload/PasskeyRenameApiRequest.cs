@@ -1,4 +1,4 @@
-namespace Api.Models.Passkey.Payload;
+namespace Api.Models.WebAuthn.Payload;
 
 public class PasskeyRenameApiRequest
 {

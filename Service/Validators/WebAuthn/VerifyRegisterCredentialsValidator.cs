@@ -1,17 +1,17 @@
 using FluentValidation;
-using Service.Models.Passkey.Payload;
+using Service.Models.WebAuthn.Payload;
 
-namespace Service.Validators.Passkey;
+namespace Service.Validators.WebAuthn;
 
 /// <summary>
-/// Defines validation rules for passkey registration verification requests.
+/// Defines validation rules for webauthn registration verification requests.
 /// </summary>
-public class PasskeyRegistrationVerifyValidator : AbstractValidator<PasskeyRegistrationVerifyDtoRequest>
+public class VerifyRegisterCredentialsValidator : AbstractValidator<WebAuthnRegistrationVerifyDtoRequest>
 {
     /// <summary>
-    /// Initializes the validation rules for a passkey registration verification request.
+    /// Initializes the validation rules for a webauthn registration verification request.
     /// </summary>
-    public PasskeyRegistrationVerifyValidator()
+    public VerifyRegisterCredentialsValidator()
     {
         RuleFor(x => x.UserId)
             .NotEqual(Guid.Empty);

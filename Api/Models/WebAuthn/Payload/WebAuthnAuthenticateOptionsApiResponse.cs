@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-namespace Service.Models.Passkey.Payload;
+namespace Api.Models.WebAuthn.Payload;
 
-public class PasskeyRegistrationOptionsDtoResponse
+public class WebAuthnAuthenticateOptionsApiResponse
 {
     public Guid CeremonyId { get; set; }
     public JsonElement PublicKey { get; set; }

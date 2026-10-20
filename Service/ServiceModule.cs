@@ -16,7 +16,7 @@ public static class ServiceModule
         // Caching
         services.AddMemoryCache();
         services.AddScoped<ICacheHandler, MemoryCacheHandler>();
-        services.AddScoped<IPasskeyChallengeStore, PasskeyChallengeStore>();
+        services.AddScoped<IWebAuthnChallengeStore, WebAuthnChallengeStore>();
 
         services.AddScoped<ValidationHelpers>();
 
@@ -27,10 +27,10 @@ public static class ServiceModule
             .AddScoped<IFlexibilityService, FlexibilityService>()
             .AddScoped<ILinkService, LinkService>()
             .AddScoped<IMfaService, MfaService>()
-            .AddScoped<IPasskeyService, PasskeyService>()
             .AddScoped<IRecoveryCodeService, RecoveryCodeService>()
             .AddScoped<ITokenService, TokenService>()
             .AddScoped<IUserService, UserService>()
-            .AddScoped<IVehicleSizeService, VehicleSizeService>();
+            .AddScoped<IVehicleSizeService, VehicleSizeService>()
+            .AddScoped<IWebAuthnService, WebAuthnService>();
     }
 }

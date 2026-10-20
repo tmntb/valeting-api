@@ -165,7 +165,7 @@ public partial class InitialCreate : Migration
             });
 
         migrationBuilder.CreateTable(
-            name: "Passkey",
+            name: "WebAuthn",
             columns: table => new
             {
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -183,7 +183,7 @@ public partial class InitialCreate : Migration
             {
                 table.PrimaryKey("PK_Passkey", x => x.Id);
                 table.ForeignKey(
-                    name: "FK_Passkey_ApplicationUser_User",
+                    name: "FK_Webauthn_ApplicationUser_User",
                     column: x => x.User_Id,
                     principalTable: "ApplicationUser",
                     principalColumn: "Id");
@@ -225,14 +225,14 @@ public partial class InitialCreate : Migration
             column: "User_Id");
 
         migrationBuilder.CreateIndex(
-            name: "IX_Passkey_CredentialId",
-            table: "Passkey",
+            name: "IX_Webauthn_CredentialId",
+            table: "WebAuthn",
             column: "CredentialId",
             unique: true);
 
         migrationBuilder.CreateIndex(
-            name: "IX_Passkey_User_Id",
-            table: "Passkey",
+            name: "IX_WebAuthn_User_Id",
+            table: "WebAuthn",
             column: "User_Id");
     }
 
@@ -252,6 +252,6 @@ public partial class InitialCreate : Migration
 
         migrationBuilder.DropTable(name: "RecoveryCode");
 
-        migrationBuilder.DropTable(name: "Passkey");
+        migrationBuilder.DropTable(name: "WebAuthn");
     }
 }

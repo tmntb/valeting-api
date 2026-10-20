@@ -10,7 +10,7 @@ public partial class ApplicationUser
         CustomerBookings = new HashSet<Booking>();
         DecisionBookings = new HashSet<Booking>();
         RecoveryCodes = new HashSet<RecoveryCode>();
-        Passkeys = new HashSet<Passkey>();
+        Passkeys = new HashSet<WebAuthn>();
     }
 
     /// <summary>
@@ -106,5 +106,5 @@ public partial class ApplicationUser
     /// <summary>
     /// Collection of passkeys associated with this user.
     /// </summary>
-    public virtual ICollection<Passkey> Passkeys { get; set; }
+    public virtual ICollection<WebAuthn> Passkeys { get; set; }
 }

@@ -1,6 +1,6 @@
 namespace Service.Models.Auth;
 
-public class PasskeyDto
+public class WebAuthnDto
 {
     /// <summary>
     /// Unique identifier of the passkey record.

@@ -296,7 +296,7 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                 b.ToTable("RecoveryCode", (string)null);
             });
 
-        modelBuilder.Entity("Repository.Entities.Passkey", b =>
+        modelBuilder.Entity("Repository.Entities.WebAuthn", b =>
             {
                 b.Property<Guid>("Id")
                     .HasColumnType("uniqueidentifier")
@@ -346,7 +346,7 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("UserId");
 
-                b.ToTable("Passkey", (string)null);
+                b.ToTable("WebAuthn", (string)null);
             });
 
         modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
@@ -371,13 +371,13 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                 b.Navigation("User");
             });
 
-        modelBuilder.Entity("Repository.Entities.Passkey", b =>
+        modelBuilder.Entity("Repository.Entities.WebAuthn", b =>
             {
                 b.HasOne("Repository.Entities.ApplicationUser", "User")
-                    .WithMany("Passkeys")
+                    .WithMany("WebAuthns")
                     .HasForeignKey("UserId")
                     .IsRequired()
-                    .HasConstraintName("FK_Passkey_ApplicationUser_User");
+                    .HasConstraintName("FK_WebAuthn_ApplicationUser_User");
 
                 b.Navigation("User");
             });
@@ -440,7 +440,7 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
 
         modelBuilder.Entity("Repository.Entities.ApplicationUser", b =>
             {
-                b.Navigation("Passkeys");
+                b.Navigation("WebAuthns");
             });
 
         modelBuilder.Entity("Repository.Entities.RdStatus", b =>

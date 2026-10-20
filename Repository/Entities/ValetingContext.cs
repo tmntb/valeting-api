@@ -22,7 +22,7 @@ public partial class ValetingContext : DbContext
     public virtual DbSet<RdRole> RdRoles { get; set; } = null!;
     public virtual DbSet<RdStatus> RdStatus { get; set; } = null!;
     public virtual DbSet<RecoveryCode> RecoveryCodes { get; set; } = null!;
-    public virtual DbSet<Passkey> Passkeys { get; set; } = null!;
+    public virtual DbSet<WebAuthn> Passkeys { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -284,7 +284,7 @@ public partial class ValetingContext : DbContext
                 .HasConstraintName("FK_RecoveryCode_ApplicationUser_User");
         });
 
-        modelBuilder.Entity<Passkey>(entity =>
+        modelBuilder.Entity<WebAuthn>(entity =>
         {
             entity.HasKey(e => e.Id);
 

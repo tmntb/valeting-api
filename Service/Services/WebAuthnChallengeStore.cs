@@ -4,7 +4,7 @@ using Service.Models.Passkey;
 
 namespace Service.Services;
 
-public sealed class PasskeyChallengeStore : IPasskeyChallengeStore
+public sealed class WebAuthnChallengeStore : IWebAuthnChallengeStore
 {
     private readonly ConcurrentDictionary<Guid, PasskeyChallengeState> _challenges = new();
 

@@ -1,12 +1,12 @@
 using Fido2NetLib;
 
-namespace Service.Models.Passkey.Payload;
+namespace Service.Models.WebAuthn.Payload;
 
 /// <summary>
 /// Represents the data required to verify a passkey registration
 /// for a specific user.
 /// </summary>
-public class PasskeyRegistrationVerifyDtoRequest
+public class WebAuthnRegistrationVerifyDtoRequest
 {
     /// <summary>
     /// Unique identifier of the user registering the passkey.

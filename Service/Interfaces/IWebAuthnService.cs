@@ -1,16 +1,19 @@
 using Service.Models.Auth;
 using Service.Models.Passkey;
-using Service.Models.Passkey.Payload;
+using Service.Models.User;
+using Service.Models.WebAuthn.Payload;
 
 namespace Service.Interfaces;
 
-public interface IPasskeyService
+public interface IWebAuthnService
 {
-    /// <summary>Creates browser-compatible assertion options for optional-email or discoverable passkey sign-in.</summary>
-    /// <param name="email">Optional email used to restrict the assertion to a user's registered passkeys.</param>
+    /// <summary>
+    /// Creates browser-compatible assertion options for optional-email or discoverable passkey sign-in.
+    /// </summary>
+    /// <param name="userDto">User info</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
     /// <returns>The WebAuthn public-key options and single-use ceremony identifier.</returns>
-    Task<PasskeyAuthenticationOptionsResponse> CreateAuthenticationOptionsAsync(string? email = null, CancellationToken cancellationToken = default);
+    Task<WebAuthnAuthenticationOptionsDtoResponse> CreateAuthenticationOptionsAsync(UserDto userDto, CancellationToken cancellationToken = default);
 
     /// <summary>Validates a WebAuthn assertion and resolves the authenticated user.</summary>
     /// <param name="request">The ceremony identifier and raw browser assertion response.</param>
@@ -24,20 +27,20 @@ public interface IPasskeyService
     /// <param name="userId">The authenticated user identifier.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
     /// <returns>The WebAuthn creation options and single-use ceremony identifier.</returns>
-    Task<PasskeyRegistrationOptionsDtoResponse> CreateRegistrationOptionsAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<WebAuthnRegistrationOptionsDtoResponse> CreateRegistrationOptionsAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates and stores a WebAuthn attestation for a user.
     /// </summary>
-    /// <param name="passkeyRegistrationsVerifyDtoRequest">The user identifier, ceremony identifier, attestation response, and optional friendly name.</param>
+    /// <param name="webAuthnRegistrationVerifyDtoRequest">The user identifier, ceremony identifier, attestation response, and optional friendly name.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    Task RegisterCredentialAsync(PasskeyRegistrationVerifyDtoRequest passkeyRegistrationVerifyDtoRequest, CancellationToken cancellationToken = default);
+    Task VerifyRegisterCredentialAsync(WebAuthnRegistrationVerifyDtoRequest webAuthnRegistrationVerifyDtoRequest, CancellationToken cancellationToken = default);
 
     /// <summary>Lists a user's passkey records for API-safe mapping.</summary>
     /// <param name="userId">The authenticated user identifier.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
     /// <returns>The user's stored passkeys.</returns>
-    Task<IEnumerable<PasskeyDto>> GetUserPasskeysAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<WebAuthnDto>> GetUserPasskeysAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>Renames a passkey owned by a user.</summary>
     /// <param name="userId">The authenticated user identifier.</param>

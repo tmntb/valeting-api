@@ -1,6 +1,6 @@
 namespace Repository.Entities;
 
-public partial class Passkey
+public partial class WebAuthn
 {
     /// <summary>
     /// Unique identifier of the passkey record.

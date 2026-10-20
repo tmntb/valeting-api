@@ -3,12 +3,12 @@ using Service.Services;
 
 namespace Service.Tests.Services;
 
-public class PasskeyChallengeStoreTests
+public class WebAuthnChallengeStoreTests
 {
     [Fact]
     public void TryConsume_ReturnsStateOnlyOnce()
     {
-        var store = new PasskeyChallengeStore();
+        var store = new WebAuthnChallengeStore();
         var state = CreateState();
         store.Store(state);
 
@@ -20,7 +20,7 @@ public class PasskeyChallengeStoreTests
     [Fact]
     public void TryConsume_RejectsExpiredChallenge()
     {
-        var store = new PasskeyChallengeStore();
+        var store = new WebAuthnChallengeStore();
         var state = new PasskeyChallengeState
         {
             CeremonyId = Guid.NewGuid(),
@@ -36,7 +36,7 @@ public class PasskeyChallengeStoreTests
     [Fact]
     public void TryConsume_AllowsOnlyOneConcurrentConsumer()
     {
-        var store = new PasskeyChallengeStore();
+        var store = new WebAuthnChallengeStore();
         var state = CreateState();
         store.Store(state);
         var successfulConsumers = 0;

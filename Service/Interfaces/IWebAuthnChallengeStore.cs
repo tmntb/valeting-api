@@ -2,7 +2,7 @@ using Service.Models.Passkey;
 
 namespace Service.Interfaces;
 
-public interface IPasskeyChallengeStore
+public interface IWebAuthnChallengeStore
 {
     /// <summary>
     /// Stores the state of a passkey ceremony.

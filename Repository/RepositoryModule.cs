@@ -27,7 +27,7 @@ public static class RepositoryModule
         services
             .AddScoped<IBookingRepository, BookingRepository>()
             .AddScoped<IFlexibilityRepository, FlexibilityRepository>()
-            .AddScoped<IPasskeyRepository, PasskeyRepository>()
+            .AddScoped<IWebAuthnRepository, WebAuthnRepository>()
             .AddScoped<IRecoveryCodeRepository, RecoveryCodeRepository>()
             .AddScoped<IRoleRepository, RoleRepository>()
             .AddScoped<IStatusRepository, StatusRepository>()

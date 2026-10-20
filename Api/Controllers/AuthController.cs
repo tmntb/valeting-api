@@ -1,7 +1,8 @@
 using System.Security.Claims;
 using Api.Controllers.BaseController;
+using Api.Extensions;
 using Api.Models.Auth.Payload;
-using Api.Models.Passkey.Payload;
+using Api.Models.WebAuthn.Payload;
 using Asp.Versioning;
 using Common.Enums;
 using Common.Messages;
@@ -12,7 +13,7 @@ using Service.Models.User;
 namespace Api.Controllers;
 
 [ApiVersion("1")]
-public class AuthController(IAuthService authService, IMfaService mfaService, IRecoveryCodeService recoveryCodeService, ITokenService tokenService) : AuthBaseController
+public class AuthController(IAuthService authService, IRecoveryCodeService recoveryCodeService, ITokenService tokenService, IWebAuthnService webAuthnService) : AuthBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordApiRequest forgotPasswordApiRequest)
@@ -43,40 +44,19 @@ public class AuthController(IAuthService authService, IMfaService mfaService, IR
 
         await authService.ValidateLoginAsync(userDto);
 
-        var generateTokenJWTDtoResponse = await tokenService.GenerateTokenJWTAsync(loginApiRequest.Email);
+        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJWTAsync(loginApiRequest.Email);
 
+        //TODO: O login não deve retornar o token.
+        //Apenas deve retornar um ok se o login for válido.
+        //O token deve ser retornado apenas no endpoint de emitir token.
+        //O endpoint de login deve apenas validar o login.
         var validateLoginApiResponse = new LoginApiResponse
         {
-            Token = generateTokenJWTDtoResponse.Token,
-            TokenType = generateTokenJWTDtoResponse.TokenType,
-            ExpiryDate = generateTokenJWTDtoResponse.ExpiryDate
+            Token = generateTokenJwtDtoResponse.Token,
+            TokenType = generateTokenJwtDtoResponse.TokenType,
+            ExpiryDate = generateTokenJwtDtoResponse.ExpiryDate
         };
         return Ok(validateLoginApiResponse);
-    }
-
-    /// <inheritdoc />
-    public override async Task<IActionResult> MfaVerifyAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest)
-    {
-        ArgumentNullException.ThrowIfNull(mfaCodeApiRequest, Messages.InvalidRequestBody);
-
-        await mfaService.MfaVerifyAsync(new()
-        {
-            UserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
-            MfaCode = mfaCodeApiRequest.MfaCode
-        });
-
-        return NoContent();
-    }
-
-    /// <inheritdoc />
-    public override async Task<IActionResult> MfaSetupAsync()
-    {
-        var mfaSetupDtoResponse = await mfaService.MfaSetupAsync(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
-
-        return Ok(new MfaSetupApiResponse
-        {
-            MfaQrCodeUri = mfaSetupDtoResponse.MfaQrCodeUri
-        });
     }
 
     /// <inheritdoc />
@@ -131,23 +111,50 @@ public class AuthController(IAuthService authService, IMfaService mfaService, IR
         return Created();
     }
 
-    public override Task<IActionResult> PasskeyAuthenticateOptionsAsync([FromBody] PasskeyAuthenticateOptionsApiRequest request)
+    
+
+    /// <inheritdoc />
+    public override async Task<IActionResult> PasskeyAuthenticateVerifyAsync([FromBody] PasskeyAuthenticateVerifyApiRequest passkeyAuthenticateVerifyApiRequest)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(passkeyAuthenticateVerifyApiRequest, Messages.InvalidRequestBody);
+
+        var result = await webAuthnService.VerifyAuthenticationAsync(new()
+        {
+            CeremonyId = passkeyAuthenticateVerifyApiRequest.CeremonyId,
+            Credential = passkeyAuthenticateVerifyApiRequest.Credential
+        });
+
+        var tokenResponse = await tokenService.GenerateTokenJWTAsync(result.Email);
+        return Ok(new LoginApiResponse
+        {
+            Token = tokenResponse.Token,
+            TokenType = tokenResponse.TokenType,
+            ExpiryDate = tokenResponse.ExpiryDate
+        });
     }
 
-    public override Task<IActionResult> PasskeyAuthenticateVerifyAsync([FromBody] PasskeyAuthenticateVerifyApiRequest request)
+    public override async Task<IActionResult> PasskeysAsync()
     {
-        throw new NotImplementedException();
+        var passkeys = await webAuthnService.GetUserPasskeysAsync(User.GetCurrentUserId());
+        return Ok(passkeys.Select(passkey => new PasskeyCredentialApiResponse
+        {
+            Id = passkey.Id,
+            FriendlyName = passkey.FriendlyName,
+            CreatedAt = passkey.CreatedAt,
+            LastUsedAt = passkey.LastUsedAt
+        }));
     }
 
-    public override Task<IActionResult> PasskeyRegisterOptionsAsync()
+    public override async Task<IActionResult> RenamePasskeyAsync(Guid id, [FromBody] PasskeyRenameApiRequest request)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(request, Messages.InvalidRequestBody);
+        await webAuthnService.RenamePasskeyAsync(User.GetCurrentUserId(), id, request.FriendlyName);
+        return NoContent();
     }
 
-    public override Task<IActionResult> PasskeyRegisterVerifyAsync([FromBody] PasskeyRegisterVerifyApiRequest request)
+    public override async Task<IActionResult> RemovePasskeyAsync(Guid id)
     {
-        throw new NotImplementedException();
+        await webAuthnService.RemovePasskeyAsync(User.GetCurrentUserId(), id);
+        return NoContent();
     }
 }
