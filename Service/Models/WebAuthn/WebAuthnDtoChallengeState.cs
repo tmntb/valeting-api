@@ -1,4 +1,4 @@
-namespace Service.Models.Passkey;
+namespace Service.Models.WebAuthn;
 
 /// <summary>
 /// Defines the types of passkey ceremonies supported by the application.

@@ -3,6 +3,7 @@ using OtpNet;
 using Service.Helpers;
 using Service.Interfaces;
 using Service.Models.Auth.Payload;
+using Service.Models.Mfa.Payload;
 using Service.Validators.Auth;
 using Service.Validators.Utils;
 
@@ -42,7 +43,7 @@ public class MfaService(IUserRepository userRepository) : IMfaService
     /// <inheritdoc />
     public async Task MfaVerifyAsync(MfaCodeDtoRequest mfaCodeDtoRequest)
     {
-        mfaCodeDtoRequest.ValidateRequest(new MfaCodeValidator());
+        mfaCodeDtoRequest.ValidateRequest(new MfaCodeVerifyValidator());
 
         var userDto = await userRepository.GetByIdAsync(mfaCodeDtoRequest.UserId) ?? throw new KeyNotFoundException(Messages.NotFound);
 

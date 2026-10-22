@@ -113,25 +113,7 @@ public class AuthController(IAuthService authService, IRecoveryCodeService recov
 
     
 
-    /// <inheritdoc />
-    public override async Task<IActionResult> PasskeyAuthenticateVerifyAsync([FromBody] PasskeyAuthenticateVerifyApiRequest passkeyAuthenticateVerifyApiRequest)
-    {
-        ArgumentNullException.ThrowIfNull(passkeyAuthenticateVerifyApiRequest, Messages.InvalidRequestBody);
-
-        var result = await webAuthnService.VerifyAuthenticationAsync(new()
-        {
-            CeremonyId = passkeyAuthenticateVerifyApiRequest.CeremonyId,
-            Credential = passkeyAuthenticateVerifyApiRequest.Credential
-        });
-
-        var tokenResponse = await tokenService.GenerateTokenJWTAsync(result.Email);
-        return Ok(new LoginApiResponse
-        {
-            Token = tokenResponse.Token,
-            TokenType = tokenResponse.TokenType,
-            ExpiryDate = tokenResponse.ExpiryDate
-        });
-    }
+    
 
     public override async Task<IActionResult> PasskeysAsync()
     {

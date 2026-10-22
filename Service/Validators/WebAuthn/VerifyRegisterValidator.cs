@@ -6,12 +6,12 @@ namespace Service.Validators.WebAuthn;
 /// <summary>
 /// Defines validation rules for webauthn registration verification requests.
 /// </summary>
-public class VerifyRegisterCredentialsValidator : AbstractValidator<WebAuthnRegistrationVerifyDtoRequest>
+public class VerifyRegisterValidator : AbstractValidator<WebAuthnRegistrationVerifyDtoRequest>
 {
     /// <summary>
     /// Initializes the validation rules for a webauthn registration verification request.
     /// </summary>
-    public VerifyRegisterCredentialsValidator()
+    public VerifyRegisterValidator()
     {
         RuleFor(x => x.UserId)
             .NotEqual(Guid.Empty);

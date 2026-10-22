@@ -14,40 +14,27 @@ public class AuthDocumentFilter : IDocumentFilter
     /// <summary>
     /// Endpoint for forgot password.
     /// </summary>
-    public const string AuthForgotPasswordEndpoint = "/auth/forgot-password";
+    private const string AuthForgotPasswordEndpoint = "/auth/forgot-password";
 
     /// <summary>
     /// Endpoint for login.
     /// </summary>
-    public const string AuthLoginEndpoint = "/auth/login";
-
-    /// <summary>
-    /// Endpoint for auth mfa enable.
-    /// </summary>
-    public const string AuthMfaEnable = "/auth/mfa/verify";
+    private const string AuthLoginEndpoint = "/auth/login";
 
     /// <summary>
     /// Endpoint for auth mfa regenerate recovery codes.
     /// </summary>
-    public const string AuthMfaRecoveryCodeRegenerate = "/auth/recovery-codes";
-
-    /// <summary>
-    /// Endpoint for auth mfa setup.
-    /// </summary>
-    public const string AuthMfaSetup = "/auth/mfa/setup";
+    private const string AuthMfaRecoveryCodeRegenerate = "/auth/recovery-codes";
 
     /// <summary>
     /// Endpoint to refresh user token
     /// </summary>
-    public const string AuthRefreshTokenEndpoint = "/auth/refresh-token";
+    private const string AuthRefreshTokenEndpoint = "/auth/refresh-token";
 
     /// <summary>
     /// Endpoint for user register.
     /// </summary>
-    public const string AuthRegisterEndpoint = "/auth/register";
-
-    private const string PasskeyAuthenticateOptions = "/auth/passkey/authenticate/options";
-    private const string PasskeyAuthenticateVerify = "/auth/passkey/authenticate/verify";
+    private const string AuthRegisterEndpoint = "/auth/register";
 
     private const string PasskeysEndpoint = "/auth/passkeys";
     private const string PasskeyByIdEndpoint = "/auth/passkeys/{id}";
@@ -58,25 +45,17 @@ public class AuthDocumentFilter : IDocumentFilter
 
         swaggerDoc.ConfigureOperation(AuthForgotPasswordEndpoint, HttpMethod.Post,
             "post-auth-forgot-password", "Restores the user password.", string.Empty, false);
+        
         swaggerDoc.ConfigureOperation(AuthLoginEndpoint, HttpMethod.Post,
             "post-auth-login", "Validates user credentials.", "Returns an access token for the **User**.", false);
-        swaggerDoc.ConfigureOperation(AuthMfaEnable, HttpMethod.Post,
-            "post-auth-mfa-verify", "Verifies an MFA code.", string.Empty);
+        
         swaggerDoc.ConfigureOperation(AuthMfaRecoveryCodeRegenerate, HttpMethod.Post,
             "post-auth-recovery-codes", "Generates recovery codes.", "Returns a new list of **Recovery codes**.");
-        swaggerDoc.ConfigureOperation(AuthMfaSetup, HttpMethod.Post,
-            "post-auth-mfa-setup", "Sets up MFA.", "Returns the MFA information required for setup.");
+        
         swaggerDoc.ConfigureOperation(AuthRefreshTokenEndpoint, HttpMethod.Post,
             "post-auth-refresh-token", "Refreshes an access token.", "Returns a refreshed **access token**.");
         swaggerDoc.ConfigureOperation(AuthRegisterEndpoint, HttpMethod.Post,
             "post-auth-register", "Registers a new user.", string.Empty, false);
-
-        swaggerDoc.ConfigureOperation(PasskeyAuthenticateOptions, HttpMethod.Post,
-            "post-auth-passkey-authenticate-options", "Create passkey sign-in options.",
-            "Returns browser WebAuthn assertion options and a short-lived, single-use ceremony ID.", false);
-        swaggerDoc.ConfigureOperation(PasskeyAuthenticateVerify, HttpMethod.Post,
-            "post-auth-passkey-authenticate-verify", "Verify passkey sign-in.",
-            "Validates the WebAuthn assertion before issuing an access token.", false);
 
         
         swaggerDoc.ConfigureOperation(PasskeysEndpoint, HttpMethod.Get,

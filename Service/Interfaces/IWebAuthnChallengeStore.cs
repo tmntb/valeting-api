@@ -1,4 +1,4 @@
-using Service.Models.Passkey;
+using Service.Models.WebAuthn;
 
 namespace Service.Interfaces;
 

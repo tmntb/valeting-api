@@ -1,6 +1,6 @@
 using Service.Models.Auth;
-using Service.Models.Passkey;
 using Service.Models.User;
+using Service.Models.WebAuthn;
 using Service.Models.WebAuthn.Payload;
 
 namespace Service.Interfaces;
@@ -15,11 +15,12 @@ public interface IWebAuthnService
     /// <returns>The WebAuthn public-key options and single-use ceremony identifier.</returns>
     Task<WebAuthnAuthenticationOptionsDtoResponse> CreateAuthenticationOptionsAsync(UserDto userDto, CancellationToken cancellationToken = default);
 
-    /// <summary>Validates a WebAuthn assertion and resolves the authenticated user.</summary>
-    /// <param name="request">The ceremony identifier and raw browser assertion response.</param>
+    /// <summary>
+    /// Validates a WebAuthn assertion and resolves the authenticated user.
+    /// </summary>
+    /// <param name="webAuthnAuthenticationVerifyRequest">The ceremony identifier and raw browser assertion response.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    /// <returns>The verified user identity for token issuance.</returns>
-    Task<PasskeyAuthenticationResult> VerifyAuthenticationAsync(PasskeyAuthenticationVerifyRequest request, CancellationToken cancellationToken = default);
+    Task VerifyAuthenticationAsync(WebAuthnAuthenticationVerifyRequest webAuthnAuthenticationVerifyRequest, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates browser-compatible credential-creation options for a user.
@@ -34,7 +35,7 @@ public interface IWebAuthnService
     /// </summary>
     /// <param name="webAuthnRegistrationVerifyDtoRequest">The user identifier, ceremony identifier, attestation response, and optional friendly name.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    Task VerifyRegisterCredentialAsync(WebAuthnRegistrationVerifyDtoRequest webAuthnRegistrationVerifyDtoRequest, CancellationToken cancellationToken = default);
+    Task VerifyRegisterAsync(WebAuthnRegistrationVerifyDtoRequest webAuthnRegistrationVerifyDtoRequest, CancellationToken cancellationToken = default);
 
     /// <summary>Lists a user's passkey records for API-safe mapping.</summary>
     /// <param name="userId">The authenticated user identifier.</param>

@@ -1,4 +1,4 @@
-namespace Service.Models.Auth;
+namespace Service.Models.WebAuthn;
 
 public class WebAuthnDto
 {

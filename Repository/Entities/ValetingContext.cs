@@ -22,7 +22,7 @@ public partial class ValetingContext : DbContext
     public virtual DbSet<RdRole> RdRoles { get; set; } = null!;
     public virtual DbSet<RdStatus> RdStatus { get; set; } = null!;
     public virtual DbSet<RecoveryCode> RecoveryCodes { get; set; } = null!;
-    public virtual DbSet<WebAuthn> Passkeys { get; set; } = null!;
+    public virtual DbSet<WebAuthn> WebAuthns { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

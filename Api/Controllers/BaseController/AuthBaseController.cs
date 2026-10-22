@@ -92,27 +92,6 @@ public abstract class AuthBaseController : ControllerBase
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> RegisterAsync([FromBody] RegisterApiRequest registerApiRequest);
 
-    
-
-    /// <summary>
-    /// Verifies a WebAuthn assertion and issues an access token only after successful verification.
-    /// </summary>
-    /// <param name="request">The ceremony ID and browser assertion response.</param>
-    /// <response code="200">Returns the JWT access token.</response>
-    /// <response code="400">The request body is invalid.</response>
-    /// <response code="401">The assertion is invalid, expired, or already used.</response>
-    /// <response code="500">An unexpected error occurred.</response>
-    [HttpPost]
-    [Route("passkey/authenticate/verify")]
-    [ProducesResponseType(statusCode: 200, type: typeof(LoginApiResponse))]
-    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
-    [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
-    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> PasskeyAuthenticateVerifyAsync([FromBody] PasskeyAuthenticateVerifyApiRequest request);
-
-    
-    
-
     /// <summary>
     /// Lists passkeys belonging to the authenticated user.
     /// </summary>

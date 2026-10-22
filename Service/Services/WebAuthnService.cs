@@ -5,8 +5,8 @@ using Fido2NetLib;
 using Fido2NetLib.Objects;
 using Service.Interfaces;
 using Service.Models.Auth;
-using Service.Models.Passkey;
 using Service.Models.User;
+using Service.Models.WebAuthn;
 using Service.Models.WebAuthn.Payload;
 using Service.Validators.Utils;
 using Service.Validators.WebAuthn;
@@ -54,49 +54,47 @@ public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebA
             PublicKey = JsonDocument.Parse(optionsJson).RootElement.Clone()
         };
     }
-
-    public async Task<PasskeyAuthenticationResult> VerifyAuthenticationAsync(PasskeyAuthenticationVerifyRequest request, CancellationToken cancellationToken = default)
+    
+    /// <inheritdoc />
+    public async Task VerifyAuthenticationAsync(WebAuthnAuthenticationVerifyRequest webAuthnAuthenticationVerifyRequest, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(request);
-
-        if (request.CeremonyId == Guid.Empty || request.Credential == null)
-        {
-            throw new ArgumentException("The passkey ceremony and credential response are required.", nameof(request));
-        }
-
-        if (!webAuthnChallengeStore.TryConsume(request.CeremonyId, PasskeyCeremony.Authentication, out var state))
+        ArgumentNullException.ThrowIfNull(webAuthnAuthenticationVerifyRequest);
+        
+        webAuthnAuthenticationVerifyRequest.ValidateRequest(new VerifyAuthenticationValidator());
+        
+        // TODO: Adicionar a mensagem às Messages
+        if (!webAuthnChallengeStore.TryConsume(webAuthnAuthenticationVerifyRequest.CeremonyId, PasskeyCeremony.Authentication, out var state))
         {
             throw new UnauthorizedAccessException("The passkey authentication ceremony is invalid, expired, or already used.");
         }
 
-        var credentialId = request.Credential.Id;
-        var passkey = await webAuthnRepository.GetByCredentialIdAsync(credentialId, cancellationToken)
+        var webAuthnDto = await webAuthnRepository.GetByCredentialIdAsync(webAuthnAuthenticationVerifyRequest.Credential.Id, cancellationToken)
             ?? throw new UnauthorizedAccessException("The passkey assertion could not be verified.");
-        var user = await userRepository.GetByIdAsync(passkey.UserId);
-        if (user is not { IsActive: true }
-            || state!.UserId.HasValue && state.UserId.Value != user.Id
-            || state.Email != null && !string.Equals(state.Email, user.Email, StringComparison.OrdinalIgnoreCase))
+        
+        var userDto = await userRepository.GetByIdAsync(webAuthnDto.UserId);
+        if (!userDto.IsActive
+            || state!.UserId.HasValue && state.UserId.Value != userDto.Id
+            || state.Email != null && !string.Equals(state.Email, userDto.Email, StringComparison.OrdinalIgnoreCase))
         {
             throw new UnauthorizedAccessException("The passkey assertion could not be verified.");
         }
 
         var originalOptions = AssertionOptions.FromJson(state.OptionsJson);
-        var storedCredentialId = DecodeBase64Url(passkey.CredentialId);
+        var storedCredentialId = DecodeBase64Url(webAuthnDto.CredentialId);
         VerifyAssertionResult result;
         try
         {
             result = await fido2.MakeAssertionAsync(new MakeAssertionParams
             {
-                AssertionResponse = request.Credential,
+                AssertionResponse = webAuthnAuthenticationVerifyRequest.Credential,
                 OriginalOptions = originalOptions,
-                StoredPublicKey = DecodeBase64Url(passkey.PublicKey),
-                StoredSignatureCounter = checked((uint)(passkey.SignatureCounter ?? 0)),
+                StoredPublicKey = DecodeBase64Url(webAuthnDto.PublicKey),
+                StoredSignatureCounter = checked((uint)(webAuthnDto.SignatureCounter ?? 0)),
                 IsUserHandleOwnerOfCredentialIdCallback = (args, _) =>
                 {
                     var credentialMatches = args.CredentialId.SequenceEqual(storedCredentialId);
-                    var handleMatches = args.UserHandle == null
-                        || Guid.TryParseExact(Encoding.UTF8.GetString(args.UserHandle), "N", out var userId)
-                        && userId == passkey.UserId;
+                    var handleMatches = Guid.TryParseExact(Encoding.UTF8.GetString(args.UserHandle), "N", out var userId)
+                        && userId == webAuthnDto.UserId;
                     return Task.FromResult(credentialMatches && handleMatches);
                 }
             }, cancellationToken);
@@ -106,17 +104,10 @@ public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebA
             throw new UnauthorizedAccessException("The passkey assertion could not be verified.");
         }
 
-        passkey.SignatureCounter = result.SignCount;
-        passkey.LastUsedAt = DateTime.UtcNow;
-        await webAuthnRepository.UpdateAsync(passkey, cancellationToken);
-        await userRepository.UpdateLastLoginAsync(user.Id);
-
-        return new PasskeyAuthenticationResult
-        {
-            Success = true,
-            UserId = user.Id,
-            Email = user.Email
-        };
+        webAuthnDto.SignatureCounter = result.SignCount;
+        
+        await webAuthnRepository.UpdateAsync(webAuthnDto, cancellationToken);
+        await userRepository.UpdateLastLoginAsync(userDto.Id);
     }
 
     /// <inheritdoc />
@@ -169,9 +160,9 @@ public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebA
     }
 
     /// <inheritdoc />
-    public async Task VerifyRegisterCredentialAsync(WebAuthnRegistrationVerifyDtoRequest webAuthnRegistrationVerifyDtoRequest, CancellationToken cancellationToken = default)
+    public async Task VerifyRegisterAsync(WebAuthnRegistrationVerifyDtoRequest webAuthnRegistrationVerifyDtoRequest, CancellationToken cancellationToken = default)
     {
-        webAuthnRegistrationVerifyDtoRequest.ValidateRequest(new VerifyRegisterCredentialsValidator());
+        webAuthnRegistrationVerifyDtoRequest.ValidateRequest(new VerifyRegisterValidator());
 
         if (!webAuthnChallengeStore.TryConsume(webAuthnRegistrationVerifyDtoRequest.CeremonyId, PasskeyCeremony.Registration, out var state)
             || state!.UserId != webAuthnRegistrationVerifyDtoRequest.UserId)

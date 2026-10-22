@@ -5,7 +5,7 @@ namespace Api.Models.WebAuthn.Payload;
 /// <summary>
 /// Represents the response containing the options required to initiate a passkey registration ceremony.
 /// </summary>
-public class WebauthnRegisterOptionsApiResponse
+public class WebAuthnRegisterOptionsApiResponse
 {
 	/// <summary>
 	/// Unique identifier of the registration ceremony.

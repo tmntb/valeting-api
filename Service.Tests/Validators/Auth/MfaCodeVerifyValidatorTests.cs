@@ -1,15 +1,16 @@
 using Service.Models.Auth.Payload;
+using Service.Models.Mfa.Payload;
 using Service.Validators.Auth;
 
 namespace Service.Tests.Validators.Auth;
 
-public class MfaCodeValidatorTests
+public class MfaCodeVerifyValidatorTests
 {
-    private readonly MfaCodeValidator _validator;
+    private readonly MfaCodeVerifyValidator _verifyValidator;
 
-    public MfaCodeValidatorTests()
+    public MfaCodeVerifyValidatorTests()
     {
-        _validator = new MfaCodeValidator();
+        _verifyValidator = new MfaCodeVerifyValidator();
     }
 
     [Theory]
@@ -23,7 +24,7 @@ public class MfaCodeValidatorTests
         };
 
         // Act
-        var result = _validator.Validate(request);
+        var result = _verifyValidator.Validate(request);
 
         // Assert
         Assert.False(result.IsValid);
@@ -44,7 +45,7 @@ public class MfaCodeValidatorTests
         };
 
         // Act
-        var result = _validator.Validate(request);
+        var result = _verifyValidator.Validate(request);
 
         // Assert
         Assert.False(result.IsValid);

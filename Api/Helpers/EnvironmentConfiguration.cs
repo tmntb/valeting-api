@@ -73,34 +73,34 @@ internal static class EnvironmentConfiguration
         }
     }
 
-    internal static void ConfigurePasskeySettings(IConfiguration config)
+    internal static void ConfigureWebAuthnSettings(IConfiguration config)
     {
         var rpId = GetEnvVar("PK_RPID");
         var rpName = GetEnvVar("PK_RPNAME");
         var allowedOrigins = GetEnvVar("PK_ORIGINS");
 
-        var rpIdString = config["Passkey:RpId"] ?? throw new InvalidOperationException("Passkey:RpId not configured");
-        var rpNameString = config["Passkey:RpName"] ?? throw new InvalidOperationException("Passkey:RpName not configured");
-        var allowedOriginsString = config["Passkey:Origins"] ?? throw new InvalidOperationException("Passkey:Origins not configured");
+        var rpIdString = config["WebAuthn:RpId"] ?? throw new InvalidOperationException("WebAuthn:RpId not configured");
+        var rpNameString = config["WebAuthn:RpName"] ?? throw new InvalidOperationException("WebAuthn:RpName not configured");
+        var allowedOriginsString = config["WebAuthn:Origins"] ?? throw new InvalidOperationException("WebAuthn:Origins not configured");
 
         if ((!string.IsNullOrEmpty(rpId) && !string.IsNullOrEmpty(rpIdString)) ||
              (!string.IsNullOrEmpty(rpName) && !string.IsNullOrEmpty(rpNameString)) ||
              (!string.IsNullOrEmpty(allowedOrigins) && !string.IsNullOrEmpty(allowedOriginsString)))
         {
             rpIdString = rpIdString.Replace("{PK_RPID}", rpId);
-            config["Passkey:RpId"] = rpIdString;
+            config["WebAuthn:RpId"] = rpIdString;
 
-            Console.WriteLine("✅ Replaced {PK_RPID} placeholder in Passkey:RpId.");
+            Console.WriteLine("✅ Replaced {PK_RPID} placeholder in WebAuthn:RpId.");
 
             rpNameString = rpNameString.Replace("{PK_RPNAME}", rpName);
-            config["Passkey:RpName"] = rpNameString;
+            config["WebAuthn:RpName"] = rpNameString;
 
-            Console.WriteLine("✅ Replaced {PK_RPNAME} placeholder in Passkey:RpName.");
+            Console.WriteLine("✅ Replaced {PK_RPNAME} placeholder in WebAuthn:RpName.");
 
             allowedOriginsString = allowedOriginsString.Replace("{PK_ORIGINS}", allowedOrigins);
-            config["Passkey:RpOrigins"] = allowedOriginsString;
+            config["WebAuthn:RpOrigins"] = allowedOriginsString;
 
-            Console.WriteLine("✅ Replaced {PK_ORIGINS} placeholder in Passkey:RpOrigins.");
+            Console.WriteLine("✅ Replaced {PK_ORIGINS} placeholder in WebAuthn:RpOrigins.");
         }
     }
 

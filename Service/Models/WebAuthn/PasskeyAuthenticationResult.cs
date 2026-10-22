@@ -1,4 +1,4 @@
-namespace Service.Models.Passkey;
+namespace Service.Models.WebAuthn;
 
 public class PasskeyAuthenticationResult
 {

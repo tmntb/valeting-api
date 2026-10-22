@@ -1,8 +1,8 @@
 using Fido2NetLib;
 
-namespace Api.Models.WebAuthn.Payload;
+namespace Service.Models.WebAuthn.Payload;
 
-public class PasskeyAuthenticateVerifyApiRequest
+public class WebAuthnAuthenticationVerifyRequest
 {
     public Guid CeremonyId { get; set; }
     public AuthenticatorAssertionRawResponse Credential { get; set; } = null!;

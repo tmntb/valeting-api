@@ -7,7 +7,6 @@ using Api.Middleware;
 using Api.SwaggerDocumentation;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
-using Fido2NetLib;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Repository;
@@ -29,7 +28,7 @@ builder.Configuration
 // Apply overrides from environment variables (if present)
 EnvironmentConfiguration.ConfigureConnectionString(builder.Configuration);
 EnvironmentConfiguration.ConfigureJwtKey(builder.Configuration);
-EnvironmentConfiguration.ConfigurePasskeySettings(builder.Configuration);
+EnvironmentConfiguration.ConfigureWebAuthnSettings(builder.Configuration);
 
 // Add services to the container.
 builder.Services.AddService();
@@ -37,9 +36,9 @@ builder.Services.AddRepository(builder.Configuration);
 
 builder.Services.AddFido2(options =>
 {
-    options.RPID = builder.Configuration["Passkey:RpId"];
-    options.RPName = builder.Configuration["Passkey:RpName"];
-    options.Origins = builder.Configuration.GetSection("Passkey:Origins").Get<HashSet<string>>();
+    options.RPID = builder.Configuration["WebAuthn:RpId"];
+    options.RPName = builder.Configuration["WebAuthn:RpName"];
+    options.Origins = builder.Configuration.GetSection("WebAuthn:Origins").Get<HashSet<string>>();
 });
 
 builder.Services
@@ -159,5 +158,8 @@ app.MapControllers();
 
 await app.RunAsync();
 
-[ExcludeFromCodeCoverage]
-public partial class Program { }
+namespace Api
+{
+    [ExcludeFromCodeCoverage]
+    public partial class Program { }
+}

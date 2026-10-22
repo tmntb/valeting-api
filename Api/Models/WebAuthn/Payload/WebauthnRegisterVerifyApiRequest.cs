@@ -5,7 +5,7 @@ namespace Api.Models.WebAuthn.Payload;
 /// <summary>
 /// Represents the request used to verify a passkey registration ceremony.
 /// </summary>
-public class WebauthnRegisterVerifyApiRequest
+public class WebAuthnRegisterVerifyApiRequest
 {
     /// <summary>
     /// Optional name assigned to the passkey

@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using Service.Interfaces;
-using Service.Models.Passkey;
+using Service.Models.WebAuthn;
 
 namespace Service.Services;
 

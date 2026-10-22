@@ -1,4 +1,4 @@
-namespace Service.Models.Auth.Payload;
+namespace Service.Models.Mfa.Payload;
 
 public class MfaSetupDtoResponse
 {

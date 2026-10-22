@@ -57,12 +57,26 @@ public class SessionController(IMfaService mfaService, IWebAuthnService webAuthn
     }
     
     /// <inheritdoc />
+    public override async Task<IActionResult> WebAuthnAuthenticateVerifyAsync([FromBody] WebAuthnAuthenticateVerifyApiRequest webAuthnAuthenticateVerifyApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(webAuthnAuthenticateVerifyApiRequest, Messages.InvalidRequestBody);
+
+        await webAuthnService.VerifyAuthenticationAsync(new()
+        {
+            CeremonyId = webAuthnAuthenticateVerifyApiRequest.CeremonyId,
+            Credential = webAuthnAuthenticateVerifyApiRequest.Credential
+        });
+
+        return NoContent();
+    }
+    
+    /// <inheritdoc />
     public override async Task<IActionResult> WebAuthnRegisterOptionsAsync()
     {
         var userId = User.GetCurrentUserId();
         var options = await webAuthnService.CreateRegistrationOptionsAsync(userId);
 
-        return Ok(new WebauthnRegisterOptionsApiResponse
+        return Ok(new WebAuthnRegisterOptionsApiResponse
         {
             CeremonyId = options.CeremonyId,
             PublicKey = options.PublicKey
@@ -70,17 +84,17 @@ public class SessionController(IMfaService mfaService, IWebAuthnService webAuthn
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> WebAuthnRegisterVerifyAsync([FromBody] WebauthnRegisterVerifyApiRequest webauthnRegisterVerifyApiRequest)
+    public override async Task<IActionResult> WebAuthnRegisterVerifyAsync([FromBody] WebAuthnRegisterVerifyApiRequest webAuthnRegisterVerifyApiRequest)
     {
-        ArgumentNullException.ThrowIfNull(webauthnRegisterVerifyApiRequest, Messages.InvalidRequestBody);
+        ArgumentNullException.ThrowIfNull(webAuthnRegisterVerifyApiRequest, Messages.InvalidRequestBody);
 
         var userId = User.GetCurrentUserId();
-        await webAuthnService.VerifyRegisterCredentialAsync(new()
+        await webAuthnService.VerifyRegisterAsync(new()
         {
             UserId = userId,
-            CeremonyId = webauthnRegisterVerifyApiRequest.CeremonyId,
-            Credential = webauthnRegisterVerifyApiRequest.Credential,
-            Name = webauthnRegisterVerifyApiRequest.Name
+            CeremonyId = webAuthnRegisterVerifyApiRequest.CeremonyId,
+            Credential = webAuthnRegisterVerifyApiRequest.Credential,
+            Name = webAuthnRegisterVerifyApiRequest.Name
         });
 
         return NoContent();
