@@ -30,7 +30,8 @@ public class WebAuthnRepository(ValetingContext valetingContext) : IWebAuthnRepo
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<WebAuthnDto>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<WebAuthnDto>> GetByUserIdAsync(Guid userId,
+        CancellationToken cancellationToken = default)
     {
         var webauths = await valetingContext.WebAuthns
             .Where(x => x.UserId == userId)
@@ -41,9 +42,11 @@ public class WebAuthnRepository(ValetingContext valetingContext) : IWebAuthnRepo
     }
 
     /// <inheritdoc />
-    public async Task<WebAuthnDto?> GetByCredentialIdAsync(string credentialId, CancellationToken cancellationToken = default)
+    public async Task<WebAuthnDto?> GetByCredentialIdAsync(string credentialId,
+        CancellationToken cancellationToken = default)
     {
-        var webauth = await valetingContext.WebAuthns.FirstOrDefaultAsync(x => x.CredentialId == credentialId, cancellationToken);
+        var webauth =
+            await valetingContext.WebAuthns.FirstOrDefaultAsync(x => x.CredentialId == credentialId, cancellationToken);
 
         return webauth == null ? null : FromEntity(webauth);
     }
@@ -51,7 +54,8 @@ public class WebAuthnRepository(ValetingContext valetingContext) : IWebAuthnRepo
     /// <inheritdoc />
     public async Task UpdateAsync(WebAuthnDto webAuthnDto, CancellationToken cancellationToken = default)
     {
-        var webauth = await valetingContext.WebAuthns.FirstOrDefaultAsync(x => x.Id == webAuthnDto.Id, cancellationToken);
+        var webauth =
+            await valetingContext.WebAuthns.FirstOrDefaultAsync(x => x.Id == webAuthnDto.Id, cancellationToken);
 
         if (webauth == null)
             return;
@@ -69,17 +73,18 @@ public class WebAuthnRepository(ValetingContext valetingContext) : IWebAuthnRepo
 
     public async Task UpdateSignalCounter(WebAuthnDto webAuthnDto, CancellationToken cancellationToken = default)
     {
-        var webauth = await valetingContext.WebAuthns.FirstOrDefaultAsync(x => x.Id == webAuthnDto.Id, cancellationToken);
-        
+        var webauth =
+            await valetingContext.WebAuthns.FirstOrDefaultAsync(x => x.Id == webAuthnDto.Id, cancellationToken);
+
         webauth.UpdateSignatureCounter(webAuthnDto.SignatureCounter);
         await valetingContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task DeleteAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var webauth = await valetingContext.WebAuthns.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, cancellationToken);
-
+        var webauth =
+            await valetingContext.WebAuthns.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (webauth == null)
             return;
 

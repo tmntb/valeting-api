@@ -1,8 +1,6 @@
 using System.Security.Claims;
 using Api.Controllers.BaseController;
-using Api.Extensions;
 using Api.Models.Auth.Payload;
-using Api.Models.WebAuthn.Payload;
 using Asp.Versioning;
 using Common.Enums;
 using Common.Messages;
@@ -13,7 +11,7 @@ using Service.Models.User;
 namespace Api.Controllers;
 
 [ApiVersion("1")]
-public class AuthController(IAuthService authService, IRecoveryCodeService recoveryCodeService, ITokenService tokenService, IWebAuthnService webAuthnService) : AuthBaseController
+public class AuthController(IAuthService authService, IRecoveryCodeService recoveryCodeService, ITokenService tokenService) : AuthBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordApiRequest forgotPasswordApiRequest)
@@ -109,34 +107,5 @@ public class AuthController(IAuthService authService, IRecoveryCodeService recov
         await authService.RegisterAsync(registerDtoRequest);
 
         return Created();
-    }
-
-    
-
-    
-
-    public override async Task<IActionResult> PasskeysAsync()
-    {
-        var passkeys = await webAuthnService.GetUserPasskeysAsync(User.GetCurrentUserId());
-        return Ok(passkeys.Select(passkey => new PasskeyCredentialApiResponse
-        {
-            Id = passkey.Id,
-            FriendlyName = passkey.FriendlyName,
-            CreatedAt = passkey.CreatedAt,
-            LastUsedAt = passkey.LastUsedAt
-        }));
-    }
-
-    public override async Task<IActionResult> RenamePasskeyAsync(Guid id, [FromBody] PasskeyRenameApiRequest request)
-    {
-        ArgumentNullException.ThrowIfNull(request, Messages.InvalidRequestBody);
-        await webAuthnService.RenamePasskeyAsync(User.GetCurrentUserId(), id, request.FriendlyName);
-        return NoContent();
-    }
-
-    public override async Task<IActionResult> RemovePasskeyAsync(Guid id)
-    {
-        await webAuthnService.RemovePasskeyAsync(User.GetCurrentUserId(), id);
-        return NoContent();
     }
 }

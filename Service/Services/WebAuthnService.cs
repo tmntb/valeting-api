@@ -4,7 +4,6 @@ using Common.Messages;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
 using Service.Interfaces;
-using Service.Models.Auth;
 using Service.Models.User;
 using Service.Models.WebAuthn;
 using Service.Models.WebAuthn.Payload;
@@ -13,21 +12,26 @@ using Service.Validators.WebAuthn;
 
 namespace Service.Services;
 
-public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebAuthnRepository webAuthnRepository, IWebAuthnChallengeStore webAuthnChallengeStore) : IWebAuthnService
+public class WebAuthnService(
+    IFido2 fido2,
+    IUserRepository userRepository,
+    IWebAuthnRepository webAuthnRepository,
+    IWebAuthnChallengeStore webAuthnChallengeStore) : IWebAuthnService
 {
     private static readonly TimeSpan ChallengeLifetime = TimeSpan.FromMinutes(5);
-    
+
     /// <inheritdoc />
-    public async Task<WebAuthnAuthenticationOptionsDtoResponse> CreateAuthenticationOptionsAsync(UserDto userDto, CancellationToken cancellationToken = default)
+    public async Task<WebAuthnAuthenticationOptionsDtoResponse> CreateAuthenticationOptionsAsync(UserDto userDto,
+        CancellationToken cancellationToken = default)
     {
         userDto.ValidateRequest(new CreateAuthenticationOptionsValidator());
-        
+
         var userDtoToCheck = await userRepository.GetByEmailAsync(userDto.Email);
-        
+
         var credentials = userDtoToCheck.IsActive
             ? (await webAuthnRepository.GetByUserIdAsync(userDtoToCheck.Id, cancellationToken))
-                .Select(x => new PublicKeyCredentialDescriptor(DecodeBase64Url(x.CredentialId)))
-                .ToList()
+            .Select(x => new PublicKeyCredentialDescriptor(DecodeBase64Url(x.CredentialId)))
+            .ToList()
             : [];
 
         var options = fido2.GetAssertionOptions(new GetAssertionOptionsParams
@@ -35,7 +39,7 @@ public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebA
             AllowedCredentials = credentials,
             UserVerification = UserVerificationRequirement.Required
         });
-        
+
         var ceremonyId = Guid.NewGuid();
         var optionsJson = options.ToJson();
         webAuthnChallengeStore.Store(new PasskeyChallengeState
@@ -54,29 +58,34 @@ public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebA
             PublicKey = JsonDocument.Parse(optionsJson).RootElement.Clone()
         };
     }
-    
+
     /// <inheritdoc />
-    public async Task VerifyAuthenticationAsync(WebAuthnAuthenticationVerifyRequest webAuthnAuthenticationVerifyRequest, CancellationToken cancellationToken = default)
+    public async Task VerifyAuthenticationAsync(WebAuthnAuthenticationVerifyRequest webAuthnAuthenticationVerifyRequest,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(webAuthnAuthenticationVerifyRequest);
-        
+
         webAuthnAuthenticationVerifyRequest.ValidateRequest(new VerifyAuthenticationValidator());
-        
+
         // TODO: Adicionar a mensagem às Messages
-        if (!webAuthnChallengeStore.TryConsume(webAuthnAuthenticationVerifyRequest.CeremonyId, PasskeyCeremony.Authentication, out var state))
+        if (!webAuthnChallengeStore.TryConsume(webAuthnAuthenticationVerifyRequest.CeremonyId,
+                PasskeyCeremony.Authentication, out var state))
         {
-            throw new UnauthorizedAccessException("The passkey authentication ceremony is invalid, expired, or already used.");
+            throw new UnauthorizedAccessException(
+                "The webauthn authentication ceremony is invalid, expired, or already used.");
         }
 
-        var webAuthnDto = await webAuthnRepository.GetByCredentialIdAsync(webAuthnAuthenticationVerifyRequest.Credential.Id, cancellationToken)
-            ?? throw new UnauthorizedAccessException("The passkey assertion could not be verified.");
-        
+        var webAuthnDto =
+            await webAuthnRepository.GetByCredentialIdAsync(webAuthnAuthenticationVerifyRequest.Credential.Id,
+                cancellationToken)
+            ?? throw new UnauthorizedAccessException("The webauthn assertion could not be verified.");
+
         var userDto = await userRepository.GetByIdAsync(webAuthnDto.UserId);
         if (!userDto.IsActive
             || state!.UserId.HasValue && state.UserId.Value != userDto.Id
             || state.Email != null && !string.Equals(state.Email, userDto.Email, StringComparison.OrdinalIgnoreCase))
         {
-            throw new UnauthorizedAccessException("The passkey assertion could not be verified.");
+            throw new UnauthorizedAccessException("The webauthn assertion could not be verified.");
         }
 
         var originalOptions = AssertionOptions.FromJson(state.OptionsJson);
@@ -93,7 +102,8 @@ public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebA
                 IsUserHandleOwnerOfCredentialIdCallback = (args, _) =>
                 {
                     var credentialMatches = args.CredentialId.SequenceEqual(storedCredentialId);
-                    var handleMatches = Guid.TryParseExact(Encoding.UTF8.GetString(args.UserHandle), "N", out var userId)
+                    var handleMatches =
+                        Guid.TryParseExact(Encoding.UTF8.GetString(args.UserHandle), "N", out var userId)
                         && userId == webAuthnDto.UserId;
                     return Task.FromResult(credentialMatches && handleMatches);
                 }
@@ -105,13 +115,14 @@ public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebA
         }
 
         webAuthnDto.SignatureCounter = result.SignCount;
-        
-        await webAuthnRepository.UpdateAsync(webAuthnDto, cancellationToken);
+
+        await webAuthnRepository.UpdateSignalCounter(webAuthnDto, cancellationToken);
         await userRepository.UpdateLastLoginAsync(userDto.Id);
     }
 
     /// <inheritdoc />
-    public async Task<WebAuthnRegistrationOptionsDtoResponse> CreateRegistrationOptionsAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<WebAuthnRegistrationOptionsDtoResponse> CreateRegistrationOptionsAsync(Guid userId,
+        CancellationToken cancellationToken = default)
     {
         var userDto = await userRepository.GetByIdAsync(userId);
         if (userDto == null || !userDto.IsActive)
@@ -160,18 +171,22 @@ public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebA
     }
 
     /// <inheritdoc />
-    public async Task VerifyRegisterAsync(WebAuthnRegistrationVerifyDtoRequest webAuthnRegistrationVerifyDtoRequest, CancellationToken cancellationToken = default)
+    public async Task VerifyRegisterAsync(WebAuthnRegistrationVerifyDtoRequest webAuthnRegistrationVerifyDtoRequest,
+        CancellationToken cancellationToken = default)
     {
         webAuthnRegistrationVerifyDtoRequest.ValidateRequest(new VerifyRegisterValidator());
 
-        if (!webAuthnChallengeStore.TryConsume(webAuthnRegistrationVerifyDtoRequest.CeremonyId, PasskeyCeremony.Registration, out var state)
+        if (!webAuthnChallengeStore.TryConsume(webAuthnRegistrationVerifyDtoRequest.CeremonyId,
+                PasskeyCeremony.Registration, out var state)
             || state!.UserId != webAuthnRegistrationVerifyDtoRequest.UserId)
         {
-            throw new UnauthorizedAccessException("The passkey registration ceremony is invalid, expired, or already used.");
+            throw new UnauthorizedAccessException(
+                "The passkey registration ceremony is invalid, expired, or already used.");
         }
 
         var originalOptions = CredentialCreateOptions.FromJson(state.OptionsJson);
-        if (await webAuthnRepository.GetByCredentialIdAsync(webAuthnRegistrationVerifyDtoRequest.Credential.Id, cancellationToken) != null)
+        if (await webAuthnRepository.GetByCredentialIdAsync(webAuthnRegistrationVerifyDtoRequest.Credential.Id,
+                cancellationToken) != null)
         {
             throw new InvalidOperationException("This passkey is already registered.");
         }
@@ -184,15 +199,17 @@ public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebA
                 {
                     AttestationResponse = webAuthnRegistrationVerifyDtoRequest.Credential,
                     OriginalOptions = originalOptions,
-                    IsCredentialIdUniqueToUserCallback = async (args, token) => 
-                        await webAuthnRepository.GetByCredentialIdAsync(EncodeBase64Url(args.CredentialId), token) == null
-                }, 
+                    IsCredentialIdUniqueToUserCallback = async (args, token) =>
+                        await webAuthnRepository.GetByCredentialIdAsync(EncodeBase64Url(args.CredentialId), token) ==
+                        null
+                },
                 cancellationToken
             );
         }
         catch (Fido2VerificationException)
         {
-            throw new ArgumentException("The passkey registration response could not be verified.", nameof(webAuthnRegistrationVerifyDtoRequest));
+            throw new ArgumentException("The passkey registration response could not be verified.",
+                nameof(webAuthnRegistrationVerifyDtoRequest));
         }
 
         var passkeyDto = new WebAuthnDto
@@ -201,7 +218,7 @@ public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebA
             UserId = webAuthnRegistrationVerifyDtoRequest.UserId,
             CredentialId = EncodeBase64Url(credential.Id),
             PublicKey = EncodeBase64Url(credential.PublicKey),
-            FriendlyName = string.IsNullOrWhiteSpace(webAuthnRegistrationVerifyDtoRequest.Name) ? "Passkey" : webAuthnRegistrationVerifyDtoRequest.Name.Trim(),
+            FriendlyName = webAuthnRegistrationVerifyDtoRequest.Name.Trim(),
             Aaguid = credential.AaGuid.ToString(),
             Transports = JsonSerializer.Serialize(credential.Transports),
             CreatedAt = DateTime.UtcNow,
@@ -212,32 +229,17 @@ public class WebAuthnService(IFido2 fido2, IUserRepository userRepository, IWebA
         await webAuthnRepository.CreateAsync(passkeyDto, cancellationToken);
     }
 
-    public async Task<IEnumerable<WebAuthnDto>> GetUserPasskeysAsync(Guid userId, CancellationToken cancellationToken = default)
+    /// <inheritdoc /> 
+    public async Task<IEnumerable<WebAuthnDto>> GetUserWebAuthnAsync(Guid userId,
+        CancellationToken cancellationToken = default)
     {
         return await webAuthnRepository.GetByUserIdAsync(userId, cancellationToken);
     }
 
-    public async Task RenamePasskeyAsync(Guid userId, Guid passkeyId, string friendlyName, CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(friendlyName) || friendlyName.Trim().Length > 200)
-        {
-            throw new ArgumentException("Friendly name is required and must not exceed 200 characters.", nameof(friendlyName));
-        }
+    /// <inheritdoc /> 
+    public async Task RemoveWebAuthnAsync(Guid webauthnId, CancellationToken cancellationToken = default) =>
+        await webAuthnRepository.DeleteAsync(webauthnId, cancellationToken);
 
-        var passkey = (await webAuthnRepository.GetByUserIdAsync(userId, cancellationToken)).SingleOrDefault(x => x.Id == passkeyId)
-            ?? throw new KeyNotFoundException("Passkey not found for the current user.");
-
-        passkey.FriendlyName = friendlyName.Trim();
-        await webAuthnRepository.UpdateAsync(passkey, cancellationToken);
-    }
-
-    public async Task RemovePasskeyAsync(Guid userId, Guid passkeyId, CancellationToken cancellationToken = default)
-    {
-        var passkey = (await webAuthnRepository.GetByUserIdAsync(userId, cancellationToken)).SingleOrDefault(x => x.Id == passkeyId)
-            ?? throw new KeyNotFoundException("Passkey not found for the current user.");
-
-        await webAuthnRepository.DeleteAsync(passkey.Id, userId, cancellationToken);
-    }
 
     private static string EncodeBase64Url(byte[] value)
     {

@@ -6,40 +6,46 @@ namespace Service.Interfaces;
 public interface IWebAuthnRepository
 {
     /// <summary>
-    /// Stores a newly registered passkey for a user.
+    /// Stores a newly registered webauthn for a user.
     /// </summary>
-    /// <param name="webAuthnDto">The passkey data to persist.</param>
+    /// <param name="webAuthnDto">The webauthn data to persist.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
     Task CreateAsync(WebAuthnDto webAuthnDto, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets all passkeys registered to a specific user.
+    /// Gets all webauthns registered to a specific user.
     /// </summary>
     /// <param name="userId">The user identifier.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    /// <returns>The collection of passkeys associated with the user.</returns>
+    /// <returns>The collection of webauthn's associated with the user.</returns>
     Task<IEnumerable<WebAuthnDto>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets a passkey by its WebAuthn credential identifier.
+    /// Gets a webauthn by its WebAuthn credential identifier.
     /// </summary>
     /// <param name="credentialId">The unique WebAuthn credential identifier.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    /// <returns>The matching passkey, if one exists.</returns>
+    /// <returns>The matching webauthn, if one exists.</returns>
     Task<WebAuthnDto?> GetByCredentialIdAsync(string credentialId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Updates the metadata of an existing passkey.
+    /// Updates the metadata of an existing webauthn.
     /// </summary>
-    /// <param name="webAuthnDto">The updated passkey record.</param>
+    /// <param name="webAuthnDto">The updated webauthn record.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
     Task UpdateAsync(WebAuthnDto webAuthnDto, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Updates webauthn signal counter.
+    /// </summary>
+    /// <param name="webAuthnDto">The webauthn dto info.</param>
+    /// <param name="cancellationToken">Cancels the operation.</param>
+    Task UpdateSignalCounter(WebAuthnDto webAuthnDto, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Removes a passkey owned by the specified user.
+    /// Removes a webauthn.
     /// </summary>
-    /// <param name="id">The passkey identifier.</param>
-    /// <param name="userId">The owning user identifier.</param>
+    /// <param name="id">The webauthn identifier.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    Task DeleteAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
+    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

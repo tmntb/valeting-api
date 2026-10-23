@@ -9,7 +9,7 @@ namespace Api.Controllers.BaseController;
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json")]
-public abstract class SessionBaseController : ControllerBase
+public abstract class SecurityBaseController : ControllerBase
 {
     /// <summary>
     /// Setups the mfa for a given user
@@ -43,7 +43,7 @@ public abstract class SessionBaseController : ControllerBase
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> MfaVerifyAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest);
-    
+
     /// <summary>
     /// Creates WebAuthn assertion options for discoverable or email-directed passkey sign-in.
     /// </summary>
@@ -56,8 +56,9 @@ public abstract class SessionBaseController : ControllerBase
     [ProducesResponseType(statusCode: 200, type: typeof(WebAuthnAuthenticateOptionsApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> WebAuthnAuthenticateOptionsAsync([FromBody] WebAuthnAuthenticateOptionsApiRequest webAuthnAuthenticateOptionsApiRequest);
-    
+    public abstract Task<IActionResult> WebAuthnAuthenticateOptionsAsync(
+        [FromBody] WebAuthnAuthenticateOptionsApiRequest webAuthnAuthenticateOptionsApiRequest);
+
     /// <summary>
     /// Verifies a WebAuthn assertion.
     /// </summary>
@@ -72,19 +73,18 @@ public abstract class SessionBaseController : ControllerBase
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> WebAuthnAuthenticateVerifyAsync([FromBody] WebAuthnAuthenticateVerifyApiRequest webAuthnAuthenticateVerifyApiRequest);
-    
+    public abstract Task<IActionResult> WebAuthnAuthenticateVerifyAsync(
+        [FromBody] WebAuthnAuthenticateVerifyApiRequest webAuthnAuthenticateVerifyApiRequest);
+
     /// <summary>
     /// Creates WebAuthn registration options for the authenticated user.
     /// </summary>
     /// <response code="200">Returns the browser registration options and a one-time ceremony ID.</response>
-    /// <response code="401">The caller is not authenticated.</response>
     /// <response code="500">An unexpected error occurred.</response>
     [HttpPost]
     [Authorize]
     [Route("webauthn/register/options")]
     [ProducesResponseType(statusCode: 200, type: typeof(WebAuthnRegisterOptionsApiResponse))]
-    [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> WebAuthnRegisterOptionsAsync();
 
@@ -105,5 +105,31 @@ public abstract class SessionBaseController : ControllerBase
     [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> WebAuthnRegisterVerifyAsync([FromBody] WebAuthnRegisterVerifyApiRequest webAuthnRegisterVerifyApiRequest);
+    public abstract Task<IActionResult> WebAuthnRegisterVerifyAsync(
+        [FromBody] WebAuthnRegisterVerifyApiRequest webAuthnRegisterVerifyApiRequest);
+
+    /// <summary>
+    /// Lists webauthn's belonging to the authenticated user.
+    /// </summary>
+    /// <response code="200">Returns safe webauthn metadata without cryptographic material.</response>
+    /// <response code="401">The caller is not authenticated.</response>
+    [HttpGet]
+    [Authorize]
+    [Route("webauthns")]
+    [ProducesResponseType(statusCode: 200, type: typeof(IEnumerable<WebAuthnCredentialApiResponse>))]
+    [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> WebAuthnsAsync();
+
+    /// <summary>
+    /// Removes a webauthn belonging to the authenticated user.
+    /// </summary>
+    /// <param name="id">The identifier of the webauthn.</param>
+    /// <response code="204">The webauthn was removed.</response>
+    /// <response code="404">The webauthn does not belong to the caller or does not exist.</response>
+    [HttpDelete]
+    [Authorize]
+    [Route("webauthn/{id:guid}")]
+    [ProducesResponseType(statusCode: 204)]
+    [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> RemoveWebAuthnAsync([FromRoute] Guid id);
 }

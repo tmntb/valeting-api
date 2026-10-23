@@ -12,12 +12,13 @@ using Service.Models.User;
 namespace Api.Controllers;
 
 [ApiVersion("1")]
-public class SessionController(IMfaService mfaService, IWebAuthnService webAuthnService) : SessionBaseController
+public class SecurityController(IMfaService mfaService, IWebAuthnService webAuthnService) : SecurityBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> MfaSetupAsync()
     {
-        var mfaSetupDtoResponse = await mfaService.MfaSetupAsync(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
+        var mfaSetupDtoResponse =
+            await mfaService.MfaSetupAsync(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
 
         return Ok(new MfaSetupApiResponse
         {
@@ -38,9 +39,10 @@ public class SessionController(IMfaService mfaService, IWebAuthnService webAuthn
 
         return NoContent();
     }
-    
+
     /// <inheritdoc />
-    public override async Task<IActionResult> WebAuthnAuthenticateOptionsAsync([FromBody] WebAuthnAuthenticateOptionsApiRequest webAuthnAuthenticateOptionsApiRequest)
+    public override async Task<IActionResult> WebAuthnAuthenticateOptionsAsync(
+        [FromBody] WebAuthnAuthenticateOptionsApiRequest webAuthnAuthenticateOptionsApiRequest)
     {
         ArgumentNullException.ThrowIfNull(webAuthnAuthenticateOptionsApiRequest, Messages.InvalidRequestBody);
 
@@ -48,16 +50,17 @@ public class SessionController(IMfaService mfaService, IWebAuthnService webAuthn
         {
             Email = webAuthnAuthenticateOptionsApiRequest.Email
         });
-        
+
         return Ok(new WebAuthnAuthenticateOptionsApiResponse
         {
             CeremonyId = options.CeremonyId,
             PublicKey = options.PublicKey
         });
     }
-    
+
     /// <inheritdoc />
-    public override async Task<IActionResult> WebAuthnAuthenticateVerifyAsync([FromBody] WebAuthnAuthenticateVerifyApiRequest webAuthnAuthenticateVerifyApiRequest)
+    public override async Task<IActionResult> WebAuthnAuthenticateVerifyAsync(
+        [FromBody] WebAuthnAuthenticateVerifyApiRequest webAuthnAuthenticateVerifyApiRequest)
     {
         ArgumentNullException.ThrowIfNull(webAuthnAuthenticateVerifyApiRequest, Messages.InvalidRequestBody);
 
@@ -69,7 +72,7 @@ public class SessionController(IMfaService mfaService, IWebAuthnService webAuthn
 
         return NoContent();
     }
-    
+
     /// <inheritdoc />
     public override async Task<IActionResult> WebAuthnRegisterOptionsAsync()
     {
@@ -84,7 +87,8 @@ public class SessionController(IMfaService mfaService, IWebAuthnService webAuthn
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> WebAuthnRegisterVerifyAsync([FromBody] WebAuthnRegisterVerifyApiRequest webAuthnRegisterVerifyApiRequest)
+    public override async Task<IActionResult> WebAuthnRegisterVerifyAsync(
+        [FromBody] WebAuthnRegisterVerifyApiRequest webAuthnRegisterVerifyApiRequest)
     {
         ArgumentNullException.ThrowIfNull(webAuthnRegisterVerifyApiRequest, Messages.InvalidRequestBody);
 
@@ -96,6 +100,30 @@ public class SessionController(IMfaService mfaService, IWebAuthnService webAuthn
             Credential = webAuthnRegisterVerifyApiRequest.Credential,
             Name = webAuthnRegisterVerifyApiRequest.Name
         });
+
+        return NoContent();
+    }
+
+    /// <inheritdoc />
+    public override async Task<IActionResult> WebAuthnsAsync()
+    {
+        var webauthnDtoList = await webAuthnService.GetUserWebAuthnAsync(User.GetCurrentUserId());
+
+        var webAuthnCredentialApiResponse = webauthnDtoList.Select(webauthn => new WebAuthnCredentialApiResponse
+        {
+            Id = webauthn.Id,
+            FriendlyName = webauthn.FriendlyName,
+            CreatedAt = webauthn.CreatedAt,
+            LastUsedAt = webauthn.LastUsedAt
+        });
+        
+        return Ok(webAuthnCredentialApiResponse);
+    }
+
+    /// <inheritdoc />
+    public override async Task<IActionResult> RemoveWebAuthnAsync(Guid id)
+    {
+        await webAuthnService.RemoveWebAuthnAsync(id);
 
         return NoContent();
     }

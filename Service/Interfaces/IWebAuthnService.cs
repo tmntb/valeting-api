@@ -1,4 +1,3 @@
-using Service.Models.Auth;
 using Service.Models.User;
 using Service.Models.WebAuthn;
 using Service.Models.WebAuthn.Payload;
@@ -13,14 +12,16 @@ public interface IWebAuthnService
     /// <param name="userDto">User info</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
     /// <returns>The WebAuthn public-key options and single-use ceremony identifier.</returns>
-    Task<WebAuthnAuthenticationOptionsDtoResponse> CreateAuthenticationOptionsAsync(UserDto userDto, CancellationToken cancellationToken = default);
+    Task<WebAuthnAuthenticationOptionsDtoResponse> CreateAuthenticationOptionsAsync(UserDto userDto,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates a WebAuthn assertion and resolves the authenticated user.
     /// </summary>
     /// <param name="webAuthnAuthenticationVerifyRequest">The ceremony identifier and raw browser assertion response.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    Task VerifyAuthenticationAsync(WebAuthnAuthenticationVerifyRequest webAuthnAuthenticationVerifyRequest, CancellationToken cancellationToken = default);
+    Task VerifyAuthenticationAsync(WebAuthnAuthenticationVerifyRequest webAuthnAuthenticationVerifyRequest,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates browser-compatible credential-creation options for a user.
@@ -28,31 +29,29 @@ public interface IWebAuthnService
     /// <param name="userId">The authenticated user identifier.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
     /// <returns>The WebAuthn creation options and single-use ceremony identifier.</returns>
-    Task<WebAuthnRegistrationOptionsDtoResponse> CreateRegistrationOptionsAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<WebAuthnRegistrationOptionsDtoResponse> CreateRegistrationOptionsAsync(Guid userId,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates and stores a WebAuthn attestation for a user.
     /// </summary>
     /// <param name="webAuthnRegistrationVerifyDtoRequest">The user identifier, ceremony identifier, attestation response, and optional friendly name.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    Task VerifyRegisterAsync(WebAuthnRegistrationVerifyDtoRequest webAuthnRegistrationVerifyDtoRequest, CancellationToken cancellationToken = default);
+    Task VerifyRegisterAsync(WebAuthnRegistrationVerifyDtoRequest webAuthnRegistrationVerifyDtoRequest,
+        CancellationToken cancellationToken = default);
 
-    /// <summary>Lists a user's passkey records for API-safe mapping.</summary>
+    /// <summary>
+    /// Lists a user's webauthn records.
+    /// </summary>
     /// <param name="userId">The authenticated user identifier.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    /// <returns>The user's stored passkeys.</returns>
-    Task<IEnumerable<WebAuthnDto>> GetUserPasskeysAsync(Guid userId, CancellationToken cancellationToken = default);
+    /// <returns>The user's stored webauthn's.</returns>
+    Task<IEnumerable<WebAuthnDto>> GetUserWebAuthnAsync(Guid userId, CancellationToken cancellationToken = default);
 
-    /// <summary>Renames a passkey owned by a user.</summary>
-    /// <param name="userId">The authenticated user identifier.</param>
-    /// <param name="passkeyId">The API passkey identifier.</param>
-    /// <param name="friendlyName">The new friendly name.</param>
+    /// <summary>
+    /// Deletes a webauthn owned by a user.
+    /// </summary>
+    /// <param name="webauthnId">The webauthn identifier.</param>
     /// <param name="cancellationToken">Cancels the operation.</param>
-    Task RenamePasskeyAsync(Guid userId, Guid passkeyId, string friendlyName, CancellationToken cancellationToken = default);
-
-    /// <summary>Deletes a passkey owned by a user.</summary>
-    /// <param name="userId">The authenticated user identifier.</param>
-    /// <param name="passkeyId">The API passkey identifier.</param>
-    /// <param name="cancellationToken">Cancels the operation.</param>
-    Task RemovePasskeyAsync(Guid userId, Guid passkeyId, CancellationToken cancellationToken = default);
+    Task RemoveWebAuthnAsync(Guid webauthnId, CancellationToken cancellationToken = default);
 }

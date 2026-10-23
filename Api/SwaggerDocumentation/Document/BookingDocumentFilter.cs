@@ -43,29 +43,40 @@ public class BookingDocumentFilter : IDocumentFilter
         var bookingsPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == BookingsEndpoint).Value;
         bookingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.OperationId = "get-bookings";
         bookingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Summary = "List Bookings";
-        bookingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Description = "Return a list of all **Bookings**, it can be filtered by the page number and page size";
+        bookingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Description =
+            "Return a list of all **Bookings**, it can be filtered by the page number and page size";
 
         bookingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-bookings";
         bookingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Create booking";
-        bookingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Creates a new **Booking**";
+        bookingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description =
+            "Creates a new **Booking**";
 
         var bookingsIdPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == BookingsIdEndpoint).Value;
         bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.OperationId = "get-bookings-id";
         bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Summary = "List booking by id";
-        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Description = "Return a **Booking** by the given id";
+        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Description =
+            "Return a **Booking** by the given id";
 
-        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.OperationId = "patch-bookings-id";
+        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.OperationId =
+            "patch-bookings-id";
         bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Summary = "Update booking";
-        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Description = "Update **Booking** by the given id";
+        bookingsIdPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Description =
+            "Update **Booking** by the given id";
 
         var bookingsIdStatusPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == BookingIdStatusEndpoint).Value;
-        bookingsIdStatusPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.OperationId = "patch-bookings-id-status";
-        bookingsIdStatusPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Summary = "Update booking status";
-        bookingsIdStatusPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Description = "Update **Booking** status by the given id";
+        bookingsIdStatusPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.OperationId =
+            "patch-bookings-id-status";
+        bookingsIdStatusPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Summary =
+            "Update booking status";
+        bookingsIdStatusPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Description =
+            "Update **Booking** status by the given id";
 
         var bookingsCustomerPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == BookingsCustomerEndpoint).Value;
-        bookingsCustomerPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.OperationId = "get-bookings-customer";
-        bookingsCustomerPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Summary = "List bookings by customer";
-        bookingsCustomerPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Description = "Return a list of **Bookings** for a specific customer, it can be filtered by the page number and page size";
+        bookingsCustomerPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.OperationId =
+            "get-bookings-customer";
+        bookingsCustomerPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Summary =
+            "List bookings by customer";
+        bookingsCustomerPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Get).Value.Description =
+            "Return a list of **Bookings** for a specific customer, it can be filtered by the page number and page size";
     }
 }

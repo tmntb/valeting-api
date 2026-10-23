@@ -41,7 +41,7 @@ public abstract class AuthBaseController : ControllerBase
     [Route("login")]
     [ProducesResponseType(statusCode: 200, type: typeof(LoginApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
-    [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> LoginAsync([FromBody] LoginApiRequest loginApiRequest);
 
@@ -91,49 +91,4 @@ public abstract class AuthBaseController : ControllerBase
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> RegisterAsync([FromBody] RegisterApiRequest registerApiRequest);
-
-    /// <summary>
-    /// Lists passkeys belonging to the authenticated user.
-    /// </summary>
-    /// <response code="200">Returns safe passkey metadata without cryptographic material.</response>
-    /// <response code="401">The caller is not authenticated.</response>
-    [HttpGet]
-    [Authorize]
-    [Route("passkeys")]
-    [ProducesResponseType(statusCode: 200, type: typeof(IEnumerable<PasskeyCredentialApiResponse>))]
-    [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> PasskeysAsync();
-
-    /// <summary>
-    /// Renames a passkey belonging to the authenticated user.
-    /// </summary>
-    /// <param name="id">The API identifier of the passkey.</param>
-    /// <param name="request">The new friendly name.</param>
-    /// <response code="204">The passkey was renamed.</response>
-    /// <response code="400">The name is invalid.</response>
-    /// <response code="401">The caller is not authenticated.</response>
-    /// <response code="404">The passkey does not belong to the caller or does not exist.</response>
-    [HttpPut]
-    [Authorize]
-    [Route("passkeys/{id:guid}")]
-    [ProducesResponseType(statusCode: 204)]
-    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
-    [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
-    [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> RenamePasskeyAsync([FromRoute] Guid id, [FromBody] PasskeyRenameApiRequest request);
-
-    /// <summary>
-    /// Removes a passkey belonging to the authenticated user.
-    /// </summary>
-    /// <param name="id">The API identifier of the passkey.</param>
-    /// <response code="204">The passkey was removed.</response>
-    /// <response code="401">The caller is not authenticated.</response>
-    /// <response code="404">The passkey does not belong to the caller or does not exist.</response>
-    [HttpDelete]
-    [Authorize]
-    [Route("passkeys/{id:guid}")]
-    [ProducesResponseType(statusCode: 204)]
-    [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
-    [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> RemovePasskeyAsync([FromRoute] Guid id);
 }

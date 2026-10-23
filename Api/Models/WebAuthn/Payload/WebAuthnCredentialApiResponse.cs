@@ -1,6 +1,6 @@
 namespace Api.Models.WebAuthn.Payload;
 
-public class PasskeyCredentialApiResponse
+public class WebAuthnCredentialApiResponse
 {
     public Guid Id { get; set; }
     public string FriendlyName { get; set; } = string.Empty;
