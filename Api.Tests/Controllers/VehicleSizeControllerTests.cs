@@ -43,7 +43,8 @@ public class VehicleSizeControllerTests
     public async Task GetFilteredAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        _mockVehicleSizeService.Setup(s => s.GetFilteredAsync(It.IsAny<VehicleSizeFilterDto>()))
+        _mockVehicleSizeService
+            .Setup(s => s.GetFilteredAsync(It.IsAny<VehicleSizeFilterDto>()))
             .ReturnsAsync(
                 new VehicleSizePaginatedDtoResponse
                 {
@@ -60,10 +61,12 @@ public class VehicleSizeControllerTests
                     ]
                 });
 
-        _mockLinkService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
+        _mockLinkService
+            .Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
             .Returns(new GeneratePaginatedLinksDtoResponse());
 
-        _mockLinkService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
+        _mockLinkService
+            .Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
             .Returns($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}");
 
         // Act
@@ -99,14 +102,16 @@ public class VehicleSizeControllerTests
     public async Task GetByIdAsync_ShouldReturnOk_WhenValidId()
     {
         // Arrange
-        _mockVehicleSizeService.Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
+        _mockVehicleSizeService
+            .Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(
                 new VehicleSizeDto
                 {
                     Id = _mockVehicleSizeId
                 });
 
-        _mockLinkService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
+        _mockLinkService
+            .Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
             .Returns($"http://example.com/flexibility/{_mockVehicleSizeId}");
 
         // Act

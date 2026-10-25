@@ -1,26 +1,25 @@
 namespace Service.Models.WebAuthn;
 
 /// <summary>
-/// Defines the types of passkey ceremonies supported by the application.
+/// Defines the types of webauthn ceremonies supported by the application.
 /// </summary>
-public enum PasskeyCeremony
+public enum WebAuthnCeremony
 {
     /// <summary>
-    /// Ceremony for registering a new passkey.
+    /// Ceremony for registering a new webauthn.
     /// </summary>
     Registration,
 
     /// <summary>
-    /// Ceremony for authenticating a user with a passkey.
+    /// Ceremony for authenticating a user with a webauthn.
     /// </summary>
     Authentication
 }
 
 /// <summary>
-/// Represents the state of a passkey ceremony, including its challenge
-/// options, associated user information, and expiration time.
+/// Represents the state of a webauthn ceremony, including its challenge options, associated user information, and expiration time.
 /// </summary>
-public sealed class PasskeyChallengeState
+public sealed class WebAuthnChallengeState
 {
     /// <summary>
     /// Unique identifier of the ceremony.
@@ -28,9 +27,9 @@ public sealed class PasskeyChallengeState
     public Guid CeremonyId { get; init; }
 
     /// <summary>
-    /// Type of passkey ceremony being performed.
+    /// Type of webauthn ceremony being performed.
     /// </summary>
-    public PasskeyCeremony Ceremony { get; init; }
+    public WebAuthnCeremony Ceremony { get; init; }
 
     /// <summary>
     /// Optional identifier of the user associated with the ceremony.

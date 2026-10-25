@@ -1,4 +1,4 @@
-﻿using Common.Enums;
+using Common.Enums;
 using Repository.Repositories;
 using Service.Models.User;
 
@@ -60,6 +60,7 @@ public class UserRepositoryTests : BaseRepositoryTest
     {
         // Arrange
         var id = Guid.Parse("00000000-0000-0000-0000-000000000042");
+        
         // Act
         await _userRepository.RegisterAsync(
             new()

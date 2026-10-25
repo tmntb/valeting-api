@@ -165,4 +165,16 @@
   <data name="InvalidRecoveryCode" xml:space="preserve">
    <value>Código de recuperação inválido.</value>
   </data>
+  <data name="InvalidWebAuthnCeremony" xml:space="preserve">
+    <value>O processo de autenticação WebAuthn não é válido, está expirado ou já foi utilizado.</value>
+  </data>
+  <data name="WebAuthnAssertionCannotBeVerified" xml:space="preserve">
+    <value>Não foi possível verificar a autenticação WebAuthn.</value>
+  </data>
+   <data name="WebAuthnAlreadyRegistered" xml:space="preserve">
+    <value>Este WebAuthn já está registado.</value>
+  </data>
+  <data name="WebAuthnRegistrationCannotBeVerified" xml:space="preserve">
+    <value>Não foi possível verificar o registo WebAuthn.</value>
+  </data>
 </root>

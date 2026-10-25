@@ -5,6 +5,7 @@ using Service.Models.Flexibility;
 using Service.Models.Status;
 using Service.Models.User;
 using Service.Models.VehicleSize;
+using Service.Models.WebAuthn;
 
 namespace Service.Tests;
 
@@ -17,6 +18,7 @@ public static class DataFactory
     private static readonly Guid USER_ID = Guid.Parse("00000000-0000-0000-0000-000000000005");
     private static readonly Guid ROLE_ID = Guid.Parse("00000000-0000-0000-0000-000000000006");
     private static readonly Guid RECOVERY_CODE_ID = Guid.Parse("00000000-0000-0000-0000-000000000007");
+    private static readonly Guid WERB_AUTHN_ID = Guid.Parse("00000000-0000-0000-0000-000000000008");
 
     public static BookingDto CreateBookingDto(Guid bookingId = default, StatusEnum statusEnum = StatusEnum.PENDING_APPROVAL, DateTime scheduledAt = default)
     {
@@ -100,4 +102,15 @@ public static class DataFactory
             UsedAt = usedAt ?? null
         };
     }
+    
+    public static WebAuthnDto CreateWebAuthnDto(Guid webAuthnId = default, byte[]? publicKeyBytes = null) => new()
+    {
+        Id = webAuthnId == default ? WERB_AUTHN_ID : webAuthnId,
+        UserId = USER_ID,
+        CredentialId = "AQID",
+        PublicKey = publicKeyBytes == null ? Convert.ToBase64String([4, 5, 6]) : Convert.ToBase64String(publicKeyBytes),
+        FriendlyName = "Laptop",
+        CreatedAt = DateTime.UtcNow,
+        SignatureCounter = 3
+    };
 }

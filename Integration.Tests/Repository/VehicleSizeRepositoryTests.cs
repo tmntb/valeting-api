@@ -1,4 +1,4 @@
-﻿using Integration.Tests.Repository;
+using Integration.Tests.Repository;
 using Repository.Entities;
 using Repository.Repositories;
 

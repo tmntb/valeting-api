@@ -1,5 +1,4 @@
 ﻿using Api.Controllers;
-using Api.Models.Auth.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

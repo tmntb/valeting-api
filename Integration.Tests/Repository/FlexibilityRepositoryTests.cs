@@ -1,4 +1,4 @@
-﻿using Repository.Entities;
+using Repository.Entities;
 using Repository.Repositories;
 
 namespace Integration.Tests.Repository;

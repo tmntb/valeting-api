@@ -46,6 +46,7 @@ public class BookingServiceTests
     [Fact]
     public async Task CreateAsync_ShouldThrowKeyNotFoundException_WhenStatusDoesNotExist()
     {
+        // Arrange
         _mockStatusRepository
             .Setup(r => r.GetByCodeAsync(It.IsAny<StatusEnum>()))
             .ReturnsAsync((StatusDto)null)

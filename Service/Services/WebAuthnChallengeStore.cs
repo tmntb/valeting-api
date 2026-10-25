@@ -6,33 +6,33 @@ namespace Service.Services;
 
 public sealed class WebAuthnChallengeStore : IWebAuthnChallengeStore
 {
-    private readonly ConcurrentDictionary<Guid, PasskeyChallengeState> _challenges = new();
+    private readonly ConcurrentDictionary<Guid, WebAuthnChallengeState> _webAuthnChallenges = new();
 
     /// <inheritdoc />
-    public void Store(PasskeyChallengeState state)
+    public void Store(WebAuthnChallengeState webAuthnChallengeState)
     {
-        foreach (var challenge in _challenges)
+        foreach (var challenge in _webAuthnChallenges)
         {
             if (challenge.Value.ExpiresAt <= DateTimeOffset.UtcNow)
             {
-                _challenges.TryRemove(challenge.Key, out _);
+                _webAuthnChallenges.TryRemove(challenge.Key, out _);
             }
         }
 
-        _challenges[state.CeremonyId] = state;
+        _webAuthnChallenges[webAuthnChallengeState.CeremonyId] = webAuthnChallengeState;
     }
 
     /// <inheritdoc />
-    public bool TryConsume(Guid ceremonyId, PasskeyCeremony ceremony, out PasskeyChallengeState? state)
+    public bool TryConsume(Guid ceremonyId, WebAuthnCeremony webAuthnCeremony, out WebAuthnChallengeState? webAuthnChallengeState)
     {
-        if (!_challenges.TryRemove(ceremonyId, out state))
+        if (!_webAuthnChallenges.TryRemove(ceremonyId, out webAuthnChallengeState))
         {
             return false;
         }
 
-        if (state.Ceremony != ceremony || state.ExpiresAt <= DateTimeOffset.UtcNow)
+        if (webAuthnChallengeState.Ceremony != webAuthnCeremony || webAuthnChallengeState.ExpiresAt <= DateTimeOffset.UtcNow)
         {
-            state = null;
+            webAuthnChallengeState = null;
             return false;
         }
 

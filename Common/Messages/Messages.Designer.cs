@@ -245,5 +245,49 @@ namespace Common.Messages
                 return ResourceManager.GetString("InvalidRecoveryCode", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid webauthn ceremony..
+        /// </summary>
+        public static string InvalidWebAuthnCeremony
+        {
+            get
+            {
+                return ResourceManager.GetString("InvalidWebAuthnCeremony", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to WebAuthn assertion cannot be verified..
+        /// </summary>
+        public static string WebAuthnAssertionCannotBeVerified
+        {
+            get
+            {
+                return ResourceManager.GetString("WebAuthnAssertionCannotBeVerified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to WebAuthn already registered..
+        /// </summary>
+        public static string WebAuthnAlreadyRegistered
+        {
+            get
+            {
+                return ResourceManager.GetString("WebAuthnAlreadyRegistered", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to WebAuthn registration cannot be verified..
+        /// </summary>
+        public static string WebAuthnRegistrationCannotBeVerified
+        {
+            get
+            {
+                return ResourceManager.GetString("WebAuthnRegistrationCannotBeVerified", resourceCulture);
+            }
+        }
     }
 }
