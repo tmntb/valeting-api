@@ -121,6 +121,7 @@ public class BaseRepositoryTest : IAsyncLifetime
 
     protected async Task ClearDatabaseAsync()
     {
+        Context.WebAuthns.RemoveRange(Context.WebAuthns);
         Context.RecoveryCodes.RemoveRange(Context.RecoveryCodes);
         Context.Bookings.RemoveRange(Context.Bookings);
         Context.RdFlexibilities.RemoveRange(Context.RdFlexibilities);

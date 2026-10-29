@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
 using Service.Interfaces;
-using Service.Models.Auth;
 using Service.Models.WebAuthn;
 
 namespace Repository.Repositories;
