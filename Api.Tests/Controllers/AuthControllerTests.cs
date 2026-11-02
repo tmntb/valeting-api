@@ -78,7 +78,7 @@ public class AuthControllerTests
 
         var expiryDate = DateTime.UtcNow;
         _mockTokenService
-            .Setup(s => s.GenerateTokenJWTAsync(It.IsAny<string>()))
+            .Setup(s => s.GenerateTokenJwtAsync(It.IsAny<string>()))
             .ReturnsAsync(
                 new GenerateTokenJWTDtoResponse
                 {
@@ -154,7 +154,7 @@ public class AuthControllerTests
             .Returns("test@example.com");
 
         _mockTokenService
-            .Setup(s => s.GenerateTokenJWTAsync(It.IsAny<string>()))
+            .Setup(s => s.GenerateTokenJwtAsync(It.IsAny<string>()))
             .ReturnsAsync(
                 new GenerateTokenJWTDtoResponse
                 {

@@ -34,7 +34,7 @@ public class TokenServiceTests
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _tokenService.GenerateTokenJWTAsync("user@example.com"));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _tokenService.GenerateTokenJwtAsync("user@example.com"));
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class TokenServiceTests
             .Returns("audience");
 
         // Act
-        var response = await _tokenService.GenerateTokenJWTAsync("user@example.com");
+        var response = await _tokenService.GenerateTokenJwtAsync("user@example.com");
 
         // Assert
         Assert.NotNull(response.Token);
@@ -82,7 +82,7 @@ public class TokenServiceTests
             .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(_userDto);
 
-        var tokenResponse = await _tokenService.GenerateTokenJWTAsync("user@example.com");
+        var tokenResponse = await _tokenService.GenerateTokenJwtAsync("user@example.com");
         var validToken = tokenResponse.Token;
 
         // Act

@@ -12,9 +12,9 @@ namespace Service.Services;
 public class TokenService(IUserRepository userRepository, IConfiguration configuration) : ITokenService
 {
      /// <inheritdoc />
-    public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string email)
+    public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJwtAsync(string email, CancellationToken cancellationToken = default)
     {
-        var userDto = await userRepository.GetByEmailAsync(email) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDto = await userRepository.GetByEmailAsync(email, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         var (issuer, audience) = GetJwtSettings();
 
@@ -26,7 +26,7 @@ public class TokenService(IUserRepository userRepository, IConfiguration configu
             Subject = new ClaimsIdentity(
             [
                 new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
-                new Claim(ClaimTypes.Name, string.Format("{0} {1}", userDto.FirstName, userDto.LastName)),
+                new Claim(ClaimTypes.Name, $"{userDto.FirstName} {userDto.LastName}"),
                 new Claim(ClaimTypes.Email, userDto.Email),
                 new Claim(ClaimTypes.Role, userDto.Role.Code.ToString())
             ]),

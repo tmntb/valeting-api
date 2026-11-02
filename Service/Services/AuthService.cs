@@ -11,11 +11,11 @@ namespace Service.Services;
 public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository recoveryCodeRepository, IRoleRepository roleRepository) : IAuthService
 {
     /// <inheritdoc />
-    public async Task ForgotPasswordAsync(ForgotPasswordDtoRequest forgotPasswordDtoRequest)
+    public async Task ForgotPasswordAsync(ForgotPasswordDtoRequest forgotPasswordDtoRequest, CancellationToken cancellationToken = default)
     {
         forgotPasswordDtoRequest.ValidateRequest(new ForgotPasswordValidator());
 
-        var userDto = await userRepository.GetByEmailAsync(forgotPasswordDtoRequest.Email);
+        var userDto = await userRepository.GetByEmailAsync(forgotPasswordDtoRequest.Email, cancellationToken);
         if (userDto == null)
         {
             // Avoid password reset probing.
@@ -29,7 +29,7 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
 
         if (forgotPasswordDtoRequest.RecoveryCode != null)
         {
-            var userRecoveryCodes = await recoveryCodeRepository.GetUserRecoveryCodesAsync(userDto.Id);
+            var userRecoveryCodes = await recoveryCodeRepository.GetUserRecoveryCodesAsync(userDto.Id, cancellationToken);
             if (userRecoveryCodes == null || !userRecoveryCodes.Any())
             {
                 throw new InvalidOperationException(Messages.NoRecoveryCodesForUser);
@@ -38,25 +38,25 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
             var recoveryCode = userRecoveryCodes.SingleOrDefault(rc => rc.UsedAt == null && BCrypt.Net.BCrypt.Verify(forgotPasswordDtoRequest.RecoveryCode, rc.CodeHash))
                 ?? throw new InvalidOperationException(Messages.InvalidRecoveryCode);
 
-            await recoveryCodeRepository.UpdateUsedAtAsync(recoveryCode.Id);
+            await recoveryCodeRepository.UpdateUsedAtAsync(recoveryCode.Id, cancellationToken);
         }
 
         userDto.PasswordHash = HashHelper.GenerateHash(forgotPasswordDtoRequest.NewPassword);
-        await userRepository.UpdatePasswordAsync(userDto);
+        await userRepository.UpdatePasswordAsync(userDto, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task RegisterAsync(UserDto userDto)
+    public async Task RegisterAsync(UserDto userDto, CancellationToken cancellationToken = default)
     {
         userDto.ValidateRequest(new RegisterValidator());
 
-        var userDtoCheck = await userRepository.GetByEmailAsync(userDto.Email);
+        var userDtoCheck = await userRepository.GetByEmailAsync(userDto.Email, cancellationToken);
         if (userDtoCheck != null)
         {
             throw new InvalidOperationException(Messages.EmailInUse);
         }
 
-        var roleDto = await roleRepository.GetByCodeAsync(userDto.Role.Code) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var roleDto = await roleRepository.GetByCodeAsync(userDto.Role.Code, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
         var hashedPassword = HashHelper.GenerateHash(userDto.Password);
 
         userDto.Id = Guid.NewGuid();
@@ -67,20 +67,20 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
         userDto.MfaEnabled = false;
         userDto.CreatedAt = DateTime.UtcNow;
 
-        await userRepository.RegisterAsync(userDto);
+        await userRepository.RegisterAsync(userDto, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task ValidateLoginAsync(UserDto userDto)
+    public async Task ValidateLoginAsync(UserDto userDto, CancellationToken cancellationToken = default)
     {
         userDto.ValidateRequest(new ValidateLoginValidator());
 
-        var userDtoCheck = await userRepository.GetByEmailAsync(userDto.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDtoCheck = await userRepository.GetByEmailAsync(userDto.Email, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         var passwordValid = userDtoCheck.IsActive && BCrypt.Net.BCrypt.Verify(userDto.Password, userDtoCheck.PasswordHash);
         if (!passwordValid)
             throw new UnauthorizedAccessException(Messages.InvalidPassword);
 
-        await userRepository.UpdateLastLoginAsync(userDtoCheck.Id);
+        await userRepository.UpdateLastLoginAsync(userDtoCheck.Id, cancellationToken);
     }
 }

@@ -6,25 +6,26 @@ namespace Service.Interfaces;
 public interface IAuthService
 {
     /// <summary>
-    /// Initiates the forgot password process for a user by their email.
+    /// Restores the password for a user by their email.
     /// </summary>
-    /// <param name="email">The email of the user who forgot their password.</param>
+    /// <param name="forgotPasswordDtoRequest">The forgo password payload.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task ForgotPasswordAsync(ForgotPasswordDtoRequest forgotPasswordDtoRequest);
+    Task ForgotPasswordAsync(ForgotPasswordDtoRequest forgotPasswordDtoRequest, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Registers a new user with the provided username and password.
     /// </summary>
     /// <param name="userDto">The user registration information.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the username is already in use.</exception>
-    Task RegisterAsync(UserDto userDto);
+    Task RegisterAsync(UserDto userDto, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates the user's credentials by checking the username and password.
     /// </summary>
     /// <param name="userDto">The user information.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
     /// <returns>True if the username exists and the password matches; otherwise, false.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given username.</exception>
-    Task ValidateLoginAsync(UserDto userDto);
+    Task ValidateLoginAsync(UserDto userDto, CancellationToken cancellationToken = default);
 }

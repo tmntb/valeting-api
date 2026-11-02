@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Service.Interfaces;
 using Service.Models.Core;
 using Service.Models.Link.Payload;
@@ -58,7 +57,7 @@ public class LinkService : ILinkService
     /// <param name="filterDto">The filter object containing query parameters.</param>
     /// <param name="newPageNumber">The new page number to include in the query string.</param>
     /// <returns>A URL-encoded query string representing the filter.</returns>
-    private string GenerateQueryString(FilterDto filterDto, int newPageNumber)
+    private static string GenerateQueryString(FilterDto filterDto, int newPageNumber)
     {
         var clonedFilter = CloneWithUpdatedPageNumber(filterDto, newPageNumber);
 
@@ -78,7 +77,7 @@ public class LinkService : ILinkService
     {
         var clonedFilter = Activator.CreateInstance(filterDto.GetType());
 
-        foreach (var prop in filterDto.GetType().GetProperties().Where(p => p.CanRead && p.CanWrite))
+        foreach (var prop in filterDto.GetType().GetProperties().Where(p => p is { CanRead: true, CanWrite: true }))
         {
             object value = prop.Name == "PageNumber" ? newPageNumber : prop.GetValue(filterDto);
             prop.SetValue(clonedFilter, value);
@@ -104,5 +103,5 @@ public class LinkService : ILinkService
     /// </summary>
     /// <param name="input">The input string.</param>
     /// <returns>The camelCase version of the string, or the original if null/empty.</returns>
-    private static string ToCamelCase(string input) => string.IsNullOrEmpty(input) ? input : char.ToLowerInvariant(input[0]) + input.Substring(1);
+    private static string ToCamelCase(string input) => string.IsNullOrEmpty(input) ? input : char.ToLowerInvariant(input[0]) + input[1..];
 }

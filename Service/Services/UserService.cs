@@ -11,61 +11,61 @@ namespace Service.Services;
 public class UserService(IUserRepository userRepository) : IUserService
 {
     /// <inheritdoc />
-    public async Task UpdateAdminSettingsAsync(UpdateAdminSettingsDtoRequest updateAdminSettingsDtoRequest)
+    public async Task UpdateAdminSettingsAsync(UpdateAdminSettingsDtoRequest updateAdminSettingsDtoRequest, CancellationToken cancellationToken = default)
     {
         updateAdminSettingsDtoRequest.ValidateRequest(new UpdateAdminSettingsValidator());
 
-        var userDtoUpdate = await userRepository.GetByIdAsync(updateAdminSettingsDtoRequest.UserId) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDtoUpdate = await userRepository.GetByIdAsync(updateAdminSettingsDtoRequest.UserId, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         userDtoUpdate.IsActive = updateAdminSettingsDtoRequest.IsActive ?? userDtoUpdate.IsActive;
         userDtoUpdate.Role.Id = updateAdminSettingsDtoRequest.RoleId ?? userDtoUpdate.Role.Id;
-        await userRepository.UpdateAdminSettingsAsync(userDtoUpdate);
+        await userRepository.UpdateAdminSettingsAsync(userDtoUpdate, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task UpdateEmailAsync(UserDto userDto)
+    public async Task UpdateEmailAsync(UserDto userDto, CancellationToken cancellationToken = default)
     {
         userDto.ValidateRequest(new UpdateEmailValidator());
 
-        var userDtoCheck = await userRepository.GetByIdAsync(userDto.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDtoCheck = await userRepository.GetByIdAsync(userDto.Id, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
         if (userDtoCheck.Email.Equals(userDto.Email, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(Messages.SameEmailInUse);
         }
 
-        var userDtoEmailCheck = await userRepository.GetByEmailAsync(userDto.Email);
+        var userDtoEmailCheck = await userRepository.GetByEmailAsync(userDto.Email, cancellationToken);
         if (userDtoEmailCheck != null)
         {
             throw new InvalidOperationException(Messages.EmailInUse);
         }
 
         userDtoCheck.Email = userDto.Email;
-        await userRepository.UpdateEmailAsync(userDtoCheck);
+        await userRepository.UpdateEmailAsync(userDtoCheck, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task UpdatePasswordAsync(UserDto userDto)
+    public async Task UpdatePasswordAsync(UserDto userDto, CancellationToken cancellationToken = default)
     {
         userDto.ValidateRequest(new UpdatePasswordValidator());
 
-        var userDtoToUpdate = await userRepository.GetByIdAsync(userDto.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDtoToUpdate = await userRepository.GetByIdAsync(userDto.Id, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         userDtoToUpdate.PasswordHash = HashHelper.GenerateHash(userDto.Password);
-        await userRepository.UpdatePasswordAsync(userDtoToUpdate);
+        await userRepository.UpdatePasswordAsync(userDtoToUpdate, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task UpdateProfileAsync(UpdateProfileDtoRequest updateProfileDtoRequest)
+    public async Task UpdateProfileAsync(UpdateProfileDtoRequest updateProfileDtoRequest, CancellationToken cancellationToken = default)
     {
         updateProfileDtoRequest.ValidateRequest(new UpdateProfileValidator());
 
-        var userDtoUpdate = await userRepository.GetByIdAsync(updateProfileDtoRequest.Id) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDtoUpdate = await userRepository.GetByIdAsync(updateProfileDtoRequest.Id, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         userDtoUpdate.FirstName = updateProfileDtoRequest.FirstName ?? userDtoUpdate.FirstName;
         userDtoUpdate.LastName = updateProfileDtoRequest.LastName ?? userDtoUpdate.LastName;
         userDtoUpdate.DateOfBirth = updateProfileDtoRequest.DateOfBirth ?? userDtoUpdate.DateOfBirth;
         userDtoUpdate.ContactNumber = updateProfileDtoRequest.ContactNumber ?? userDtoUpdate.ContactNumber;
 
-        await userRepository.UpdateProfileAsync(userDtoUpdate);
+        await userRepository.UpdateProfileAsync(userDtoUpdate, cancellationToken);
     }
 }

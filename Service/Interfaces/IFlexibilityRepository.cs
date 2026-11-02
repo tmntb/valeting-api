@@ -9,13 +9,15 @@ public interface IFlexibilityRepository
     /// Retrieves a flexibility record by its unique identifier from the database.
     /// </summary>
     /// <param name="id">The unique identifier of the flexibility.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
     /// <returns>A task that returns a <see cref="FlexibilityDto"/> if found; otherwise, null.</returns>
-    Task<FlexibilityDto> GetByIdAsync(Guid id);
+    Task<FlexibilityDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a filtered list of flexibilities from the database based on the specified filter parameters.
     /// </summary>
     /// <param name="flexibilityFilterDto">The filter parameters including optional active status.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
     /// <returns>A task that returns a list of <see cref="FlexibilityDto"/> matching the filter criteria.</returns>
-    Task<List<FlexibilityDto>> GetFilteredAsync(FlexibilityFilterDto flexibilityFilterDto);
+    Task<List<FlexibilityDto>> GetFilteredAsync(FlexibilityFilterDto flexibilityFilterDto, CancellationToken cancellationToken = default);
 }

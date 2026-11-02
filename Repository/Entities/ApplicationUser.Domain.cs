@@ -1,7 +1,38 @@
+using Service.Models.User;
+
 namespace Repository.Entities;
 
 public partial class ApplicationUser
 {
+    /// <summary>
+    /// Creates a <see cref="UserDto"/> from an <see cref="ApplicationUser"/>.
+    /// </summary>
+    /// <param name="applicationUser">The application user entity.</param>
+    /// <returns>A <see cref="UserDto"/> representing the application user.</returns>
+    internal static UserDto? FromEntity(ApplicationUser? applicationUser)
+    {
+        if (applicationUser == null)
+            return null;
+
+        return new()
+        {
+            Id = applicationUser.Id,
+            Email = applicationUser.Email,
+            PasswordHash = applicationUser.PasswordHash,
+            FirstName = applicationUser.FirstName,
+            LastName = applicationUser.LastName,
+            DateOfBirth = applicationUser.DateOfBirth,
+            ContactNumber = applicationUser.ContactNumber,
+            Role = RdRole.FromEntity(applicationUser.Role),
+            IsActive = applicationUser.IsActive,
+            MfaEnabled = applicationUser.MfaEnabled,
+            MfaSecret = applicationUser.MfaSecret,
+            CreatedAt = applicationUser.CreatedAt,
+            UpdatedAt = applicationUser.UpdatedAt,
+            LastLoginAt = applicationUser.LastLoginAt
+        };
+    }
+    
     /// <summary>
     /// Updates the user's administrative settings, including role and active status.
     /// </summary>

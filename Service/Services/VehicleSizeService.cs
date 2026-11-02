@@ -12,14 +12,11 @@ namespace Service.Services;
 public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, ICacheHandler cacheHandler) : IVehicleSizeService
 {
     /// <inheritdoc />
-    public async Task<VehicleSizeDto> GetByIdAsync(Guid id)
+    public async Task<VehicleSizeDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await cacheHandler.GetOrCreateRecordAsync(
             id,
-            async () =>
-            {
-                return await vehicleSizeRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(Messages.NotFound);
-            },
+            async () => await vehicleSizeRepository.GetByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound),
             new()
             {
                 Id = id,
@@ -29,7 +26,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
     }
 
     /// <inheritdoc />
-    public async Task<VehicleSizePaginatedDtoResponse> GetFilteredAsync(VehicleSizeFilterDto vehicleSizeFilterDto)
+    public async Task<VehicleSizePaginatedDtoResponse> GetFilteredAsync(VehicleSizeFilterDto vehicleSizeFilterDto, CancellationToken cancellationToken = default)
     {
         var paginatedVehicleSizeDtoResponse = new VehicleSizePaginatedDtoResponse();
 
@@ -39,7 +36,7 @@ public class VehicleSizeService(IVehicleSizeRepository vehicleSizeRepository, IC
             vehicleSizeFilterDto,
             async () =>
             {
-                var vehicleSizeDtoList = await vehicleSizeRepository.GetFilteredAsync(vehicleSizeFilterDto);
+                var vehicleSizeDtoList = await vehicleSizeRepository.GetFilteredAsync(vehicleSizeFilterDto, cancellationToken);
                 if (vehicleSizeDtoList.Count == 0)
                     throw new KeyNotFoundException(Messages.NotFound);
 

@@ -30,12 +30,12 @@ public sealed class WebAuthnChallengeStore : IWebAuthnChallengeStore
             return false;
         }
 
-        if (webAuthnChallengeState.Ceremony != webAuthnCeremony || webAuthnChallengeState.ExpiresAt <= DateTimeOffset.UtcNow)
+        if (webAuthnChallengeState.Ceremony == webAuthnCeremony && webAuthnChallengeState.ExpiresAt > DateTimeOffset.UtcNow)
         {
-            webAuthnChallengeState = null;
-            return false;
+            return true;
         }
 
-        return true;
+        webAuthnChallengeState = null;
+        return false;
     }
 }

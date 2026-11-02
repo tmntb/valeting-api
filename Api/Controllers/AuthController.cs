@@ -42,12 +42,8 @@ public class AuthController(IAuthService authService, IRecoveryCodeService recov
 
         await authService.ValidateLoginAsync(userDto);
 
-        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJWTAsync(loginApiRequest.Email);
+        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJwtAsync(loginApiRequest.Email);
 
-        //TODO: O login não deve retornar o token.
-        //Apenas deve retornar um ok se o login for válido.
-        //O token deve ser retornado apenas no endpoint de emitir token.
-        //O endpoint de login deve apenas validar o login.
         var validateLoginApiResponse = new LoginApiResponse
         {
             Token = generateTokenJwtDtoResponse.Token,
@@ -75,7 +71,7 @@ public class AuthController(IAuthService authService, IRecoveryCodeService recov
         ArgumentException.ThrowIfNullOrEmpty(refreshTokenApiRequest.Token, Messages.InvalidRequestBody);
 
         var email = tokenService.ValidateToken(refreshTokenApiRequest.Token); // TODO: Remove when middleware is implemented
-        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJWTAsync(email);
+        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJwtAsync(email);
 
         var refreshTokenApiResponse = new RefreshTokenApiResponse
         {

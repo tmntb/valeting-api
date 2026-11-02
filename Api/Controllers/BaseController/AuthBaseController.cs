@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.BaseController;
 
-//TODO: Validar os endpoint se precisa do authorize ou não uma vez que o login vai mudar.
-
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json")]

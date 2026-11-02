@@ -32,10 +32,10 @@ public class RecoveryCodeRepository(ValetingContext valetingContext) : IRecovery
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<RecoveryCodeDto>> GetUserRecoveryCodesAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<RecoveryCodeDto>?> GetUserRecoveryCodesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var userRecoveryCodes = await valetingContext.RecoveryCodes.Where(x => x.UserId == userId).ToListAsync(cancellationToken);
-        if(userRecoveryCodes == null || !userRecoveryCodes.Any())
+        if(!userRecoveryCodes.Any())
         {
             return null;
         }
@@ -45,7 +45,7 @@ public class RecoveryCodeRepository(ValetingContext valetingContext) : IRecovery
             Id = rc.Id,
             CodeHash = rc.CodeHash,
             CreatedAt = rc.CreatedAt,
-            User = new() { Id = rc.User.Id },
+            User =  new() { Id = rc.User.Id },
             UsedAt = rc.UsedAt
         });
     }
