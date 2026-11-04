@@ -13,14 +13,24 @@ public static class ServiceModule
 {
     public static void AddService(this IServiceCollection services)
     {
+        // Caching
         services.AddMemoryCache();
         services.AddScoped<ICacheHandler, MemoryCacheHandler>();
+        services.AddScoped<IWebAuthnChallengeStore, WebAuthnChallengeStore>();
 
         services.AddScoped<ValidationHelpers>();
-        services.AddScoped<IBookingService, BookingService>();
-        services.AddScoped<IFlexibilityService, FlexibilityService>();
-        services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IVehicleSizeService, VehicleSizeService>();
-        services.AddScoped<ILinkService, LinkService>();
+
+        // Services
+        services
+            .AddScoped<IAuthService, AuthService>()
+            .AddScoped<IBookingService, BookingService>()
+            .AddScoped<IFlexibilityService, FlexibilityService>()
+            .AddScoped<ILinkService, LinkService>()
+            .AddScoped<IMfaService, MfaService>()
+            .AddScoped<IRecoveryCodeService, RecoveryCodeService>()
+            .AddScoped<ITokenService, TokenService>()
+            .AddScoped<IUserService, UserService>()
+            .AddScoped<IVehicleSizeService, VehicleSizeService>()
+            .AddScoped<IWebAuthnService, WebAuthnService>();
     }
 }

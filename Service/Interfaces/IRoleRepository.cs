@@ -9,6 +9,7 @@ public interface IRoleRepository
     /// Retrieves a role record by its unique code from the database.
     /// </summary>
     /// <param name="roleCode">The unique code of the role.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
     /// <returns>A task that returns a <see cref="RoleDto"/> if found; otherwise, null.</returns>
-    Task<RoleDto> GetByCodeAsync(RoleEnum roleCode);
+    Task<RoleDto?> GetByCodeAsync(RoleEnum roleCode, CancellationToken cancellationToken = default);
 }

@@ -1,9 +1,11 @@
 using Common.Enums;
+using Service.Models.Auth;
 using Service.Models.Booking;
 using Service.Models.Flexibility;
 using Service.Models.Status;
 using Service.Models.User;
 using Service.Models.VehicleSize;
+using Service.Models.WebAuthn;
 
 namespace Service.Tests;
 
@@ -11,10 +13,13 @@ public static class DataFactory
 {
     private static readonly Guid BOOKING_ID = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private static readonly Guid FLEXIBILITY_ID = Guid.Parse("00000000-0000-0000-0000-000000000002");
-    private static readonly Guid VEHICLE_SIZE_ID = Guid.Parse("00000000-0000-0000-0000-000000000003"); 
+    private static readonly Guid VEHICLE_SIZE_ID = Guid.Parse("00000000-0000-0000-0000-000000000003");
     private static readonly Guid STATUS_ID = Guid.Parse("00000000-0000-0000-0000-000000000004");
     private static readonly Guid USER_ID = Guid.Parse("00000000-0000-0000-0000-000000000005");
-    
+    private static readonly Guid ROLE_ID = Guid.Parse("00000000-0000-0000-0000-000000000006");
+    private static readonly Guid RECOVERY_CODE_ID = Guid.Parse("00000000-0000-0000-0000-000000000007");
+    private static readonly Guid WERB_AUTHN_ID = Guid.Parse("00000000-0000-0000-0000-000000000008");
+
     public static BookingDto CreateBookingDto(Guid bookingId = default, StatusEnum statusEnum = StatusEnum.PENDING_APPROVAL, DateTime scheduledAt = default)
     {
         return new()
@@ -31,7 +36,7 @@ public static class DataFactory
 
     public static FlexibilityDto CreateCreateFlexibilityDto(Guid flexibilityId = default)
     {
-        return new ()
+        return new()
         {
             Id = flexibilityId == default ? FLEXIBILITY_ID : flexibilityId,
             Name = "name",
@@ -42,7 +47,7 @@ public static class DataFactory
 
     public static VehicleSizeDto CreateVehicleSizeDto(Guid vehicleSizeId = default)
     {
-        return new ()
+        return new()
         {
             Id = vehicleSizeId == default ? VEHICLE_SIZE_ID : vehicleSizeId,
             Name = "name",
@@ -52,7 +57,7 @@ public static class DataFactory
 
     public static StatusDto CreateStatusDto(Guid statusId = default, StatusEnum statusEnum = StatusEnum.PENDING_APPROVAL)
     {
-        return new ()
+        return new()
         {
             Id = statusId == default ? STATUS_ID : statusId,
             Code = statusEnum,
@@ -61,16 +66,51 @@ public static class DataFactory
         };
     }
 
-    public static UserDto CreateUserDto(Guid userId = default, RoleEnum roleEnum = RoleEnum.USER)
+    public static UserDto CreateUserDto(Guid userId = default, RoleEnum roleEnum = RoleEnum.USER, bool mfaEnable = true, string mfaSecret = "mfaSecret")
     {
-        return new ()
+        return new()
         {
             Id = userId == default ? USER_ID : userId,
+            Email = "user@example.com",
+            Password = "password123",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
+            FirstName = "John",
+            LastName = "Doe",
+            DateOfBirth = new DateOnly(1957, 03, 25),
+            ContactNumber = 967536812,
             Role = new()
             {
+                Id = ROLE_ID,
                 Code = roleEnum,
                 Name = "name"
-            }
+            },
+            IsActive = true,
+            MfaEnabled = mfaEnable,
+            MfaSecret = mfaSecret,
+            RecoveryCodes = []
         };
     }
+
+    public static RecoveryCodeDto CreateRecoveryCodeDto(Guid recoveryCodeId = default, DateTime? usedAt = null)
+    {
+        return new()
+        {
+            Id = recoveryCodeId == default ? RECOVERY_CODE_ID : recoveryCodeId,
+            CodeHash = BCrypt.Net.BCrypt.HashPassword("1234-5678"),
+            User = new() { Id = USER_ID },
+            CreatedAt = DateTime.UtcNow,
+            UsedAt = usedAt ?? null
+        };
+    }
+    
+    public static WebAuthnDto CreateWebAuthnDto(Guid webAuthnId = default, byte[]? publicKeyBytes = null) => new()
+    {
+        Id = webAuthnId == default ? WERB_AUTHN_ID : webAuthnId,
+        UserId = USER_ID,
+        CredentialId = "AQID",
+        PublicKey = publicKeyBytes == null ? Convert.ToBase64String([4, 5, 6]) : Convert.ToBase64String(publicKeyBytes),
+        FriendlyName = "Laptop",
+        CreatedAt = DateTime.UtcNow,
+        SignatureCounter = 3
+    };
 }

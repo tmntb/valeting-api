@@ -8,68 +8,125 @@ namespace Repository.Repositories;
 public class UserRepository(ValetingContext valetingContext) : IUserRepository
 {
     /// <inheritdoc />
-    public async Task<UserDto> GetUserByEmailAsync(string email)
+    public async Task<UserDto?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Email == email);
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
-        if (applicationUser == null)
-            return null;
-
-        return new() 
-        {
-            Id = applicationUser.Id,
-            Username = applicationUser.Username,
-            PasswordHash = applicationUser.PasswordHash,
-            ContactNumber = applicationUser.ContactNumber,
-            Email = applicationUser.Email,
-            Role = new()
-            {
-                Id = applicationUser.Role.Id,
-                Code = applicationUser.Role.Code
-            },
-            IsActive = applicationUser.IsActive,
-            CreatedAt = applicationUser.CreatedAt,
-            UpdatedAt = applicationUser.UpdatedAt,
-            LastLoginAt = applicationUser.LastLoginAt
-        };
+        return ApplicationUser.FromEntity(applicationUser);
     }
 
     /// <inheritdoc />
-    public async Task RegisterAsync(UserDto userDto)
+    public async Task<UserDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
+        return ApplicationUser.FromEntity(applicationUser);
+    }
+    /// <inheritdoc />
+    public async Task RegisterAsync(UserDto userDto, CancellationToken cancellationToken = default)
     {
         var applicationUser = new ApplicationUser
         {
             Id = userDto.Id,
-            Username = userDto.Username,
-            PasswordHash = userDto.PasswordHash,
-            ContactNumber = userDto.ContactNumber,
             Email = userDto.Email,
+            PasswordHash = userDto.PasswordHash,
+            FirstName = userDto.FirstName,
+            LastName = userDto.LastName,
+            DateOfBirth = userDto.DateOfBirth,
+            ContactNumber = userDto.ContactNumber,
             RoleId = userDto.Role.Id,
             IsActive = userDto.IsActive,
+            MfaEnabled = userDto.MfaEnabled,
+            MfaSecret = userDto.MfaSecret,
             CreatedAt = userDto.CreatedAt,
             UpdatedAt = userDto.UpdatedAt,
             LastLoginAt = userDto.LastLoginAt
         };
-        await valetingContext.ApplicationUsers.AddAsync(applicationUser);
-        await valetingContext.SaveChangesAsync();
+        await valetingContext.ApplicationUsers.AddAsync(applicationUser, cancellationToken);
+        await valetingContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task UpdateAsync(UserDto userDto)
+    public async Task UpdateAdminSettingsAsync(UserDto userDto, CancellationToken cancellationToken = default)
     {
-        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id);
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id, cancellationToken);
         if (applicationUser == null)
             return;
 
-        applicationUser.Username = userDto.Username;
-        applicationUser.PasswordHash = userDto.PasswordHash;
-        applicationUser.ContactNumber = userDto.ContactNumber;
-        applicationUser.Email = userDto.Email;
-        applicationUser.RoleId = userDto.Role.Id;
-        applicationUser.IsActive = userDto.IsActive;
-        applicationUser.UpdatedAt = userDto.UpdatedAt;
-        applicationUser.LastLoginAt = userDto.LastLoginAt;
+        applicationUser.UpdateAdminSettings(userDto.Role.Id, userDto.IsActive);
 
-        await valetingContext.SaveChangesAsync();   
+        await valetingContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateEmailAsync(UserDto userDto, CancellationToken cancellationToken = default)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id, cancellationToken);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdateEmail(userDto.Email);
+
+        await valetingContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateLastLoginAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdateLastLogin();
+
+        await valetingContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateMfaEnableAsync(UserDto userDto, CancellationToken cancellationToken = default)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id, cancellationToken);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdateMfaEnable(userDto.MfaEnabled);
+
+        await valetingContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateMfaSecretAsync(UserDto userDto, CancellationToken cancellationToken = default)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id, cancellationToken);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdateMfaSecret(userDto.MfaSecret);
+
+        await valetingContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task UpdatePasswordAsync(UserDto userDto, CancellationToken cancellationToken = default)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id, cancellationToken);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdatePassword(userDto.PasswordHash);
+
+        await valetingContext.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateProfileAsync(UserDto userDto, CancellationToken cancellationToken = default)
+    {
+        var applicationUser = await valetingContext.ApplicationUsers.FirstOrDefaultAsync(u => u.Id == userDto.Id, cancellationToken);
+        if (applicationUser == null)
+            return;
+
+        applicationUser.UpdateProfile(userDto.FirstName, userDto.LastName, userDto.DateOfBirth, userDto.ContactNumber);
+
+        await valetingContext.SaveChangesAsync(cancellationToken);
     }
 }

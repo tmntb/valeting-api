@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Api.Extensions;
 using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -7,28 +8,28 @@ namespace Api.SwaggerDocumentation.Document;
 /// <summary>
 /// Custom Swagger/OpenAPI document filter for the User endpoints.
 /// </summary>
-/// <remarks>
-/// This filter adds descriptive metadata for user-related operations,
-/// specifically the login endpoint. It sets operation IDs, summaries,
-/// and descriptions to improve API documentation and clarity for consumers.
-/// </remarks>
 [ExcludeFromCodeCoverage]
 public class UserDocumentFilter : IDocumentFilter
 {
     /// <summary>
-    /// Endpoint for user login.
+    /// Endpoint to update user admin settings.
     /// </summary>
-    public const string UserLoginEndpoint = "/user/login";
+    private const string UserAdminSettingsEndpoint = "/api/v1/users/admin-settings";
 
     /// <summary>
-    /// Endpoint for user register.
+    /// Endpoint to update user email.
     /// </summary>
-    public const string UserRegisterEndpoint = "/user/register";
+    private const string UserEmailEndpoint = "/api/v1/user/email";
 
     /// <summary>
-    /// Endpoint to refresh user token
+    /// Endpoint to update user password.
     /// </summary>
-    public const string UserRefreshTokenEndpoint = "/user/refreshToken";
+    private const string UserPasswordEndpoint = "/api/v1/user/password";
+
+    /// <summary>
+    /// Endpoint to update user profile.
+    /// </summary>
+    private const string UserProfileEndpoint = "/api/v1/user/profile";
 
     /// <summary>
     /// Applies the filter to the given OpenAPI document.
@@ -38,20 +39,17 @@ public class UserDocumentFilter : IDocumentFilter
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
         swaggerDoc.Tags.Add(new OpenApiTag() { Name = "User", Description = "User operations" });
-
-        var userLoginPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserLoginEndpoint).Value;
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId = "post-login-user";
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Validates user credentials";
-        userLoginPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Returns an access token for the **User**";
-
-        var userRegisterPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserRegisterEndpoint).Value;
-        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId= "post-register-user";
-        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Register a new user";
-        userRegisterPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = string.Empty;
-
-        var userRefreshTokenPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserRefreshTokenEndpoint).Value;
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.OperationId= "post-refresh-token-user";
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Summary = "Refresh the token for valid user";
-        userRefreshTokenPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Post).Value.Description = "Returns a refreshed access token for the **User**";
+        
+        swaggerDoc.ConfigureOperation(UserAdminSettingsEndpoint, HttpMethod.Patch, "patch-admin-settings-user",
+            "Update user admin settings", "Updates the admin settings for the **User**");
+        
+        swaggerDoc.ConfigureOperation(UserEmailEndpoint, HttpMethod.Patch, "patch-email-user",
+            "Update user email", "Updates the email for the **User**");
+        
+        swaggerDoc.ConfigureOperation(UserPasswordEndpoint, HttpMethod.Patch, "patch-password-user",
+            "Update user password", "Updates the password for the **User**");
+        
+        swaggerDoc.ConfigureOperation(UserProfileEndpoint, HttpMethod.Patch, "patch-profile-user",
+            "Update user profile", "Updates the profile for the **User**");
     }
 }

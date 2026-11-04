@@ -9,35 +9,23 @@ namespace Repository.Repositories;
 public class VehicleSizeRepository(ValetingContext valetingContext) : IVehicleSizeRepository
 {
     /// <inheritdoc />
-    public async Task<List<VehicleSizeDto>> GetFilteredAsync(VehicleSizeFilterDto vehicleSizeFilterDto)
+    public async Task<VehicleSizeDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var initialList = await valetingContext.RdVehicleSizes.ToListAsync();
+        var rdVehicleSize = await valetingContext.RdVehicleSizes.FindAsync(id, cancellationToken);
+        if (rdVehicleSize == null)
+            return null;
+
+        return RdVehicleSize.FromEntity(rdVehicleSize);
+    }
+    
+    /// <inheritdoc />
+    public async Task<List<VehicleSizeDto>> GetFilteredAsync(VehicleSizeFilterDto vehicleSizeFilterDto, CancellationToken cancellationToken = default)
+    {
+        var initialList = await valetingContext.RdVehicleSizes.ToListAsync(cancellationToken);
         var listVehicleSize = from rdVehicleSize in initialList
                               where !vehicleSizeFilterDto.Active.HasValue || rdVehicleSize.Active == vehicleSizeFilterDto.Active
                               select rdVehicleSize;
 
-        return listVehicleSize.Select(x =>
-           new VehicleSizeDto
-           {
-               Id = x.Id,
-               Name = x.Name,
-               Active = x.Active
-           }
-       ).ToList();
-    }
-
-    /// <inheritdoc />
-    public async Task<VehicleSizeDto> GetByIdAsync(Guid id)
-    {
-        var rdVehicleSize = await valetingContext.RdVehicleSizes.FindAsync(id);
-        if (rdVehicleSize == null)
-            return null;
-
-        return new() 
-        {
-            Id = rdVehicleSize.Id,
-            Name = rdVehicleSize.Name,
-            Active = rdVehicleSize.Active
-        };
+        return listVehicleSize.Select(RdVehicleSize.FromEntity).ToList();
     }
 }

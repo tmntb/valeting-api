@@ -1,21 +1,25 @@
 using Common.Enums;
+using Service.Models.Auth;
 using Service.Models.Booking;
 using Service.Models.Flexibility;
 using Service.Models.Status;
 using Service.Models.User;
 using Service.Models.VehicleSize;
+using Service.Models.WebAuthn;
 
 namespace Integration.Tests;
 
 internal static class DataFactory
 {
-    private static readonly Guid BOOKING_ID = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    public static readonly Guid BOOKING_ID = Guid.Parse("00000000-0000-0000-0000-000000000001");
     public static readonly Guid FLEXIBILITY_ID = Guid.Parse("00000000-0000-0000-0000-000000000002");
-    public static readonly Guid VEHICLE_SIZE_ID = Guid.Parse("00000000-0000-0000-0000-000000000003"); 
+    public static readonly Guid VEHICLE_SIZE_ID = Guid.Parse("00000000-0000-0000-0000-000000000003");
     public static readonly Guid STATUS_ID = Guid.Parse("00000000-0000-0000-0000-000000000004");
     public static readonly Guid USER_ID = Guid.Parse("00000000-0000-0000-0000-000000000005");
     public static readonly Guid ROLE_ID = Guid.Parse("00000000-0000-0000-0000-000000000006");
-    
+    public static readonly Guid RECOVERY_CODE_ID = Guid.Parse("00000000-0000-0000-0000-000000000007");
+    public static readonly Guid WEB_AUTHN_ID = Guid.Parse("00000000-0000-0000-0000-000000000008");
+
     public static BookingDto CreateBookingDto(Guid bookingId = default, StatusEnum statusEnum = StatusEnum.PENDING_APPROVAL, DateTime scheduledAt = default)
     {
         return new()
@@ -31,11 +35,11 @@ internal static class DataFactory
             RequiresApproval = true,
             Notes = "notes"
         };
-    } 
+    }
 
-     public static FlexibilityDto CreateCreateFlexibilityDto(Guid flexibilityId = default)
+    public static FlexibilityDto CreateCreateFlexibilityDto(Guid flexibilityId = default)
     {
-        return new ()
+        return new()
         {
             Id = flexibilityId == default ? FLEXIBILITY_ID : flexibilityId,
             Name = "name",
@@ -46,7 +50,7 @@ internal static class DataFactory
 
     public static VehicleSizeDto CreateVehicleSizeDto(Guid vehicleSizeId = default)
     {
-        return new ()
+        return new()
         {
             Id = vehicleSizeId == default ? VEHICLE_SIZE_ID : vehicleSizeId,
             Name = "name",
@@ -56,7 +60,7 @@ internal static class DataFactory
 
     public static StatusDto CreateStatusDto(Guid statusId = default, StatusEnum statusEnum = StatusEnum.PENDING_APPROVAL)
     {
-        return new ()
+        return new()
         {
             Id = statusId == default ? STATUS_ID : statusId,
             Code = statusEnum,
@@ -67,7 +71,7 @@ internal static class DataFactory
 
     public static UserDto CreateUserDto(Guid userId = default, RoleEnum roleEnum = RoleEnum.USER)
     {
-        return new ()
+        return new()
         {
             Id = userId == default ? USER_ID : userId,
             Role = new()
@@ -75,6 +79,35 @@ internal static class DataFactory
                 Code = roleEnum,
                 Name = "name"
             }
+        };
+    }
+
+    public static RecoveryCodeDto CreateRecoveryCodeDto(Guid recoveryCodeId = default, Guid userId = default)
+    {
+        return new()
+        {
+            Id = recoveryCodeId == default ? RECOVERY_CODE_ID : recoveryCodeId,
+            CodeHash = "codeHash",
+            CreatedAt = DateTime.UtcNow,
+            User = CreateUserDto(userId),
+            UsedAt = DateTime.MinValue
+        };
+    }
+
+    public static WebAuthnDto CreateWebAuthnDto(Guid id = default, string credentialId = "credential", DateTime createdAt = default, Guid userId = default)
+    {
+        return new WebAuthnDto
+        {
+            Id = id == default ? Guid.NewGuid() : id,
+            UserId = userId == default ? USER_ID : userId,
+            CredentialId = credentialId,
+            PublicKey = "public-key",
+            FriendlyName = "Passkey",
+            Aaguid = "aaguid",
+            Transports = """["usb","internal"]""",
+            CreatedAt = createdAt == default ? DateTime.UtcNow : createdAt,
+            LastUsedAt = DateTime.UtcNow.AddMinutes(-1),
+            SignatureCounter = 3
         };
     }
 }

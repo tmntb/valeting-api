@@ -116,9 +116,18 @@ Alternatively, you can create a .env file with:
 ```env
 SA_PASSWORD=MySecretPassword
 JWT_KEY=MyJwtKey
+PASSKEYS_RP_ID=example.com
+PASSKEYS_RP_NAME=Valeting
+PASSKEYS_ORIGIN=https://app.example.com
 ```
 
 Docker Compose will automatically load the values.
+
+### Passkey relying-party configuration
+
+Passkey registration and authentication require the relying-party ID and browser origin to match the web client. For local development, `appsettings.Development.json` uses `localhost` and `https://localhost:44376`. For Docker or production, set `PASSKEYS_RP_ID`, `PASSKEYS_RP_NAME`, and `PASSKEYS_ORIGIN` in `.env` to the host domain, display name, and exact HTTPS origin of the client. Do not use a wildcard origin. If the client is served from multiple origins, configure each origin in the API's `Passkeys:Origins` array.
+
+The RP ID must be a registrable domain or a valid local development host, and each origin must use HTTPS except for localhost. Challenges expire after five minutes and can only be used once. The current challenge store is process-local; configure shared atomic storage before running multiple API instances.
 
 ### Apply Migrations in Order
 

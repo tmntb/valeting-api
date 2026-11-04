@@ -9,9 +9,9 @@ namespace Repository.Repositories;
 public class RoleRepository(ValetingContext valetingContext) : IRoleRepository
 {
     /// <inheritdoc />
-    public async Task<RoleDto> GetByCodeAsync(RoleEnum RoleCode)
+    public async Task<RoleDto> GetByCodeAsync(RoleEnum roleCode, CancellationToken cancellationToken = default)
     {
-        var rdRole = await valetingContext.RdRoles.FirstOrDefaultAsync(r => r.Code == RoleCode);
+        var rdRole = await valetingContext.RdRoles.FirstOrDefaultAsync(r => r.Code == roleCode, cancellationToken);
         if (rdRole == null)
             return null;
 

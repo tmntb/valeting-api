@@ -1,9 +1,6 @@
-using Common.Enums;
 using Common.Messages;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Service.Interfaces;
-using Service.Models.Role;
 using Service.Models.User;
 using Service.Services;
 
@@ -11,218 +8,262 @@ namespace Service.Tests.Services;
 
 public class UserServiceTests
 {
-    private readonly Guid _mockId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    private readonly UserDto _userDto;
 
     private readonly Mock<IUserRepository> _mockUserRepository;
-    private readonly Mock<IRoleRepository> _mockRoleRepository;
-    private readonly Mock<IConfiguration> _mockConfiguration;
 
     private readonly UserService _userService;
 
     public UserServiceTests()
     {
+        _userDto = DataFactory.CreateUserDto();
+
         _mockUserRepository = new Mock<IUserRepository>();
-        _mockConfiguration = new Mock<IConfiguration>();
-        _mockRoleRepository = new Mock<IRoleRepository>();
-
-        _userService = new UserService(_mockUserRepository.Object, _mockRoleRepository.Object, _mockConfiguration.Object);
+        _userService = new UserService(_mockUserRepository.Object);
     }
 
     [Fact]
-    public async Task GenerateTokenJWTAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    public async Task UpdateAdminSettingsAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
     {
         // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.GenerateTokenJWTAsync("user@example.com"));
-    }
-
-    [Fact]
-    public async Task GenerateTokenJWTAsync_ShouldReturnValidToken_WhenUserExists()
-    {
-        // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(new UserDto
-            {
-                Id = _mockId,
-                Username = "username",
-                Email = "user@example.com",
-                Role = new RoleDto
-                {
-                    Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                    Code = RoleEnum.USER
-                }
-            });
-
-        _mockConfiguration.Setup(config => config["Jwt:Key"])
-            .Returns("this_is_a_secret_key_with_128bits");
-        _mockConfiguration.Setup(config => config["Jwt:Issuer"])
-            .Returns("issuer");
-        _mockConfiguration.Setup(config => config["Jwt:Audience"])
-            .Returns("audience");
-
-        // Act
-        var response = await _userService.GenerateTokenJWTAsync("user@example.com");
-
-        // Assert
-        Assert.NotNull(response.Token);
-        Assert.Equal("JwtSecurityToken", response.TokenType);
-        Assert.True(response.ExpiryDate > DateTime.Now);
-    }
-
-    [Fact]
-    public async Task RegisterAsync_ShouldThrowInvalidOperationException_WhenUserExists()
-    {
-        // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(new UserDto
-            {
-                Id = _mockId,
-                Email = "user@example.com"
-            });
-
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.RegisterAsync(
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.UpdateAdminSettingsAsync(
                 new()
                 {
-                    Username = "username",
-                    Password = "password",
-                    Email = "user@example.com",
-                    ContactNumber = 123456789,
-                    RoleCode = RoleEnum.USER
-                }));
-
-        Assert.Equal(exception.Message, Messages.EmailInUse);
-    }
-
-    [Fact]
-    public async Task RegisterAsync_ShouldCreateUser_WhenValid()
-    {
-        // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync((UserDto)null);
-
-        _mockRoleRepository.Setup(repo => repo.GetByCodeAsync(It.IsAny<RoleEnum>()))
-            .ReturnsAsync(new RoleDto
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                Code = RoleEnum.USER
-            });
-
-        // Act
-        await _userService.RegisterAsync(new()
-        {
-            Username = "username",
-            Password = "password",
-            Email = "user@example.com",
-            ContactNumber = 123456789,
-            RoleCode = RoleEnum.USER
-        });
-
-        // Assert
-        _mockUserRepository.Verify(repo => repo.RegisterAsync(It.IsAny<UserDto>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task ValidateLoginAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
-    {
-        // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync((UserDto)null);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.ValidateLoginAsync(
-                new()
-                {
-                    Email = "user@example.com",
-                    Password = "password123"
+                    UserId = _userDto.Id,
+                    IsActive = true,
+                    RoleId = _userDto.Role.Id
                 }));
     }
 
     [Fact]
-    public async Task ValidateLoginAsync_ShouldReturnValid_WhenPasswordMatches()
+    public async Task UpdateAdminSettingsAsync_ShouldUpdateAdminSettings_WhenUserExists()
     {
         // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(
-                new UserDto
-                {
-                    Id = _mockId,
-                    Email = "user@example.com",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
-                    IsActive = true
-                });
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        _mockUserRepository
+            .Setup(repo => repo.UpdateAdminSettingsAsync(It.IsAny<UserDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
 
         // Act
-        var response = await _userService.ValidateLoginAsync(
+        await _userService.UpdateAdminSettingsAsync(
             new()
             {
-                Email = "user@example.com",
-                Password = "password123"
+                UserId = _userDto.Id,
+                IsActive = true,
+                RoleId = _userDto.Role.Id
             });
 
         // Assert
-        Assert.True(response);
+        _mockUserRepository.Verify();
     }
 
     [Fact]
-    public async Task ValidateLoginAsync_ShouldReturnInValid_WhenPasswordDoesNotMatches()
+    public async Task UpdateEmailAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
     {
         // Arrange
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(
-                new UserDto
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((UserDto)null)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.UpdateEmailAsync(
+                new()
                 {
-                    Id = _mockId,
-                    Email = "user@example.com",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123")
-                });
+                    Id = _userDto.Id,
+                    Email = _userDto.Email
+                }));
 
-        // Act
-        var response = await _userService.ValidateLoginAsync(
-            new()
-            {
-                Email = "user@example.com",
-                Password = "password"
-            });
-
-        // Assert
-        Assert.False(response);
+        _mockUserRepository.Verify();
     }
 
     [Fact]
-    public async Task ValidateToken_ShouldReturnEmail_WhenTokenIsValid()
+    public async Task UpdateEmailAsync_ShouldThrowInvalidOperationException_WhenSameEmailInUse()
     {
         // Arrange
-        _mockConfiguration.Setup(config => config["Jwt:Key"])
-            .Returns("this_is_a_secret_key_with_128bits");
-        _mockConfiguration.Setup(config => config["Jwt:Issuer"])
-            .Returns("issuer");
-        _mockConfiguration.Setup(config => config["Jwt:Audience"])
-            .Returns("audience");
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
 
-        _mockUserRepository.Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.UpdateEmailAsync(
+                new()
+                {
+                    Id = _userDto.Id,
+                    Email = _userDto.Email
+                }));
+
+        Assert.Equal(Messages.SameEmailInUse, exception.Message);
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateEmailAsync_ShouldThrowInvalidOperationException_WhenEmailInUse()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(new UserDto
             {
-                Id = _mockId,
-                Username = "username",
-                Email = "user@example.com",
-                Role = new RoleDto
-                {
-                    Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                    Code = RoleEnum.USER
-                }
-            });
+                Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
+                Email = "existing@example.com"
+            })
+            .Verifiable(Times.Once);
 
-        var tokenResponse = await _userService.GenerateTokenJWTAsync("user@example.com");
-        var validToken = tokenResponse.Token;
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _userService.UpdateEmailAsync(
+                new()
+                {
+                    Id = _userDto.Id,
+                    Email = "existing@example.com"
+                }));
+
+        Assert.Equal(Messages.EmailInUse, exception.Message);
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateEmailAsync_ShouldUpdateEmail_WhenValid()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync((UserDto)null)
+            .Verifiable(Times.Once);
+
+        _mockUserRepository
+            .Setup(repo => repo.UpdateEmailAsync(It.IsAny<UserDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
 
         // Act
-        var email = _userService.ValidateToken(validToken);
+        await _userService.UpdateEmailAsync(
+            new()
+            {
+                Id = _userDto.Id,
+                Email = "test1@example.com"
+            });
 
         // Assert
-        Assert.Equal("user@example.com", email);
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((UserDto)null)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.UpdatePasswordAsync(
+                new()
+                {
+                    Id = _userDto.Id,
+                    Password = _userDto.Password
+                }));
+
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdatePasswordAsync_ShouldUpdatePassword_WhenUserExists()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        _mockUserRepository
+            .Setup(repo => repo.UpdatePasswordAsync(It.IsAny<UserDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
+
+        // Act
+        await _userService.UpdatePasswordAsync(
+            new()
+            {
+                Id = _userDto.Id,
+                Password = "newpassword"
+            });
+
+        // Assert
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateProfileAsync_ShouldThrowKeyNotFoundException_WhenUserNotFound()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((UserDto)null)
+            .Verifiable(Times.Once);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _userService.UpdateProfileAsync(
+                new()
+                {
+                    Id = _userDto.Id,
+                    FirstName = "John",
+                    LastName = "Doe",
+                    DateOfBirth = new DateOnly(1990, 1, 1),
+                    ContactNumber = 123456789
+                }));
+
+        _mockUserRepository.Verify();
+    }
+
+    [Fact]
+    public async Task UpdateProfileAsync_ShouldUpdateProfile_WhenUserExists()
+    {
+        // Arrange
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+
+        _mockUserRepository
+            .Setup(repo => repo.UpdateProfileAsync(It.IsAny<UserDto>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
+
+        // Act
+        await _userService.UpdateProfileAsync(
+            new()
+            {
+                Id = _userDto.Id,
+                FirstName = "John",
+                LastName = "Doe",
+                DateOfBirth = new DateOnly(1990, 1, 1),
+                ContactNumber = 123456789
+            });
+
+        // Assert
+        _mockUserRepository.Verify();
     }
 }

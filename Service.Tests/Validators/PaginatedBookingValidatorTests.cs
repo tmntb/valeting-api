@@ -1,6 +1,7 @@
 ﻿using Common.Enums;
 using Service.Models.Booking.Payload;
 using Service.Validators;
+using Service.Validators.Booking;
 
 namespace Service.Tests.Validators;
 

@@ -11,7 +11,7 @@ internal static class EnvironmentConfiguration
     /// This allows for local development overrides without affecting production deployments.
     /// </summary>
     /// <param name="environment">The hosting environment.</param>
-    public static void LoadDotEnvIfDevelopment(IHostEnvironment environment)
+    internal static void LoadDotEnvIfDevelopment(IHostEnvironment environment)
     {
         if (!environment.IsDevelopment())
         {
@@ -37,7 +37,7 @@ internal static class EnvironmentConfiguration
     /// If the SA_PASSWORD environment variable is not set, this method will also do nothing, allowing the application to fall back to any existing connection string value in configuration (if present).
     /// </summary> <param name="config"></param>
     /// <exception cref="InvalidOperationException"></exception>
-    public static void ConfigureConnectionString(IConfiguration config)
+    internal static void ConfigureConnectionString(IConfiguration config)
     {
         var saPassword = GetEnvVar("SA_PASSWORD");
         var connectionString = config.GetConnectionString("ValetingConnection") ?? throw new InvalidOperationException("ValetingConnection not configured");
@@ -59,14 +59,13 @@ internal static class EnvironmentConfiguration
     /// </summary>
     /// <param name="config"></param>
     /// <exception cref="InvalidOperationException"></exception>
-    public static void ConfigureJwtKey(IConfiguration config)
+    internal static void ConfigureJwtKey(IConfiguration config)
     {
         var jwtKey = GetEnvVar("JWT_KEY");
         var jwtKeyString = config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key not configured");
 
         if (!string.IsNullOrEmpty(jwtKeyString) && !string.IsNullOrEmpty(jwtKey))
         {
-            // Replace placeholder with the real JWT key
             jwtKeyString = jwtKeyString.Replace("{JWT_KEY}", jwtKey);
             config["Jwt:Key"] = jwtKeyString;
 
@@ -75,11 +74,50 @@ internal static class EnvironmentConfiguration
     }
 
     /// <summary>
-    /// Helper method to read an environment variable and optionally enforce that it is set (non-empty). If the variable is required but not set, an exception will be thrown. If it is not required and not set, an empty string will be returned.
+    /// Replaces the WebAuthn configuration placeholders with values from the
+    /// <c>PK_RPID</c>, <c>PK_RPNAME</c>, and <c>PK_ORIGINS</c> environment variables.
+    /// </summary>
+    /// <param name="config">The application configuration containing the WebAuthn settings.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <c>WebAuthn:RpId</c>, <c>WebAuthn:RpName</c>, or <c>WebAuthn:Origins</c> is not configured.
+    /// </exception>
+    internal static void ConfigureWebAuthnSettings(IConfiguration config)
+    {
+        var rpId = GetEnvVar("PK_RPID");
+        var rpName = GetEnvVar("PK_RPNAME");
+        var allowedOrigins = GetEnvVar("PK_ORIGINS");
+
+        var rpIdString = config["WebAuthn:RpId"] ?? throw new InvalidOperationException("WebAuthn:RpId not configured");
+        var rpNameString = config["WebAuthn:RpName"] ?? throw new InvalidOperationException("WebAuthn:RpName not configured");
+        var allowedOriginsString = config["WebAuthn:Origins"] ?? throw new InvalidOperationException("WebAuthn:Origins not configured");
+
+        if ((!string.IsNullOrEmpty(rpId) && !string.IsNullOrEmpty(rpIdString)) ||
+             (!string.IsNullOrEmpty(rpName) && !string.IsNullOrEmpty(rpNameString)) ||
+             (!string.IsNullOrEmpty(allowedOrigins) && !string.IsNullOrEmpty(allowedOriginsString)))
+        {
+            rpIdString = rpIdString.Replace("{PK_RPID}", rpId);
+            config["WebAuthn:RpId"] = rpIdString;
+
+            Console.WriteLine("✅ Replaced {PK_RPID} placeholder in WebAuthn:RpId.");
+
+            rpNameString = rpNameString.Replace("{PK_RPNAME}", rpName);
+            config["WebAuthn:RpName"] = rpNameString;
+
+            Console.WriteLine("✅ Replaced {PK_RPNAME} placeholder in WebAuthn:RpName.");
+
+            allowedOriginsString = allowedOriginsString.Replace("{PK_ORIGINS}", allowedOrigins);
+            config["WebAuthn:RpOrigins"] = allowedOriginsString;
+
+            Console.WriteLine("✅ Replaced {PK_ORIGINS} placeholder in WebAuthn:RpOrigins.");
+        }
+    }
+
+    /// <summary>
+    /// Helper method to read an environment variable and optionally enforce that it is set (non-empty). 
     /// This centralizes the logic for reading environment variables and provides consistent error handling and logging for missing variables.
     /// </summary>
     /// <param name="name">The name of the environment variable to read.</param>
-    /// <returns>The value of the environment variable, or an empty string if it is not required and not set.</returns>
+    /// <returns>The value of the environment variable, or an empty string if it is not set.</returns>
     private static string GetEnvVar(string name)
     {
         var value = Environment.GetEnvironmentVariable(name);

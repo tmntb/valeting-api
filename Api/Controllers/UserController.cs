@@ -1,77 +1,80 @@
-﻿using Api.Controllers.BaseController;
+﻿using System.Security.Claims;
+using Api.Controllers.BaseController;
 using Api.Models.User.Payload;
-using Common.Enums;
+using Asp.Versioning;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using Service.Models.User;
 using Service.Models.User.Payload;
 
 namespace Api.Controllers;
 
+[ApiVersion("1")]
 public class UserController(IUserService userService) : UserBaseController
 {
     /// <inheritdoc />
-    public override async Task<IActionResult> Login([FromBody] LoginApiRequest loginApiRequest)
+    public override async Task<IActionResult> UpdateAdminSettingsAsync([FromBody] UpdateAdminSettingsApiRequest updateAdminSettingsApiRequest)
     {
-        ArgumentNullException.ThrowIfNull(loginApiRequest, Messages.InvalidRequestBody);
+        ArgumentNullException.ThrowIfNull(updateAdminSettingsApiRequest, Messages.InvalidRequestBody);
 
-        var validateLoginDtoRequest = new ValidateLoginDtoRequest
+        var updateAdminSettingsDtoRequest = new UpdateAdminSettingsDtoRequest
         {
-            Email = loginApiRequest.Email,
-            Password = loginApiRequest.Password
+            AdminId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            UserId = updateAdminSettingsApiRequest.UserId,
+            IsActive = updateAdminSettingsApiRequest.IsActive,
+            RoleId = updateAdminSettingsApiRequest.RoleId
         };
-        
-        var validateLogin = await userService.ValidateLoginAsync(validateLoginDtoRequest);
-        if (!validateLogin)
-        {
-            throw new UnauthorizedAccessException(Messages.InvalidPassword);
-        }
+        await userService.UpdateAdminSettingsAsync(updateAdminSettingsDtoRequest);
 
-        var generateTokenJWTDtoResponse = await userService.GenerateTokenJWTAsync(loginApiRequest.Email);
-
-        var validateLoginApiResponse = new LoginApiResponse
-        {
-            Token = generateTokenJWTDtoResponse.Token,
-            TokenType = generateTokenJWTDtoResponse.TokenType,
-            ExpiryDate = generateTokenJWTDtoResponse.ExpiryDate
-        };
-        return Ok(validateLoginApiResponse);
+        return NoContent();
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenApiRequest refreshTokenApiRequest)
+    public override async Task<IActionResult> UpdateEmailAsync([FromBody] UpdateEmailApiRequest updateEmailApiRequest)
     {
-        ArgumentNullException.ThrowIfNull(refreshTokenApiRequest, Messages.InvalidRequestBody);
-        ArgumentException.ThrowIfNullOrEmpty(refreshTokenApiRequest.Token, Messages.InvalidRequestBody);
+        ArgumentNullException.ThrowIfNull(updateEmailApiRequest, Messages.InvalidRequestBody);
 
-        var email = userService.ValidateToken(refreshTokenApiRequest.Token);
-        var generateTokenJwtDtoResponse = await userService.GenerateTokenJWTAsync(email);
-
-        var refreshTokenApiResponse = new RefreshTokenApiResponse
+        var userDto = new UserDto
         {
-            Token = generateTokenJwtDtoResponse.Token,
-            TokenType = generateTokenJwtDtoResponse.TokenType,
-            ExpiryDate = generateTokenJwtDtoResponse.ExpiryDate
+            Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            Email = updateEmailApiRequest.Email
         };
+        await userService.UpdateEmailAsync(userDto);
 
-        return Ok(refreshTokenApiResponse);
+        return NoContent();
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> Register([FromBody] RegisterApiRequest registerApiRequest)
+    public override async Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordApiRequest updatePasswordApiRequest)
     {
-        ArgumentNullException.ThrowIfNull(registerApiRequest, Messages.InvalidRequestBody);
+        ArgumentNullException.ThrowIfNull(updatePasswordApiRequest, Messages.InvalidRequestBody);
 
-        var registerDtoRequest = new RegisterDtoRequest
+        var userDto = new UserDto
         {
-            Username = registerApiRequest.Username,
-            Password = registerApiRequest.Password,
-            ContactNumber = registerApiRequest.ContactNumber,
-            Email = registerApiRequest.Email,
-            RoleCode = RoleEnum.USER
+            Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            Password = updatePasswordApiRequest.Password
         };
-        await userService.RegisterAsync(registerDtoRequest);
+        await userService.UpdatePasswordAsync(userDto);
 
-        return Created();
+        return NoContent();
+    }
+
+    /// <inheritdoc />
+    public override async Task<IActionResult> UpdateProfileAsync([FromBody] UpdateProfileApiRequest updateUserApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(updateUserApiRequest, Messages.InvalidRequestBody);
+
+        var updateProfileDtoRequest = new UpdateProfileDtoRequest
+        {
+            Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            FirstName = updateUserApiRequest.FirstName,
+            LastName = updateUserApiRequest.LastName,
+            DateOfBirth = updateUserApiRequest.DateOfBirth,
+            ContactNumber = updateUserApiRequest.ContactNumber,
+        };
+        await userService.UpdateProfileAsync(updateProfileDtoRequest);
+
+        return NoContent();
     }
 }

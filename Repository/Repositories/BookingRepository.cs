@@ -9,7 +9,7 @@ namespace Repository.Repositories;
 public class BookingRepository(ValetingContext valetingContext) : IBookingRepository
 {
     /// <inheritdoc />
-    public async Task CreateAsync(BookingDto bookingDto)
+    public async Task CreateAsync(BookingDto bookingDto, CancellationToken cancellationToken = default)
     {
         var booking = new Booking
         {
@@ -25,14 +25,14 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
             Notes = bookingDto.Notes
         };
 
-        await valetingContext.Bookings.AddAsync(booking);
-        await valetingContext.SaveChangesAsync();
+        await valetingContext.Bookings.AddAsync(booking, cancellationToken);
+        await valetingContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task UpdateAsync(BookingDto bookingDto)
+    public async Task UpdateAsync(BookingDto bookingDto, CancellationToken cancellationToken = default)
     {
-        var booking = await valetingContext.Bookings.FindAsync(bookingDto.Id);
+        var booking = await valetingContext.Bookings.FindAsync(bookingDto.Id, cancellationToken);
         if (booking == null)
             return;
 
@@ -46,22 +46,22 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
         booking.RequiresApproval = bookingDto.RequiresApproval;
         booking.Notes = bookingDto.Notes;
 
-        await valetingContext.SaveChangesAsync();
+        await valetingContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var booking = await valetingContext.Bookings.FindAsync(id);
+        var booking = await valetingContext.Bookings.FindAsync(id, cancellationToken);
         if (booking == null)
             return;
 
         valetingContext.Bookings.Remove(booking);
-        await valetingContext.SaveChangesAsync();
+        await valetingContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<BookingDto> GetByIdAsync(Guid id)
+    public async Task<BookingDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var booking = await valetingContext.Bookings
             .AsNoTracking()
@@ -70,15 +70,16 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
             .Include(b => b.VehicleSize)
             .Include(b => b.Status)
             .Include(b => b.DecisionBy).ThenInclude(d => d.Role)
-            .FirstOrDefaultAsync(b => b.Id == id);
+            .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
+        
         if (booking == null)
             return null;
 
-        return FromEntity(booking);
+        return Booking.FromEntity(booking);
     }
     
     /// <inheritdoc />
-    public async Task<List<BookingDto>> GetFilteredAsync(BookingFilterDto bookingFilterDto)
+    public async Task<List<BookingDto>> GetFilteredAsync(BookingFilterDto bookingFilterDto, CancellationToken cancellationToken = default)
     {
         var query = valetingContext.Bookings
             .AsNoTracking()
@@ -95,66 +96,7 @@ public class BookingRepository(ValetingContext valetingContext) : IBookingReposi
         if (bookingFilterDto.Status.HasValue)
             query = query.Where(b => b.Status.Code == bookingFilterDto.Status.Value);
 
-        var bookings = await query.ToListAsync();
-        return bookings.Select(FromEntity).ToList();
-    }
-
-    /// <summary>
-    /// Maps a Booking entity to a BookingDto.
-    /// </summary>
-    /// <param name="booking"></param>
-    /// <returns></returns>
-    private BookingDto FromEntity(Booking booking)
-    {
-        return new()
-        {
-            Id = booking.Id,
-            Reference = booking.Reference,
-            Customer = new()
-            {
-                Id = booking.Customer.Id,
-                Username = booking.Customer.Username,
-                Email = booking.Customer.Email,
-                Role = new()
-                {
-                    Id = booking.Customer.Role.Id,
-                    Name = booking.Customer.Role.Name
-                }
-            },
-            Flexibility = new()
-            {
-                Id = booking.Flexibility.Id,
-                Name = booking.Flexibility.Name,
-                NumberOfMinutes = booking.Flexibility.NumberOfMinutes
-            },
-            VehicleSize = new()
-            {
-                Id = booking.VehicleSize.Id,
-                Name = booking.VehicleSize.Name
-            },
-            ScheduledAt = booking.ScheduledAt,
-            Status = new()
-            {
-                Id = booking.Status.Id,
-                Code = booking.Status.Code,
-                Name = booking.Status.Name
-            },
-            CreatedAt = booking.CreatedAt,
-            UpdatedAt = booking.UpdatedAt,
-            DecisionAt = booking.DecisionAt,
-            Decision = booking.DecisionById != null ? new()
-            {
-                Id = booking.DecisionBy.Id,
-                Username = booking.DecisionBy.Username,
-                Email = booking.DecisionBy.Email,
-                Role = new()
-                {
-                    Id = booking.DecisionBy.Role.Id,
-                    Name = booking.DecisionBy.Role.Name
-                }
-            } : null,
-            RequiresApproval = booking.RequiresApproval,
-            Notes = booking.Notes
-        };
+        var bookings = await query.ToListAsync(cancellationToken);
+        return bookings.Select(Booking.FromEntity).ToList();
     }
 }

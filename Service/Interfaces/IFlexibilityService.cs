@@ -9,21 +9,18 @@ public interface IFlexibilityService
     /// Retrieves a flexibility record by its unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the flexibility record.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
     /// <returns>The corresponding <see cref="FlexibilityDto"/> object.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown when no flexibility is found with the given ID.</exception>
-    /// <exception cref="Exception">Thrown when an unexpected error occurs during retrieval or caching.</exception>
-    Task<FlexibilityDto> GetByIdAsync(Guid id);
+    Task<FlexibilityDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a paginated and optionally filtered list of flexibilities.
     /// </summary>
     /// <param name="flexibilityFilterDto">The filter and pagination parameters for the request.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
     /// <returns>
     /// A <see cref="FlexibilityPaginatedDtoResponse"/> object containing a list of flexibilities, along with pagination details such as total items 
     /// and total pages.
     /// </returns>
-    /// <exception cref="ValidationException">Thrown when the provided filter parameters are invalid.</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when no flexibilities match the given filters.</exception>
-    /// <exception cref="Exception">Thrown when an unexpected error occurs during retrieval or caching.</exception>
-    Task<FlexibilityPaginatedDtoResponse> GetFilteredAsync(FlexibilityFilterDto flexibilityFilterDto);
+    Task<FlexibilityPaginatedDtoResponse> GetFilteredAsync(FlexibilityFilterDto flexibilityFilterDto, CancellationToken cancellationToken = default);
 }

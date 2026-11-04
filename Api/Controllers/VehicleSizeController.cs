@@ -1,15 +1,17 @@
-﻿using Api.Controllers.BaseController;
+﻿using System.ComponentModel.DataAnnotations;
+using Api.Controllers.BaseController;
 using Api.Models.Core;
 using Api.Models.VehicleSize;
 using Api.Models.VehicleSize.Payload;
+using Asp.Versioning;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Service.Models.VehicleSize.Payload;
-using System.ComponentModel.DataAnnotations;
 
 namespace Api.Controllers;
 
+[ApiVersion("1")]
 public class VehicleSizeController(IVehicleSizeService vehicleSizeService, ILinkService urlService) : VehicleSizeBaseController
 {
     /// <inheritdoc />

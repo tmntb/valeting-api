@@ -1,41 +1,39 @@
-﻿using Service.Models.User.Payload;
+﻿using Service.Models.User;
+using Service.Models.User.Payload;
 
 namespace Service.Interfaces;
 
 public interface IUserService
 {
     /// <summary>
-    /// Generates a JWT access token for the specified user.
+    /// Updates the administrative settings for the specified user.
     /// </summary>
-    /// <param name="username">The username of the user for whom the token is generated.</param>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="GenerateTokenJWTDtoResponse"/> 
-    /// with the token, its type, and expiration date.
-    /// </returns>
-    /// <exception cref="KeyNotFoundException">Thrown if the user with the given username does not exist.</exception>
-    Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string username);
-
-    /// <summary>
-    /// Registers a new user with the provided username and password.
-    /// </summary>
-    /// <param name="registerDtoRequest">The registration information including username and password.</param>
+    /// <param name="updateAdminSettingsDtoRequest">The request containing the updated administrative settings.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the username is already in use.</exception>
-    Task RegisterAsync(RegisterDtoRequest registerDtoRequest);
+    Task UpdateAdminSettingsAsync(UpdateAdminSettingsDtoRequest updateAdminSettingsDtoRequest, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Validates the user's credentials by checking the username and password.
+    /// Updates the email for the specified user.
     /// </summary>
-    /// <param name="validateLoginDtoRequest">The login information including username and password.</param>
-    /// <returns>True if the username exists and the password matches; otherwise, false.</returns>
-    /// <exception cref="KeyNotFoundException">Thrown if no user is found with the given username.</exception>
-    Task<bool> ValidateLoginAsync(ValidateLoginDtoRequest validateLoginSVRequest);
+    /// <param name="userDto">The user information to be updated.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task UpdateEmailAsync(UserDto userDto, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Validates a JWT token and extracts the username claim.
+    /// Updates the password for the specified user.
     /// </summary>
-    /// <param name="token">The JWT token to validate.</param>
-    /// <returns>The email extracted from the token's claims.</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown if the token is invalid, expired, or does not contain a email claim.</exception>
-    string ValidateToken(string token);
+    /// <param name="userDto">The user information to be updated, including the new password.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task UpdatePasswordAsync(UserDto userDto, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates the profile information for the specified user.
+    /// </summary>
+    /// <param name="updateProfileDtoRequest">The request containing the updated profile information.</param>
+    /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task UpdateProfileAsync(UpdateProfileDtoRequest updateProfileDtoRequest, CancellationToken cancellationToken = default);
 }

@@ -5,6 +5,7 @@ using Service.Interfaces;
 using Service.Models.Flexibility;
 using Service.Models.Flexibility.Payload;
 using Service.Validators;
+using Service.Validators.Flexibility;
 using Service.Validators.Utils;
 
 namespace Service.Services;
@@ -12,14 +13,11 @@ namespace Service.Services;
 public class FlexibilityService(IFlexibilityRepository flexibilityRepository, ICacheHandler cacheHandler) : IFlexibilityService
 {
     /// <inheritdoc />
-    public async Task<FlexibilityDto> GetByIdAsync(Guid id)
+    public async Task<FlexibilityDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await cacheHandler.GetOrCreateRecordAsync(
             id,
-            async () =>
-            {
-                return await flexibilityRepository.GetByIdAsync(id) ?? throw new KeyNotFoundException(Messages.NotFound);
-            },
+            async () => await flexibilityRepository.GetByIdAsync(id, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound),
             new()
             {
                 Id = id,
@@ -29,7 +27,7 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
     }
 
     /// <inheritdoc />
-    public async Task<FlexibilityPaginatedDtoResponse> GetFilteredAsync(FlexibilityFilterDto flexibilityFilterDto)
+    public async Task<FlexibilityPaginatedDtoResponse> GetFilteredAsync(FlexibilityFilterDto flexibilityFilterDto, CancellationToken cancellationToken = default)
     {
         var paginatedFlexibilityDtoResponse = new FlexibilityPaginatedDtoResponse();
 
@@ -39,7 +37,7 @@ public class FlexibilityService(IFlexibilityRepository flexibilityRepository, IC
             flexibilityFilterDto,
             async () =>
             {
-                var flexibilityDtoList = await flexibilityRepository.GetFilteredAsync(flexibilityFilterDto);
+                var flexibilityDtoList = await flexibilityRepository.GetFilteredAsync(flexibilityFilterDto, cancellationToken);
                 if (flexibilityDtoList.Count == 0)
                     throw new KeyNotFoundException(Messages.NotFound);
 

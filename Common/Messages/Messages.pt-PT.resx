@@ -144,4 +144,37 @@
   <data name="InvalidBookingStatusForUpdate" xml:space="preserve">
     <value>O estado da reserva não é válido para actualização de detalhes.</value>
   </data>
+  <data name="SameEmailInUse" xml:space="preserve">
+    <value>O email é o mesmo que o email atual.</value>
+  </data>
+  <data name="InvalidOrExpiredCode" xml:space="preserve">
+    <value>Código inválido ou expirado.</value>
+  </data>
+  <data name="MfaActivated" xml:space="preserve">
+    <value>MFA já está activado.</value>
+  </data>
+   <data name="MfaDisabled" xml:space="preserve">
+    <value>MFA está desactivo.</value>
+  </data>
+  <data name="InvalidMfaCode" xml:space="preserve">
+    <value>Código de MFA inválido.</value>
+  </data>
+  <data name="NoRecoveryCodesForUser" xml:space="preserve">
+   <value>Não existem códigos de recuperação para o utilizador.</value>
+  </data>
+  <data name="InvalidRecoveryCode" xml:space="preserve">
+   <value>Código de recuperação inválido.</value>
+  </data>
+  <data name="InvalidWebAuthnCeremony" xml:space="preserve">
+    <value>O processo de autenticação WebAuthn não é válido, está expirado ou já foi utilizado.</value>
+  </data>
+  <data name="WebAuthnAssertionCannotBeVerified" xml:space="preserve">
+    <value>Não foi possível verificar a autenticação WebAuthn.</value>
+  </data>
+   <data name="WebAuthnAlreadyRegistered" xml:space="preserve">
+    <value>Este WebAuthn já está registado.</value>
+  </data>
+  <data name="WebAuthnRegistrationCannotBeVerified" xml:space="preserve">
+    <value>Não foi possível verificar o registo WebAuthn.</value>
+  </data>
 </root>

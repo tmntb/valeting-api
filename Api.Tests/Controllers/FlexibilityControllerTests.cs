@@ -1,3 +1,4 @@
+using System.Net;
 using Api.Controllers;
 using Api.Models.Flexibility.Payload;
 using Common.Messages;
@@ -8,7 +9,6 @@ using Service.Interfaces;
 using Service.Models.Flexibility;
 using Service.Models.Flexibility.Payload;
 using Service.Models.Link.Payload;
-using System.Net;
 
 namespace Api.Tests.Controllers;
 
@@ -43,7 +43,8 @@ public class FlexibilityControllerTests
     public async Task GetFilteredAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        _mockFlexibilityService.Setup(s => s.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
+        _mockFlexibilityService
+            .Setup(s => s.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
             .ReturnsAsync(
                 new FlexibilityPaginatedDtoResponse
                 {
@@ -60,7 +61,8 @@ public class FlexibilityControllerTests
                     ]
                 });
 
-        _mockLinkService.Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
+        _mockLinkService
+            .Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
             .Returns(new GeneratePaginatedLinksDtoResponse());
 
         _mockLinkService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
@@ -99,14 +101,16 @@ public class FlexibilityControllerTests
     public async Task GetByIdAsync_ShouldReturnOk_WhenValidId()
     {
         // Arrange
-        _mockFlexibilityService.Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
+        _mockFlexibilityService
+            .Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(
                 new FlexibilityDto
                 {
                     Id = _mockFlexibilityId
                 });
 
-        _mockLinkService.Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
+        _mockLinkService
+            .Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
             .Returns($"http://example.com/flexibility/{_mockFlexibilityId}");
 
         // Act

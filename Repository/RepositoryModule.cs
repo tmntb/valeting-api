@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Service.Interfaces;
 using Repository.Entities;
 using Repository.Repositories;
-using System.Diagnostics.CodeAnalysis;
+using Service.Interfaces;
 
 namespace Repository;
 
@@ -27,9 +27,11 @@ public static class RepositoryModule
         services
             .AddScoped<IBookingRepository, BookingRepository>()
             .AddScoped<IFlexibilityRepository, FlexibilityRepository>()
-            .AddScoped<IVehicleSizeRepository, VehicleSizeRepository>()
-            .AddScoped<IUserRepository, UserRepository>()
+            .AddScoped<IWebAuthnRepository, WebAuthnRepository>()
+            .AddScoped<IRecoveryCodeRepository, RecoveryCodeRepository>()
             .AddScoped<IRoleRepository, RoleRepository>()
-            .AddScoped<IStatusRepository, StatusRepository>();
+            .AddScoped<IStatusRepository, StatusRepository>()
+            .AddScoped<IUserRepository, UserRepository>()
+            .AddScoped<IVehicleSizeRepository, VehicleSizeRepository>();
     }
 }

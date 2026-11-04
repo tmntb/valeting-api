@@ -61,10 +61,12 @@ public class BaseRepositoryTest : IAsyncLifetime
         var user = new ApplicationUser
         {
             Id = DataFactory.USER_ID,
-            Username = "username",
-            PasswordHash = "password",
-            ContactNumber = 1234567890,
             Email = "test@example.com",
+            PasswordHash = "password",
+            FirstName = "John",
+            LastName = "Doe",
+            DateOfBirth = new DateOnly(1957, 3, 25),
+            ContactNumber = 1234567890,
             Role = role,
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
@@ -97,6 +99,16 @@ public class BaseRepositoryTest : IAsyncLifetime
             Notes = "notes"
         };
 
+        var recoveryCode = new RecoveryCode
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000071"),
+            CodeHash = "codeHash",
+            CreatedAt = DateTime.UtcNow,
+            UsedAt = DateTime.MinValue,
+            User = user
+        };
+
+        Context.RecoveryCodes.Add(recoveryCode);
         Context.Bookings.Add(booking);
         Context.RdFlexibilities.Add(flexibility);
         Context.RdVehicleSizes.Add(vehicleSize);
@@ -109,6 +121,8 @@ public class BaseRepositoryTest : IAsyncLifetime
 
     protected async Task ClearDatabaseAsync()
     {
+        Context.WebAuthns.RemoveRange(Context.WebAuthns);
+        Context.RecoveryCodes.RemoveRange(Context.RecoveryCodes);
         Context.Bookings.RemoveRange(Context.Bookings);
         Context.RdFlexibilities.RemoveRange(Context.RdFlexibilities);
         Context.RdVehicleSizes.RemoveRange(Context.RdVehicleSizes);

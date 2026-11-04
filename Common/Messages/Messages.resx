@@ -144,4 +144,37 @@
   <data name="InvalidBookingStatusForUpdate" xml:space="preserve">
     <value>The booking status provided is not valid for update details.</value>
   </data>
+  <data name="SameEmailInUse" xml:space="preserve">
+    <value>The email is the same as the current email.</value>
+  </data>
+  <data name="InvalidOrExpiredCode" xml:space="preserve">
+    <value>Invalid or expired code.</value>
+  </data>
+  <data name="MfaActivated" xml:space="preserve">
+    <value>MFA already enabled.</value>
+  </data>
+  <data name="MfaDisabled" xml:space="preserve">
+    <value>MFA is disabled.</value>
+  </data>
+  <data name="InvalidMfaCode" xml:space="preserve">
+    <value>Invalid MFA code.</value>
+  </data>
+  <data name="NoRecoveryCodesForUser" xml:space="preserve">
+   <value>No recovery codes for the user.</value>
+  </data>
+  <data name="InvalidRecoveryCode" xml:space="preserve">
+   <value>Invalid recovery code.</value>
+  </data>
+  <data name="InvalidWebAuthnCeremony" xml:space="preserve">
+    <value>The webauthn authentication ceremony is invalid, expired, or already used.</value>
+  </data>
+  <data name="WebAuthnAssertionCannotBeVerified" xml:space="preserve">
+    <value>The webauthn assertion could not be verified.</value>
+  </data>
+  <data name="WebAuthnAlreadyRegistered" xml:space="preserve">
+    <value>This webauthn is already registered.</value>
+  </data>
+  <data name="WebAuthnRegistrationCannotBeVerified" xml:space="preserve">
+    <value>The webauthn registration could not be verified.</value>
+  </data>
 </root>

@@ -12,9 +12,11 @@ services:
         sqlserver:
           condition: service_healthy
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
       - SA_PASSWORD=${SA_PASSWORD}
       - JWT_KEY=${JWT_KEY}
+      - Passkeys__RpId=${PASSKEYS_RP_ID}
+      - Passkeys__RpName=${PASSKEYS_RP_NAME}
+      - Passkeys__Origins__0=${PASSKEYS_ORIGIN}
 
 volumes:
   sqlserver_data:

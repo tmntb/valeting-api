@@ -9,9 +9,9 @@ namespace Repository.Repositories;
 public class StatusRepository(ValetingContext valetingContext) : IStatusRepository
 {
     /// <inheritdoc />
-    public async Task<StatusDto> GetByCodeAsync(StatusEnum statusCode)
+    public async Task<StatusDto?> GetByCodeAsync(StatusEnum statusCode, CancellationToken cancellationToken = default)
     {
-        var rdStatus = await valetingContext.RdStatus.FirstOrDefaultAsync(s => s.Code == statusCode);
+        var rdStatus = await valetingContext.RdStatus.FirstOrDefaultAsync(s => s.Code == statusCode, cancellationToken);
         if(rdStatus == null)
             return null;
 

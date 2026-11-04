@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 using Api.Helpers;
 using Api.Middleware;
 using Api.SwaggerDocumentation;
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Repository;
@@ -17,17 +19,33 @@ EnvironmentConfiguration.LoadDotEnvIfDevelopment(builder.Environment);
 
 var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 var appSettingsPath = Path.Combine(assemblyLocation, "appsettings.json");
+var appSettingsDevPath = Path.Combine(assemblyLocation, $"appsettings.{builder.Environment.EnvironmentName}.json");
 builder.Configuration
     .AddJsonFile(appSettingsPath, optional: true, reloadOnChange: true)
+    .AddJsonFile(appSettingsDevPath, optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
 // Apply overrides from environment variables (if present)
 EnvironmentConfiguration.ConfigureConnectionString(builder.Configuration);
 EnvironmentConfiguration.ConfigureJwtKey(builder.Configuration);
+EnvironmentConfiguration.ConfigureWebAuthnSettings(builder.Configuration);
 
 // Add services to the container.
 builder.Services.AddService();
 builder.Services.AddRepository(builder.Configuration);
+
+builder.Services.AddFido2(options =>
+{
+    options.RPID = builder.Configuration["WebAuthn:RpId"];
+    options.RPName = builder.Configuration["WebAuthn:RpName"];
+    options.Origins = builder.Configuration.GetSection("WebAuthn:Origins").Get<HashSet<string>>();
+});
+
+builder.Services
+    .Configure<RouteOptions>(options =>
+    {
+        options.LowercaseUrls = true;
+    });
 
 builder.Services
     .AddAuthentication(options =>
@@ -68,6 +86,21 @@ builder.Services
         opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
+builder.Services
+    .AddApiVersioning(options =>
+    {
+        options.ReportApiVersions = true;
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ApiVersionReader = new UrlSegmentApiVersionReader();
+    })
+    .AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'VVV";
+        options.SubstituteApiVersionInUrl = true;
+    })
+    .AddMvc();
+
+
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 
 builder.Services.AddSwaggerDocumentation();
@@ -85,7 +118,24 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
+{
     app.UseDeveloperExceptionPage();
+
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.RoutePrefix = "swagger";
+
+        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                $"Valeting {description.GroupName.ToUpper()}");
+        }
+    });
+}
 
 app.UsePathBase("/valeting");
 
@@ -106,14 +156,10 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+await app.RunAsync();
+
+namespace Api
 {
-    c.RoutePrefix = "swagger";
-    c.SwaggerEndpoint("v1/swagger.json", "Valeting v1");
-});
-
-app.Run();
-
-[ExcludeFromCodeCoverage]
-public partial class Program { }
+    [ExcludeFromCodeCoverage]
+    public partial class Program { }
+}

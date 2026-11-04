@@ -8,10 +8,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Common.Messages {
+namespace Common.Messages
+{
     using System;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -22,112 +23,136 @@ namespace Common.Messages {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class Messages {
-        
+    public class Messages
+    {
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Messages() {
+        internal Messages()
+        {
         }
-        
+
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Resources.ResourceManager ResourceManager {
-            get {
-                if (object.ReferenceEquals(resourceMan, null)) {
+        public static global::System.Resources.ResourceManager ResourceManager
+        {
+            get
+            {
+                if (object.ReferenceEquals(resourceMan, null))
+                {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Common.Messages.Messages", typeof(Messages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Globalization.CultureInfo Culture {
-            get {
+        public static global::System.Globalization.CultureInfo Culture
+        {
+            get
+            {
                 return resourceCulture;
             }
-            set {
+            set
+            {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The date cannot be in the past..
         /// </summary>
-        public static string DateInThePast {
-            get {
+        public static string DateInThePast
+        {
+            get
+            {
                 return ResourceManager.GetString("DateInThePast", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Invalid password..
         /// </summary>
-        public static string InvalidPassword {
-            get {
+        public static string InvalidPassword
+        {
+            get
+            {
                 return ResourceManager.GetString("InvalidPassword", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Invalid request body..
         /// </summary>
-        public static string InvalidRequestBody {
-            get {
+        public static string InvalidRequestBody
+        {
+            get
+            {
                 return ResourceManager.GetString("InvalidRequestBody", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Invalid request id..
         /// </summary>
-        public static string InvalidRequestId {
-            get {
+        public static string InvalidRequestId
+        {
+            get
+            {
                 return ResourceManager.GetString("InvalidRequestId", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Invalid request query parameters..
         /// </summary>
-        public static string InvalidRequestQueryParameters {
-            get {
+        public static string InvalidRequestQueryParameters
+        {
+            get
+            {
                 return ResourceManager.GetString("InvalidRequestQueryParameters", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Invalid Token..
         /// </summary>
-        public static string InvalidToken {
-            get {
+        public static string InvalidToken
+        {
+            get
+            {
                 return ResourceManager.GetString("InvalidToken", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Record not found..
         /// </summary>
-        public static string NotFound {
-            get {
+        public static string NotFound
+        {
+            get
+            {
                 return ResourceManager.GetString("NotFound", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Username is already taken..
         /// </summary>
-        public static string EmailInUse {
-            get {
+        public static string EmailInUse
+        {
+            get
+            {
                 return ResourceManager.GetString("EmailInUse", resourceCulture);
             }
         }
@@ -135,9 +160,133 @@ namespace Common.Messages {
         /// <summary>
         ///   Looks up a localized string similar to The booking status provided is not valid for update details..
         /// </summary>
-        public static string InvalidBookingStatusForUpdate {
-            get {
+        public static string InvalidBookingStatusForUpdate
+        {
+            get
+            {
                 return ResourceManager.GetString("InvalidBookingStatusForUpdate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The email is the same as the current email..
+        /// </summary>
+        public static string SameEmailInUse
+        {
+            get
+            {
+                return ResourceManager.GetString("SameEmailInUse", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid or expired code..
+        /// </summary>
+        public static string InvalidOrExpiredCode
+        {
+            get
+            {
+                return ResourceManager.GetString("InvalidOrExpiredCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Mfa activated..
+        /// </summary>
+        public static string MfaActivated
+        {
+            get
+            {
+                return ResourceManager.GetString("MfaActivated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Mfa disabled..
+        /// </summary>
+        public static string MfaDisabled
+        {
+            get
+            {
+                return ResourceManager.GetString("MfaDisabled", resourceCulture);
+            }
+        }
+
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid mfa code..
+        /// </summary>
+        public static string InvalidMfaCode
+        {
+            get
+            {
+                return ResourceManager.GetString("InvalidMfaCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No recovery codes for the user..
+        /// </summary>
+        public static string NoRecoveryCodesForUser
+        {
+            get
+            {
+                return ResourceManager.GetString("NoRecoveryCodesForUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid recovery code..
+        /// </summary>
+        public static string InvalidRecoveryCode
+        {
+            get
+            {
+                return ResourceManager.GetString("InvalidRecoveryCode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid webauthn ceremony..
+        /// </summary>
+        public static string InvalidWebAuthnCeremony
+        {
+            get
+            {
+                return ResourceManager.GetString("InvalidWebAuthnCeremony", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to WebAuthn assertion cannot be verified..
+        /// </summary>
+        public static string WebAuthnAssertionCannotBeVerified
+        {
+            get
+            {
+                return ResourceManager.GetString("WebAuthnAssertionCannotBeVerified", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to WebAuthn already registered..
+        /// </summary>
+        public static string WebAuthnAlreadyRegistered
+        {
+            get
+            {
+                return ResourceManager.GetString("WebAuthnAlreadyRegistered", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to WebAuthn registration cannot be verified..
+        /// </summary>
+        public static string WebAuthnRegistrationCannotBeVerified
+        {
+            get
+            {
+                return ResourceManager.GetString("WebAuthnRegistrationCannotBeVerified", resourceCulture);
             }
         }
     }

@@ -1,143 +1,71 @@
 ﻿using Common.Messages;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using Service.Helpers;
 using Service.Interfaces;
 using Service.Models.User;
 using Service.Models.User.Payload;
-using Service.Validators;
+using Service.Validators.User;
 using Service.Validators.Utils;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace Service.Services;
 
-public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, IConfiguration configuration) : IUserService
+public class UserService(IUserRepository userRepository) : IUserService
 {
     /// <inheritdoc />
-    public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJWTAsync(string username)
+    public async Task UpdateAdminSettingsAsync(UpdateAdminSettingsDtoRequest updateAdminSettingsDtoRequest, CancellationToken cancellationToken = default)
     {
-        var userDto = await userRepository.GetUserByEmailAsync(username) ?? throw new KeyNotFoundException(Messages.NotFound);
+        updateAdminSettingsDtoRequest.ValidateRequest(new UpdateAdminSettingsValidator());
 
-        var (issuer, audience) = GetJwtSettings();
+        var userDtoUpdate = await userRepository.GetByIdAsync(updateAdminSettingsDtoRequest.UserId, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        var securityKey = GetSecurityKey();
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(
-            [
-                new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
-                new Claim(ClaimTypes.Name, userDto.Username),
-                new Claim(ClaimTypes.Email, userDto.Email),
-                new Claim(ClaimTypes.Role, userDto.Role.Code.ToString())
-            ]),
-            Expires = DateTime.Now.AddMinutes(60),
-            Issuer = issuer,
-            Audience = audience,
-            SigningCredentials = credentials
-        };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-
-        return new()
-        {
-            Token = tokenHandler.WriteToken(token),
-            ExpiryDate = token.ValidTo.ToLocalTime(),
-            TokenType = tokenHandler.TokenType.Name
-        };
+        userDtoUpdate.IsActive = updateAdminSettingsDtoRequest.IsActive ?? userDtoUpdate.IsActive;
+        userDtoUpdate.Role.Id = updateAdminSettingsDtoRequest.RoleId ?? userDtoUpdate.Role.Id;
+        await userRepository.UpdateAdminSettingsAsync(userDtoUpdate, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task RegisterAsync(RegisterDtoRequest registerDtoRequest)
+    public async Task UpdateEmailAsync(UserDto userDto, CancellationToken cancellationToken = default)
     {
-        registerDtoRequest.ValidateRequest(new RegisterValidator());
+        userDto.ValidateRequest(new UpdateEmailValidator());
 
-        var userDto = await userRepository.GetUserByEmailAsync(registerDtoRequest.Email);
-        if (userDto != null)
+        var userDtoCheck = await userRepository.GetByIdAsync(userDto.Id, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
+        if (userDtoCheck.Email.Equals(userDto.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(Messages.SameEmailInUse);
+        }
+
+        var userDtoEmailCheck = await userRepository.GetByEmailAsync(userDto.Email, cancellationToken);
+        if (userDtoEmailCheck != null)
         {
             throw new InvalidOperationException(Messages.EmailInUse);
         }
 
-        var roleDto = await roleRepository.GetByCodeAsync(registerDtoRequest.RoleCode) ?? throw new KeyNotFoundException(Messages.NotFound);
-        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDtoRequest.Password, workFactor: 12);
-
-        var registerUserDto = new UserDto
-        {
-            Id = Guid.NewGuid(),
-            Username = registerDtoRequest.Username,
-            PasswordHash = hashedPassword,
-            ContactNumber = registerDtoRequest.ContactNumber,
-            Email = registerDtoRequest.Email,
-            Role = new() { Id = roleDto.Id },
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-        await userRepository.RegisterAsync(registerUserDto);
+        userDtoCheck.Email = userDto.Email;
+        await userRepository.UpdateEmailAsync(userDtoCheck, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<bool> ValidateLoginAsync(ValidateLoginDtoRequest validateLoginDtoRequest)
+    public async Task UpdatePasswordAsync(UserDto userDto, CancellationToken cancellationToken = default)
     {
-        validateLoginDtoRequest.ValidateRequest(new ValidateLoginValidator());
+        userDto.ValidateRequest(new UpdatePasswordValidator());
 
-        var userDto = await userRepository.GetUserByEmailAsync(validateLoginDtoRequest.Email) ?? throw new KeyNotFoundException(Messages.NotFound);
+        var userDtoToUpdate = await userRepository.GetByIdAsync(userDto.Id, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        var passwordValid = userDto.IsActive && BCrypt.Net.BCrypt.Verify(validateLoginDtoRequest.Password, userDto.PasswordHash);
-        if (passwordValid)
-        {
-            userDto.LastLoginAt = DateTime.UtcNow;
-            await userRepository.UpdateAsync(userDto);
-        }
-
-        return passwordValid;
+        userDtoToUpdate.PasswordHash = HashHelper.GenerateHash(userDto.Password);
+        await userRepository.UpdatePasswordAsync(userDtoToUpdate, cancellationToken);
     }
 
     /// <inheritdoc />
-    public string ValidateToken(string token)
+    public async Task UpdateProfileAsync(UpdateProfileDtoRequest updateProfileDtoRequest, CancellationToken cancellationToken = default)
     {
-        var (issuer, audience) = GetJwtSettings();
-        var securityKey = GetSecurityKey();
+        updateProfileDtoRequest.ValidateRequest(new UpdateProfileValidator());
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var claims = tokenHandler.ValidateToken(token, new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateIssuerSigningKey = true,
-            ValidateLifetime = false,
-            ValidIssuer = issuer,
-            ValidAudience = audience,
-            IssuerSigningKey = securityKey,
-            ClockSkew = TimeSpan.Zero,
-            RoleClaimType = ClaimTypes.Role
-        }, out _);
+        var userDtoUpdate = await userRepository.GetByIdAsync(updateProfileDtoRequest.Id, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
 
-        return claims.FindFirst(ClaimTypes.Email)?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
-    }
+        userDtoUpdate.FirstName = updateProfileDtoRequest.FirstName ?? userDtoUpdate.FirstName;
+        userDtoUpdate.LastName = updateProfileDtoRequest.LastName ?? userDtoUpdate.LastName;
+        userDtoUpdate.DateOfBirth = updateProfileDtoRequest.DateOfBirth ?? userDtoUpdate.DateOfBirth;
+        userDtoUpdate.ContactNumber = updateProfileDtoRequest.ContactNumber ?? userDtoUpdate.ContactNumber;
 
-    /// <summary>
-    /// Retrieves the JWT issuer and audience from configuration.
-    /// </summary>
-    /// <returns>A tuple containing the issuer and audience values.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the issuer or audience is not configured.</exception>
-    private (string Issuer, string Audience) GetJwtSettings()
-    {
-        var issuer = configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT issuer not configured.");
-        var audience = configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT audience not configured.");
-        return (issuer, audience);
-    }
-
-    /// <summary>
-    /// Retrieves the symmetric security key used for JWT signing from configuration.
-    /// </summary>
-    /// <returns>A <see cref="SymmetricSecurityKey"/> constructed from the configured JWT secret.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the JWT secret is not configured.</exception>
-    private SymmetricSecurityKey GetSecurityKey()
-    {
-        var secret = configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT secret not configured.");
-        return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+        await userRepository.UpdateProfileAsync(userDtoUpdate, cancellationToken);
     }
 }

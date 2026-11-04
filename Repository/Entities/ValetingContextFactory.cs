@@ -18,7 +18,7 @@ public class ValetingContextFactory : IDesignTimeDbContextFactory<ValetingContex
         // Load appsettings.json
         IConfigurationRoot configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false)
+            .AddJsonFile("appsettings.Development.json", optional: false)
             .AddEnvironmentVariables()
             .Build();
 

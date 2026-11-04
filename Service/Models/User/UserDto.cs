@@ -1,4 +1,5 @@
-﻿using Service.Models.Role;
+﻿using Service.Models.Auth;
+using Service.Models.Role;
 
 namespace Service.Models.User;
 
@@ -13,9 +14,9 @@ public class UserDto
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Username used for login and identification.
+    /// Email address of the user.
     /// </summary>
-    public string Username { get; set; }
+    public string Email { get; set; }
 
     /// <summary>
     /// Hashed password hash of the user.
@@ -23,14 +24,30 @@ public class UserDto
     public string PasswordHash { get; set; }
 
     /// <summary>
+    /// Plain text password used for registration and login validation.
+    /// This property should not be stored in the database and is only used for input validation.
+    /// </summary>
+    public string Password { get; set; }
+    
+    /// <summary>
+    /// First name of the user
+    /// </summary>
+    public string FirstName { get; set; }
+    
+    /// <summary>
+    /// Last name of the user
+    /// </summary>
+    public string LastName { get; set; }
+    
+    /// <summary>
+    /// Date of birth of the user
+    /// </summary>
+    public DateOnly DateOfBirth { get; set; }
+    
+    /// <summary>
     /// Contact number of the user.
     /// </summary>
     public int ContactNumber { get; set; }
-
-    /// <summary>
-    /// Email address of the user.
-    /// </summary>
-    public string Email { get; set; }
 
     /// <summary>
     /// Role assigned to the user.
@@ -42,6 +59,21 @@ public class UserDto
     /// </summary>
     public bool IsActive { get; set; }
 
+    /// <summary>
+    /// Indicates whether multi-factor authentication (MFA) is enabled for the user.
+    /// </summary>
+    public bool MfaEnabled { get; set; }
+
+    /// <summary> 
+    /// Secret key used for generating MFA codes, if MFA is enabled.
+    /// </summary>
+    public string? MfaSecret { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public List<RecoveryCodeDto> RecoveryCodes { get; set; }
+    
     /// <summary>
     /// Timestamp when the user account was created.
     /// </summary>
