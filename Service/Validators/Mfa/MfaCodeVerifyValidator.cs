@@ -1,8 +1,7 @@
 using FluentValidation;
-using Service.Models.Auth.Payload;
 using Service.Models.Mfa.Payload;
 
-namespace Service.Validators.Auth;
+namespace Service.Validators.Mfa;
 
 /// <summary>
 /// Validator to mfa code. Validates that the user id and mfa code are in a proper format.

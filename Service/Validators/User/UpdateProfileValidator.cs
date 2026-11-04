@@ -3,8 +3,14 @@ using Service.Models.User.Payload;
 
 namespace Service.Validators.User;
 
+/// <summary>
+/// Defines validation rules for user profile update requests.
+/// </summary>
 public class UpdateProfileValidator : AbstractValidator<UpdateProfileDtoRequest>
 {
+    /// <summary>
+    /// Initializes the validator with rules for the user identifier and any supplied profile fields.
+    /// </summary>
     public UpdateProfileValidator()
     {
         RuleFor(x => x.Id)

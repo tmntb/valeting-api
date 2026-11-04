@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Service.Models.Booking;
 
-namespace Service.Validators;
+namespace Service.Validators.Booking;
 
 /// <summary>
 /// Validator for creating a new booking. This class defines the validation rules for the properties of the <see cref="BookingDto"/> when creating a new booking record. It ensures that required fields are provided and that they meet specific criteria, such as valid GUIDs for related entities, future dates for scheduling, and maximum length for notes.

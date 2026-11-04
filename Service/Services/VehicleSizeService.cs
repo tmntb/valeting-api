@@ -6,6 +6,7 @@ using Service.Models.VehicleSize;
 using Service.Models.VehicleSize.Payload;
 using Service.Validators;
 using Service.Validators.Utils;
+using Service.Validators.VehicleSize;
 
 namespace Service.Services;
 

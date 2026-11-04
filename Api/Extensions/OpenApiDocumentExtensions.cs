@@ -18,7 +18,6 @@ public static class OpenApiDocumentExtensions
     internal static void ConfigureOperation(this OpenApiDocument swaggerDoc, string path, HttpMethod method,
         string operationId, string summary, string description, bool requiresBearer = true)
     {
-        //var pathItem = swaggerDoc.Paths.FirstOrDefault(x => x.Key.Contains(path)).Value;
         swaggerDoc.Paths.TryGetValue(path, out var pathItem);
         if (pathItem == null || !pathItem.Operations.TryGetValue(method, out var operation))
         {

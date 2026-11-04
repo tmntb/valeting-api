@@ -1,5 +1,6 @@
 ﻿using Service.Models.Booking;
 using Service.Validators;
+using Service.Validators.Booking;
 
 namespace Service.Tests.Validators;
 

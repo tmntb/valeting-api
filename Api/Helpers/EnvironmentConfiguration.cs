@@ -73,6 +73,14 @@ internal static class EnvironmentConfiguration
         }
     }
 
+    /// <summary>
+    /// Replaces the WebAuthn configuration placeholders with values from the
+    /// <c>PK_RPID</c>, <c>PK_RPNAME</c>, and <c>PK_ORIGINS</c> environment variables.
+    /// </summary>
+    /// <param name="config">The application configuration containing the WebAuthn settings.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <c>WebAuthn:RpId</c>, <c>WebAuthn:RpName</c>, or <c>WebAuthn:Origins</c> is not configured.
+    /// </exception>
     internal static void ConfigureWebAuthnSettings(IConfiguration config)
     {
         var rpId = GetEnvVar("PK_RPID");

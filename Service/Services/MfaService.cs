@@ -4,6 +4,7 @@ using Service.Helpers;
 using Service.Interfaces;
 using Service.Models.Mfa.Payload;
 using Service.Validators.Auth;
+using Service.Validators.Mfa;
 using Service.Validators.Utils;
 
 namespace Service.Services;

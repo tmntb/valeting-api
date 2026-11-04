@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Service.Models.Booking;
 
-namespace Service.Validators;
+namespace Service.Validators.Booking;
 
 /// <summary>
 /// Validator for updating booking requests. This class defines the validation rules for the properties of the <see cref="BookingDto"/> when updating an existing booking. It ensures that the Id is a valid GUID, the ScheduledAt date is in the future, and that any optional properties such as Flexibility and VehicleSize, if provided, have valid GUIDs. Additionally, it validates that the Notes property does not exceed a specified maximum length. This validation is crucial for maintaining data integrity and ensuring that updates to bookings adhere to business rules and constraints.
