@@ -1,19 +1,20 @@
-﻿using Api.Controllers.BaseController;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
+using Api.Controllers.BaseController;
 using Api.Models.Booking;
 using Api.Models.Booking.Payload;
 using Api.Models.Core;
+using Asp.Versioning;
 using Common.Enums;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Service.Models.Booking;
 using Service.Models.Booking.Payload;
-using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 
 namespace Api.Controllers;
 
-[ApiController]
+[ApiVersion("1")]
 public class BookingController(IBookingService bookingService, ILinkService linkService) : BookingBaseController
 {
     /// <inheritdoc />

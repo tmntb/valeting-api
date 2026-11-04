@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Api.Models.Core;
 using Api.Models.VehicleSize.Payload;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.BaseController;
 
+[ApiController]
 [Produces("application/json")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public abstract class VehicleSizeBaseController : ControllerBase
 {
     /// <summary>
@@ -19,7 +21,7 @@ public abstract class VehicleSizeBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpGet]
     [Authorize]
-    [Route("/vehicleSizes/{id}")]
+    [Route("{id}")]
     [ProducesResponseType(statusCode: 200, type: typeof(VehicleSizeApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
@@ -35,7 +37,6 @@ public abstract class VehicleSizeBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpGet]
     [Authorize]
-    [Route("/vehicleSizes")]
     [ProducesResponseType(statusCode: 200, type: typeof(IEnumerable<VehicleSizeApiPaginatedResponse>))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.BaseController;
 
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json")]
 public abstract class UserBaseController : ControllerBase
 {
@@ -18,7 +20,7 @@ public abstract class UserBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPatch]
     [Authorize(Roles = "ADMIN")]
-    [Route("/users/admin-settings")]
+    [Route("admin-settings")]
     [ProducesResponseType(statusCode: 204)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
@@ -36,7 +38,7 @@ public abstract class UserBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPatch]
     [Authorize]
-    [Route("/users/email")]
+    [Route("email")]
     [ProducesResponseType(statusCode: 204)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
@@ -54,7 +56,7 @@ public abstract class UserBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPatch]
     [Authorize]
-    [Route("/users/password")]
+    [Route("password")]
     [ProducesResponseType(statusCode: 204)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
@@ -72,7 +74,7 @@ public abstract class UserBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPatch]
     [Authorize]
-    [Route("/users/profile")]
+    [Route("profile")]
     [ProducesResponseType(statusCode: 204)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]

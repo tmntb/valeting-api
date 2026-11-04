@@ -1,8 +1,8 @@
-﻿using Api.Models.Core;
+﻿using System.Net;
+using Api.Models.Core;
 using Api.Models.Middleware;
 using FluentValidation;
 using Microsoft.IdentityModel.Tokens;
-using System.Net;
 
 namespace Api.Middleware;
 

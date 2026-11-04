@@ -1,3 +1,4 @@
+using System.Net;
 using Api.Controllers;
 using Api.Models.Flexibility.Payload;
 using Common.Messages;
@@ -8,7 +9,6 @@ using Service.Interfaces;
 using Service.Models.Flexibility;
 using Service.Models.Flexibility.Payload;
 using Service.Models.Link.Payload;
-using System.Net;
 
 namespace Api.Tests.Controllers;
 

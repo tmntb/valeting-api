@@ -14,45 +14,45 @@ public class AuthDocumentFilter : IDocumentFilter
     /// <summary>
     /// Endpoint for forgot password.
     /// </summary>
-    private const string AuthForgotPasswordEndpoint = "/auth/forgot-password";
+    private const string AuthForgotPasswordEndpoint = "/api/v1/auth/forgot-password";
 
     /// <summary>
     /// Endpoint for login.
     /// </summary>
-    private const string AuthLoginEndpoint = "/auth/login";
+    private const string AuthLoginEndpoint = "/api/v1/auth/login";
 
     /// <summary>
     /// Endpoint for auth mfa regenerate recovery codes.
     /// </summary>
-    private const string AuthMfaRecoveryCodeRegenerate = "/auth/recovery-codes";
+    private const string AuthMfaRecoveryCodeRegenerate = "/api/v1/auth/recovery-codes";
 
     /// <summary>
     /// Endpoint to refresh user token
     /// </summary>
-    private const string AuthRefreshTokenEndpoint = "/auth/refresh-token";
+    private const string AuthRefreshTokenEndpoint = "/api/v1/auth/refresh-token";
 
     /// <summary>
     /// Endpoint for user register.
     /// </summary>
-    private const string AuthRegisterEndpoint = "/auth/register";
+    private const string AuthRegisterEndpoint = "/api/v1/auth/register";
 
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
         swaggerDoc.Tags.Add(new OpenApiTag() { Name = "Auth", Description = "Auth operations" });
 
-        swaggerDoc.ConfigureOperation(AuthForgotPasswordEndpoint, HttpMethod.Post,
-            "post-auth-forgot-password", "Restores the user password.", string.Empty, false);
+        swaggerDoc.ConfigureOperation(AuthForgotPasswordEndpoint, HttpMethod.Post, "post-auth-forgot-password", 
+            "Restores the user password.", "Restores the new **password** set by the user.", false);
 
-        swaggerDoc.ConfigureOperation(AuthLoginEndpoint, HttpMethod.Post,
-            "post-auth-login", "Validates user credentials.", "Returns an access token for the **User**.", false);
+        swaggerDoc.ConfigureOperation(AuthLoginEndpoint, HttpMethod.Post, "post-auth-login",
+            "Validates user credentials.", "Returns an access token for the **User**.", false);
 
-        swaggerDoc.ConfigureOperation(AuthMfaRecoveryCodeRegenerate, HttpMethod.Post,
-            "post-auth-recovery-codes", "Generates recovery codes.", "Returns a new list of **Recovery codes**.");
+        swaggerDoc.ConfigureOperation(AuthMfaRecoveryCodeRegenerate, HttpMethod.Post, "post-auth-recovery-codes",
+            "Generates recovery codes.", "Returns a new list of **Recovery codes**.");
 
-        swaggerDoc.ConfigureOperation(AuthRefreshTokenEndpoint, HttpMethod.Post,
-            "post-auth-refresh-token", "Refreshes an access token.", "Returns a refreshed **access token**.");
+        swaggerDoc.ConfigureOperation(AuthRefreshTokenEndpoint, HttpMethod.Post, "post-auth-refresh-token",
+            "Refreshes an access token.", "Returns a refreshed **access token**.");
 
-        swaggerDoc.ConfigureOperation(AuthRegisterEndpoint, HttpMethod.Post,
-            "post-auth-register", "Registers a new user.", string.Empty, false);
+        swaggerDoc.ConfigureOperation(AuthRegisterEndpoint, HttpMethod.Post, "post-auth-register",
+            "Registers a new user.", string.Empty, false);
     }
 }

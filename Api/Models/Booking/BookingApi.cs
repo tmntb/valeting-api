@@ -1,9 +1,9 @@
-﻿using Api.Models.Flexibility;
+﻿using System.Text.Json.Serialization;
+using Api.Models.Flexibility;
 using Api.Models.Status;
 using Api.Models.User;
 using Api.Models.VehicleSize;
 using Service.Models.Booking;
-using System.Text.Json.Serialization;
 
 namespace Api.Models.Booking;
 

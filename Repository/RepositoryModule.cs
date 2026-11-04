@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Service.Interfaces;
 using Repository.Entities;
 using Repository.Repositories;
-using System.Diagnostics.CodeAnalysis;
+using Service.Interfaces;
 
 namespace Repository;
 

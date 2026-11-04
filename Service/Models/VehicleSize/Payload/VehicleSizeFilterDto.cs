@@ -1,5 +1,5 @@
-﻿using Service.Models.Core;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Service.Models.Core;
 
 namespace Service.Models.VehicleSize.Payload;
 

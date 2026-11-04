@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 using Service.Models.Core;
 using Service.Services;
-using System.ComponentModel.DataAnnotations;
 
 namespace Service.Tests.Services;
 

@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Api.Controllers.BaseController;
 using Api.Models.User.Payload;
+using Asp.Versioning;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
@@ -9,7 +10,7 @@ using Service.Models.User.Payload;
 
 namespace Api.Controllers;
 
-[ApiController]
+[ApiVersion("1")]
 public class UserController(IUserService userService) : UserBaseController
 {
     /// <inheritdoc />

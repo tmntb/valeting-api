@@ -1,11 +1,11 @@
-﻿using Api.Controllers;
+﻿using System.Net;
+using Api.Controllers;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Service.Interfaces;
 using Service.Models.User;
 using Service.Models.User.Payload;
-using System.Net;
 
 namespace Api.Tests.Controllers;
 

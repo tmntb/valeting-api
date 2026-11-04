@@ -1,4 +1,6 @@
-﻿using Api.Middleware;
+﻿using System.Net;
+using System.Text.Json;
+using Api.Middleware;
 using Api.Models.Core;
 using Api.Models.Middleware;
 using FluentValidation;
@@ -7,8 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Moq;
-using System.Net;
-using System.Text.Json;
 
 namespace Api.Tests.Middleware;
 

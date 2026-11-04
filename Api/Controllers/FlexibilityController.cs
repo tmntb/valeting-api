@@ -1,16 +1,17 @@
-﻿using Api.Controllers.BaseController;
+﻿using System.ComponentModel.DataAnnotations;
+using Api.Controllers.BaseController;
 using Api.Models.Core;
 using Api.Models.Flexibility;
 using Api.Models.Flexibility.Payload;
+using Asp.Versioning;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Service.Models.Flexibility.Payload;
-using System.ComponentModel.DataAnnotations;
 
 namespace Api.Controllers;
 
-[ApiController]
+[ApiVersion("1")]
 public class FlexibilityController(IFlexibilityService flexibilityService, ILinkService urlService) : FlexibilityBaseController
 {
     /// <inheritdoc />

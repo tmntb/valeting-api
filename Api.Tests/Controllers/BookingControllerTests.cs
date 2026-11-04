@@ -1,4 +1,5 @@
-﻿using Api.Controllers;
+﻿using System.Net;
+using Api.Controllers;
 using Api.Models.Booking.Payload;
 using Common.Enums;
 using Common.Messages;
@@ -8,7 +9,6 @@ using Service.Interfaces;
 using Service.Models.Booking;
 using Service.Models.Booking.Payload;
 using Service.Models.Link.Payload;
-using System.Net;
 
 namespace Api.Tests.Controllers;
 

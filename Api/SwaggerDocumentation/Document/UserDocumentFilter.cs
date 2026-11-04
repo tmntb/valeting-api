@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Api.Extensions;
 using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -13,22 +14,22 @@ public class UserDocumentFilter : IDocumentFilter
     /// <summary>
     /// Endpoint to update user admin settings.
     /// </summary>
-    public const string UserAdminSettingsEndpoint = "/users/admin-settings";
+    private const string UserAdminSettingsEndpoint = "/api/v1/users/admin-settings";
 
     /// <summary>
     /// Endpoint to update user email.
     /// </summary>
-    public const string UserEmailEndpoint = "/users/email";
+    private const string UserEmailEndpoint = "/api/v1/user/email";
 
     /// <summary>
     /// Endpoint to update user password.
     /// </summary>
-    public const string UserPasswordEndpoint = "/users/password";
+    private const string UserPasswordEndpoint = "/api/v1/user/password";
 
     /// <summary>
     /// Endpoint to update user profile.
     /// </summary>
-    public const string UserProfileEndpoint = "/users/profile";
+    private const string UserProfileEndpoint = "/api/v1/user/profile";
 
     /// <summary>
     /// Applies the filter to the given OpenAPI document.
@@ -38,25 +39,17 @@ public class UserDocumentFilter : IDocumentFilter
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
         swaggerDoc.Tags.Add(new OpenApiTag() { Name = "User", Description = "User operations" });
-
-        var userAdminSettingsPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserAdminSettingsEndpoint).Value;
-        userAdminSettingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.OperationId = "patch-admin-settings-user";
-        userAdminSettingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Summary = "Update user admin settings";
-        userAdminSettingsPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Description = "Updates the admin settings for the **User**";
-
-        var userEmailPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserEmailEndpoint).Value;
-        userEmailPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.OperationId = "patch-email-user";
-        userEmailPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Summary = "Update user email";
-        userEmailPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Description = "Updates the email for the **User**";
-
-        var userPasswordPaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserPasswordEndpoint).Value;
-        userPasswordPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.OperationId = "patch-password-user";
-        userPasswordPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Summary = "Update user password";
-        userPasswordPaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Description = "Updates the password for the **User**";
-
-        var userProfilePaths = swaggerDoc.Paths.FirstOrDefault(x => x.Key == UserProfileEndpoint).Value;
-        userProfilePaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.OperationId = "patch-profile-user";
-        userProfilePaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Summary = "Update user profile";
-        userProfilePaths.Operations.FirstOrDefault(x => x.Key == HttpMethod.Patch).Value.Description = "Updates the profile for the **User**";
+        
+        swaggerDoc.ConfigureOperation(UserAdminSettingsEndpoint, HttpMethod.Patch, "patch-admin-settings-user",
+            "Update user admin settings", "Updates the admin settings for the **User**");
+        
+        swaggerDoc.ConfigureOperation(UserEmailEndpoint, HttpMethod.Patch, "patch-email-user",
+            "Update user email", "Updates the email for the **User**");
+        
+        swaggerDoc.ConfigureOperation(UserPasswordEndpoint, HttpMethod.Patch, "patch-password-user",
+            "Update user password", "Updates the password for the **User**");
+        
+        swaggerDoc.ConfigureOperation(UserProfileEndpoint, HttpMethod.Patch, "patch-profile-user",
+            "Update user profile", "Updates the profile for the **User**");
     }
 }

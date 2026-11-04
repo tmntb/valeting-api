@@ -1,16 +1,16 @@
 using System.Text;
 using System.Text.Json;
-using FluentValidation;
+using Common.Messages;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
+using FluentValidation;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Moq;
 using Service.Interfaces;
 using Service.Models.User;
 using Service.Models.WebAuthn;
 using Service.Models.WebAuthn.Payload;
 using Service.Services;
-using Common.Messages;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 
 namespace Service.Tests.Services;
 

@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Api.Models.Core;
 using Api.Models.Flexibility.Payload;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.BaseController;
 
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json")]
 public abstract class FlexibilityBaseController : ControllerBase
 {
@@ -19,7 +21,7 @@ public abstract class FlexibilityBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpGet]
     [Authorize]
-    [Route("/flexibilities/{id}")]
+    [Route("{id}")]
     [ProducesResponseType(statusCode: 200, type: typeof(FlexibilityApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
@@ -35,7 +37,6 @@ public abstract class FlexibilityBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpGet]
     [Authorize]
-    [Route("/flexibilities")]
     [ProducesResponseType(statusCode: 200, type: typeof(IEnumerable<FlexibilityApiPaginatedResponse>))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]

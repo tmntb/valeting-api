@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using System.ComponentModel.DataAnnotations;
-using Api.Models.Core;
+﻿using System.ComponentModel.DataAnnotations;
 using Api.Models.Booking.Payload;
+using Api.Models.Core;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.BaseController;
 
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json")]
 public abstract class BookingBaseController : ControllerBase
 {
@@ -18,7 +20,6 @@ public abstract class BookingBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPost]
     [Authorize]
-    [Route("/bookings")]
     [Consumes("application/json")]
     [ProducesResponseType(statusCode: 201, type: typeof(CreateBookingApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
@@ -36,7 +37,7 @@ public abstract class BookingBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPatch]
     [Authorize]
-    [Route("/bookings/{id}")]
+    [Route("{id}")]
     [Consumes("application/json")]
     [ProducesResponseType(statusCode: 204)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
@@ -55,7 +56,7 @@ public abstract class BookingBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPatch]
     [Authorize]
-    [Route("/bookings/{id}/status")]
+    [Route("{id}/status")]
     [ProducesResponseType(statusCode: 204)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
@@ -72,7 +73,7 @@ public abstract class BookingBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpGet]
     [Authorize]
-    [Route("/bookings/{id}")]
+    [Route("{id}")]
     [ProducesResponseType(statusCode: 200, type: typeof(BookingApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 404, type: typeof(ErrorApi))]
@@ -88,7 +89,7 @@ public abstract class BookingBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpGet]
     [Authorize]
-    [Route("/bookings/customer")]
+    [Route("customer")]
     [ProducesResponseType(statusCode: 200, type: typeof(BookingApiPaginatedResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
@@ -102,7 +103,6 @@ public abstract class BookingBaseController : ControllerBase
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpGet]
     [Authorize(Roles = "ADMIN")]
-    [Route("/bookings")]
     [ProducesResponseType(statusCode: 200, type: typeof(BookingApiPaginatedResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
