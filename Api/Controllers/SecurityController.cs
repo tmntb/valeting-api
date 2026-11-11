@@ -1,6 +1,5 @@
-using System.Security.Claims;
+using Api.Context;
 using Api.Controllers.BaseController;
-using Api.Extensions;
 using Api.Models.Auth.Payload;
 using Api.Models.WebAuthn.Payload;
 using Asp.Versioning;
@@ -12,13 +11,13 @@ using Service.Models.User;
 namespace Api.Controllers;
 
 [ApiVersion("1")]
-public class SecurityController(IMfaService mfaService, IWebAuthnService webAuthnService) : SecurityBaseController
+public class SecurityController(ValetingApiContext valetingApiContext, IMfaService mfaService, IWebAuthnService webAuthnService) : SecurityBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> MfaSetupAsync()
     {
         var mfaSetupDtoResponse =
-            await mfaService.MfaSetupAsync(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value));
+            await mfaService.MfaSetupAsync(valetingApiContext.UserId!.Value);
 
         return Ok(new MfaSetupApiResponse
         {
@@ -33,7 +32,7 @@ public class SecurityController(IMfaService mfaService, IWebAuthnService webAuth
 
         await mfaService.MfaVerifyAsync(new()
         {
-            UserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            UserId = valetingApiContext.UserId!.Value,
             MfaCode = mfaCodeApiRequest.MfaCode
         });
 
@@ -76,7 +75,7 @@ public class SecurityController(IMfaService mfaService, IWebAuthnService webAuth
     /// <inheritdoc />
     public override async Task<IActionResult> WebAuthnRegisterOptionsAsync()
     {
-        var userId = User.GetCurrentUserId();
+        var userId = valetingApiContext.UserId!.Value;
         var options = await webAuthnService.CreateRegistrationOptionsAsync(userId);
 
         return Ok(new WebAuthnRegisterOptionsApiResponse
@@ -92,13 +91,13 @@ public class SecurityController(IMfaService mfaService, IWebAuthnService webAuth
     {
         ArgumentNullException.ThrowIfNull(webAuthnRegisterVerifyApiRequest, Messages.InvalidRequestBody);
 
-        var userId = User.GetCurrentUserId();
+        var userId = valetingApiContext.UserId!.Value;
         await webAuthnService.VerifyRegisterAsync(new()
         {
             UserId = userId,
             CeremonyId = webAuthnRegisterVerifyApiRequest.CeremonyId,
             Credential = webAuthnRegisterVerifyApiRequest.Credential,
-            Name = webAuthnRegisterVerifyApiRequest.Name
+            Name = webAuthnRegisterVerifyApiRequest.Name!
         });
 
         return NoContent();
@@ -107,7 +106,7 @@ public class SecurityController(IMfaService mfaService, IWebAuthnService webAuth
     /// <inheritdoc />
     public override async Task<IActionResult> WebAuthnsAsync()
     {
-        var webauthnDtoList = await webAuthnService.GetUserWebAuthnAsync(User.GetCurrentUserId());
+        var webauthnDtoList = await webAuthnService.GetUserWebAuthnAsync(valetingApiContext.UserId!.Value);
 
         var webAuthnCredentialApiResponse = webauthnDtoList.Select(webauthn => new WebAuthnCredentialApiResponse
         {

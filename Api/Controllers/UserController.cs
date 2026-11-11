@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Api.Context;
 using Api.Controllers.BaseController;
 using Api.Models.User.Payload;
 using Asp.Versioning;
@@ -11,7 +12,7 @@ using Service.Models.User.Payload;
 namespace Api.Controllers;
 
 [ApiVersion("1")]
-public class UserController(IUserService userService) : UserBaseController
+public class UserController(ValetingApiContext valetingApiContext, IUserService userService) : UserBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> UpdateAdminSettingsAsync([FromBody] UpdateAdminSettingsApiRequest updateAdminSettingsApiRequest)
@@ -20,7 +21,7 @@ public class UserController(IUserService userService) : UserBaseController
 
         var updateAdminSettingsDtoRequest = new UpdateAdminSettingsDtoRequest
         {
-            AdminId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            AdminId = valetingApiContext.UserId!.Value,
             UserId = updateAdminSettingsApiRequest.UserId,
             IsActive = updateAdminSettingsApiRequest.IsActive,
             RoleId = updateAdminSettingsApiRequest.RoleId
@@ -37,7 +38,7 @@ public class UserController(IUserService userService) : UserBaseController
 
         var userDto = new UserDto
         {
-            Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            Id = valetingApiContext.UserId!.Value,
             Email = updateEmailApiRequest.Email
         };
         await userService.UpdateEmailAsync(userDto);
@@ -52,7 +53,7 @@ public class UserController(IUserService userService) : UserBaseController
 
         var userDto = new UserDto
         {
-            Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            Id = valetingApiContext.UserId!.Value,
             Password = updatePasswordApiRequest.Password
         };
         await userService.UpdatePasswordAsync(userDto);
@@ -67,7 +68,7 @@ public class UserController(IUserService userService) : UserBaseController
 
         var updateProfileDtoRequest = new UpdateProfileDtoRequest
         {
-            Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            Id =valetingApiContext.UserId!.Value,
             FirstName = updateUserApiRequest.FirstName,
             LastName = updateUserApiRequest.LastName,
             DateOfBirth = updateUserApiRequest.DateOfBirth,

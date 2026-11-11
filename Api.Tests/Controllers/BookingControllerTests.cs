@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Api.Context;
 using Api.Controllers;
 using Api.Models.Booking.Payload;
 using Common.Enums;
@@ -14,7 +15,6 @@ namespace Api.Tests.Controllers;
 
 public class BookingControllerTests
 {
-    private readonly ClaimsFixture _claimsFixture = new();
     private readonly Mock<IBookingService> _mockBookingService;
     private readonly Mock<ILinkService> _mockLinkService;
 
@@ -27,8 +27,14 @@ public class BookingControllerTests
     {
         _mockBookingService = new Mock<IBookingService>();
         _mockLinkService = new Mock<ILinkService>();
+        
+        var valetingApiContext = new ValetingApiContext
+        {
+            UserId = Guid.Parse("00000000-0000-0000-0000-000000000099"),
+            Role = RoleEnum.USER
+        };
 
-        _bookingController = new BookingController(_mockBookingService.Object, _mockLinkService.Object);
+        _bookingController = new BookingController(valetingApiContext, _mockBookingService.Object, _mockLinkService.Object);
     }
 
     [Fact]
@@ -43,8 +49,6 @@ public class BookingControllerTests
     public async Task CreateAsync_ShouldReturnCreated_WhenValidRequest()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_bookingController, Guid.Parse("00000000-0000-0000-0000-000000000099"));
-
         _mockBookingService
             .Setup(s => s.CreateAsync(It.IsAny<BookingDto>()))
             .ReturnsAsync(_mockBookingId);
@@ -126,8 +130,6 @@ public class BookingControllerTests
     public async Task UpdateStatusAsync_ShouldReturnNoContent_WhenValidId()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_bookingController, Guid.Parse("00000000-0000-0000-0000-000000000099"));
-
         _mockBookingService
             .Setup(s => s.UpdateStatusAsync(It.IsAny<UpdateBookingStatusDtoRequest>()))
             .Returns(Task.CompletedTask);
@@ -158,8 +160,6 @@ public class BookingControllerTests
     public async Task GetByIdAsync_ShouldReturnBooking_WhenValidId()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_bookingController, Guid.Parse("00000000-0000-0000-0000-000000000099"));
-
         _mockBookingService
             .Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(
@@ -232,8 +232,6 @@ public class BookingControllerTests
     public async Task GetCustomerFilteredAsync_ShouldReturnPagedResponse_WhenValidRequest()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_bookingController, Guid.Parse("00000000-0000-0000-0000-000000000099"));
-
         _mockBookingService
             .Setup(s => s.GetCustomerFilteredAsync(It.IsAny<BookingFilterDto>()))
             .ReturnsAsync(
@@ -313,8 +311,6 @@ public class BookingControllerTests
     public async Task GetFilteredAsync_ShouldReturnPagedResponse_WhenValidRequest()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_bookingController, Guid.Parse("00000000-0000-0000-0000-000000000099"));
-
         _mockBookingService
             .Setup(s => s.GetFilteredAsync(It.IsAny<BookingFilterDto>()))
             .ReturnsAsync(

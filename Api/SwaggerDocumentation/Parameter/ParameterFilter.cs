@@ -52,7 +52,7 @@ public class ParameterFilter : IParameterFilter
             parameter.Description = item.Description;
             parameter.Schema = new OpenApiSchema
             {
-                Example = JsonValue.Create(item.Example),
+                Examples = [JsonValue.Create(item.Example)],
                 Minimum = item.Minimum,
                 Maximum = string.IsNullOrEmpty(item.Maximum) ? null : item.Maximum
             };
@@ -71,7 +71,7 @@ public class ParameterFilter : IParameterFilter
             parameter.Description = item.Description;
             parameter.Schema = new OpenApiSchema
             {
-                Example = JsonValue.Create(item.Example),
+                Examples = [JsonValue.Create(item.Example)],
                 Format = item.Format
             };
         }

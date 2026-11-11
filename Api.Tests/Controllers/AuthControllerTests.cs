@@ -1,4 +1,5 @@
 using System.Net;
+using Api.Context;
 using Api.Controllers;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,6 @@ namespace Api.Tests.Controllers;
 
 public class AuthControllerTests
 {
-    private readonly ClaimsFixture _claimsFixture = new();
     private readonly Mock<IAuthService> _mockAuthService;
     private readonly Mock<IRecoveryCodeService> _mockRecoveryCodeService;
     
@@ -21,8 +21,13 @@ public class AuthControllerTests
     {
         _mockAuthService = new Mock<IAuthService>();
         _mockRecoveryCodeService = new Mock<IRecoveryCodeService>();
+        
+        var valetingApiContext = new ValetingApiContext
+        {
+            UserId = Guid.Parse("00000000-0000-0000-0000-000000000099")
+        };
 
-        _authController = new AuthController(_mockAuthService.Object, _mockRecoveryCodeService.Object);
+        _authController = new AuthController(valetingApiContext, _mockAuthService.Object, _mockRecoveryCodeService.Object);
     }
 
     [Fact]
@@ -92,8 +97,6 @@ public class AuthControllerTests
     public async Task RecoveryCodesGenerateAsync_ShouldReturnOk_WhenSuccessful()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_authController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
-
         _mockRecoveryCodeService
             .Setup(s => s.GenerateRecoveryCodesAsync(It.IsAny<Guid>()))
             .ReturnsAsync(

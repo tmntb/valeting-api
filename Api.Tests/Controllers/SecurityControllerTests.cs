@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Api.Context;
 using Api.Controllers;
 using Api.Models.Auth.Payload;
 using Api.Models.WebAuthn.Payload;
@@ -17,9 +18,6 @@ namespace Api.Tests.Controllers;
 
 public class SecurityControllerTests
 {
-    private static readonly Guid _mockUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-
-    private readonly ClaimsFixture _claimsFixture = new();
     private readonly Mock<IMfaService> _mockMfaService;
     private readonly Mock<IWebAuthnService> _mockWebAuthnService;
 
@@ -29,16 +27,19 @@ public class SecurityControllerTests
     {
         _mockMfaService = new Mock<IMfaService>();
         _mockWebAuthnService = new Mock<IWebAuthnService>();
-
-        _securityController = new SecurityController(_mockMfaService.Object, _mockWebAuthnService.Object);
+        
+        var valetingApiContext = new ValetingApiContext
+        {
+            UserId = Guid.Parse("00000000-0000-0000-0000-000000000099")
+        };
+    
+        _securityController = new SecurityController(valetingApiContext, _mockMfaService.Object, _mockWebAuthnService.Object);
     }
 
     [Fact]
     public async Task MfaSetupAsync_ReturnsQrCodeUri()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_securityController, _mockUserId);
-
         _mockMfaService
             .Setup(service => service.MfaSetupAsync(It.IsAny<Guid>()))
             .ReturnsAsync(new MfaSetupDtoResponse { MfaQrCodeUri = "otpauth://test" })
@@ -65,8 +66,6 @@ public class SecurityControllerTests
     public async Task MfaVerifyAsync_ForwardsAuthenticatedUserAndCode()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_securityController, _mockUserId);
-
         _mockMfaService
             .Setup(s => s.MfaVerifyAsync(It.IsAny<MfaCodeDtoRequest>()))
             .Returns(Task.CompletedTask);
@@ -162,8 +161,6 @@ public class SecurityControllerTests
     public async Task WebAuthnRegisterOptionsAsync_UsesAuthenticatedUserAndMapsResponse()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_securityController, _mockUserId);
-
         var ceremonyId = Guid.Parse("00000000-0000-0000-0000-000000000002");
         var publicKey = JsonDocument.Parse("""{"rp":{"name":"example"}}""").RootElement.Clone();
 
@@ -198,8 +195,6 @@ public class SecurityControllerTests
     public async Task WebAuthnRegisterVerifyAsync_ForwardsAuthenticatedUserAndRequest()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_securityController, _mockUserId);
-
         var ceremonyId = Guid.Parse("00000000-0000-0000-0000-000000000002");
         var credential = new AuthenticatorAttestationRawResponse { Id = "credential-id" };
 
@@ -220,7 +215,7 @@ public class SecurityControllerTests
         // Assert
         Assert.IsType<NoContentResult>(result);
         Assert.NotNull(capturedRequest);
-        Assert.Equal(_mockUserId, capturedRequest.UserId);
+        Assert.Equal(Guid.Parse("00000000-0000-0000-0000-000000000099"), capturedRequest.UserId);
         Assert.Equal(ceremonyId, capturedRequest.CeremonyId);
         Assert.Same(credential, capturedRequest.Credential);
         Assert.Equal("My passkey", capturedRequest.Name);
@@ -230,8 +225,6 @@ public class SecurityControllerTests
     public async Task WebAuthnsAsync_ReturnsSafeCredentialMetadata()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_securityController, _mockUserId);
-
         var webauthnId = Guid.Parse("00000000-0000-0000-0000-000000000003");
         var createdAt = DateTime.UtcNow;
         var lastUsedAt = createdAt.AddMinutes(1);

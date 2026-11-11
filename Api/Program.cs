@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using Api.Context;
 using Api.Helpers;
 using Api.Middleware;
 using Api.SwaggerDocumentation;
@@ -102,6 +103,8 @@ builder.Services
 
 
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
+builder.Services.AddScoped<ValetingApiContext>();
+builder.Services.AddScoped<ValetingContextMiddleware>();
 
 builder.Services.AddSwaggerDocumentation();
 
@@ -149,6 +152,8 @@ app.UseAuthentication();
 app.UseDefaultFiles();
 
 app.UseRouting();
+
+app.UseMiddleware<ValetingContextMiddleware>();
 
 app.UseAuthorization();
 

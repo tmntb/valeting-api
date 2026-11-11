@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
+using Api.Context;
 using Api.Controllers.BaseController;
 using Api.Models.Booking;
 using Api.Models.Booking.Payload;
 using Api.Models.Core;
 using Asp.Versioning;
-using Common.Enums;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
@@ -15,7 +14,7 @@ using Service.Models.Booking.Payload;
 namespace Api.Controllers;
 
 [ApiVersion("1")]
-public class BookingController(IBookingService bookingService, ILinkService linkService) : BookingBaseController
+public class BookingController(ValetingApiContext valetingApiContext, IBookingService bookingService, ILinkService linkService) : BookingBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> CreateAsync([FromBody] CreateBookingApiRequest createBookingApiRequest)
@@ -26,7 +25,7 @@ public class BookingController(IBookingService bookingService, ILinkService link
         {
             Customer = new()
             {
-                Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value)
+                Id = valetingApiContext.UserId!.Value
             },
             Flexibility = new()
             {
@@ -37,7 +36,7 @@ public class BookingController(IBookingService bookingService, ILinkService link
                 Id = createBookingApiRequest.VehicleSizeId
             },
             ScheduledAt = createBookingApiRequest.ScheduledAt,
-            Notes = createBookingApiRequest.Notes
+            Notes = createBookingApiRequest.Notes!
         };
 
         var bookingId = await bookingService.CreateAsync(bookingDto);
@@ -85,10 +84,10 @@ public class BookingController(IBookingService bookingService, ILinkService link
             Status = updateBookingApiStatusRequest.Status,
             UserDto = new()
             {
-                Id = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+                Id = valetingApiContext.UserId!.Value,
                 Role = new()
                 {
-                    Code = Enum.Parse<RoleEnum>(User.FindFirst(ClaimTypes.Role)?.Value)
+                    Code = valetingApiContext.Role!.Value
                 }
             }
         });
@@ -126,7 +125,7 @@ public class BookingController(IBookingService bookingService, ILinkService link
 
         var bookingFilterDto = new BookingFilterDto
         {
-            CustomerId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+            CustomerId = valetingApiContext.UserId!.Value,
             PageNumber = bookingApiParameters.PageNumber,
             PageSize = bookingApiParameters.PageSize
         };

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Api.Context;
 using Api.Controllers;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
@@ -11,15 +12,20 @@ namespace Api.Tests.Controllers;
 
 public class UserControllerTests
 {
-    private readonly ClaimsFixture _claimsFixture = new();
     private readonly Mock<IUserService> _mockUserService;
+    
     private readonly UserController _userController;
 
     public UserControllerTests()
     {
         _mockUserService = new Mock<IUserService>();
+        
+        var valetingApiContext = new ValetingApiContext
+        {
+            UserId = Guid.Parse("00000000-0000-0000-0000-000000000099")
+        };
 
-        _userController = new UserController(_mockUserService.Object);
+        _userController = new UserController(valetingApiContext, _mockUserService.Object);
     }
 
     [Fact]
@@ -34,8 +40,6 @@ public class UserControllerTests
     public async Task UpdateAdminSettingsAsync_ShouldReturnNoContent_WhenSuccessful()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_userController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
-
         _mockUserService
             .Setup(s => s.UpdateAdminSettingsAsync(It.IsAny<UpdateAdminSettingsDtoRequest>()))
             .Returns(Task.CompletedTask);
@@ -68,8 +72,6 @@ public class UserControllerTests
     public async Task UpdateEmailAsync_ShouldReturnNoContent_WhenSuccessful()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_userController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
-
         _mockUserService
             .Setup(s => s.UpdateEmailAsync(It.IsAny<UserDto>()))
             .Returns(Task.CompletedTask);
@@ -100,8 +102,6 @@ public class UserControllerTests
     public async Task UpdatePasswordAsync_ShouldReturnNoContent_WhenSuccessful()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_userController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
-
         _mockUserService
             .Setup(s => s.UpdatePasswordAsync(It.IsAny<UserDto>()))
             .Returns(Task.CompletedTask);
@@ -132,8 +132,6 @@ public class UserControllerTests
     public async Task UpdateProfileAsync_ShouldReturnNoContent_WhenSuccessful()
     {
         // Arrange
-        _claimsFixture.SetupUserClaims(_userController, Guid.Parse("00000000-0000-0000-0000-000000000001"));
-
         _mockUserService
             .Setup(s => s.UpdateProfileAsync(It.IsAny<UpdateProfileDtoRequest>()))
             .Returns(Task.CompletedTask);
