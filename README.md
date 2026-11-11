@@ -116,9 +116,9 @@ Alternatively, you can create a .env file with:
 ```env
 SA_PASSWORD=MySecretPassword
 JWT_KEY=MyJwtKey
-PASSKEYS_RP_ID=example.com
-PASSKEYS_RP_NAME=Valeting
-PASSKEYS_ORIGIN=https://app.example.com
+PK_RPID=example.com
+PK_RPNAME=Valeting
+PK_ORIGIN=https://app.example.com
 ```
 
 Docker Compose will automatically load the values.
@@ -150,6 +150,7 @@ dotnet run --project Api
 #### Start containers
 ```sh
 ./docker-compose.sh up
+./docker-compose.sh up -d --build --force-recreate api
 ```
 
 #### Start in detached mode

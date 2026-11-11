@@ -27,11 +27,6 @@ public class AuthDocumentFilter : IDocumentFilter
     private const string AuthMfaRecoveryCodeRegenerate = "/api/v1/auth/recovery-codes";
 
     /// <summary>
-    /// Endpoint to refresh user token
-    /// </summary>
-    private const string AuthRefreshTokenEndpoint = "/api/v1/auth/refresh-token";
-
-    /// <summary>
     /// Endpoint for user register.
     /// </summary>
     private const string AuthRegisterEndpoint = "/api/v1/auth/register";
@@ -48,9 +43,6 @@ public class AuthDocumentFilter : IDocumentFilter
 
         swaggerDoc.ConfigureOperation(AuthMfaRecoveryCodeRegenerate, HttpMethod.Post, "post-auth-recovery-codes",
             "Generates recovery codes.", "Returns a new list of **Recovery codes**.");
-
-        swaggerDoc.ConfigureOperation(AuthRefreshTokenEndpoint, HttpMethod.Post, "post-auth-refresh-token",
-            "Refreshes an access token.", "Returns a refreshed **access token**.");
 
         swaggerDoc.ConfigureOperation(AuthRegisterEndpoint, HttpMethod.Post, "post-auth-register",
             "Registers a new user.", string.Empty, false);

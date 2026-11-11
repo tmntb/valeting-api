@@ -1,3 +1,4 @@
+using Common.Enums;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Service.Interfaces;
@@ -62,6 +63,7 @@ public class TokenServiceTests
         Assert.NotNull(response.Token);
         Assert.Equal("JwtSecurityToken", response.TokenType);
         Assert.True(response.ExpiryDate > DateTime.Now);
+        Assert.Equal(_userDto.Role.Code, response.Role);
     }
 
     [Fact]

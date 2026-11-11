@@ -1,6 +1,5 @@
 using System.Net;
 using Api.Controllers;
-using Api.Models.Auth.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -15,16 +14,15 @@ public class AuthControllerTests
     private readonly ClaimsFixture _claimsFixture = new();
     private readonly Mock<IAuthService> _mockAuthService;
     private readonly Mock<IRecoveryCodeService> _mockRecoveryCodeService;
-    private readonly Mock<ITokenService> _mockTokenService;
+    
     private readonly AuthController _authController;
 
     public AuthControllerTests()
     {
         _mockAuthService = new Mock<IAuthService>();
         _mockRecoveryCodeService = new Mock<IRecoveryCodeService>();
-        _mockTokenService = new Mock<ITokenService>();
 
-        _authController = new AuthController(_mockAuthService.Object, _mockRecoveryCodeService.Object, _mockTokenService.Object);
+        _authController = new AuthController(_mockAuthService.Object, _mockRecoveryCodeService.Object);
     }
 
     [Fact]
@@ -76,17 +74,6 @@ public class AuthControllerTests
             .Setup(s => s.ValidateLoginAsync(It.IsAny<UserDto>()))
             .Returns(Task.CompletedTask);
 
-        var expiryDate = DateTime.UtcNow;
-        _mockTokenService
-            .Setup(s => s.GenerateTokenJwtAsync(It.IsAny<string>()))
-            .ReturnsAsync(
-                new GenerateTokenJWTDtoResponse
-                {
-                    Token = "validToken",
-                    TokenType = "jwt",
-                    ExpiryDate = expiryDate
-                });
-
         // Act
         var result = await _authController.LoginAsync
         (
@@ -95,16 +82,10 @@ public class AuthControllerTests
                 Email = "test@example.com",
                 Password = "password"
             }
-        ) as ObjectResult;
+        ) as StatusCodeResult;
 
         // Assert
-        Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
-
-        var responseApi = (LoginApiResponse)result.Value;
-        Assert.Equal("validToken", responseApi.Token);
-        Assert.Equal(expiryDate, responseApi.ExpiryDate);
-        Assert.Equal("jwt", responseApi.TokenType);
     }
 
     [Fact]
@@ -123,54 +104,6 @@ public class AuthControllerTests
 
         // Act
         var result = await _authController.RecoveryCodesAsync() as ObjectResult;
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
-    }
-
-    [Fact]
-    public async Task RefreshTokenAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
-    {
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _authController.RefreshTokenAsync(null));
-        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
-    }
-
-    [Fact]
-    public async Task RefreshTokenAsync_ShouldThrowArgumentNullException_WhenTokenIsNull()
-    {
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _authController.RefreshTokenAsync(new() { Token = null }));
-        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
-    }
-
-    [Fact]
-    public async Task RefreshTokenAsync_ShouldReturnOk_WhenSuccessful()
-    {
-        // Arrange
-        _mockTokenService
-            .Setup(s => s.ValidateToken(It.IsAny<string>()))
-            .Returns("test@example.com");
-
-        _mockTokenService
-            .Setup(s => s.GenerateTokenJwtAsync(It.IsAny<string>()))
-            .ReturnsAsync(
-                new GenerateTokenJWTDtoResponse
-                {
-                    Token = "newValidToken",
-                    TokenType = "jwt",
-                    ExpiryDate = DateTime.UtcNow.AddHours(1)
-                });
-
-        // Act
-        var result = await _authController.RefreshTokenAsync
-        (
-            new()
-            {
-                Token = "oldValidToken"
-            }
-        ) as ObjectResult;
 
         // Assert
         Assert.NotNull(result);

@@ -43,7 +43,8 @@ public class TokenService(IUserRepository userRepository, IConfiguration configu
         {
             Token = tokenHandler.WriteToken(token),
             ExpiryDate = token.ValidTo.ToLocalTime(),
-            TokenType = tokenHandler.TokenType.Name
+            TokenType = tokenHandler.TokenType.Name,
+            Role = userDto.Role.Code
         };
     }
 

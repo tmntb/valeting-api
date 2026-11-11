@@ -1,9 +1,9 @@
-﻿namespace Api.Models.Auth.Payload;
+﻿namespace Api.Models.Token.Payload;
 
 /// <summary>
 /// Represents the request body for refreshing an authentication token.
 /// </summary>
-public class RefreshTokenApiRequest
+public class RefreshJwtTokenApiRequest
 {
     /// <summary>
     /// The refresh token used to obtain a new authentication token.

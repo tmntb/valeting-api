@@ -1,4 +1,6 @@
-﻿namespace Service.Models.Auth.Payload;
+﻿using Common.Enums;
+
+namespace Service.Models.Auth.Payload;
 
 /// <summary>
 /// Represents the response returned when a JWT token is generated.
@@ -19,4 +21,9 @@ public class GenerateTokenJWTDtoResponse
     /// The type of token, typically "Bearer".
     /// </summary>
     public string TokenType { get; set; }
+
+    /// <summary>
+    /// Role assigned to the user for whom the token was generated.
+    /// </summary>
+    public RoleEnum Role { get; set; }
 }

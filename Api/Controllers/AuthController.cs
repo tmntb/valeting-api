@@ -11,7 +11,7 @@ using Service.Models.User;
 namespace Api.Controllers;
 
 [ApiVersion("1")]
-public class AuthController(IAuthService authService, IRecoveryCodeService recoveryCodeService, ITokenService tokenService) : AuthBaseController
+public class AuthController(IAuthService authService, IRecoveryCodeService recoveryCodeService) : AuthBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordApiRequest forgotPasswordApiRequest)
@@ -42,15 +42,7 @@ public class AuthController(IAuthService authService, IRecoveryCodeService recov
 
         await authService.ValidateLoginAsync(userDto);
 
-        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJwtAsync(loginApiRequest.Email);
-
-        var validateLoginApiResponse = new LoginApiResponse
-        {
-            Token = generateTokenJwtDtoResponse.Token,
-            TokenType = generateTokenJwtDtoResponse.TokenType,
-            ExpiryDate = generateTokenJwtDtoResponse.ExpiryDate
-        };
-        return Ok(validateLoginApiResponse);
+        return Ok();
     }
 
     /// <inheritdoc />
@@ -62,24 +54,6 @@ public class AuthController(IAuthService authService, IRecoveryCodeService recov
         {
             RecoveryCodes = recoveryCodes
         });
-    }
-
-    /// <inheritdoc />
-    public override async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenApiRequest refreshTokenApiRequest)
-    {
-        ArgumentNullException.ThrowIfNull(refreshTokenApiRequest, Messages.InvalidRequestBody);
-        ArgumentException.ThrowIfNullOrEmpty(refreshTokenApiRequest.Token, Messages.InvalidRequestBody);
-
-        var email = tokenService.ValidateToken(refreshTokenApiRequest.Token); // TODO: Remove when middleware is implemented
-        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJwtAsync(email);
-
-        var refreshTokenApiResponse = new RefreshTokenApiResponse
-        {
-            Token = generateTokenJwtDtoResponse.Token,
-            TokenType = generateTokenJwtDtoResponse.TokenType,
-            ExpiryDate = generateTokenJwtDtoResponse.ExpiryDate
-        };
-        return Ok(refreshTokenApiResponse);
     }
 
     /// <inheritdoc />
