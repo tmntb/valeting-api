@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Api.Helpers;
 using Api.Middleware;
+using Api.RateLimiting;
 using Api.SwaggerDocumentation;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
@@ -100,8 +101,12 @@ builder.Services
     })
     .AddMvc();
 
+builder.Services
+    .AddRateLimitingRule<TestLimitRule>()
+    .AddCustomRateLimiting();
 
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
+builder.Services.AddRequestDecompression();
 
 builder.Services.AddSwaggerDocumentation();
 
