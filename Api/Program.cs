@@ -106,10 +106,12 @@ builder.Services
     .AddRateLimitingRule<TestLimitRule>()
     .AddCustomRateLimiting();
 
-builder.Services.AddScoped<ExceptionHandlingMiddleware>();
-builder.Services.AddRequestDecompression();
 builder.Services.AddScoped<ValetingApiContext>();
+
+builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 builder.Services.AddScoped<ValetingContextMiddleware>();
+
+builder.Services.AddRequestDecompression();
 
 builder.Services.AddSwaggerDocumentation();
 
