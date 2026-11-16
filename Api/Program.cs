@@ -102,14 +102,14 @@ builder.Services
     })
     .AddMvc();
 
-builder.Services
-    .AddRateLimitingRule<TestLimitRule>()
-    .AddCustomRateLimiting();
-
 builder.Services.AddScoped<ValetingApiContext>();
 
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 builder.Services.AddScoped<ValetingContextMiddleware>();
+
+builder.Services
+    .AddRateLimitingRule<LoginLimitRule>()
+    .AddCustomRateLimiting();
 
 builder.Services.AddRequestDecompression();
 

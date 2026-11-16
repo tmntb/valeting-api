@@ -2,6 +2,7 @@ using Api.Models.Auth.Payload;
 using Api.Models.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Api.Controllers.BaseController;
 
@@ -38,6 +39,7 @@ public abstract class AuthBaseController : ControllerBase
     /// <response code="401">Returned when authentication fails due to invalid credentials.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPost]
+    [EnableRateLimiting("Login")]
     [Route("login")]
     [ProducesResponseType(statusCode: 200)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]

@@ -21,7 +21,9 @@ public static class ServiceModule
     public static void AddService(this IServiceCollection services)
     {
         // Caching
-        services.AddScoped<ICacheHandler, RedisCacheHandler>();
+        services.AddMemoryCache();
+        services.AddScoped<ICacheHandler, MemoryCacheHandler>();
+        
         services.AddScoped<IWebAuthnChallengeStore, WebAuthnChallengeStore>();
 
         services.AddScoped<ValidationHelpers>();
