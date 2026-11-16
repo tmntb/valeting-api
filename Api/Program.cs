@@ -91,7 +91,6 @@ builder.Services
     .AddApiVersioning(options =>
     {
         options.ReportApiVersions = true;
-        options.AssumeDefaultVersionWhenUnspecified = true;
         options.ApiVersionReader = new UrlSegmentApiVersionReader();
     })
     .AddApiExplorer(options =>
@@ -144,7 +143,8 @@ if (app.Environment.IsDevelopment())
 
 app.UsePathBase("/valeting");
 
-// Configure the HTTP request pipeline.
+app.UseRateLimiter();
+
 app.UseHttpsRedirection();
 
 app.UseCors();
