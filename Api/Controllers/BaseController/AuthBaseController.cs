@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.BaseController;
 
+/// <summary>
+/// Defines versioned account authentication, registration, and recovery endpoints.
+/// </summary>
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json")]

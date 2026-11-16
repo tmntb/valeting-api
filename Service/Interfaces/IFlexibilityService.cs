@@ -3,6 +3,9 @@ using Service.Models.Flexibility.Payload;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines retrieval operations for booking flexibility options.
+/// </summary>
 public interface IFlexibilityService
 {
     /// <summary>

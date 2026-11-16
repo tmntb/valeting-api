@@ -1,5 +1,8 @@
 namespace Api.Models.Auth.Payload;
 
+/// <summary>
+/// Contains the one-time MFA code submitted for verification.
+/// </summary>
 public class MfaCodeApiRequest
 {
     /// <summary>

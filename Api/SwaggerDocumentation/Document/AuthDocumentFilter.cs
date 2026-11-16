@@ -31,6 +31,11 @@ public class AuthDocumentFilter : IDocumentFilter
     /// </summary>
     private const string AuthRegisterEndpoint = "/api/v1/auth/register";
 
+    /// <summary>
+    /// Adds the Auth tag and custom descriptions to authentication operations.
+    /// </summary>
+    /// <param name="swaggerDoc">The generated OpenAPI document to update.</param>
+    /// <param name="context">Metadata about the document generation process.</param>
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
         swaggerDoc.Tags.Add(new OpenApiTag() { Name = "Auth", Description = "Auth operations" });

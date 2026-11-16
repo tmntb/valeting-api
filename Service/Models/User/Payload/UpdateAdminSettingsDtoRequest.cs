@@ -1,5 +1,8 @@
 namespace Service.Models.User.Payload;
 
+/// <summary>
+/// Contains the administrator and account changes for a user settings update.
+/// </summary>
 public class UpdateAdminSettingsDtoRequest
 {
     /// <summary>

@@ -4,6 +4,9 @@ using Service.Models.WebAuthn;
 
 namespace Service.Services;
 
+/// <summary>
+/// Keeps WebAuthn ceremony state in process and allows it to be consumed only once.
+/// </summary>
 public sealed class WebAuthnChallengeStore : IWebAuthnChallengeStore
 {
     private readonly ConcurrentDictionary<Guid, WebAuthnChallengeState> _webAuthnChallenges = new();

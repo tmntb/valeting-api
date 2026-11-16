@@ -3,6 +3,9 @@ using Service.Models.User.Payload;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines account profile, credential, and administrative update operations.
+/// </summary>
 public interface IUserService
 {
     /// <summary>

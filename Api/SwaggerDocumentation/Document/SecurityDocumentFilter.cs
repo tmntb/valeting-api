@@ -4,6 +4,9 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Api.SwaggerDocumentation.Document;
 
+/// <summary>
+/// Adds custom descriptions and operation identifiers to security endpoints.
+/// </summary>
 public class SecurityDocumentFilter : IDocumentFilter
 {
     /// <summary>
@@ -46,6 +49,11 @@ public class SecurityDocumentFilter : IDocumentFilter
     /// </summary>
     private const string WebAuthnDeleteEndpoint = "/api/v1/security/webauthn/{id}";
 
+    /// <summary>
+    /// Applies operation identifiers, summaries, and descriptions to security routes.
+    /// </summary>
+    /// <param name="swaggerDoc">The generated OpenAPI document to update.</param>
+    /// <param name="context">Metadata about the document generation process.</param>
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
         swaggerDoc.ConfigureOperation(

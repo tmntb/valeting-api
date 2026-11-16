@@ -2,6 +2,9 @@ using Microsoft.OpenApi;
 
 namespace Api.Extensions;
 
+/// <summary>
+/// Provides helpers for customizing generated OpenAPI operations.
+/// </summary>
 public static class OpenApiDocumentExtensions
 {
     /// <summary>

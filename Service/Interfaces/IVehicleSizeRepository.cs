@@ -3,6 +3,9 @@ using Service.Models.VehicleSize.Payload;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines database queries for vehicle-size options.
+/// </summary>
 public interface IVehicleSizeRepository
 {
     /// <summary>

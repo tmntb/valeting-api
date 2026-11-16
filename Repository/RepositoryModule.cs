@@ -8,9 +8,17 @@ using Service.Interfaces;
 
 namespace Repository;
 
+/// <summary>
+/// Registers repository and database context dependencies.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public static class RepositoryModule
 {
+    /// <summary>
+    /// Registers the Entity Framework context and repository implementations.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
+    /// <param name="configuration">Application settings containing the database connection string.</param>
     public static void AddRepository(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<ValetingContext>(options =>

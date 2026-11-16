@@ -1,5 +1,8 @@
 namespace Service.Models.Mfa.Payload;
 
+/// <summary>
+/// Contains a user's multi-factor authentication code for verification.
+/// </summary>
 public class MfaCodeDtoRequest
 {
     /// <summary>

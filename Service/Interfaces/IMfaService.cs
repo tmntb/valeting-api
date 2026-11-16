@@ -3,6 +3,9 @@ using Service.Models.Mfa.Payload;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines multi-factor authentication setup and verification operations.
+/// </summary>
 public interface IMfaService
 {
     /// <summary>

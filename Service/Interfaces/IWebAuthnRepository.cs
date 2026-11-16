@@ -3,6 +3,9 @@ using Service.Models.WebAuthn;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines persistence operations for registered WebAuthn credentials.
+/// </summary>
 public interface IWebAuthnRepository
 {
     /// <summary>

@@ -3,6 +3,9 @@ using Service.Models.User;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines account registration, credential validation, and password recovery operations.
+/// </summary>
 public interface IAuthService
 {
     /// <summary>

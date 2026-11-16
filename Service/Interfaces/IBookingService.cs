@@ -3,6 +3,9 @@ using Service.Models.Booking.Payload;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines booking creation, updates, and retrieval operations.
+/// </summary>
 public interface IBookingService
 {
     /// <summary>

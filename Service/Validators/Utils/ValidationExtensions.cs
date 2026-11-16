@@ -2,6 +2,9 @@
 
 namespace Service.Validators.Utils;
 
+/// <summary>
+/// Provides request validation extensions used by service operations.
+/// </summary>
 public static class ValidationExtensions
 {
     /// <summary>

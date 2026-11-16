@@ -3,6 +3,9 @@ using Service.Models.Role;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines database queries for user roles.
+/// </summary>
 public interface IRoleRepository
 {
     /// <summary>

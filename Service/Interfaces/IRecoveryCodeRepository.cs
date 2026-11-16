@@ -2,6 +2,9 @@ using Service.Models.Auth;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines persistence operations for one-time account recovery codes.
+/// </summary>
 public interface IRecoveryCodeRepository
 {
     /// <summary>

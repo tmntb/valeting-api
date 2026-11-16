@@ -2,6 +2,9 @@ using Service.Models.Auth.Payload;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines JWT generation and validation operations.
+/// </summary>
 public interface ITokenService
 {
     /// <summary>

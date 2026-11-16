@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.BaseController;
 
+/// <summary>
+/// Defines versioned booking creation, update, and retrieval endpoints.
+/// </summary>
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json")]

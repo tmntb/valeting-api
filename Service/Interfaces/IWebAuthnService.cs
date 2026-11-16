@@ -4,6 +4,9 @@ using Service.Models.WebAuthn.Payload;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines WebAuthn authentication, registration, and credential management operations.
+/// </summary>
 public interface IWebAuthnService
 {
     /// <summary>

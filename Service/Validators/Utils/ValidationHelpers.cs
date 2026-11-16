@@ -2,6 +2,11 @@ using Service.Interfaces;
 
 namespace Service.Validators.Utils;
 
+/// <summary>
+/// Provides asynchronous checks that referenced lookup values exist.
+/// </summary>
+/// <param name="flexibilityRepository">Repository used to check flexibility identifiers.</param>
+/// <param name="vehicleSizeRepository">Repository used to check vehicle-size identifiers.</param>
 public class ValidationHelpers(IFlexibilityRepository flexibilityRepository, IVehicleSizeRepository vehicleSizeRepository)
 {
     /// <summary>

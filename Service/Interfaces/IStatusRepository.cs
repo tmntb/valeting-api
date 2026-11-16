@@ -3,6 +3,9 @@ using Service.Models.Status;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines database queries for booking statuses.
+/// </summary>
 public interface IStatusRepository
 {
     /// <summary>

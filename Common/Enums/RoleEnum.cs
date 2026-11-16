@@ -5,6 +5,8 @@ namespace Common.Enums;
 /// </summary>
 public enum RoleEnum
 {
+    /// <summary>Administrator role with access to administrative operations.</summary>
     ADMIN,
+    /// <summary>Standard user role.</summary>
     USER
 }

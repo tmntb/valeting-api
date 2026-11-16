@@ -2,6 +2,9 @@
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines resource and pagination link generation operations.
+/// </summary>
 public interface ILinkService
 {
     /// <summary>

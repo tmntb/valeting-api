@@ -8,14 +8,20 @@ using Service.Validators.Utils;
 
 namespace Service;
 
+/// <summary>
+/// Registers service-layer dependencies in the application's dependency injection container.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public static class ServiceModule
 {
+    /// <summary>
+    /// Registers application services, validators, challenge storage, and the cache handler.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
     public static void AddService(this IServiceCollection services)
     {
         // Caching
-        services.AddMemoryCache();
-        services.AddScoped<ICacheHandler, MemoryCacheHandler>();
+        services.AddScoped<ICacheHandler, RedisCacheHandler>();
         services.AddScoped<IWebAuthnChallengeStore, WebAuthnChallengeStore>();
 
         services.AddScoped<ValidationHelpers>();

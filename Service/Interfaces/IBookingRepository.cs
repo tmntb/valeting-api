@@ -3,6 +3,9 @@ using Service.Models.Booking.Payload;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines database operations for booking records.
+/// </summary>
 public interface IBookingRepository
 {
     /// <summary>

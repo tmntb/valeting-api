@@ -2,6 +2,9 @@ using Service.Models.WebAuthn;
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines temporary storage for single-use WebAuthn ceremony state.
+/// </summary>
 public interface IWebAuthnChallengeStore
 {
     /// <summary>

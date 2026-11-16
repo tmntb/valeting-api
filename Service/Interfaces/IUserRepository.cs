@@ -2,6 +2,9 @@
 
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines persistence operations for user accounts.
+/// </summary>
 public interface IUserRepository
 {
     /// <summary>

@@ -1,5 +1,8 @@
 namespace Service.Models.WebAuthn;
 
+/// <summary>
+/// Represents a persisted WebAuthn credential and its ownership and authenticator metadata.
+/// </summary>
 public class WebAuthnDto
 {
     /// <summary>

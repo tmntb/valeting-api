@@ -1,5 +1,8 @@
 namespace Service.Interfaces;
 
+/// <summary>
+/// Defines operations for generating and managing account recovery codes.
+/// </summary>
 public interface IRecoveryCodeService
 {
     /// <summary>

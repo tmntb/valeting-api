@@ -21,6 +21,11 @@ public class TokenDocumentFilter : IDocumentFilter
     /// </summary>
     private const string RefreshTokenEndpoint = "/api/v1/token/refresh";
 
+    /// <summary>
+    /// Applies operation identifiers, summaries, and descriptions to token routes.
+    /// </summary>
+    /// <param name="swaggerDoc">The generated OpenAPI document to update.</param>
+    /// <param name="context">Metadata about the document generation process.</param>
     public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
         swaggerDoc.ConfigureOperation(GenerateTokenEndpoint, HttpMethod.Post, "post-token-generate",

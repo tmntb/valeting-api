@@ -6,6 +6,10 @@ using Service.Interfaces;
 
 namespace Api.Controllers;
 
+/// <summary>
+/// Handles JWT generation and refresh requests.
+/// </summary>
+/// <param name="tokenService">JWT generation and validation operations.</param>
 public class TokenController(ITokenService tokenService) : TokenBaseController
 {
     /// <inheritdoc />
