@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.RateLimiting;
 using System.Collections.Concurrent;
 using System.Threading.RateLimiting;
+using Microsoft.Extensions.Options;
 
 namespace Api.RateLimiting;
 
-public sealed class LoginLimitRule(ILogger<LoginLimitRule> logger) : IRateLimitRule
+public sealed class LoginLimitRule(IOptions<RateLimitConfig> rateLimitConfig, ILogger<LoginLimitRule> logger) : IRateLimitRule
 {
+    private readonly LoginRateLimitConfig _loginRateLimitConfig = rateLimitConfig.Value.Login;
     private readonly ConcurrentDictionary<string, ThrottleState> _tracker = new();
 
     public string PolicyName => "Login";
@@ -30,9 +32,9 @@ public sealed class LoginLimitRule(ILogger<LoginLimitRule> logger) : IRateLimitR
 
         return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
         {
-            PermitLimit = isPenalty ? 1 : 5,
-            Window = isPenalty ?  TimeSpan.FromMinutes(10) : TimeSpan.FromMinutes(1),
-            QueueLimit = 0,
+            PermitLimit = isPenalty ? _loginRateLimitConfig.Penalty.PermitLimit : _loginRateLimitConfig.Base.PermitLimit,
+            Window = isPenalty ? _loginRateLimitConfig.Penalty.Window : _loginRateLimitConfig.Base.Window,
+            QueueLimit = _loginRateLimitConfig.QueueLimit,
             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
             AutoReplenishment = true
         });
@@ -47,7 +49,7 @@ public sealed class LoginLimitRule(ILogger<LoginLimitRule> logger) : IRateLimitR
     private bool UpdateThrottleState(string throttleKey)
     {
         var now = DateTimeOffset.UtcNow;
-        var trackerWindow = TimeSpan.FromMinutes(1);
+        var trackerWindow = _loginRateLimitConfig.TrackerWindow;
         var throttleState = _tracker.GetOrAdd(throttleKey, _ => new ThrottleState(now.Add(trackerWindow)));
 
         lock (throttleState.SyncRoot)
@@ -68,7 +70,7 @@ public sealed class LoginLimitRule(ILogger<LoginLimitRule> logger) : IRateLimitR
             if (throttleState.RequestCount < 6)
                 return false;
             
-            throttleState.PenaltyUntilUtc = now.Add(TimeSpan.FromMinutes(10));
+            throttleState.PenaltyUntilUtc = now.Add(_loginRateLimitConfig.PenaltyWindow);
             
             logger.LogWarning("Throttle key {ThrottleKey} escalated to penalty until {PenaltyUntilUtc:o}. Total Requests: {RequestCount}.",
                 throttleKey, throttleState.PenaltyUntilUtc, throttleState.RequestCount);

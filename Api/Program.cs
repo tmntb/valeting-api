@@ -32,6 +32,8 @@ EnvironmentConfiguration.ConfigureConnectionString(builder.Configuration);
 EnvironmentConfiguration.ConfigureJwtKey(builder.Configuration);
 EnvironmentConfiguration.ConfigureWebAuthnSettings(builder.Configuration);
 
+builder.Services.Configure<RateLimitConfig>(builder.Configuration.GetSection(RateLimitConfig.SectionName));
+
 // Add services to the container.
 builder.Services.AddService();
 builder.Services.AddRepository(builder.Configuration);
