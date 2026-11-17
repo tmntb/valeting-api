@@ -1,10 +1,10 @@
-using Api.Controllers.BaseController;
+using Api.Controllers.v1.BaseController;
 using Api.Models.Token.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 
-namespace Api.Controllers;
+namespace Api.Controllers.v1;
 
 /// <summary>
 /// Handles JWT generation and refresh requests.

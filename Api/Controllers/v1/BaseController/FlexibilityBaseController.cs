@@ -4,7 +4,7 @@ using Api.Models.Flexibility.Payload;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers.BaseController;
+namespace Api.Controllers.v1.BaseController;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]

@@ -1,6 +1,5 @@
-﻿using System.Security.Claims;
-using Api.Context;
-using Api.Controllers.BaseController;
+﻿using Api.Context;
+using Api.Controllers.v1.BaseController;
 using Api.Models.User.Payload;
 using Asp.Versioning;
 using Common.Messages;
@@ -9,7 +8,7 @@ using Service.Interfaces;
 using Service.Models.User;
 using Service.Models.User.Payload;
 
-namespace Api.Controllers;
+namespace Api.Controllers.v1;
 
 [ApiVersion("1")]
 public class UserController(ValetingApiContext valetingApiContext, IUserService userService) : UserBaseController

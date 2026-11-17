@@ -4,7 +4,7 @@ using Api.Models.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers.BaseController;
+namespace Api.Controllers.v1.BaseController;
 
 /// <summary>
 /// Defines versioned booking creation, update, and retrieval endpoints.

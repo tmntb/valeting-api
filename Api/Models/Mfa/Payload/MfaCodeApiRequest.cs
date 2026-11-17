@@ -1,4 +1,4 @@
-namespace Api.Models.Auth.Payload;
+namespace Api.Models.Mfa.Payload;
 
 /// <summary>
 /// Contains the one-time MFA code submitted for verification.

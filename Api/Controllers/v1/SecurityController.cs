@@ -1,6 +1,6 @@
 using Api.Context;
-using Api.Controllers.BaseController;
-using Api.Models.Auth.Payload;
+using Api.Controllers.v1.BaseController;
+using Api.Models.Mfa.Payload;
 using Api.Models.WebAuthn.Payload;
 using Asp.Versioning;
 using Common.Messages;
@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Service.Models.User;
 
-namespace Api.Controllers;
+namespace Api.Controllers.v1;
 
 [ApiVersion("1")]
 public class SecurityController(ValetingApiContext valetingApiContext, IMfaService mfaService, IWebAuthnService webAuthnService) : SecurityBaseController

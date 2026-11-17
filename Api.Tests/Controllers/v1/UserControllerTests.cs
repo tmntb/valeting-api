@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Api.Context;
 using Api.Controllers;
+using Api.Controllers.v1;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

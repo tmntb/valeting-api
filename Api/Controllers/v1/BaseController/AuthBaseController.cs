@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace Api.Controllers.BaseController;
+namespace Api.Controllers.v1.BaseController;
 
 /// <summary>
 /// Defines versioned account authentication, registration, and recovery endpoints.

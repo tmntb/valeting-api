@@ -1,5 +1,6 @@
 using System.Net;
 using Api.Controllers;
+using Api.Controllers.v1;
 using Api.Models.Token.Payload;
 using Common.Enums;
 using Common.Messages;

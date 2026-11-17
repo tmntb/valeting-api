@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Api.Controllers.BaseController;
+using Api.Controllers.v1.BaseController;
 using Api.Models.Core;
 using Api.Models.Flexibility;
 using Api.Models.Flexibility.Payload;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Service.Models.Flexibility.Payload;
 
-namespace Api.Controllers;
+namespace Api.Controllers.v1;
 
 [ApiVersion("1")]
 public class FlexibilityController(IFlexibilityService flexibilityService, ILinkService urlService) : FlexibilityBaseController

@@ -1,31 +1,32 @@
-﻿using System.Net;
+using System.Net;
 using Api.Controllers;
-using Api.Models.VehicleSize.Payload;
+using Api.Controllers.v1;
+using Api.Models.Flexibility.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Service.Interfaces;
+using Service.Models.Flexibility;
+using Service.Models.Flexibility.Payload;
 using Service.Models.Link.Payload;
-using Service.Models.VehicleSize;
-using Service.Models.VehicleSize.Payload;
 
 namespace Api.Tests.Controllers;
 
-public class VehicleSizeControllerTests
+public class FlexibilityControllerTests
 {
     private readonly Mock<ILinkService> _mockLinkService;
-    private readonly Mock<IVehicleSizeService> _mockVehicleSizeService;
+    private readonly Mock<IFlexibilityService> _mockFlexibilityService;
 
-    private readonly Guid _mockVehicleSizeId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-    private readonly VehicleSizeController _vehicleSizeController;
+    private readonly Guid _mockFlexibilityId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    private readonly FlexibilityController _flexibilityController;
 
-    public VehicleSizeControllerTests()
+    public FlexibilityControllerTests()
     {
         _mockLinkService = new Mock<ILinkService>();
-        _mockVehicleSizeService = new Mock<IVehicleSizeService>();
+        _mockFlexibilityService = new Mock<IFlexibilityService>();
 
-        _vehicleSizeController = new VehicleSizeController(_mockVehicleSizeService.Object, _mockLinkService.Object)
+        _flexibilityController = new FlexibilityController(_mockFlexibilityService.Object, _mockLinkService.Object)
         {
             ControllerContext = new() { HttpContext = new DefaultHttpContext() }
         };
@@ -35,7 +36,7 @@ public class VehicleSizeControllerTests
     public async Task GetFilteredAsync_ShouldThrowArgumentNullException_WhenParamsAreNull()
     {
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _vehicleSizeController.GetFilteredAsync(null));
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _flexibilityController.GetFilteredAsync(null));
         Assert.Contains(Messages.InvalidRequestQueryParameters, exception.Message);
     }
 
@@ -43,20 +44,20 @@ public class VehicleSizeControllerTests
     public async Task GetFilteredAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        _mockVehicleSizeService
-            .Setup(s => s.GetFilteredAsync(It.IsAny<VehicleSizeFilterDto>()))
+        _mockFlexibilityService
+            .Setup(s => s.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
             .ReturnsAsync(
-                new VehicleSizePaginatedDtoResponse
+                new FlexibilityPaginatedDtoResponse
                 {
                     TotalItems = 1,
                     TotalPages = 1,
-                    VehicleSizes =
+                    Flexibilities =
                     [
                         new()
                         {
-                            Id = _mockVehicleSizeId,
-                            Name = "description",
-                            Active = true
+                            Id = It.IsAny<Guid>(),
+                            Name = It.IsAny<string>(),
+                            Active = It.IsAny<bool>()
                         }
                     ]
                 });
@@ -65,12 +66,11 @@ public class VehicleSizeControllerTests
             .Setup(u => u.GeneratePaginatedLinks(It.IsAny<GeneratePaginatedLinksDtoRequest>()))
             .Returns(new GeneratePaginatedLinksDtoResponse());
 
-        _mockLinkService
-            .Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
-            .Returns($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}");
+        _mockLinkService.Setup(l => l.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
+            .Returns($"https://api.test.com/flexibilities/{_mockFlexibilityId}");
 
         // Act
-        var result = await _vehicleSizeController.GetFilteredAsync
+        var result = await _flexibilityController.GetFilteredAsync
         (
             new()
             {
@@ -82,19 +82,19 @@ public class VehicleSizeControllerTests
         Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
 
-        var responseApi = result.Value as VehicleSizeApiPaginatedResponse;
+        var responseApi = result.Value as FlexibilityApiPaginatedResponse;
         Assert.NotNull(responseApi);
         Assert.Equal(1, responseApi.CurrentPage);
         Assert.Equal(1, responseApi.TotalItems);
         Assert.Equal(1, responseApi.TotalPages);
-        Assert.Equal($"https://api.test.com/vehicleSizes/{_mockVehicleSizeId}", responseApi.VehicleSizes[0].Link.Self.Href);
+        Assert.Equal($"https://api.test.com/flexibilities/{_mockFlexibilityId}", responseApi.Flexibilities[0].Link.Self.Href);
     }
 
     [Fact]
     public async Task GetByIdAsync_ShouldThrowArgumentNullException_WhenIdIsNull()
     {
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _vehicleSizeController.GetByIdAsync(null));
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _flexibilityController.GetByIdAsync(null));
         Assert.Contains(Messages.InvalidRequestId, exception.Message);
     }
 
@@ -102,29 +102,29 @@ public class VehicleSizeControllerTests
     public async Task GetByIdAsync_ShouldReturnOk_WhenValidId()
     {
         // Arrange
-        _mockVehicleSizeService
+        _mockFlexibilityService
             .Setup(s => s.GetByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(
-                new VehicleSizeDto
+                new FlexibilityDto
                 {
-                    Id = _mockVehicleSizeId
+                    Id = _mockFlexibilityId
                 });
 
         _mockLinkService
             .Setup(u => u.GenerateSelf(It.IsAny<GenerateSelfLinkDtoRequest>()))
-            .Returns($"http://example.com/flexibility/{_mockVehicleSizeId}");
+            .Returns($"http://example.com/flexibility/{_mockFlexibilityId}");
 
         // Act
-        var result = await _vehicleSizeController.GetByIdAsync(_mockVehicleSizeId.ToString()) as ObjectResult;
+        var result = await _flexibilityController.GetByIdAsync(_mockFlexibilityId.ToString()) as ObjectResult;
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
 
-        var responseApi = result.Value as VehicleSizeApiResponse;
+        var responseApi = result.Value as FlexibilityApiResponse;
         Assert.NotNull(responseApi);
-        Assert.NotNull(responseApi.VehicleSize);
-        Assert.Equal(_mockVehicleSizeId, responseApi.VehicleSize.Id);
-        Assert.Equal($"http://example.com/flexibility/{_mockVehicleSizeId}", responseApi.VehicleSize.Link.Self.Href);
+        Assert.NotNull(responseApi.Flexibility);
+        Assert.Equal(_mockFlexibilityId, responseApi.Flexibility.Id);
+        Assert.Equal($"http://example.com/flexibility/{_mockFlexibilityId}", responseApi.Flexibility.Link.Self.Href);
     }
 }

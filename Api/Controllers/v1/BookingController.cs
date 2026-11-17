@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Api.Context;
-using Api.Controllers.BaseController;
+using Api.Controllers.v1.BaseController;
 using Api.Models.Booking;
 using Api.Models.Booking.Payload;
 using Api.Models.Core;
@@ -11,7 +11,7 @@ using Service.Interfaces;
 using Service.Models.Booking;
 using Service.Models.Booking.Payload;
 
-namespace Api.Controllers;
+namespace Api.Controllers.v1;
 
 [ApiVersion("1")]
 public class BookingController(ValetingApiContext valetingApiContext, IBookingService bookingService, ILinkService linkService) : BookingBaseController

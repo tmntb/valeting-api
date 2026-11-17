@@ -1,9 +1,8 @@
-using Api.Models.Auth.Payload;
 using Api.Models.Core;
 using Api.Models.Token.Payload;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers.BaseController;
+namespace Api.Controllers.v1.BaseController;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]

@@ -1,10 +1,10 @@
-using Api.Models.Auth.Payload;
 using Api.Models.Core;
+using Api.Models.Mfa.Payload;
 using Api.Models.WebAuthn.Payload;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers.BaseController;
+namespace Api.Controllers.v1.BaseController;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]

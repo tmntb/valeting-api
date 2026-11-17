@@ -1,5 +1,5 @@
 using Api.Context;
-using Api.Controllers.BaseController;
+using Api.Controllers.v1.BaseController;
 using Api.Models.Auth.Payload;
 using Asp.Versioning;
 using Common.Enums;
@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
 using Service.Models.User;
 
-namespace Api.Controllers;
+namespace Api.Controllers.v1;
 
 [ApiVersion("1")]
 public class AuthController(ValetingApiContext valetingApiContext, IAuthService authService, IRecoveryCodeService recoveryCodeService) : AuthBaseController
