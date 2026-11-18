@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Common.Cache;
 using Common.Cache.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Service.Interfaces;
 using Service.Services;
@@ -18,11 +19,17 @@ public static class ServiceModule
     /// Registers application services, validators, challenge storage, and the cache handler.
     /// </summary>
     /// <param name="services">The service collection to configure.</param>
-    public static void AddService(this IServiceCollection services)
+    /// <param name="configuration">The configuration instance.</param>
+    public static void AddService(this IServiceCollection services, IConfiguration configuration)
     {
         // Caching
-        services.AddMemoryCache();
-        services.AddScoped<ICacheHandler, MemoryCacheHandler>();
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = configuration.GetConnectionString("Redis");
+            options.InstanceName = "Valeting_";
+        });
+        
+        services.AddSingleton<ICacheHandler, RedisCacheHandler>();
         
         services.AddScoped<IWebAuthnChallengeStore, WebAuthnChallengeStore>();
 

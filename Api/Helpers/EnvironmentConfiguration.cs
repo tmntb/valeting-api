@@ -111,6 +111,45 @@ internal static class EnvironmentConfiguration
             Console.WriteLine("✅ Replaced {PK_ORIGINS} placeholder in WebAuthn:RpOrigins.");
         }
     }
+    
+    /// <summary>
+    /// Replaces the {REDIS_CONNECTION} placeholder in the ValetingConnection connection string with the actual Redis connection string from environment variables.
+    /// This allows us to keep the sensitive Redis connection string out of appsettings.json and only inject it at runtime from a secure source (like Docker secrets or environment variables).
+    /// If the connection string does not contain the placeholder, this method will do nothing.
+    /// If the REDIS_CONNECTION environment variable is not set, this method will also do nothing, allowing the application to fall back to any existing connection string value in configuration (if present).
+    /// </summary>
+    /// <param name="config">The application configuration containing the Redis connection string.</param>
+    /// <exception cref="InvalidOperationException">Throw when <c>REDIS_CONNECTION</c> is not configured.</exception>
+    internal static void ConfigureRedis(IConfiguration config)
+    {
+        var redisConnection = GetEnvVar("REDIS_CONNECTION");
+        var redisConnectionStr = config.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("RedisConnection not configured");
+
+        if (string.IsNullOrEmpty(redisConnectionStr) || string.IsNullOrEmpty(redisConnection)) 
+            return;
+        
+        redisConnectionStr = redisConnectionStr.Replace("{REDIS_CONNECTION}", redisConnection);
+        config["ConnectionStrings:RedisConnection"] = redisConnectionStr;
+        Console.WriteLine("✅ Replaced {REDIS_CONNECTION} placeholder in connection string.");
+    }
+    
+    /// <summary>
+    /// Replaces the RateLimiting configuration placeholders with values from the environment variables.
+    /// </summary>
+    /// <param name="config">The application configuration containing the rate limiting settings.</param>
+    /// <exception cref="InvalidOperationException">Throw when <c>RATE_LIMITING</c> is not configured.</exception>
+    internal static void ConfigureRateLimiting(IConfiguration config)
+    {
+        var rateLimiting = GetEnvVar("RATE_LIMITING");
+        var rateLimitingStr = config["RateLimiting"] ?? throw new InvalidOperationException("Rate Limiting not configured");
+
+        if (string.IsNullOrEmpty(rateLimiting) || string.IsNullOrEmpty(rateLimitingStr)) 
+            return;
+        
+        rateLimitingStr = rateLimitingStr.Replace("{RATE_LIMITING}", rateLimiting);
+        config["RateLimiting"] = rateLimitingStr;
+        Console.WriteLine("✅ Replaced {RATE_LIMITING} placeholder in RateLimiting.");
+    }
 
     /// <summary>
     /// Helper method to read an environment variable and optionally enforce that it is set (non-empty). 

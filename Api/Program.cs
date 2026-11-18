@@ -29,13 +29,15 @@ builder.Configuration
 
 // Apply overrides from environment variables (if present)
 EnvironmentConfiguration.ConfigureConnectionString(builder.Configuration);
+EnvironmentConfiguration.ConfigureRedis(builder.Configuration);
 EnvironmentConfiguration.ConfigureJwtKey(builder.Configuration);
 EnvironmentConfiguration.ConfigureWebAuthnSettings(builder.Configuration);
+EnvironmentConfiguration.ConfigureRateLimiting(builder.Configuration);
 
 builder.Services.Configure<RateLimitConfig>(builder.Configuration.GetSection(RateLimitConfig.SectionName));
 
 // Add services to the container.
-builder.Services.AddService();
+builder.Services.AddService(builder.Configuration);
 builder.Services.AddRepository(builder.Configuration);
 
 builder.Services.AddFido2(options =>

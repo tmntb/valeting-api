@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.RateLimiting;
 using System.Collections.Concurrent;
 using System.Threading.RateLimiting;
+using Common.Cache;
+using Common.Cache.Interfaces;
 using Microsoft.Extensions.Options;
 
 namespace Api.RateLimiting;
 
-public sealed class LoginLimitRule(IOptions<RateLimitConfig> rateLimitConfig, ILogger<LoginLimitRule> logger) : IRateLimitRule
+public sealed class LoginLimitRule(ICacheHandler cacheHandler, IOptions<RateLimitConfig> rateLimitConfig, ILogger<LoginLimitRule> logger) : IRateLimitRule
 {
     private readonly LoginRateLimitConfig _loginRateLimitConfig = rateLimitConfig.Value.Login;
     private readonly ConcurrentDictionary<string, ThrottleState> _tracker = new();
@@ -23,16 +25,18 @@ public sealed class LoginLimitRule(IOptions<RateLimitConfig> rateLimitConfig, IL
     private RateLimitPartition<string> CreateLimiter(HttpContext httpContext)
     {
         var throttleKey = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        var isPenalty = UpdateThrottleState(throttleKey);
+        var isPenalty = UpdateThrottleStateAsync(throttleKey).ConfigureAwait(false).GetAwaiter().GetResult();
 
-        logger.LogInformation("Rate limit evaluation for {PolicyName}: throttle key {ThrottleKey} resolved to {Tier} tier.",
+        logger.LogInformation(
+            "Rate limit evaluation for {PolicyName}: throttle key {ThrottleKey} resolved to {Tier} tier.",
             PolicyName, throttleKey, isPenalty ? "penalty" : "base");
 
         var partitionKey = isPenalty ? $"{PolicyName}:penalty:{throttleKey}" : $"{PolicyName}:base:{throttleKey}";
 
         return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
         {
-            PermitLimit = isPenalty ? _loginRateLimitConfig.Penalty.PermitLimit : _loginRateLimitConfig.Base.PermitLimit,
+            PermitLimit =
+                isPenalty ? _loginRateLimitConfig.Penalty.PermitLimit : _loginRateLimitConfig.Base.PermitLimit,
             Window = isPenalty ? _loginRateLimitConfig.Penalty.Window : _loginRateLimitConfig.Base.Window,
             QueueLimit = _loginRateLimitConfig.QueueLimit,
             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
@@ -45,45 +49,87 @@ public sealed class LoginLimitRule(IOptions<RateLimitConfig> rateLimitConfig, IL
     /// If the accumulated counts exceed the enumeration or rate thresholds, escalates the identity to penalty tier.
     /// </summary>
     /// <param name="throttleKey">The identity key for the client.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns><c>true</c> if the client is currently in the penalty tier, otherwise <c>false</c></returns>
-    private bool UpdateThrottleState(string throttleKey)
+    private async Task<bool> UpdateThrottleStateAsync(string throttleKey, CancellationToken cancellationToken = default)
     {
         var now = DateTimeOffset.UtcNow;
         var trackerWindow = _loginRateLimitConfig.TrackerWindow;
-        var throttleState = _tracker.GetOrAdd(throttleKey, _ => new ThrottleState(now.Add(trackerWindow)));
+        var cacheKey = $"throttle:{throttleKey}";
 
-        lock (throttleState.SyncRoot)
-        {
-            if (throttleState.PenaltyUntilUtc > now)
-                return true;
-            
-            if (now >= throttleState.TrackingWindowEndsAtUtc)
+        var throttleState = await cacheHandler.GetOrCreateRecordAsync(
+            cacheKey,
+            () =>
             {
-                logger.LogInformation("Throttle window reset for {ThrottleKey}. Tracking resumes until {WindowEndsAtUtc:o}.", throttleKey, throttleState.TrackingWindowEndsAtUtc);
-                
-                throttleState.RequestCount = 0;
-                throttleState.TrackingWindowEndsAtUtc = now.Add(trackerWindow);
-            }
+                try
+                {
+                    return Task.FromResult(new ThrottleState
+                    {
+                        TrackingWindowEndsAtUtc = now.Add(trackerWindow)
+                    });
+                }
+                catch (Exception exception)
+                {
+                    return Task.FromException<ThrottleState>(exception);
+                }
+            },
+            new CacheOptions
+            {
+                AbsoluteExpireTime = trackerWindow
+            },
+            cancellationToken);
 
-            throttleState.RequestCount++;
-
-            if (throttleState.RequestCount < 6)
-                return false;
-            
-            throttleState.PenaltyUntilUtc = now.Add(_loginRateLimitConfig.PenaltyWindow);
-            
-            logger.LogWarning("Throttle key {ThrottleKey} escalated to penalty until {PenaltyUntilUtc:o}. Total Requests: {RequestCount}.",
-                throttleKey, throttleState.PenaltyUntilUtc, throttleState.RequestCount);
-
+        if (throttleState.PenaltyUntilUtc > now)
             return true;
+
+        if (now >= throttleState.TrackingWindowEndsAtUtc)
+        {
+            logger.LogInformation(
+                "Throttle window reset for {ThrottleKey}. Tracking resumes until {WindowEndsAtUtc:o}.",
+                throttleKey,
+                throttleState.TrackingWindowEndsAtUtc);
+
+            throttleState.RequestCount = 0;
+            throttleState.TrackingWindowEndsAtUtc = now.Add(trackerWindow);
         }
+
+        throttleState.RequestCount++;
+
+        var isPenalized = false;
+        TimeSpan cacheExpiration;
+
+        if (throttleState.RequestCount >= _loginRateLimitConfig.Base.PermitLimit)
+        {
+            throttleState.PenaltyUntilUtc = now.Add(_loginRateLimitConfig.PenaltyWindow);
+            isPenalized = true;
+            cacheExpiration = _loginRateLimitConfig.PenaltyWindow;
+
+            logger.LogWarning(
+                "Throttle key {ThrottleKey} escalated to penalty until {PenaltyUntilUtc:o}. Total Requests: {RequestCount}.",
+                throttleKey,
+                throttleState.PenaltyUntilUtc,
+                throttleState.RequestCount);
+        }
+        else
+        {
+            var remainingWindow = throttleState.TrackingWindowEndsAtUtc - now;
+            cacheExpiration = remainingWindow > TimeSpan.Zero ? remainingWindow : trackerWindow;
+        }
+
+        await cacheHandler.UpdateRecordAsync(cacheKey, throttleState, 
+            new CacheOptions
+            {
+                AbsoluteExpireTime = cacheExpiration
+            }, 
+            cancellationToken);
+
+        return isPenalized;
     }
 
-    private sealed class ThrottleState(DateTimeOffset trackingWindowEndsAtUtc)
+    private sealed class ThrottleState
     {
-        public object SyncRoot { get; } = new();
         public int RequestCount { get; set; }
-        public DateTimeOffset TrackingWindowEndsAtUtc { get; set; } = trackingWindowEndsAtUtc;
+        public DateTimeOffset TrackingWindowEndsAtUtc { get; set; }
         public DateTimeOffset PenaltyUntilUtc { get; set; }
     }
 }
