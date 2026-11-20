@@ -49,26 +49,31 @@ public class TokenService(IUserRepository userRepository, IConfiguration configu
     }
 
     /// <inheritdoc />
-    public string ValidateToken(string token)
+    public void ValidateToken(string token)
     {
         var (issuer, audience) = GetJwtSettings();
         var securityKey = GetSecurityKey();
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var claims = tokenHandler.ValidateToken(token, new TokenValidationParameters
+        try
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateIssuerSigningKey = true,
-            ValidateLifetime = false,
-            ValidIssuer = issuer,
-            ValidAudience = audience,
-            IssuerSigningKey = securityKey,
-            ClockSkew = TimeSpan.Zero,
-            RoleClaimType = ClaimTypes.Role
-        }, out _);
-
-        return claims.FindFirst(ClaimTypes.Email)?.Value ?? throw new UnauthorizedAccessException(Messages.InvalidToken);
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateIssuerSigningKey = true,
+                ValidateLifetime = true,
+                ValidIssuer = issuer,
+                ValidAudience = audience,
+                IssuerSigningKey = securityKey,
+                ClockSkew = TimeSpan.Zero,
+                RoleClaimType = ClaimTypes.Role
+            }, out _);
+        }
+        catch (SecurityTokenException ex)
+        {
+            throw new UnauthorizedAccessException(Messages.InvalidToken, ex);
+        }
     }
 
      /// <summary>

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.RateLimiting;
-using System.Collections.Concurrent;
 using System.Threading.RateLimiting;
 using Common.Cache;
 using Common.Cache.Interfaces;
@@ -10,7 +9,6 @@ namespace Api.RateLimiting;
 public sealed class LoginLimitRule(ICacheHandler cacheHandler, IOptions<RateLimitConfig> rateLimitConfig, ILogger<LoginLimitRule> logger) : IRateLimitRule
 {
     private readonly LoginRateLimitConfig _loginRateLimitConfig = rateLimitConfig.Value.Login;
-    private readonly ConcurrentDictionary<string, ThrottleState> _tracker = new();
 
     public string PolicyName => "Login";
 

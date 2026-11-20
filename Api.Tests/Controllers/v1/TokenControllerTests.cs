@@ -1,4 +1,5 @@
 using System.Net;
+using Api.Context;
 using Api.Controllers;
 using Api.Controllers.v1;
 using Api.Models.Token.Payload;
@@ -20,8 +21,13 @@ public class TokenControllerTests
     public TokenControllerTests()
     {
         _mockTokenService = new Mock<ITokenService>();
+        var valetingApiContext = new ValetingApiContext
+        {
+            UserId = Guid.Parse("00000000-0000-0000-0000-000000000099"),
+            Role = RoleEnum.USER
+        };
 
-        _tokenController = new TokenController(_mockTokenService.Object);
+        _tokenController = new TokenController(valetingApiContext, _mockTokenService.Object);
     }
     
     [Fact]
@@ -90,7 +96,7 @@ public class TokenControllerTests
         // Arrange
         _mockTokenService
             .Setup(s => s.ValidateToken(It.IsAny<string>()))
-            .Returns("test@example.com");
+            .Verifiable(Times.Once);
 
         _mockTokenService
             .Setup(s => s.GenerateTokenJwtAsync(It.IsAny<string>()))
@@ -118,5 +124,7 @@ public class TokenControllerTests
 
         var responseApi = (JwtTokenApiResponse)result.Value;
         Assert.Equal(RoleEnum.USER, responseApi.Role);
+        
+        _mockTokenService.Verify();
     }
 }

@@ -72,25 +72,30 @@ public class TokenServiceTests
         // Arrange
         _mockConfiguration
             .Setup(config => config["Jwt:Key"])
-            .Returns("this_is_a_secret_key_with_128bits");
+            .Returns("this_is_a_secret_key_with_128bits")
+            .Verifiable(Times.Once);
         _mockConfiguration
             .Setup(config => config["Jwt:Issuer"])
-            .Returns("issuer");
+            .Returns("issuer")
+            .Verifiable(Times.Once);
         _mockConfiguration
             .Setup(config => config["Jwt:Audience"])
-            .Returns("audience");
+            .Returns("audience")
+            .Verifiable(Times.Once);
 
         _mockUserRepository
             .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(_userDto);
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
 
         var tokenResponse = await _tokenService.GenerateTokenJwtAsync("user@example.com");
         var validToken = tokenResponse.Token;
 
         // Act
-        var email = _tokenService.ValidateToken(validToken);
+        _tokenService.ValidateToken(validToken);
 
         // Assert
-        Assert.Equal("user@example.com", email);
+        _mockConfiguration.Verify();
+        _mockUserRepository.Verify();
     }
 }

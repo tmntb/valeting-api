@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Api.Context;
 using Api.Helpers;
@@ -34,7 +35,8 @@ EnvironmentConfiguration.ConfigureJwtKey(builder.Configuration);
 EnvironmentConfiguration.ConfigureWebAuthnSettings(builder.Configuration);
 EnvironmentConfiguration.ConfigureRateLimiting(builder.Configuration);
 
-builder.Services.Configure<RateLimitConfig>(builder.Configuration.GetSection(RateLimitConfig.SectionName));
+var rateLimitConfig = JsonSerializer.Deserialize<RateLimitConfig>(builder.Configuration["RateLimiting"], new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+builder.Services.AddOptions<RateLimitConfig>().Configure(options => options.Login = rateLimitConfig.Login);
 
 // Add services to the container.
 builder.Services.AddService(builder.Configuration);
@@ -48,10 +50,7 @@ builder.Services.AddFido2(options =>
 });
 
 builder.Services
-    .Configure<RouteOptions>(options =>
-    {
-        options.LowercaseUrls = true;
-    });
+    .Configure<RouteOptions>(options => { options.LowercaseUrls = true; });
 
 builder.Services
     .AddAuthentication(options =>
@@ -124,8 +123,8 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
@@ -153,23 +152,22 @@ if (app.Environment.IsDevelopment())
 
 app.UsePathBase("/valeting");
 
-app.UseRateLimiter();
-
 app.UseHttpsRedirection();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+app.UseRouting();
 
 app.UseCors();
 
 app.UseAuthentication();
-
-app.UseDefaultFiles();
-
-app.UseRouting();
-
-app.UseMiddleware<ValetingContextMiddleware>();
-
 app.UseAuthorization();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<ValetingContextMiddleware>();
+
+app.UseRateLimiter();
 
 app.MapControllers();
 

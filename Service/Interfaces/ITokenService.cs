@@ -19,9 +19,8 @@ public interface ITokenService
     Task<GenerateTokenJWTDtoResponse> GenerateTokenJwtAsync(string email, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Validates a JWT token and extracts the username claim.
+    /// Validates a JWT token.
     /// </summary>
     /// <param name="token">The JWT token to validate.</param>
-    /// <returns>The email extracted from the token's claims.</returns>
-    string ValidateToken(string token);
+    void ValidateToken(string token);
 }
