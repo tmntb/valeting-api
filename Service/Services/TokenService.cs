@@ -6,13 +6,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Service.Interfaces;
 using Service.Models.Auth.Payload;
+using Service.Models.TokenService.Payload;
 
 namespace Service.Services;
 
 public class TokenService(IUserRepository userRepository, IConfiguration configuration) : ITokenService
 {
      /// <inheritdoc />
-    public async Task<GenerateTokenJWTDtoResponse> GenerateTokenJwtAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<GenerateTokenJwtDtoResponse> GenerateTokenJwtAsync(string email, CancellationToken cancellationToken = default)
     {
         var userDto = await userRepository.GetByEmailAsync(email, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
 

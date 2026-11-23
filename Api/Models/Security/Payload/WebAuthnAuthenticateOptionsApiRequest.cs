@@ -1,4 +1,4 @@
-namespace Api.Models.WebAuthn.Payload;
+namespace Api.Models.Security.Payload;
 
 /// <summary>
 /// Contains the account identifier used to begin a WebAuthn authentication ceremony.

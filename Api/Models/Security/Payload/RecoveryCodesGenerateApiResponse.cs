@@ -1,9 +1,9 @@
-namespace Api.Models.Auth.Payload;
+namespace Api.Models.Security.Payload;
 
 /// <summary>
 /// Contains newly generated recovery codes for an authenticated user.
 /// </summary>
-public class GenerateRecoveryCodesApiResponse
+public class RecoveryCodesGenerateApiResponse
 {
     /// <summary>
     /// The list of recovery codes for MFA account recovery.

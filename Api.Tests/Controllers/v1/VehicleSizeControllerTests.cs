@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Api.Controllers;
 using Api.Controllers.v1;
 using Api.Models.VehicleSize.Payload;
 using Common.Messages;
@@ -11,7 +10,7 @@ using Service.Models.Link.Payload;
 using Service.Models.VehicleSize;
 using Service.Models.VehicleSize.Payload;
 
-namespace Api.Tests.Controllers;
+namespace Api.Tests.Controllers.v1;
 
 public class VehicleSizeControllerTests
 {

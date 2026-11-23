@@ -1,4 +1,4 @@
-namespace Api.Models.Role;
+namespace Api.Models.Booking;
 
 /// <summary>
 /// Represents a role in the system.

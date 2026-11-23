@@ -1,6 +1,5 @@
 using Api.Models.Auth.Payload;
 using Api.Models.Core;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -46,20 +45,6 @@ public abstract class AuthBaseController : ControllerBase
     [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> LoginAsync([FromBody] LoginApiRequest loginApiRequest);
-
-    /// <summary>
-    /// Generates the recovery codes
-    /// </summary>
-    /// <response code="200">Returns the list of recovery codes.</response>
-    /// <response code="400">Returned when the request body is invalid or fails validation.</response>
-    /// <response code="500">Returned when an unexpected error occurs.</response>
-    [HttpPost]
-    [Authorize]
-    [Route("recovery-codes")]
-    [ProducesResponseType(statusCode: 200, type: typeof(GenerateRecoveryCodesApiResponse))]
-    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
-    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> RecoveryCodesAsync();
 
     /// <summary>
     /// Registers a new user account.

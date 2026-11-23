@@ -1,4 +1,3 @@
-using Common.Enums;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Service.Interfaces;
@@ -72,21 +71,17 @@ public class TokenServiceTests
         // Arrange
         _mockConfiguration
             .Setup(config => config["Jwt:Key"])
-            .Returns("this_is_a_secret_key_with_128bits")
-            .Verifiable(Times.Once);
+            .Returns("this_is_a_secret_key_with_128bits");
         _mockConfiguration
             .Setup(config => config["Jwt:Issuer"])
-            .Returns("issuer")
-            .Verifiable(Times.Once);
+            .Returns("issuer");
         _mockConfiguration
             .Setup(config => config["Jwt:Audience"])
-            .Returns("audience")
-            .Verifiable(Times.Once);
+            .Returns("audience");
 
         _mockUserRepository
-            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(_userDto)
-            .Verifiable(Times.Once);
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_userDto);
 
         var tokenResponse = await _tokenService.GenerateTokenJwtAsync("user@example.com");
         var validToken = tokenResponse.Token;
@@ -95,7 +90,6 @@ public class TokenServiceTests
         _tokenService.ValidateToken(validToken);
 
         // Assert
-        _mockConfiguration.Verify();
-        _mockUserRepository.Verify();
+        _mockUserRepository.Verify(repo => repo.GetByEmailAsync("user@example.com", It.IsAny<CancellationToken>()), Times.Once);
     }
 }

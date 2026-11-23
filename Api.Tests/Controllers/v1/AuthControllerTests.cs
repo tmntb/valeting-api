@@ -1,6 +1,5 @@
 using System.Net;
 using Api.Context;
-using Api.Controllers;
 using Api.Controllers.v1;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +8,7 @@ using Service.Interfaces;
 using Service.Models.Auth.Payload;
 using Service.Models.User;
 
-namespace Api.Tests.Controllers;
+namespace Api.Tests.Controllers.v1;
 
 public class AuthControllerTests
 {
@@ -28,7 +27,7 @@ public class AuthControllerTests
             UserId = Guid.Parse("00000000-0000-0000-0000-000000000099")
         };
 
-        _authController = new AuthController(valetingApiContext, _mockAuthService.Object, _mockRecoveryCodeService.Object);
+        _authController = new AuthController(_mockAuthService.Object);
     }
 
     [Fact]
@@ -91,26 +90,6 @@ public class AuthControllerTests
         ) as StatusCodeResult;
 
         // Assert
-        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
-    }
-
-    [Fact]
-    public async Task RecoveryCodesGenerateAsync_ShouldReturnOk_WhenSuccessful()
-    {
-        // Arrange
-        _mockRecoveryCodeService
-            .Setup(s => s.GenerateRecoveryCodesAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(
-                [
-                    "123"
-                ]
-            );
-
-        // Act
-        var result = await _authController.RecoveryCodesAsync() as ObjectResult;
-
-        // Assert
-        Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
     }
 

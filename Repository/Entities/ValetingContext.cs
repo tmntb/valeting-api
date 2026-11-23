@@ -65,7 +65,7 @@ public partial class ValetingContext : DbContext
 
             entity.Property(e => e.IsActive).IsRequired();
 
-            entity.Property(e => e.MfaEnabled).IsRequired();
+            entity.Property(e => e.TwoFactorAuthEnabled).IsRequired();
 
             entity.Property(e => e.MfaSecret).HasMaxLength(200);
 

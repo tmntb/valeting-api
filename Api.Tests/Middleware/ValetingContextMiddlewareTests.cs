@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Api.Context;
 using Api.Middleware;
 using Common.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
 namespace Api.Tests.Middleware;
@@ -24,6 +25,10 @@ public class ValetingContextMiddlewareTests
                 new Claim(ClaimTypes.Role, "ADMIN")
             ], "Bearer"))
         };
+        httpContext.SetEndpoint(new Endpoint(
+            null,
+            new EndpointMetadataCollection(new AuthorizeAttribute()),
+            "authenticated-user"));
         var nextCalled = false;
 
         await middleware.InvokeAsync(httpContext, _ =>

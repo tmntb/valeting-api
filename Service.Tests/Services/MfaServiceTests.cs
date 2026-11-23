@@ -30,7 +30,7 @@ public class MfaServiceTests
     {
         // Arrange        
         _mockUserRepository
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
@@ -47,9 +47,9 @@ public class MfaServiceTests
     public async Task MfaVerifyAsync_ShouldThrowInvalidOperationException_WhenInvalidMfaCode()
     {
         // Arrange    
-        _userDto.MfaEnabled = false;
+        _userDto.TwoFactorAuthEnabled = false;
         _mockUserRepository
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(_userDto);
 
         // Act & Assert
@@ -66,14 +66,14 @@ public class MfaServiceTests
     public async Task MfaVerifyAsync_ShouldEnableMfa_WhenValidMfaCode()
     {
         // Arrange 
-        _userDto.MfaEnabled = false;
+        _userDto.TwoFactorAuthEnabled = false;
 
         var secretBytes = Base32Encoding.ToBytes(_userDto.MfaSecret);
         var totp = new Totp(secretBytes);
         var validCode = totp.ComputeTotp();
 
         _mockUserRepository
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(_userDto);
 
         // Act & Assert
@@ -83,7 +83,7 @@ public class MfaServiceTests
             MfaCode = validCode
         });
 
-        Assert.True(_userDto.MfaEnabled);
+        Assert.True(_userDto.TwoFactorAuthEnabled);
     }
 
     [Fact]
@@ -91,7 +91,7 @@ public class MfaServiceTests
     {
         // Arrange        
         _mockUserRepository
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
@@ -105,7 +105,7 @@ public class MfaServiceTests
     {
         // Arrange
         _mockUserRepository
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(_userDto);
 
         // Act & Assert
@@ -115,31 +115,31 @@ public class MfaServiceTests
     }
 
     [Fact]
-    public async Task MfaSetupAsync_ShouldReturnExistingMfaCodeUri_WhenMfaNotEnabledAndMfaSecretExists()
+    public async Task MfaSetupAsync_ShouldThrowInvalidOperationException_WhenMfaSecretExists()
     {
         // Arrange
-        _userDto.MfaEnabled = false;
+        _userDto.TwoFactorAuthEnabled = false;
 
         _mockUserRepository
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(_userDto);
 
-        // Act
-        var response = await _mfaService.MfaSetupAsync(_userDto.Id);
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _mfaService.MfaSetupAsync(_userDto.Id));
 
-        // Assert
-        Assert.Equal(response.MfaQrCodeUri, $"otpauth://totp/Valeting:{Uri.EscapeDataString(_userDto.Email)}?secret={_userDto.MfaSecret}&issuer=Valeting");
+        Assert.Equal(Messages.MfaActivated, exception.Message);
+        _mockUserRepository.Verify(repo => repo.UpdateMfaSecretAsync(It.IsAny<UserDto>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task MfaSetupAsync_ShouldGenerateMfaSecretAndRecoveryCodes_WhenMfaNotEnabledAndMfaSecretNotExists()
     {
         // Arrange
-        _userDto.MfaEnabled = false;
+        _userDto.TwoFactorAuthEnabled = false;
         _userDto.MfaSecret = null;
 
         _mockUserRepository
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(_userDto)
             .Verifiable(Times.Once);
 

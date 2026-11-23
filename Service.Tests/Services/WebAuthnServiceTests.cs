@@ -4,7 +4,6 @@ using Common.Messages;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
 using FluentValidation;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Moq;
 using Service.Interfaces;
 using Service.Models.User;

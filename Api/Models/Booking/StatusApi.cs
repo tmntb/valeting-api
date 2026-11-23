@@ -1,4 +1,4 @@
-namespace Api.Models.Status;
+namespace Api.Models.Booking;
 
 /// <summary>
 /// Represents a summary of a status resource in the API.

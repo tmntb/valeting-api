@@ -1,27 +1,26 @@
 using System.Net;
 using System.Text.Json;
 using Api.Context;
-using Api.Controllers;
 using Api.Controllers.v1;
-using Api.Models.Auth.Payload;
-using Api.Models.Mfa.Payload;
-using Api.Models.WebAuthn.Payload;
+using Api.Models.Security.Payload;
 using Common.Messages;
 using Fido2NetLib;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Service.Interfaces;
 using Service.Models.Mfa.Payload;
+using Service.Models.RecoveryCode.Payload;
 using Service.Models.User;
 using Service.Models.WebAuthn;
 using Service.Models.WebAuthn.Payload;
 
-namespace Api.Tests.Controllers;
+namespace Api.Tests.Controllers.v1;
 
 public class SecurityControllerTests
 {
     private readonly Mock<IMfaService> _mockMfaService;
     private readonly Mock<IWebAuthnService> _mockWebAuthnService;
+    private readonly Mock<IRecoveryCodeService> _mockRecoveryCodeService;
 
     private readonly SecurityController _securityController;
 
@@ -29,13 +28,14 @@ public class SecurityControllerTests
     {
         _mockMfaService = new Mock<IMfaService>();
         _mockWebAuthnService = new Mock<IWebAuthnService>();
+        _mockRecoveryCodeService = new Mock<IRecoveryCodeService>();
         
         var valetingApiContext = new ValetingApiContext
         {
             UserId = Guid.Parse("00000000-0000-0000-0000-000000000099")
         };
     
-        _securityController = new SecurityController(valetingApiContext, _mockMfaService.Object, _mockWebAuthnService.Object);
+        _securityController = new SecurityController(valetingApiContext, _mockMfaService.Object, _mockRecoveryCodeService.Object, _mockWebAuthnService.Object);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class SecurityControllerTests
     {
         // Arrange
         _mockMfaService
-            .Setup(service => service.MfaSetupAsync(It.IsAny<Guid>()))
+            .Setup(service => service.MfaSetupAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MfaSetupDtoResponse { MfaQrCodeUri = "otpauth://test" })
             .Verifiable(Times.Once);
 
@@ -69,7 +69,7 @@ public class SecurityControllerTests
     {
         // Arrange
         _mockMfaService
-            .Setup(s => s.MfaVerifyAsync(It.IsAny<MfaCodeDtoRequest>()))
+            .Setup(s => s.MfaVerifyAsync(It.IsAny<MfaCodeDtoRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -84,6 +84,47 @@ public class SecurityControllerTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.NoContent, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task RecoveryCodesGenerateAsync_ShouldReturnOk_WhenSuccessful()
+    {
+        // Arrange
+        _mockRecoveryCodeService
+            .Setup(s => s.GenerateRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                [
+                    "123"
+                ]
+            );
+
+        // Act
+        var result = await _securityController.RecoveryCodesGenerateAsync() as ObjectResult;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [Fact]
+    public async Task RecoveryCodeVerifyAsync_ForwardsEmailAndCode()
+    {
+        VerifyRecoveryCodeDtoRequest? capturedRequest = null;
+        _mockRecoveryCodeService
+            .Setup(service => service.VerifyRecoveryCodeAsync(It.IsAny<VerifyRecoveryCodeDtoRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<VerifyRecoveryCodeDtoRequest, CancellationToken>((request, _) => capturedRequest = request)
+            .Returns(Task.CompletedTask);
+
+        var result = await _securityController.RecoveryCodeVerifyAsync(new RecoveryCodeVerifyApiRequest
+        {
+            Email = "test@example.com",
+            Code = "1234-5678"
+        });
+
+        Assert.IsType<OkResult>(result);
+        Assert.NotNull(capturedRequest);
+        Assert.Equal("test@example.com", capturedRequest.Email);
+        Assert.Equal("1234-5678", capturedRequest.Code);
     }
 
     [Fact]
@@ -103,7 +144,7 @@ public class SecurityControllerTests
         var publicKey = JsonDocument.Parse("""{"challenge":"sample"}""").RootElement.Clone();
 
         _mockWebAuthnService
-            .Setup(s => s.CreateAuthenticationOptionsAsync(It.IsAny<UserDto>()))
+            .Setup(s => s.CreateAuthenticationOptionsAsync(It.IsAny<UserDto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new WebAuthnAuthenticationOptionsDtoResponse
             {
                 CeremonyId = ceremonyId,
@@ -140,7 +181,7 @@ public class SecurityControllerTests
         WebAuthnAuthenticationVerifyRequest? capturedRequest = null;
 
         _mockWebAuthnService
-            .Setup(s => s.VerifyAuthenticationAsync(It.IsAny<WebAuthnAuthenticationVerifyRequest>()))
+            .Setup(s => s.VerifyAuthenticationAsync(It.IsAny<WebAuthnAuthenticationVerifyRequest>(), It.IsAny<CancellationToken>()))
             .Callback<WebAuthnAuthenticationVerifyRequest, CancellationToken>((request, _) => capturedRequest = request)
             .Returns(Task.CompletedTask);
 
@@ -167,7 +208,7 @@ public class SecurityControllerTests
         var publicKey = JsonDocument.Parse("""{"rp":{"name":"example"}}""").RootElement.Clone();
 
         _mockWebAuthnService
-            .Setup(s => s.CreateRegistrationOptionsAsync(It.IsAny<Guid>()))
+            .Setup(s => s.CreateRegistrationOptionsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new WebAuthnRegistrationOptionsDtoResponse
             {
                 CeremonyId = ceremonyId,
@@ -202,7 +243,7 @@ public class SecurityControllerTests
 
         WebAuthnRegistrationVerifyDtoRequest? capturedRequest = null;
         _mockWebAuthnService
-            .Setup(s => s.VerifyRegisterAsync(It.IsAny<WebAuthnRegistrationVerifyDtoRequest>()))
+            .Setup(s => s.VerifyRegisterAsync(It.IsAny<WebAuthnRegistrationVerifyDtoRequest>(), It.IsAny<CancellationToken>()))
             .Callback<WebAuthnRegistrationVerifyDtoRequest, CancellationToken>((request, _) => capturedRequest = request)
             .Returns(Task.CompletedTask);
 
@@ -232,7 +273,7 @@ public class SecurityControllerTests
         var lastUsedAt = createdAt.AddMinutes(1);
 
         _mockWebAuthnService
-            .Setup(service => service.GetUserWebAuthnAsync(It.IsAny<Guid>()))
+            .Setup(service => service.GetUserWebAuthnAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([
                 new WebAuthnDto
                 {
@@ -265,7 +306,7 @@ public class SecurityControllerTests
         // Arrange
         var webauthnId = Guid.Parse("00000000-0000-0000-0000-000000000003");
         _mockWebAuthnService
-            .Setup(service => service.RemoveWebAuthnAsync(It.IsAny<Guid>()))
+            .Setup(service => service.RemoveWebAuthnAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask)
             .Verifiable(Times.Once);
 

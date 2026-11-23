@@ -1,6 +1,5 @@
 using System.Net;
 using Api.Context;
-using Api.Controllers;
 using Api.Controllers.v1;
 using Api.Models.Token.Payload;
 using Common.Enums;
@@ -9,8 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Service.Interfaces;
 using Service.Models.Auth.Payload;
+using Service.Models.TokenService.Payload;
 
-namespace Api.Tests.Controllers;
+namespace Api.Tests.Controllers.v1;
 
 public class TokenControllerTests
 {
@@ -46,7 +46,7 @@ public class TokenControllerTests
         _mockTokenService
             .Setup(s => s.GenerateTokenJwtAsync(It.IsAny<string>()))
             .ReturnsAsync(
-                new GenerateTokenJWTDtoResponse
+                new GenerateTokenJwtDtoResponse
                 {
                     Token = "validToken",
                     TokenType = "jwt",
@@ -101,7 +101,7 @@ public class TokenControllerTests
         _mockTokenService
             .Setup(s => s.GenerateTokenJwtAsync(It.IsAny<string>()))
             .ReturnsAsync(
-                new GenerateTokenJWTDtoResponse
+                new GenerateTokenJwtDtoResponse
                 {
                     Token = "newValidToken",
                     TokenType = "jwt",

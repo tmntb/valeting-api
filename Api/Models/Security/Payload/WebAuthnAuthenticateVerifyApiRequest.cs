@@ -1,6 +1,6 @@
 using Fido2NetLib;
 
-namespace Api.Models.WebAuthn.Payload;
+namespace Api.Models.Security.Payload;
 
 /// <summary>
 /// Contains the authenticator response and ceremony identifier used to complete WebAuthn authentication.

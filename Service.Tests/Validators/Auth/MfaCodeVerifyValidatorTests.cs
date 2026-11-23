@@ -1,6 +1,4 @@
-using Service.Models.Auth.Payload;
 using Service.Models.Mfa.Payload;
-using Service.Validators.Auth;
 using Service.Validators.Mfa;
 
 namespace Service.Tests.Validators.Auth;

@@ -1,4 +1,4 @@
-using Api.Models.Role;
+using Api.Models.Booking;
 
 namespace Api.Models.User;
 

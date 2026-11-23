@@ -2,6 +2,7 @@ using Common.Enums;
 using Service.Models.Auth;
 using Service.Models.Booking;
 using Service.Models.Flexibility;
+using Service.Models.RecoveryCode;
 using Service.Models.Status;
 using Service.Models.User;
 using Service.Models.VehicleSize;
@@ -66,7 +67,7 @@ public static class DataFactory
         };
     }
 
-    public static UserDto CreateUserDto(Guid userId = default, RoleEnum roleEnum = RoleEnum.USER, bool mfaEnable = true, string mfaSecret = "mfaSecret")
+    public static UserDto CreateUserDto(Guid userId = default, RoleEnum roleEnum = RoleEnum.USER, bool twoFactorAuthEnabled = true, string mfaSecret = "mfaSecret")
     {
         return new()
         {
@@ -85,7 +86,7 @@ public static class DataFactory
                 Name = "name"
             },
             IsActive = true,
-            MfaEnabled = mfaEnable,
+            TwoFactorAuthEnabled = twoFactorAuthEnabled,
             MfaSecret = mfaSecret,
             RecoveryCodes = []
         };

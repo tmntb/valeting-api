@@ -1,4 +1,3 @@
-using Api.Context;
 using Api.Controllers.v1.BaseController;
 using Api.Models.Auth.Payload;
 using Asp.Versioning;
@@ -11,7 +10,7 @@ using Service.Models.User;
 namespace Api.Controllers.v1;
 
 [ApiVersion("1")]
-public class AuthController(ValetingApiContext valetingApiContext, IAuthService authService, IRecoveryCodeService recoveryCodeService) : AuthBaseController
+public class AuthController(IAuthService authService) : AuthBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordApiRequest forgotPasswordApiRequest)
@@ -43,17 +42,6 @@ public class AuthController(ValetingApiContext valetingApiContext, IAuthService 
         await authService.ValidateLoginAsync(userDto);
 
         return Ok();
-    }
-
-    /// <inheritdoc />
-    public override async Task<IActionResult> RecoveryCodesAsync()
-    {
-        var recoveryCodes = await recoveryCodeService.GenerateRecoveryCodesAsync(valetingApiContext.UserId!.Value);
-
-        return Ok(new GenerateRecoveryCodesApiResponse
-        {
-            RecoveryCodes = recoveryCodes
-        });
     }
 
     /// <inheritdoc />

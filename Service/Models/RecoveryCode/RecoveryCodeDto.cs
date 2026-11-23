@@ -1,6 +1,6 @@
 using Service.Models.User;
 
-namespace Service.Models.Auth;
+namespace Service.Models.RecoveryCode;
 
 /// <summary>
 /// Represents a recovery code associated with a user.

@@ -1,23 +1,22 @@
 using Api.Context;
 using Api.Controllers.v1.BaseController;
-using Api.Models.Mfa.Payload;
-using Api.Models.WebAuthn.Payload;
+using Api.Models.Security.Payload;
 using Asp.Versioning;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
+using Service.Models.RecoveryCode.Payload;
 using Service.Models.User;
 
 namespace Api.Controllers.v1;
 
 [ApiVersion("1")]
-public class SecurityController(ValetingApiContext valetingApiContext, IMfaService mfaService, IWebAuthnService webAuthnService) : SecurityBaseController
+public class SecurityController(ValetingApiContext valetingApiContext, IMfaService mfaService, IRecoveryCodeService recoveryCodeService, IWebAuthnService webAuthnService) : SecurityBaseController
 {
     /// <inheritdoc />
     public override async Task<IActionResult> MfaSetupAsync()
     {
-        var mfaSetupDtoResponse =
-            await mfaService.MfaSetupAsync(valetingApiContext.UserId!.Value);
+        var mfaSetupDtoResponse = await mfaService.MfaSetupAsync(valetingApiContext.UserId!.Value);
 
         return Ok(new MfaSetupApiResponse
         {
@@ -38,10 +37,32 @@ public class SecurityController(ValetingApiContext valetingApiContext, IMfaServi
 
         return NoContent();
     }
+    
+    /// <inheritdoc />
+    public override async Task<IActionResult> RecoveryCodesGenerateAsync()
+    {
+        var recoveryCodes = await recoveryCodeService.GenerateRecoveryCodesAsync(valetingApiContext.UserId!.Value);
+
+        return Ok(new RecoveryCodesGenerateApiResponse
+        {
+            RecoveryCodes = recoveryCodes
+        });
+    }
+    
+    /// <inheritdoc />
+    public override async Task<IActionResult> RecoveryCodeVerifyAsync([FromBody]RecoveryCodeVerifyApiRequest recoveryCodeVerifyApiRequest)
+    {
+        await recoveryCodeService.VerifyRecoveryCodeAsync(new()
+        {
+            Email = recoveryCodeVerifyApiRequest.Email,
+            Code = recoveryCodeVerifyApiRequest.Code
+        });
+
+        return Ok();
+    }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> WebAuthnAuthenticateOptionsAsync(
-        [FromBody] WebAuthnAuthenticateOptionsApiRequest webAuthnAuthenticateOptionsApiRequest)
+    public override async Task<IActionResult> WebAuthnAuthenticateOptionsAsync([FromBody] WebAuthnAuthenticateOptionsApiRequest webAuthnAuthenticateOptionsApiRequest)
     {
         ArgumentNullException.ThrowIfNull(webAuthnAuthenticateOptionsApiRequest, Messages.InvalidRequestBody);
 
@@ -58,8 +79,7 @@ public class SecurityController(ValetingApiContext valetingApiContext, IMfaServi
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> WebAuthnAuthenticateVerifyAsync(
-        [FromBody] WebAuthnAuthenticateVerifyApiRequest webAuthnAuthenticateVerifyApiRequest)
+    public override async Task<IActionResult> WebAuthnAuthenticateVerifyAsync([FromBody] WebAuthnAuthenticateVerifyApiRequest webAuthnAuthenticateVerifyApiRequest)
     {
         ArgumentNullException.ThrowIfNull(webAuthnAuthenticateVerifyApiRequest, Messages.InvalidRequestBody);
 
@@ -86,8 +106,7 @@ public class SecurityController(ValetingApiContext valetingApiContext, IMfaServi
     }
 
     /// <inheritdoc />
-    public override async Task<IActionResult> WebAuthnRegisterVerifyAsync(
-        [FromBody] WebAuthnRegisterVerifyApiRequest webAuthnRegisterVerifyApiRequest)
+    public override async Task<IActionResult> WebAuthnRegisterVerifyAsync([FromBody] WebAuthnRegisterVerifyApiRequest webAuthnRegisterVerifyApiRequest)
     {
         ArgumentNullException.ThrowIfNull(webAuthnRegisterVerifyApiRequest, Messages.InvalidRequestBody);
 

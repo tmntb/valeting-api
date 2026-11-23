@@ -3,7 +3,6 @@ using Common.Messages;
 using Service.Interfaces;
 using Service.Models.Booking;
 using Service.Models.Booking.Payload;
-using Service.Validators;
 using Service.Validators.Booking;
 using Service.Validators.Utils;
 

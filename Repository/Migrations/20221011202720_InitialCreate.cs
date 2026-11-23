@@ -80,7 +80,7 @@ public partial class InitialCreate : Migration
                 ContactNumber = table.Column<int>(type: "int", nullable: false),
                 Role_Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 IsActive = table.Column<bool>(type: "bit", nullable: false),
-                MfaEnabled = table.Column<bool>(type: "bit", nullable: false),
+                TwoFactorAuthEnabled = table.Column<bool>(type: "bit", nullable: false),
                 MfaSecret = table.Column<string>(type: "nvarchar(200)", nullable: true),
                 CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                 UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),

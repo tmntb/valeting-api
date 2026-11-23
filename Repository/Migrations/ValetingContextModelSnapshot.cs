@@ -74,7 +74,7 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                 b.Property<bool>("IsActive")
                     .HasColumnType("bit");
 
-                b.Property<bool>("MfaEnabled")
+                b.Property<bool>("TwoFactorAuthEnabled")
                     .HasColumnType("bit");
 
                 b.Property<string>("MfaSecret")
@@ -88,9 +88,6 @@ partial class ValetingContextModelSnapshot : ModelSnapshot
                     .HasColumnType("datetime2");
 
                 b.Property<DateTime>("LastLoginAt")
-                    .HasColumnType("datetime2");
-
-                b.Property<DateTime>("PasswordResetExpiresAt")
                     .HasColumnType("datetime2");
 
                 b.HasKey("Id");

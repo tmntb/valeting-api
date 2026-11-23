@@ -1,4 +1,4 @@
-namespace Api.Models.WebAuthn.Payload;
+namespace Api.Models.Security.Payload;
 
 /// <summary>
 /// Describes a WebAuthn credential registered to an account.

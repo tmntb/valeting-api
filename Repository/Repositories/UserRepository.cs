@@ -36,7 +36,7 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
             ContactNumber = userDto.ContactNumber,
             RoleId = userDto.Role.Id,
             IsActive = userDto.IsActive,
-            MfaEnabled = userDto.MfaEnabled,
+            TwoFactorAuthEnabled = userDto.TwoFactorAuthEnabled,
             MfaSecret = userDto.MfaSecret,
             CreatedAt = userDto.CreatedAt,
             UpdatedAt = userDto.UpdatedAt,
@@ -89,7 +89,7 @@ public class UserRepository(ValetingContext valetingContext) : IUserRepository
         if (applicationUser == null)
             return;
 
-        applicationUser.UpdateMfaEnable(userDto.MfaEnabled);
+        applicationUser.UpdateTwoFactorAuthEnable(userDto.TwoFactorAuthEnabled);
 
         await valetingContext.SaveChangesAsync(cancellationToken);
     }

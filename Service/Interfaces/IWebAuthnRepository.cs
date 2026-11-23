@@ -1,4 +1,3 @@
-using Service.Models.Auth;
 using Service.Models.WebAuthn;
 
 namespace Service.Interfaces;

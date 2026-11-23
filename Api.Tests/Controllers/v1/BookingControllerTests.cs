@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using Api.Context;
-using Api.Controllers;
 using Api.Controllers.v1;
 using Api.Models.Booking.Payload;
 using Common.Enums;
@@ -12,7 +11,7 @@ using Service.Models.Booking;
 using Service.Models.Booking.Payload;
 using Service.Models.Link.Payload;
 
-namespace Api.Tests.Controllers;
+namespace Api.Tests.Controllers.v1;
 
 public class BookingControllerTests
 {

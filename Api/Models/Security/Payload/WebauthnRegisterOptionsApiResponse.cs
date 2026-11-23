@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace Api.Models.WebAuthn.Payload;
+namespace Api.Models.Security.Payload;
 
 /// <summary>
 /// Represents the response containing the options required to initiate a passkey registration ceremony.

@@ -1,8 +1,8 @@
 using Common.Messages;
 using Moq;
-using OtpNet;
 using Service.Interfaces;
-using Service.Models.Auth;
+using Service.Models.RecoveryCode;
+using Service.Models.RecoveryCode.Payload;
 using Service.Models.User;
 using Service.Services;
 
@@ -32,7 +32,7 @@ public class RecoveryCodeServiceTests
     {
         // Arrange        
         _mockUserRepository
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
@@ -48,7 +48,7 @@ public class RecoveryCodeServiceTests
         _userDto.MfaSecret = null;
 
         _mockUserRepository
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(_userDto);
 
         // Act & Assert
@@ -61,10 +61,10 @@ public class RecoveryCodeServiceTests
     public async Task RecoveryCodesGenerateAsync_ShouldThrowInvalidOperationException_WhenUserMfaDisabled()
     {
         // Arrange        
-        _userDto.MfaEnabled = false;
+        _userDto.TwoFactorAuthEnabled = false;
 
         _mockUserRepository
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(_userDto);
 
         // Act & Assert
@@ -77,12 +77,8 @@ public class RecoveryCodeServiceTests
     public async Task RecoveryCodesGenerateAsync_ShouldGenerateRecoveryCodes_WhenValidMfaCode()
     {
         // Arrange    
-        var secretBytes = Base32Encoding.ToBytes(_userDto.MfaSecret);
-        var totp = new Totp(secretBytes);
-        var validCode = totp.ComputeTotp();
-
         _mockUserRepository
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(_userDto);
 
         _mockRecoveryCodeRepository
@@ -98,5 +94,74 @@ public class RecoveryCodeServiceTests
 
         Assert.NotNull(result);
         Assert.Equal(8, result.Count);
+    }
+
+    [Fact]
+    public async Task VerifyRecoveryCodeAsync_ShouldThrowWhenUserHasNoRecoveryCodes()
+    {
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_userDto);
+        _mockRecoveryCodeRepository
+            .Setup(repo => repo.GetUserRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _recoveryCodeService.VerifyRecoveryCodeAsync(new VerifyRecoveryCodeDtoRequest
+            {
+                Email = _userDto.Email,
+                Code = "1234-5678"
+            }));
+
+        Assert.Equal(Messages.NoRecoveryCodesForUser, exception.Message);
+        _mockRecoveryCodeRepository.Verify(repo =>
+            repo.UpdateUsedAtAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task VerifyRecoveryCodeAsync_ShouldThrowWhenCodeIsInvalid()
+    {
+        var recoveryCode = DataFactory.CreateRecoveryCodeDto();
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_userDto);
+        _mockRecoveryCodeRepository
+            .Setup(repo => repo.GetUserRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([recoveryCode]);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _recoveryCodeService.VerifyRecoveryCodeAsync(new VerifyRecoveryCodeDtoRequest
+            {
+                Email = _userDto.Email,
+                Code = "8765-4321"
+            }));
+
+        Assert.Equal(Messages.InvalidRecoveryCode, exception.Message);
+        _mockRecoveryCodeRepository.Verify(repo =>
+            repo.UpdateUsedAtAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task VerifyRecoveryCodeAsync_ShouldMarkMatchingUnusedCodeAsUsed()
+    {
+        var recoveryCode = DataFactory.CreateRecoveryCodeDto();
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_userDto);
+        _mockRecoveryCodeRepository
+            .Setup(repo => repo.GetUserRecoveryCodesAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([recoveryCode]);
+        _mockRecoveryCodeRepository
+            .Setup(repo => repo.UpdateUsedAtAsync(recoveryCode.Id, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        await _recoveryCodeService.VerifyRecoveryCodeAsync(new VerifyRecoveryCodeDtoRequest
+        {
+            Email = _userDto.Email,
+            Code = "1234-5678"
+        });
+
+        _mockRecoveryCodeRepository.Verify(repo =>
+            repo.UpdateUsedAtAsync(recoveryCode.Id, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -3,7 +3,6 @@ using OtpNet;
 using Service.Helpers;
 using Service.Interfaces;
 using Service.Models.Mfa.Payload;
-using Service.Validators.Auth;
 using Service.Validators.Mfa;
 using Service.Validators.Utils;
 
@@ -15,17 +14,9 @@ public class MfaService(IUserRepository userRepository) : IMfaService
     public async Task<MfaSetupDtoResponse> MfaSetupAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var userDto = await userRepository.GetByIdAsync(userId, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
-        if (userDto.MfaEnabled)
+        if (userDto.MfaSecret is not null)
         {
             throw new InvalidOperationException(Messages.MfaActivated);
-        }
-
-        if (userDto is { MfaSecret: not null, MfaEnabled: false })
-        {
-            return new()
-            {
-                MfaQrCodeUri = $"otpauth://totp/Valeting:{Uri.EscapeDataString(userDto.Email)}?secret={userDto.MfaSecret}&issuer=Valeting"
-            };
         }
 
         var key = KeyGeneration.GenerateRandomKey(20);
@@ -49,9 +40,9 @@ public class MfaService(IUserRepository userRepository) : IMfaService
 
         MfaHelper.VerifyMfaCode(userDto, mfaCodeDtoRequest.MfaCode);
 
-        if (!userDto.MfaEnabled)
+        if (!userDto.TwoFactorAuthEnabled)
         {
-            userDto.MfaEnabled = true;
+            userDto.TwoFactorAuthEnabled = true;
             await userRepository.UpdateMfaEnableAsync(userDto, cancellationToken);
         }
     }

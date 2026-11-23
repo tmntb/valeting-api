@@ -1,5 +1,4 @@
 ﻿using Service.Models.Flexibility.Payload;
-using Service.Validators;
 using Service.Validators.Flexibility;
 
 namespace Service.Tests.Validators;

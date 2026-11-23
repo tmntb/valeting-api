@@ -29,7 +29,8 @@ public class VehicleSizeServiceTests
     public async Task GetFilteredAsync_ShouldReturnCachedData_WhenAvailable()
     {
         // Arrange
-        _mockCacheHandler.Setup(cache => cache.GetOrCreateRecordAsync(It.IsAny<VehicleSizeFilterDto>(), It.IsAny<Func<Task<VehicleSizePaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler
+            .Setup(cache => cache.GetOrCreateRecordAsync(It.IsAny<VehicleSizeFilterDto>(), It.IsAny<Func<Task<VehicleSizePaginatedDtoResponse>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new VehicleSizePaginatedDtoResponse
                 {
@@ -61,10 +62,12 @@ public class VehicleSizeServiceTests
     public async Task GetFilteredAsync_ShouldThrowKeyNotFoundException_WhenNoVehicleSizesFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<VehicleSizeFilterDto>(), It.IsAny<Func<Task<VehicleSizePaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
-            .Returns((VehicleSizeFilterDto _, Func<Task<VehicleSizePaginatedDtoResponse>> factory, CacheOptions __) => factory());
+        _mockCacheHandler
+            .Setup(x => x.GetOrCreateRecordAsync(It.IsAny<VehicleSizeFilterDto>(), It.IsAny<Func<Task<VehicleSizePaginatedDtoResponse>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
+            .Returns((VehicleSizeFilterDto _, Func<Task<VehicleSizePaginatedDtoResponse>> factory, CacheOptions __, CancellationToken ___) => factory());
 
-        _mockVehicleSizeRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<VehicleSizeFilterDto>()))
+        _mockVehicleSizeRepository
+            .Setup(repo => repo.GetFilteredAsync(It.IsAny<VehicleSizeFilterDto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<VehicleSizeDto>());
 
         // Act & Assert
@@ -82,10 +85,12 @@ public class VehicleSizeServiceTests
     public async Task GetFilteredAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<VehicleSizeFilterDto>(), It.IsAny<Func<Task<VehicleSizePaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
-             .Returns((VehicleSizeFilterDto _, Func<Task<VehicleSizePaginatedDtoResponse>> factory, CacheOptions __) => factory());
+        _mockCacheHandler
+            .Setup(x => x.GetOrCreateRecordAsync(It.IsAny<VehicleSizeFilterDto>(), It.IsAny<Func<Task<VehicleSizePaginatedDtoResponse>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
+            .Returns((VehicleSizeFilterDto _, Func<Task<VehicleSizePaginatedDtoResponse>> factory, CacheOptions __, CancellationToken ___) => factory());
 
-        _mockVehicleSizeRepository.Setup(x => x.GetFilteredAsync(It.IsAny<VehicleSizeFilterDto>()))
+        _mockVehicleSizeRepository
+            .Setup(x => x.GetFilteredAsync(It.IsAny<VehicleSizeFilterDto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 [
                     new() { Id = _mockId },
@@ -112,13 +117,15 @@ public class VehicleSizeServiceTests
     public async Task GetByIdAsync_ShouldReturnCachedData_WhenAvailable()
     {
         // Arrange
-        _mockVehicleSizeRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+        _mockVehicleSizeRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new VehicleSizeDto
             {
                 Id = _mockId
             });
 
-        _mockCacheHandler.Setup(cache => cache.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<VehicleSizeDto>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler
+            .Setup(cache => cache.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<VehicleSizeDto>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new VehicleSizeDto
                 {
@@ -137,10 +144,12 @@ public class VehicleSizeServiceTests
     public async Task GetByIdAsync_ShouldThrowKeyNotFoundException_WhenNoVehicleSizeFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<VehicleSizeDto>>>(), It.IsAny<CacheOptions>()))
-            .Returns((Guid _, Func<Task<VehicleSizeDto>> factory, CacheOptions __) => factory());
+        _mockCacheHandler
+            .Setup(x => x.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<VehicleSizeDto>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid _, Func<Task<VehicleSizeDto>> factory, CacheOptions __, CancellationToken ___) => factory());
 
-        _mockVehicleSizeRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+        _mockVehicleSizeRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((VehicleSizeDto)null);
 
         // Act & Assert
@@ -158,11 +167,13 @@ public class VehicleSizeServiceTests
             Id = _mockId
         };
 
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<VehicleSizeDto>>>(), It.IsAny<CacheOptions>()))
-            .Returns((Guid _, Func<Task<VehicleSizeDto>> factory, CacheOptions __) => factory());
+        _mockCacheHandler
+            .Setup(x => x.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<VehicleSizeDto>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid _, Func<Task<VehicleSizeDto>> factory, CacheOptions __, CancellationToken ___) => factory());
 
-        _mockVehicleSizeRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-             .ReturnsAsync(
+        _mockVehicleSizeRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
                 new VehicleSizeDto
                 {
                     Id = _mockId

@@ -1,6 +1,5 @@
 using Api.Models.Core;
-using Api.Models.Mfa.Payload;
-using Api.Models.WebAuthn.Payload;
+using Api.Models.Security.Payload;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,18 +30,47 @@ public abstract class SecurityBaseController : ControllerBase
     /// Verifies the mfa code for a given user
     /// </summary>
     /// <param name="mfaCodeApiRequest">The mfa code information</param>
-    /// <response code="204">Indicates that the mfa is valid.</response>
+    /// <response code="200">Indicates that the mfa is valid.</response>
     /// <response code="400">Returned when the request body is invalid or fails validation.</response>
     /// <response code="409">Returned when the user mfa is already activated.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPost]
     [Authorize]
     [Route("mfa/verify")]
-    [ProducesResponseType(statusCode: 204)]
+    [ProducesResponseType(statusCode: 200)]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> MfaVerifyAsync([FromBody] MfaCodeApiRequest mfaCodeApiRequest);
+    
+    /// <summary>
+    /// Generates the recovery codes
+    /// </summary>
+    /// <response code="200">Returns the list of recovery codes.</response>
+    /// <response code="400">Returned when the request body is invalid or fails validation.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpPost]
+    [Authorize]
+    [Route("recovery-code/generate")]
+    [ProducesResponseType(statusCode: 200, type: typeof(RecoveryCodesGenerateApiResponse))]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> RecoveryCodesGenerateAsync();
+    
+    /// <summary>
+    /// Verifies the provided recovery code
+    /// </summary>
+    /// <param name="recoveryCodeVerifyApiRequest">Recovery code to be validated.</param>
+    /// <response code="200">Indicates that the recovery code is valid.</response>
+    /// <response code="400">Returned when the request body is invalid or fails validation.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpPost]
+    [Authorize]
+    [Route("recovery-code/verify")]
+    [ProducesResponseType(statusCode: 200)]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> RecoveryCodeVerifyAsync([FromBody]RecoveryCodeVerifyApiRequest recoveryCodeVerifyApiRequest);
 
     /// <summary>
     /// Creates WebAuthn assertion options for discoverable or email-directed passkey sign-in.
@@ -56,8 +84,7 @@ public abstract class SecurityBaseController : ControllerBase
     [ProducesResponseType(statusCode: 200, type: typeof(WebAuthnAuthenticateOptionsApiResponse))]
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> WebAuthnAuthenticateOptionsAsync(
-        [FromBody] WebAuthnAuthenticateOptionsApiRequest webAuthnAuthenticateOptionsApiRequest);
+    public abstract Task<IActionResult> WebAuthnAuthenticateOptionsAsync([FromBody] WebAuthnAuthenticateOptionsApiRequest webAuthnAuthenticateOptionsApiRequest);
 
     /// <summary>
     /// Verifies a WebAuthn assertion.
@@ -73,8 +100,7 @@ public abstract class SecurityBaseController : ControllerBase
     [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> WebAuthnAuthenticateVerifyAsync(
-        [FromBody] WebAuthnAuthenticateVerifyApiRequest webAuthnAuthenticateVerifyApiRequest);
+    public abstract Task<IActionResult> WebAuthnAuthenticateVerifyAsync([FromBody] WebAuthnAuthenticateVerifyApiRequest webAuthnAuthenticateVerifyApiRequest);
 
     /// <summary>
     /// Creates WebAuthn registration options for the authenticated user.
@@ -105,8 +131,7 @@ public abstract class SecurityBaseController : ControllerBase
     [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
-    public abstract Task<IActionResult> WebAuthnRegisterVerifyAsync(
-        [FromBody] WebAuthnRegisterVerifyApiRequest webAuthnRegisterVerifyApiRequest);
+    public abstract Task<IActionResult> WebAuthnRegisterVerifyAsync([FromBody] WebAuthnRegisterVerifyApiRequest webAuthnRegisterVerifyApiRequest);
 
     /// <summary>
     /// Lists webauthn's belonging to the authenticated user.
@@ -115,7 +140,7 @@ public abstract class SecurityBaseController : ControllerBase
     /// <response code="401">The caller is not authenticated.</response>
     [HttpGet]
     [Authorize]
-    [Route("webauthns")]
+    [Route("webauthn")]
     [ProducesResponseType(statusCode: 200, type: typeof(IEnumerable<WebAuthnCredentialApiResponse>))]
     [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> WebAuthnsAsync();

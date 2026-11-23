@@ -194,7 +194,7 @@ public class UserRepositoryTests : BaseRepositoryTest
         var userDto = new UserDto
         {
             Id = DataFactory.USER_ID,
-            MfaEnabled = true
+            TwoFactorAuthEnabled = true
         };
 
         // Act
@@ -203,7 +203,7 @@ public class UserRepositoryTests : BaseRepositoryTest
         // Assert
         var updatedUser = await Context.ApplicationUsers.FindAsync(DataFactory.USER_ID);
         Assert.NotNull(updatedUser);
-        Assert.True(updatedUser.MfaEnabled);
+        Assert.True(updatedUser.TwoFactorAuthEnabled);
     }
 
     [Fact]

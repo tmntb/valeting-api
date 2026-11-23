@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace Api.Models.WebAuthn.Payload;
+namespace Api.Models.Security.Payload;
 
 /// <summary>
 /// Contains the WebAuthn options required by the client to authenticate.

@@ -1,4 +1,5 @@
 ﻿using Service.Models.Auth;
+using Service.Models.RecoveryCode;
 using Service.Models.Role;
 
 namespace Service.Models.User;
@@ -60,12 +61,12 @@ public class UserDto
     public bool IsActive { get; set; }
 
     /// <summary>
-    /// Indicates whether multi-factor authentication (MFA) is enabled for the user.
+    /// Indicates whether multi-factor authentication is enabled for the user.
     /// </summary>
-    public bool MfaEnabled { get; set; }
+    public bool TwoFactorAuthEnabled { get; set; }
 
     /// <summary> 
-    /// Secret key used for generating MFA codes, if MFA is enabled.
+    /// Secret key used for generating MFA codes.
     /// </summary>
     public string? MfaSecret { get; set; }
 

@@ -1,4 +1,3 @@
-using Service.Models.Auth.Payload;
 using Service.Models.Mfa.Payload;
 
 namespace Service.Interfaces;

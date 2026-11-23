@@ -2,7 +2,6 @@ using System.Security.Claims;
 using Api.Context;
 using Common.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Service.Interfaces;
 
 namespace Api.Middleware;
 

@@ -25,7 +25,7 @@ public partial class ApplicationUser
             ContactNumber = applicationUser.ContactNumber,
             Role = RdRole.FromEntity(applicationUser.Role),
             IsActive = applicationUser.IsActive,
-            MfaEnabled = applicationUser.MfaEnabled,
+            TwoFactorAuthEnabled = applicationUser.TwoFactorAuthEnabled,
             MfaSecret = applicationUser.MfaSecret,
             CreatedAt = applicationUser.CreatedAt,
             UpdatedAt = applicationUser.UpdatedAt,
@@ -65,11 +65,11 @@ public partial class ApplicationUser
     }
 
     /// <summary>
-    /// Updates the user's mfa enabled
+    /// Updates the user's 2FA enabled.
     /// </summary>
-    internal void UpdateMfaEnable(bool mfaEnable)
+    internal void UpdateTwoFactorAuthEnable(bool twoFactorAuthEnabled)
     {
-        MfaEnabled = mfaEnable;
+        TwoFactorAuthEnabled = twoFactorAuthEnabled;
         UpdatedAt = DateTime.UtcNow;
     }
 

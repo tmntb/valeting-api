@@ -1,5 +1,4 @@
 ﻿using Service.Models.VehicleSize.Payload;
-using Service.Validators;
 using Service.Validators.VehicleSize;
 
 namespace Service.Tests.Validators;

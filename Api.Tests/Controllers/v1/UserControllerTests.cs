@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using Api.Context;
-using Api.Controllers;
 using Api.Controllers.v1;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +8,7 @@ using Service.Interfaces;
 using Service.Models.User;
 using Service.Models.User.Payload;
 
-namespace Api.Tests.Controllers;
+namespace Api.Tests.Controllers.v1;
 
 public class UserControllerTests
 {

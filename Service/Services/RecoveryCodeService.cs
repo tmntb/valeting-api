@@ -1,8 +1,11 @@
-using System;
 using Common.Messages;
 using Service.Helpers;
 using Service.Interfaces;
 using Service.Models.Auth;
+using Service.Models.RecoveryCode;
+using Service.Models.RecoveryCode.Payload;
+using Service.Validators.RecoveryCode;
+using Service.Validators.Utils;
 
 namespace Service.Services;
 
@@ -12,7 +15,7 @@ public class RecoveryCodeService(IUserRepository userRepository, IRecoveryCodeRe
     public async Task<List<string>> GenerateRecoveryCodesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var userDto = await userRepository.GetByIdAsync(userId, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
-        if (userDto.MfaSecret == null || !userDto.MfaEnabled)
+        if (userDto.MfaSecret == null || !userDto.TwoFactorAuthEnabled)
         {
             throw new InvalidOperationException(Messages.MfaDisabled);
         }
@@ -36,6 +39,25 @@ public class RecoveryCodeService(IUserRepository userRepository, IRecoveryCodeRe
         await recoveryCodeRepository.CreateManyAsync(recoveryCodeDtos, cancellationToken);
 
         return recoveryCodes;
+    }
+    
+    /// <inheritdoc />
+    public async Task VerifyRecoveryCodeAsync(VerifyRecoveryCodeDtoRequest verifyRecoveryCodeDtoRequest, CancellationToken cancellationToken = default)
+    {
+        verifyRecoveryCodeDtoRequest.ValidateRequest(new RecoveryCodeVerifyValidator());
+        
+        var userDto = await userRepository.GetByEmailAsync(verifyRecoveryCodeDtoRequest.Email, cancellationToken);
+        
+        var userRecoveryCodes = await recoveryCodeRepository.GetUserRecoveryCodesAsync(userDto.Id, cancellationToken);
+        if (userRecoveryCodes == null || !userRecoveryCodes.Any())
+        {
+            throw new InvalidOperationException(Messages.NoRecoveryCodesForUser);
+        }
+
+        var recoveryCode = userRecoveryCodes.SingleOrDefault(rc => rc.UsedAt == null && BCrypt.Net.BCrypt.Verify(verifyRecoveryCodeDtoRequest.Code, rc.CodeHash))
+                           ?? throw new InvalidOperationException(Messages.InvalidRecoveryCode);
+
+        await recoveryCodeRepository.UpdateUsedAtAsync(recoveryCode.Id, cancellationToken);
     }
 
     /// <summary>

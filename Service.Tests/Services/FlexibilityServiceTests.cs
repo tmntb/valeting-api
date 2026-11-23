@@ -29,7 +29,7 @@ public class FlexibilityServiceTests
     public async Task GetFilteredAsync_ShouldReturnCachedData_WhenAvailable()
     {
         // Arrange
-        _mockCacheHandler.Setup(cache => cache.GetOrCreateRecordAsync(It.IsAny<FlexibilityFilterDto>(), It.IsAny<Func<Task<FlexibilityPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler.Setup(cache => cache.GetOrCreateRecordAsync(It.IsAny<FlexibilityFilterDto>(), It.IsAny<Func<Task<FlexibilityPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new FlexibilityPaginatedDtoResponse
                 {
@@ -61,10 +61,12 @@ public class FlexibilityServiceTests
     public async Task GetFilteredAsync_ShouldThrowKeyNotFoundException_WhenNoFlexibilitiesFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<FlexibilityFilterDto>(), It.IsAny<Func<Task<FlexibilityPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
-            .Returns((FlexibilityFilterDto _, Func<Task<FlexibilityPaginatedDtoResponse>> factory, CacheOptions __) => factory());
+        _mockCacheHandler
+            .Setup(x => x.GetOrCreateRecordAsync(It.IsAny<FlexibilityFilterDto>(), It.IsAny<Func<Task<FlexibilityPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
+            .Returns((FlexibilityFilterDto _, Func<Task<FlexibilityPaginatedDtoResponse>> factory, CacheOptions __, CancellationToken ___) => factory());
 
-        _mockFlexibilityRepository.Setup(repo => repo.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
+        _mockFlexibilityRepository
+            .Setup(repo => repo.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<FlexibilityDto>());
 
         // Act & Assert
@@ -82,10 +84,12 @@ public class FlexibilityServiceTests
     public async Task GetFilteredAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<FlexibilityFilterDto>(), It.IsAny<Func<Task<FlexibilityPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>()))
-             .Returns((FlexibilityFilterDto _, Func<Task<FlexibilityPaginatedDtoResponse>> factory, CacheOptions __) => factory());
+        _mockCacheHandler
+            .Setup(x => x.GetOrCreateRecordAsync(It.IsAny<FlexibilityFilterDto>(), It.IsAny<Func<Task<FlexibilityPaginatedDtoResponse>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
+            .Returns((FlexibilityFilterDto _, Func<Task<FlexibilityPaginatedDtoResponse>> factory, CacheOptions __, CancellationToken ___) => factory());
 
-        _mockFlexibilityRepository.Setup(x => x.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>()))
+        _mockFlexibilityRepository
+            .Setup(x => x.GetFilteredAsync(It.IsAny<FlexibilityFilterDto>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 [
                     new() { Id = _mockId },
@@ -112,7 +116,8 @@ public class FlexibilityServiceTests
     public async Task GetByIdAsync_ShouldReturnCachedData()
     {
         // Arrange
-        _mockCacheHandler.Setup(c => c.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<FlexibilityDto>>>(), It.IsAny<CacheOptions>()))
+        _mockCacheHandler
+            .Setup(c => c.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<FlexibilityDto>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new FlexibilityDto
                 {
@@ -132,10 +137,12 @@ public class FlexibilityServiceTests
     public async Task GetByIdAsync_ShouldThrowKeyNotFoundException_WhenNoFlexibilityFound()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<FlexibilityDto>>>(), It.IsAny<CacheOptions>()))
-            .Returns((Guid _, Func<Task<FlexibilityDto>> factory, CacheOptions __) => factory());
+        _mockCacheHandler
+            .Setup(x => x.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<FlexibilityDto>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid _, Func<Task<FlexibilityDto>> factory, CacheOptions __, CancellationToken ___) => factory());
 
-        _mockFlexibilityRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+        _mockFlexibilityRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((FlexibilityDto)null);
 
         // Act & Assert
@@ -148,11 +155,13 @@ public class FlexibilityServiceTests
     public async Task GetByIdAsync_ShouldReturnPaginatedData_WhenCacheMissAndDataExists()
     {
         // Arrange
-        _mockCacheHandler.Setup(x => x.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<FlexibilityDto>>>(), It.IsAny<CacheOptions>()))
-            .Returns((Guid _, Func<Task<FlexibilityDto>> factory, CacheOptions __) => factory());
+        _mockCacheHandler
+            .Setup(x => x.GetOrCreateRecordAsync(It.IsAny<Guid>(), It.IsAny<Func<Task<FlexibilityDto>>>(), It.IsAny<CacheOptions>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid _, Func<Task<FlexibilityDto>> factory, CacheOptions __, CancellationToken ___) => factory());
 
-        _mockFlexibilityRepository.Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-             .ReturnsAsync(
+        _mockFlexibilityRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
                 new FlexibilityDto
                 {
                     Id = _mockId

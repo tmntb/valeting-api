@@ -1,6 +1,6 @@
 using Fido2NetLib;
 
-namespace Api.Models.WebAuthn.Payload;
+namespace Api.Models.Security.Payload;
 
 /// <summary>
 /// Represents the request used to verify a passkey registration ceremony.

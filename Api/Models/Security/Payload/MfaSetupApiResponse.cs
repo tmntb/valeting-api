@@ -1,4 +1,4 @@
-namespace Api.Models.Mfa.Payload;
+namespace Api.Models.Security.Payload;
 
 /// <summary>
 /// Contains the authenticator enrollment URI returned during MFA setup.

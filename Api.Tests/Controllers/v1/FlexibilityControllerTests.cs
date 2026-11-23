@@ -1,5 +1,4 @@
 using System.Net;
-using Api.Controllers;
 using Api.Controllers.v1;
 using Api.Models.Flexibility.Payload;
 using Common.Messages;
@@ -11,7 +10,7 @@ using Service.Models.Flexibility;
 using Service.Models.Flexibility.Payload;
 using Service.Models.Link.Payload;
 
-namespace Api.Tests.Controllers;
+namespace Api.Tests.Controllers.v1;
 
 public class FlexibilityControllerTests
 {

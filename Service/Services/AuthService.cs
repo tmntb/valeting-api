@@ -8,7 +8,7 @@ using Service.Validators.Utils;
 
 namespace Service.Services;
 
-public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository recoveryCodeRepository, IRoleRepository roleRepository) : IAuthService
+public class AuthService(IUserRepository userRepository, IRoleRepository roleRepository) : IAuthService
 {
     /// <inheritdoc />
     public async Task ForgotPasswordAsync(ForgotPasswordDtoRequest forgotPasswordDtoRequest, CancellationToken cancellationToken = default)
@@ -20,25 +20,6 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
         {
             // Avoid password reset probing.
             return;
-        }
-
-        if (forgotPasswordDtoRequest.MfaCode != null)
-        {
-            MfaHelper.VerifyMfaCode(userDto, forgotPasswordDtoRequest.MfaCode);
-        }
-
-        if (forgotPasswordDtoRequest.RecoveryCode != null)
-        {
-            var userRecoveryCodes = await recoveryCodeRepository.GetUserRecoveryCodesAsync(userDto.Id, cancellationToken);
-            if (userRecoveryCodes == null || !userRecoveryCodes.Any())
-            {
-                throw new InvalidOperationException(Messages.NoRecoveryCodesForUser);
-            }
-
-            var recoveryCode = userRecoveryCodes.SingleOrDefault(rc => rc.UsedAt == null && BCrypt.Net.BCrypt.Verify(forgotPasswordDtoRequest.RecoveryCode, rc.CodeHash))
-                ?? throw new InvalidOperationException(Messages.InvalidRecoveryCode);
-
-            await recoveryCodeRepository.UpdateUsedAtAsync(recoveryCode.Id, cancellationToken);
         }
 
         userDto.PasswordHash = HashHelper.GenerateHash(forgotPasswordDtoRequest.NewPassword);
@@ -64,7 +45,7 @@ public class AuthService(IUserRepository userRepository, IRecoveryCodeRepository
         userDto.Password = null;
         userDto.Role = new() { Id = roleDto.Id };
         userDto.IsActive = true;
-        userDto.MfaEnabled = false;
+        userDto.TwoFactorAuthEnabled = false;
         userDto.CreatedAt = DateTime.UtcNow;
 
         await userRepository.RegisterAsync(userDto, cancellationToken);
