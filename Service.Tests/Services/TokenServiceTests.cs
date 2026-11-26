@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Service.Interfaces;
@@ -34,7 +36,10 @@ public class TokenServiceTests
             .ReturnsAsync((UserDto)null);
 
         // Act & Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _tokenService.GenerateTokenJwtAsync("user@example.com"));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _tokenService.GenerateTokenJwtAsync(new()
+        {
+            Email = "user@example.com"
+        }));
     }
 
     [Fact]
@@ -56,13 +61,45 @@ public class TokenServiceTests
             .Returns("audience");
 
         // Act
-        var response = await _tokenService.GenerateTokenJwtAsync("user@example.com");
+        var response = await _tokenService.GenerateTokenJwtAsync(new()
+        {
+            Email = "user@example.com"
+        });
 
         // Assert
         Assert.NotNull(response.Token);
         Assert.Equal("JwtSecurityToken", response.TokenType);
         Assert.True(response.ExpiryDate > DateTime.Now);
         Assert.Equal(_userDto.Role.Code, response.Role);
+    }
+
+    [Fact]
+    public async Task GenerateTokenJWTAsync_ShouldUseCustomLifetimeAndClaims()
+    {
+        _mockUserRepository
+            .Setup(repo => repo.GetByEmailAsync("user@example.com", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_userDto);
+        _mockConfiguration.Setup(config => config["Jwt:Key"])
+            .Returns("this_is_a_secret_key_with_128bits");
+        _mockConfiguration.Setup(config => config["Jwt:Issuer"]).Returns("issuer");
+        _mockConfiguration.Setup(config => config["Jwt:Audience"]).Returns("audience");
+
+        var response = await _tokenService.GenerateTokenJwtAsync(new()
+        {
+            Email = "user@example.com",
+            Ttl = 15,
+            Claims =
+            [
+                new Claim("purpose", "password-reset"),
+                new Claim(JwtRegisteredClaimNames.Jti, "reset-jti")
+            ]
+        });
+
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(response.Token);
+        Assert.Contains(jwt.Claims, claim => claim.Type == "purpose" && claim.Value == "password-reset");
+        Assert.Contains(jwt.Claims, claim => claim.Type == JwtRegisteredClaimNames.Jti && claim.Value == "reset-jti");
+        Assert.True(jwt.ValidTo > DateTime.UtcNow.AddMinutes(14));
+        Assert.True(jwt.ValidTo <= DateTime.UtcNow.AddMinutes(16));
     }
 
     [Fact]
@@ -83,13 +120,28 @@ public class TokenServiceTests
             .Setup(repo => repo.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(_userDto);
 
-        var tokenResponse = await _tokenService.GenerateTokenJwtAsync("user@example.com");
+        var tokenResponse = await _tokenService.GenerateTokenJwtAsync(new()
+        {
+            Email = "user@example.com"
+        });
         var validToken = tokenResponse.Token;
 
         // Act
-        _tokenService.ValidateToken(validToken);
+        _tokenService.ValidateTokenJwt(validToken);
 
         // Assert
         _mockUserRepository.Verify(repo => repo.GetByEmailAsync("user@example.com", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ValidateToken_ShouldThrowUnauthorized_WhenTokenIsInvalid()
+    {
+        _mockConfiguration.Setup(config => config["Jwt:Key"])
+            .Returns("this_is_a_secret_key_with_128bits");
+        _mockConfiguration.Setup(config => config["Jwt:Issuer"]).Returns("issuer");
+        _mockConfiguration.Setup(config => config["Jwt:Audience"]).Returns("audience");
+
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+            Task.Run(() => _tokenService.ValidateTokenJwt("not-a-jwt")));
     }
 }

@@ -1,15 +1,27 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Mail;
+using System.Security.Claims;
+using Common.Cache.Interfaces;
+using Common.Configs;
 using Common.Messages;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Service.Helpers;
 using Service.Interfaces;
 using Service.Models.Auth.Payload;
+using Service.Models.Token.Payload;
 using Service.Models.User;
 using Service.Validators.Auth;
 using Service.Validators.Utils;
 
 namespace Service.Services;
 
-public class AuthService(IUserRepository userRepository, IRoleRepository roleRepository) : IAuthService
+public class AuthService(IEmailService emailService, ITokenService tokenService, 
+    IUserRepository userRepository, IRoleRepository roleRepository, 
+    ICacheHandler cacheHandler, IOptions<PasswordResetConfig> passwordResetConfig, ILogger<AuthService> logger) : IAuthService
 {
+    private readonly PasswordResetConfig _passwordResetConfig = passwordResetConfig.Value;
+    
     /// <inheritdoc />
     public async Task ForgotPasswordAsync(ForgotPasswordDtoRequest forgotPasswordDtoRequest, CancellationToken cancellationToken = default)
     {
@@ -17,12 +29,76 @@ public class AuthService(IUserRepository userRepository, IRoleRepository roleRep
 
         var userDto = await userRepository.GetByEmailAsync(forgotPasswordDtoRequest.Email, cancellationToken);
         if (userDto == null)
-        {
-            // Avoid password reset probing.
-            return;
-        }
+            return;  // Avoid password reset probing.
 
-        userDto.PasswordHash = HashHelper.GenerateHash(forgotPasswordDtoRequest.NewPassword);
+        var generateTokenJwtDtoResponse = await cacheHandler.GetOrCreateRecordAsync(
+            userDto.Id, 
+            async () =>
+            {
+                var jti = Guid.NewGuid().ToString("N");
+
+                return await tokenService.GenerateTokenJwtAsync(new()
+                {
+                    Email = userDto.Email,
+                    Ttl = _passwordResetConfig.LifetimeMinutes,
+                    Claims =
+                    [
+                        new Claim("purpose", "password-reset"),
+                        new Claim(JwtRegisteredClaimNames.Jti, jti)
+                    ]
+                }, cancellationToken);
+            }, 
+            new()
+            {
+                AbsoluteExpireTime = TimeSpan.FromMinutes(_passwordResetConfig.LifetimeMinutes)
+            },cancellationToken);
+        
+        var baseUrl = _passwordResetConfig.BaseUrl;
+        var separator = baseUrl.Contains('?') ? "&" : "?";
+        var resetLink = $"{baseUrl.TrimEnd('/')}{separator}token={Uri.EscapeDataString(generateTokenJwtDtoResponse.Token)}";
+
+        try
+        {
+            await emailService.SendAsync(new()
+            {
+                To = userDto.Email,
+                Subject = "Valeting password reset",
+                Body = $"Reset your password using this link: <a href=\"{resetLink}\">{resetLink}</a>"
+            }, cancellationToken);
+        }
+        catch (SmtpException ex)
+        {
+            logger.LogWarning(ex, "Failed to send password reset email.");
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task ResetPasswordAsync(ResetPasswordDtoRequest resetPasswordDtoRequest, CancellationToken cancellationToken = default)
+    {
+        resetPasswordDtoRequest.ValidateRequest(new ResetPasswordValidator());
+        
+        tokenService.ValidateTokenJwt(resetPasswordDtoRequest.Token);
+        
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(resetPasswordDtoRequest.Token);
+        var userIdClaim = jwt.Claims
+            .FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.NameId)?.Value;
+        
+        var userId = Guid.Parse(userIdClaim);
+        
+        var generateTokenJwtDtoResponse = await cacheHandler.GetOrCreateRecordAsync(
+            userId, 
+            () => Task.FromResult<GenerateTokenJwtDtoResponse?>(null),
+            new(),
+            cancellationToken);
+
+        if (generateTokenJwtDtoResponse == null)
+            return;
+        
+        var userDto = await userRepository.GetByIdAsync(userId, cancellationToken);
+        if (userDto == null)
+           return;
+
+        userDto.PasswordHash = HashHelper.GenerateHash(resetPasswordDtoRequest.NewPassword);
         await userRepository.UpdatePasswordAsync(userDto, cancellationToken);
     }
 

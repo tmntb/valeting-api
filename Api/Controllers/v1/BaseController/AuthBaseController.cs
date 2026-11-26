@@ -14,12 +14,12 @@ namespace Api.Controllers.v1.BaseController;
 public abstract class AuthBaseController : ControllerBase
 {
     /// <summary>
-    /// Restore the password for a given user.
+    /// Initiates password recovery for a given user.
     /// </summary>
     /// <param name="forgotPasswordApiRequest">The request containing the user's email.</param>
     /// <response code="200">Indicates that the forgot password process was successfully initiated.</response>
     /// <response code="400">Returned when the request body is invalid or missing required fields.</response>
-    /// <response code="409">Returned when the user mfa or recovery code in the request is invalid.</response>
+    /// <response code="409">Reserved for conflicts; the standard response does not reveal account existence.</response>
     /// <response code="500">Returned when an unexpected error occurs.</response>
     [HttpPost]
     [Route("forgot-password")]
@@ -28,6 +28,21 @@ public abstract class AuthBaseController : ControllerBase
     [ProducesResponseType(statusCode: 409, type: typeof(ErrorApi))]
     [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
     public abstract Task<IActionResult> ForgotPasswordAsync([FromBody] ForgotPasswordApiRequest forgotPasswordApiRequest);
+
+    /// <summary>
+    /// Completes password recovery using a one-time reset token.
+    /// </summary>
+    /// <param name="resetPasswordApiRequest">The reset token and replacement password.</param>
+    /// <response code="204">Indicates that the password process was successfully updated.</response>
+    /// <response code="400">Returned when the request body is invalid or missing required fields.</response>
+    /// <response code="500">Returned when an unexpected error occurs.</response>
+    [HttpPost]
+    [Route("reset-password")]
+    [ProducesResponseType(statusCode: 204)]
+    [ProducesResponseType(statusCode: 400, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 401, type: typeof(ErrorApi))]
+    [ProducesResponseType(statusCode: 500, type: typeof(ErrorApi))]
+    public abstract Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordApiRequest resetPasswordApiRequest);
 
     /// <summary>
     /// Authenticates a user and generates a JWT access token.

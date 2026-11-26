@@ -5,7 +5,6 @@ using Asp.Versioning;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Service.Interfaces;
-using Service.Models.RecoveryCode.Payload;
 using Service.Models.User;
 
 namespace Api.Controllers.v1;

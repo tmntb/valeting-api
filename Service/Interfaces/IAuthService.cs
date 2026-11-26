@@ -9,12 +9,20 @@ namespace Service.Interfaces;
 public interface IAuthService
 {
     /// <summary>
-    /// Restores the password for a user by their email.
+    /// Initiates password recovery for a user by their email.
     /// </summary>
     /// <param name="forgotPasswordDtoRequest">The forgo password payload.</param>
     /// <param name="cancellationToken">The cancellation token that cancel the operation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     Task ForgotPasswordAsync(ForgotPasswordDtoRequest forgotPasswordDtoRequest, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Completes password recovery using a one-time reset token.
+    /// </summary>
+    /// <param name="resetPasswordDtoRequest">The reset token and replacement password.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task ResetPasswordAsync(ResetPasswordDtoRequest resetPasswordDtoRequest, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Registers a new user with the provided username and password.

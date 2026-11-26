@@ -1,6 +1,7 @@
 using System.Net;
 using Api.Context;
 using Api.Controllers.v1;
+using Api.Models.Auth.Payload;
 using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -39,11 +40,11 @@ public class AuthControllerTests
     }
 
     [Fact]
-    public async Task ForgotPassword_ShouldReturnOk_WhenCredentialsAreValid()
+    public async Task ForgotPassword_ShouldReturnOk_WhenEmailIsValid()
     {
         // Arrange
         _mockAuthService
-            .Setup(s => s.ForgotPasswordAsync(It.IsAny<ForgotPasswordDtoRequest>()))
+            .Setup(s => s.ForgotPasswordAsync(It.IsAny<ForgotPasswordDtoRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -51,15 +52,43 @@ public class AuthControllerTests
         (
             new()
             {
-                Email = "test@example.com",
-                MfaCode = "123456",
-                NewPassword = "newPassword"
+                Email = "test@example.com"
             }
         ) as StatusCodeResult;
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
+        _mockAuthService.Verify(service => service.ForgotPasswordAsync(
+            It.Is<ForgotPasswordDtoRequest>(request => request.Email == "test@example.com"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ResetPassword_ShouldThrowArgumentNullException_WhenParamsAreNull()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => _authController.ResetPasswordAsync(null));
+        Assert.Contains(Messages.InvalidRequestBody, exception.Message);
+    }
+
+    [Fact]
+    public async Task ResetPassword_ShouldReturnNoContent_WhenTokenIsValid()
+    {
+        // Arrange
+        _mockAuthService
+            .Setup(service => service.ResetPasswordAsync(It.IsAny<ResetPasswordDtoRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+    
+        // Act
+        var result = await _authController.ResetPasswordAsync(new ResetPasswordApiRequest
+        {
+            Token = "reset-token",
+            NewPassword = "newPassword"
+        });
+
+        // Assert
+        Assert.IsType<NoContentResult>(result);
     }
 
 

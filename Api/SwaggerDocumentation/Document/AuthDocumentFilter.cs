@@ -17,6 +17,11 @@ public class AuthDocumentFilter : IDocumentFilter
     private const string AuthForgotPasswordEndpoint = "/api/v1/auth/forgot-password";
 
     /// <summary>
+    /// Endpoint for completing password reset.
+    /// </summary>
+    private const string AuthResetPasswordEndpoint = "/api/v1/auth/reset-password";
+
+    /// <summary>
     /// Endpoint for login.
     /// </summary>
     private const string AuthLoginEndpoint = "/api/v1/auth/login";
@@ -41,7 +46,10 @@ public class AuthDocumentFilter : IDocumentFilter
         swaggerDoc.Tags.Add(new OpenApiTag() { Name = "Auth", Description = "Auth operations" });
 
         swaggerDoc.ConfigureOperation(AuthForgotPasswordEndpoint, HttpMethod.Post, "post-auth-forgot-password", 
-            "Restores the user password.", "Restores the new **password** set by the user.", false);
+            "Initiates password recovery.", "Sends a password reset link to the **User** when the account exists.", false);
+
+        swaggerDoc.ConfigureOperation(AuthResetPasswordEndpoint, HttpMethod.Post, "post-auth-reset-password",
+            "Completes password recovery.", "Updates the password using a valid one-time **reset token**.", false);
 
         swaggerDoc.ConfigureOperation(AuthLoginEndpoint, HttpMethod.Post, "post-auth-login",
             "Validates user credentials.", "Returns an access token for the **User**.", false);

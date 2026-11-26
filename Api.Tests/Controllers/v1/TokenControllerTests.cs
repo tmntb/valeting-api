@@ -7,8 +7,7 @@ using Common.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Service.Interfaces;
-using Service.Models.Auth.Payload;
-using Service.Models.TokenService.Payload;
+using Service.Models.Token.Payload;
 
 namespace Api.Tests.Controllers.v1;
 
@@ -24,6 +23,7 @@ public class TokenControllerTests
         var valetingApiContext = new ValetingApiContext
         {
             UserId = Guid.Parse("00000000-0000-0000-0000-000000000099"),
+            Email = "test@example.com",
             Role = RoleEnum.USER
         };
 
@@ -44,7 +44,7 @@ public class TokenControllerTests
         // Arrange
         var expiryDate = DateTime.UtcNow;
         _mockTokenService
-            .Setup(s => s.GenerateTokenJwtAsync(It.IsAny<string>()))
+            .Setup(s => s.GenerateTokenJwtAsync(It.IsAny<GenerateTokenJwtDtoRequest>()))
             .ReturnsAsync(
                 new GenerateTokenJwtDtoResponse
                 {
@@ -95,11 +95,11 @@ public class TokenControllerTests
     {
         // Arrange
         _mockTokenService
-            .Setup(s => s.ValidateToken(It.IsAny<string>()))
+            .Setup(s => s.ValidateTokenJwt(It.IsAny<string>()))
             .Verifiable(Times.Once);
 
         _mockTokenService
-            .Setup(s => s.GenerateTokenJwtAsync(It.IsAny<string>()))
+            .Setup(s => s.GenerateTokenJwtAsync(It.IsAny<GenerateTokenJwtDtoRequest>()))
             .ReturnsAsync(
                 new GenerateTokenJwtDtoResponse
                 {

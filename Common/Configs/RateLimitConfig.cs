@@ -1,4 +1,4 @@
-namespace Api.RateLimiting;
+namespace Common.Configs;
 
 public class RateLimitConfig
 {

@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.RateLimiting;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Api.RateLimiting;
 

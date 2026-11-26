@@ -1,5 +1,4 @@
-using Service.Models.Auth.Payload;
-using Service.Models.TokenService.Payload;
+using Service.Models.Token.Payload;
 
 namespace Service.Interfaces;
 
@@ -11,17 +10,17 @@ public interface ITokenService
     /// <summary>
     /// Generates a JWT access token for the specified user.
     /// </summary>
-    /// <param name="email">The email of the user for whom the token is generated.</param>
+    /// <param name="generateTokenJwtDtoRequest">The request information for token generation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a <see cref="GenerateTokenJwtDtoResponse"/> 
     /// with the token, its type, and expiration date.
     /// </returns>
-    Task<GenerateTokenJwtDtoResponse> GenerateTokenJwtAsync(string email, CancellationToken cancellationToken = default);
+    Task<GenerateTokenJwtDtoResponse> GenerateTokenJwtAsync(GenerateTokenJwtDtoRequest generateTokenJwtDtoRequest, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates a JWT token.
     /// </summary>
     /// <param name="token">The JWT token to validate.</param>
-    void ValidateToken(string token);
+    void ValidateTokenJwt(string token);
 }

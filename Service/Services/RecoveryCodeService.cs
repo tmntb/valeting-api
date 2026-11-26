@@ -1,7 +1,6 @@
 using Common.Messages;
 using Service.Helpers;
 using Service.Interfaces;
-using Service.Models.Auth;
 using Service.Models.RecoveryCode;
 using Service.Models.RecoveryCode.Payload;
 using Service.Validators.RecoveryCode;

@@ -3,6 +3,7 @@ using Common.Cache;
 using Common.Cache.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Resend;
 using Service.Interfaces;
 using Service.Services;
 using Service.Validators.Utils;
@@ -29,6 +30,14 @@ public static class ServiceModule
             options.InstanceName = "Valeting_";
         });
         
+        // ReSend
+        services.AddHttpClient<ResendClient>();
+        services.Configure<ResendClientOptions>( o =>
+        {
+            o.ApiToken = configuration["ReSendApiKey"]!;
+        } );
+        services.AddTransient<IResend, ResendClient>();
+        
         services.AddSingleton<ICacheHandler, RedisCacheHandler>();
         
         services.AddScoped<IWebAuthnChallengeStore, WebAuthnChallengeStore>();
@@ -38,6 +47,7 @@ public static class ServiceModule
         // Services
         services
             .AddScoped<IAuthService, AuthService>()
+            .AddScoped<IEmailService, EmailService>()
             .AddScoped<IBookingService, BookingService>()
             .AddScoped<IFlexibilityService, FlexibilityService>()
             .AddScoped<ILinkService, LinkService>()

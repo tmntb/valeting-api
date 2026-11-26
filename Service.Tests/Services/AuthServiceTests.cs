@@ -1,8 +1,18 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Common.Cache;
+using Common.Cache.Interfaces;
+using Common.Configs;
 using Common.Enums;
 using Common.Messages;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Service.Interfaces;
+using Service.Models.Auth.Payload;
+using Service.Models.Email;
 using Service.Models.Role;
+using Service.Models.Token.Payload;
 using Service.Models.User;
 using Service.Services;
 
@@ -14,6 +24,10 @@ public class AuthServiceTests
 
     private readonly Mock<IUserRepository> _mockUserRepository;
     private readonly Mock<IRoleRepository> _mockRoleRepository;
+    private readonly Mock<IEmailService> _mockEmailService;
+    private readonly Mock<ITokenService> _mockTokenService;
+    private readonly Mock<ICacheHandler> _mockCacheHandler;
+    private readonly Mock<ILogger<AuthService>> _mockLogger;
 
     private readonly AuthService _authService;
 
@@ -23,8 +37,25 @@ public class AuthServiceTests
 
         _mockUserRepository = new Mock<IUserRepository>();
         _mockRoleRepository = new Mock<IRoleRepository>();
+        _mockEmailService = new Mock<IEmailService>();
+        _mockTokenService = new Mock<ITokenService>();
+        _mockCacheHandler = new Mock<ICacheHandler>();
+        _mockLogger = new Mock<ILogger<AuthService>>();
 
-        _authService = new AuthService(_mockUserRepository.Object, _mockRoleRepository.Object);
+        var passwordResetOptions = Options.Create(new PasswordResetConfig
+        {
+            BaseUrl = "https://example.com/reset-password",
+            LifetimeMinutes = 15
+        });
+
+        _authService = new AuthService(
+            _mockEmailService.Object,
+            _mockTokenService.Object,
+            _mockUserRepository.Object,
+            _mockRoleRepository.Object,
+            _mockCacheHandler.Object,
+            passwordResetOptions,
+            _mockLogger.Object);
     }
 
     [Fact]
@@ -39,18 +70,17 @@ public class AuthServiceTests
         // Act
         await _authService.ForgotPasswordAsync(new()
         {
-            Email = "user@example.com.pt",
-            MfaCode = "123456",
-            NewPassword = "newpassword123"
+            Email = "user@example.com.pt"
         });
 
         // Assert
         _mockUserRepository.Verify();
-        _mockUserRepository.Verify(r => r.UpdatePasswordAsync(It.IsAny<UserDto>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockEmailService.Verify(service =>
+            service.SendAsync(It.IsAny<EmailDto>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task ForgotPasswordAsync_ShouldUpdatePassword_WhenUserExists()
+    public async Task ForgotPasswordAsync_ShouldSendResetLink_WhenUserExists()
     {
         // Arrange
         _mockUserRepository
@@ -58,22 +88,129 @@ public class AuthServiceTests
             .ReturnsAsync(_userDto)
             .Verifiable(Times.Once);
 
-        _mockUserRepository
-            .Setup(repo => repo.UpdatePasswordAsync(It.IsAny<UserDto>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable(Times.Once);
+        var token = new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken(
+            claims: [new Claim(JwtRegisteredClaimNames.Jti, "reset-jti")]));
+        _mockEmailService
+            .Setup(service => service.SendAsync(It.IsAny<EmailDto>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _mockTokenService
+            .Setup(service => service.GenerateTokenJwtAsync(It.IsAny<GenerateTokenJwtDtoRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GenerateTokenJwtDtoResponse
+            {
+                Token = token,
+                ExpiryDate = DateTime.UtcNow.AddMinutes(15)
+            });
+        _mockCacheHandler
+            .Setup(handler => handler.GetOrCreateRecordAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Func<Task<GenerateTokenJwtDtoResponse>>>(),
+                It.IsAny<CacheOptions>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<Guid, Func<Task<GenerateTokenJwtDtoResponse>>, CacheOptions, CancellationToken>(
+                async (_, factory, _, _) => await factory());
 
         // Act
         await _authService.ForgotPasswordAsync(new()
         {
-            Email = "user@example.com.pt",
-            MfaCode = "123456",
-            NewPassword = "newpassword123"
+            Email = "user@example.com.pt"
         });
 
         // Assert
         _mockUserRepository.Verify();
-        _mockUserRepository.Verify(r => r.UpdatePasswordAsync(It.IsAny<UserDto>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockEmailService.Verify(service =>
+            service.SendAsync(It.Is<EmailDto>(email =>
+                email.To == _userDto.Email &&
+                email.Body.Contains("https://example.com/reset-password")), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ResetPasswordAsync_ShouldThrowUnauthorized_WhenTokenIsInvalid()
+    {
+        // Arrange
+        _mockTokenService
+            .Setup(service => service.ValidateTokenJwt("invalid-token"))
+            .Throws(new UnauthorizedAccessException(Messages.InvalidToken));
+        
+        // Act & Assert
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+            _authService.ResetPasswordAsync(new ResetPasswordDtoRequest
+            {
+                Token = "invalid-token",
+                NewPassword = "newpassword123"
+            }));
+
+        _mockUserRepository.Verify(repo =>
+            repo.UpdatePasswordAsync(It.IsAny<UserDto>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ResetPasswordAsync_ShouldThrowUnauthorized_WhenTokenWasAlreadyConsumed()
+    {
+        // Arrange
+        var token = CreatePasswordResetToken(_userDto.Id);
+        _mockCacheHandler
+            .Setup(handler => handler.GetOrCreateRecordAsync<Guid, GenerateTokenJwtDtoResponse?>(
+                _userDto.Id,
+                It.IsAny<Func<Task<GenerateTokenJwtDtoResponse?>>>(),
+                It.IsAny<CacheOptions>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GenerateTokenJwtDtoResponse?)null);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+            _authService.ResetPasswordAsync(new ResetPasswordDtoRequest
+            {
+                Token = token,
+                NewPassword = "newpassword123"
+            }));
+
+        _mockUserRepository.Verify(repo =>
+            repo.UpdatePasswordAsync(It.IsAny<UserDto>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ResetPasswordAsync_ShouldUpdatePassword_WhenTokenAndUserAreValid()
+    {
+        // Arrange
+        Guid userId = _userDto.Id;
+        var originalHash = _userDto.PasswordHash;
+        var token = CreatePasswordResetToken(userId);
+
+        _mockUserRepository
+            .Setup(repo => repo.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(_userDto)
+            .Verifiable(Times.Once);
+        
+        _mockUserRepository
+            .Setup(repo => repo.UpdatePasswordAsync(It.IsAny<UserDto>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
+        
+        _mockCacheHandler
+            .Setup(handler => handler.GetOrCreateRecordAsync<Guid, GenerateTokenJwtDtoResponse?>(
+                userId,
+                It.IsAny<Func<Task<GenerateTokenJwtDtoResponse?>>>(),
+                It.IsAny<CacheOptions>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GenerateTokenJwtDtoResponse
+            {
+                Token = token,
+                ExpiryDate = DateTime.UtcNow.AddMinutes(15)
+            })
+            .Verifiable(Times.Once);
+    
+        // Act
+        await _authService.ResetPasswordAsync(new ResetPasswordDtoRequest
+        {
+            Token = token,
+            NewPassword = "newpassword123"
+        });
+        
+        // Assert
+        _mockUserRepository.Verify();
+        _mockCacheHandler.Verify();
     }
 
     [Fact]
@@ -184,5 +321,17 @@ public class AuthServiceTests
 
         // Assert
         _mockUserRepository.Verify();
+    }
+    
+    private static string CreatePasswordResetToken(Guid userId)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        return handler.WriteToken(new JwtSecurityToken(
+            claims:
+            [
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim("purpose", "password-reset"),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N"))
+            ]));
     }
 }

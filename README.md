@@ -116,6 +116,9 @@ Alternatively, you can create a .env file with:
 ```env
 SA_PASSWORD=MySecretPassword
 JWT_KEY=MyJwtKey
+RESEND_API_KEY=re_YourKey
+PASSWORD_RESET_BASE_URL=https://app.example.com/reset-password
+PASSWORD_RESET_LIFETIME_MINUTES=15
 PK_RPID=example.com
 PK_RPNAME=Valeting
 PK_ORIGIN=https://app.example.com

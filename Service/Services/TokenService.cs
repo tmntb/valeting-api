@@ -5,33 +5,43 @@ using Common.Messages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Service.Interfaces;
-using Service.Models.Auth.Payload;
-using Service.Models.TokenService.Payload;
+using Service.Models.Token.Payload;
+using Service.Validators.Token;
+using Service.Validators.Utils;
 
 namespace Service.Services;
 
 public class TokenService(IUserRepository userRepository, IConfiguration configuration) : ITokenService
 {
      /// <inheritdoc />
-    public async Task<GenerateTokenJwtDtoResponse> GenerateTokenJwtAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<GenerateTokenJwtDtoResponse> GenerateTokenJwtAsync(GenerateTokenJwtDtoRequest generateTokenJwtDtoRequest, CancellationToken cancellationToken = default)
     {
-        var userDto = await userRepository.GetByEmailAsync(email, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
+        generateTokenJwtDtoRequest.ValidateRequest(new GenerateTokenJwtValidator());
+        
+        var userDto = await userRepository.GetByEmailAsync(generateTokenJwtDtoRequest.Email, cancellationToken) ?? throw new KeyNotFoundException(Messages.NotFound);
 
         var (issuer, audience) = GetJwtSettings();
 
         var securityKey = GetSecurityKey();
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
+            new(ClaimTypes.Name, $"{userDto.FirstName} {userDto.LastName}"),
+            new(ClaimTypes.Email, userDto.Email),
+            new(ClaimTypes.Role, userDto.Role.Code.ToString())
+        };
+        
+        if (generateTokenJwtDtoRequest.Claims != null)
+        {
+            claims.AddRange(generateTokenJwtDtoRequest.Claims);
+        }
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(
-            [
-                new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
-                new Claim(ClaimTypes.Name, $"{userDto.FirstName} {userDto.LastName}"),
-                new Claim(ClaimTypes.Email, userDto.Email),
-                new Claim(ClaimTypes.Role, userDto.Role.Code.ToString())
-            ]),
-            Expires = DateTime.UtcNow.AddMinutes(60),
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddMinutes(generateTokenJwtDtoRequest.Ttl),
             Issuer = issuer,
             Audience = audience,
             SigningCredentials = credentials
@@ -50,7 +60,7 @@ public class TokenService(IUserRepository userRepository, IConfiguration configu
     }
 
     /// <inheritdoc />
-    public void ValidateToken(string token)
+    public void ValidateTokenJwt(string token)
     {
         var (issuer, audience) = GetJwtSettings();
         var securityKey = GetSecurityKey();

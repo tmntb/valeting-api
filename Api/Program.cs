@@ -10,6 +10,7 @@ using Api.RateLimiting;
 using Api.SwaggerDocumentation;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using Common.Configs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Repository;
@@ -29,11 +30,15 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 // Apply overrides from environment variables (if present)
-EnvironmentConfiguration.ConfigureConnectionString(builder.Configuration);
+EnvironmentConfiguration.ConfigureDatabase(builder.Configuration);
 EnvironmentConfiguration.ConfigureRedis(builder.Configuration);
-EnvironmentConfiguration.ConfigureJwtKey(builder.Configuration);
-EnvironmentConfiguration.ConfigureWebAuthnSettings(builder.Configuration);
+EnvironmentConfiguration.ConfigureJwt(builder.Configuration);
 EnvironmentConfiguration.ConfigureRateLimiting(builder.Configuration);
+EnvironmentConfiguration.ConfigureReSend(builder.Configuration);
+EnvironmentConfiguration.ConfigurePasswordReset(builder.Configuration);
+EnvironmentConfiguration.ConfigureWebAuthn(builder.Configuration);
+
+builder.Services.Configure<PasswordResetConfig>(builder.Configuration.GetSection("PasswordReset"));
 
 var rateLimitConfig = JsonSerializer.Deserialize<RateLimitConfig>(builder.Configuration["RateLimiting"], new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 builder.Services.AddOptions<RateLimitConfig>().Configure(options => options.Login = rateLimitConfig.Login);

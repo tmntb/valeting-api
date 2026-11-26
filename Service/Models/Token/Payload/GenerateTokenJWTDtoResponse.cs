@@ -1,6 +1,6 @@
 ﻿using Common.Enums;
 
-namespace Service.Models.TokenService.Payload;
+namespace Service.Models.Token.Payload;
 
 /// <summary>
 /// Represents the response returned when a JWT token is generated.

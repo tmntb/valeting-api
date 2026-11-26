@@ -1,4 +1,3 @@
-using Service.Models.Auth;
 using Service.Models.RecoveryCode;
 
 namespace Service.Interfaces;

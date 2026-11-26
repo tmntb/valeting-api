@@ -1,5 +1,4 @@
-﻿using Service.Models.Auth;
-using Service.Models.RecoveryCode;
+﻿using Service.Models.RecoveryCode;
 using Service.Models.Role;
 
 namespace Service.Models.User;

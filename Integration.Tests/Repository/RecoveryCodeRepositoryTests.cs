@@ -1,5 +1,4 @@
 using Repository.Repositories;
-using Service.Models.Auth;
 using Service.Models.RecoveryCode;
 
 namespace Integration.Tests.Repository;

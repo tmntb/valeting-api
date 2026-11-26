@@ -19,13 +19,24 @@ public class AuthController(IAuthService authService) : AuthBaseController
 
         await authService.ForgotPasswordAsync(new()
         {
-            Email = forgotPasswordApiRequest.Email,
-            MfaCode = forgotPasswordApiRequest.MfaCode,
-            RecoveryCode = forgotPasswordApiRequest.RecoveryCode,
-            NewPassword = forgotPasswordApiRequest.NewPassword
+            Email = forgotPasswordApiRequest.Email
         });
 
         return Ok();
+    }
+
+    /// <inheritdoc />
+    public override async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordApiRequest resetPasswordApiRequest)
+    {
+        ArgumentNullException.ThrowIfNull(resetPasswordApiRequest, Messages.InvalidRequestBody);
+
+        await authService.ResetPasswordAsync(new()
+        {
+            Token = resetPasswordApiRequest.Token,
+            NewPassword = resetPasswordApiRequest.NewPassword
+        });
+
+        return NoContent();
     }
 
     /// <inheritdoc />

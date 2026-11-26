@@ -18,7 +18,11 @@ public class TokenController(ValetingApiContext valetingApiContext, ITokenServic
     {
         ArgumentNullException.ThrowIfNull(generateJwtTokenApiRequest, Messages.InvalidRequestBody);
         
-        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJwtAsync(generateJwtTokenApiRequest.Email);
+        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJwtAsync(
+            new()
+            {
+                Email = generateJwtTokenApiRequest.Email
+            });
 
         var jwtTokenApiResponse = new JwtTokenApiResponse
         {
@@ -36,8 +40,12 @@ public class TokenController(ValetingApiContext valetingApiContext, ITokenServic
         ArgumentNullException.ThrowIfNull(refreshJwtTokenApiRequest, Messages.InvalidRequestBody);
         ArgumentException.ThrowIfNullOrEmpty(refreshJwtTokenApiRequest.Token, Messages.InvalidRequestBody);
 
-        tokenService.ValidateToken(refreshJwtTokenApiRequest.Token);
-        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJwtAsync(valetingApiContext.Email);
+        tokenService.ValidateTokenJwt(refreshJwtTokenApiRequest.Token);
+        var generateTokenJwtDtoResponse = await tokenService.GenerateTokenJwtAsync(
+            new()
+            {
+                Email = valetingApiContext.Email
+            });
 
         var jwtTokenApiResponse = new JwtTokenApiResponse
         {

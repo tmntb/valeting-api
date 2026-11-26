@@ -1,5 +1,4 @@
 using Common.Enums;
-using Service.Models.Auth;
 using Service.Models.Booking;
 using Service.Models.Flexibility;
 using Service.Models.RecoveryCode;

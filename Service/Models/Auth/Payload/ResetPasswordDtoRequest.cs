@@ -1,0 +1,17 @@
+namespace Service.Models.Auth.Payload;
+
+/// <summary>
+/// Contains the reset token and new password.
+/// </summary>
+public class ResetPasswordDtoRequest
+{
+    /// <summary>
+    /// One-time password reset JWT.
+    /// </summary>
+    public string Token { get; set; }
+
+    /// <summary>
+    /// Replacement password.
+    /// </summary>
+    public string NewPassword { get; set; }
+}

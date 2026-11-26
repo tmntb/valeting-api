@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.RateLimiting;
-using System.Threading.RateLimiting;
+﻿using System.Threading.RateLimiting;
 using Common.Cache;
 using Common.Cache.Interfaces;
+using Common.Configs;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
 namespace Api.RateLimiting;
